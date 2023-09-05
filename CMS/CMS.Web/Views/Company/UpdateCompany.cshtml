@@ -1,0 +1,56 @@
+﻿@model CMS.Application.DTOs.CompanyDTO
+
+<h1>Edit Company</h1>
+
+<form asp-action="UpdateCompany">
+    <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+    <div class="form-group"><input type="hidden" asp-for="Id" /></div>
+    <div class="form-group">
+        <label asp-for="Name" class="control-label"></label>
+        <input asp-for="Name" class="form-control" />
+        <span asp-validation-for="Name" class="text-danger"></span>
+    </div>
+
+    <div class="form-group">
+        <label asp-for="Email" class="control-label"></label>
+        <input asp-for="Email" class="form-control" />
+        <span asp-validation-for="Email" class="text-danger"></span>
+    </div>
+    <div class="form-group">
+        <label asp-for="Address" class="control-label"></label>
+        <input asp-for="Address" class="form-control" />
+        <span asp-validation-for="Address" class="text-danger"></span>
+    </div>
+    <div class="form-group">
+        <label asp-for="PhoneNumber" class="control-label"></label>
+        <input asp-for="PhoneNumber" class="form-control" />
+        <span asp-validation-for="PhoneNumber" class="text-danger"></span>
+    </div>
+    <div class="form-group">
+        <label asp-for="CountryId" class="control-label">Country</label>
+        @if (ViewBag.CountriesDTOs != null)
+        {
+            <select asp-for="CountryId" class="form-control">
+            <option value="">Select a country</option> 
+            @foreach (var country in ViewBag.CountriesDTOs)
+            {
+                <option value="@country.Value" selected="@(country.Value == Model.CountryId.ToString())">@country.Text</option>
+            }
+        </select>
+        }
+        else
+        {
+            <p>No countries available.</p>
+        }
+        <span asp-validation-for="CountryId" class="text-danger"></span>
+
+    </div>
+    <div class="form-group">
+        <input type="submit" class="btn btn-primary" value="Save" />
+    </div>
+
+</form>
+
+<p>
+    <a asp-action="GetCompanies"> back to list</a>
+</p>

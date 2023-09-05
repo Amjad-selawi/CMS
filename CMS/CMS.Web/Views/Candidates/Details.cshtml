@@ -1,0 +1,36 @@
+﻿@model CMS.Application.DTOs.CandidateDTO
+<h2>Candidate Details</h2>
+
+<dl class="row">
+    <dt class="col-sm-2">Full Name:</dt>
+    <dd class="col-sm-10">@Html.DisplayFor(model => model.FullName)</dd>
+
+    
+    <dt class="col-sm-2">Phone:</dt>
+    <dd class="col-sm-10">@Html.DisplayFor(model => model.Phone)</dd>
+
+    <dt class="col-sm-2">DesiredPosition:</dt>
+    <dd class="col-sm-10">@Html.DisplayFor(model => model.DesiredPosition)</dd>
+
+    <dt class="col-sm-2">Email:</dt>
+    <dd class="col-sm-10">@Html.DisplayFor(model => model.Email)</dd>
+
+    <dt class="col-sm-2">Address:</dt>
+    <dd class="col-sm-10">@Html.DisplayFor(model => model.Address)</dd>
+
+    <dt class="col-sm-2">Experience:</dt>
+    <dd class="col-sm-10">@Html.DisplayFor(model => model.Experience)</dd>
+
+    <dt class="col-sm-2">LinkedInUrl:</dt>
+    <dd class="col-sm-10">@Html.DisplayFor(model => model.LinkedInUrl)</dd>
+
+    <dt class="col-sm-2">CVAttachmentId:</dt>
+    <dd class="col-sm-10">@Html.DisplayFor(model => model.CVAttachmentId)</dd>
+
+    <!-- Add more details here as needed -->
+</dl>
+
+<p>
+    @Html.ActionLink("Edit", "Edit", new { id = Model.Id }) |
+    @Html.ActionLink("Back to List", "Index")
+</p>

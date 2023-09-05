@@ -1,0 +1,63 @@
+﻿@model CMS.Application.DTOs.CandidateDTO
+
+<h2>Edit Candidate</h2>
+
+<form asp-action="Edit" asp-route-id="@Model.Id">
+    <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+    <div class="form-group">
+        <label asp-for="FullName" class="control-label"></label>
+        <input asp-for="FullName" class="form-control" />
+        <span asp-validation-for="FullName" class="text-danger"></span>
+    </div>
+    <div class="form-group">
+        <label asp-for="Phone" class="control-label"></label>
+        <input asp-for="Phone" class="form-control" />
+        <span asp-validation-for="Phone" class="text-danger"></span>
+    </div>
+    <div class="form-group">
+        <label asp-for="DesiredPosition" class="control-label"></label>
+        <input asp-for="DesiredPosition" class="form-control" />
+        <span asp-validation-for="DesiredPosition" class="text-danger"></span>
+    </div>
+    <div class="form-group">
+        <label asp-for="Email" class="control-label"></label>
+        <input asp-for="Email" class="form-control" />
+        <span asp-validation-for="Email" class="text-danger"></span>
+    </div>
+    <div class="form-group">
+        <label asp-for="Address" class="control-label"></label>
+        <input asp-for="Address" class="form-control" />
+        <span asp-validation-for="Address" class="text-danger"></span>
+    </div>
+    <div class="form-group">
+        <label asp-for="Experience" class="control-label"></label>
+        <input asp-for="Experience" class="form-control" />
+        <span asp-validation-for="Experience" class="text-danger"></span>
+    </div>
+    <div class="form-group">
+        <label asp-for="LinkedInUrl" class="control-label"></label>
+        <input asp-for="LinkedInUrl" class="form-control" />
+        <span asp-validation-for="LinkedInUrl" class="text-danger"></span>
+    </div>
+    <div class="form-group">
+        <input asp-for="CVAttachmentId" class="form-control"  hidden />
+    </div>
+    <!-- Add other fields similarly -->
+    <div class="form-group">
+        <input type="submit" value="Save" class="btn btn-primary" />
+    </div>
+</form>
+<form asp-action="UpdateAttachment" asp-route-id="@Model.Id" enctype="multipart/form-data">
+    <div class="form-group">
+        <label for="file">Upload CV:</label>
+        <input type="file" id="file" name="file" class="form-control-file" />
+    </div>
+    <!-- Add other fields similarly -->
+    <div class="form-group">
+        <input type="submit" value="upload" class="btn btn-primary" />
+    </div>
+</form>
+
+<div>
+    <a asp-action="Index">Back to List</a>
+</div>

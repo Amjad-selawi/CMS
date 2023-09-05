@@ -1,0 +1,43 @@
+﻿@model List<CMS.Application.DTOs.CompanyDTO>
+
+<h1>Companies</h1>
+<p><a asp-action="AddCompany">add a new company</a></p>
+
+<table class="table">
+    <thead>
+        <tr>
+            <th>ID</th>
+            <th>Company Name</th>
+            <th>Address</th>
+            <th>Email</th>
+            <th>Phone number</th>
+            <th>Country</th>
+            <th>Delete company</th>
+            
+        </tr>
+    </thead>
+    <tbody>
+        @foreach(var company in Model)
+        {
+            <tr>
+               <td>@company.Id</td>
+                <td>@company.Name</td>
+                <td>@company.Address</td>
+                <td>@company.Email</td>
+                <td>@company.PhoneNumber</td>
+                <td>@company.CountryName</td>
+             
+                <td>
+                     <form method="post" asp-action="DeleteCompany">
+                        <input type="hidden" name="id" value="@company.Id"/>
+                        <button type="submit" class="btn btn-danger">Delete</button>
+                     </form>
+                </td>
+                <td>
+                    <a asp-action="UpdateCompany" asp-route-id="@company.Id">Edit</a>
+                </td>
+            </tr>
+        }
+
+    </tbody>
+</table>
