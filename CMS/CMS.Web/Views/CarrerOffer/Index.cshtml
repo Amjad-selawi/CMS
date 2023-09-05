@@ -1,0 +1,40 @@
+﻿
+@model IEnumerable<CMS.Application.DTOs.CarrerOfferDTO>
+
+<h2>Carrer Offers</h2>
+
+<p>
+    <a asp-action="Create">Create New</a>
+</p>
+
+<table class="table">
+    <thead>
+        <tr>
+            <th>ID</th>
+            <th>Position</th>
+            <th>Years of Experience</th>
+            <th>Description</th>
+            <th>Created By</th>
+            <th>Created on</th>
+            <th>Actions</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model)
+        {
+            <tr>
+                <td>@item.Id</td>
+                <td>@item.Position</td>
+                <td>@item.YearsOfExperience</td>
+                <td>@item.LongDescription</td>
+                <td>@item.CreatedBy</td>
+                <td>@item.CreatedDateTime</td>
+                <td>
+                    <a asp-action="Edit" asp-route-id="@item.Id">Edit</a> |
+                    <a asp-action="Details" asp-route-id="@item.Id">Details</a> |
+                    <a asp-action="Delete" asp-route-id="@item.Id">Delete</a>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>

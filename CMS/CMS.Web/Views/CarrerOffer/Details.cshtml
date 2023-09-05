@@ -1,0 +1,32 @@
+﻿@model CMS.Application.DTOs.CarrerOfferDTO
+
+<h2>Career Offer Details</h2>
+
+<div>
+    <dl>
+        <dt>Position:</dt>
+        <dd>@Model.Position</dd>
+    </dl>
+    <dl>
+        <dt>Years of Experience:</dt>
+        <dd>@Model.YearsOfExperience</dd>
+    </dl>
+    <dl>
+        <dt>Long Description:</dt>
+        <dd>@Model.LongDescription</dd>
+    </dl>
+    <dl>
+        <dt>Created By:</dt>
+        <dd>@Model.CreatedBy</dd>
+    </dl>
+    <dl>
+        <dt>Created Date:</dt>
+        <dd>@Model.CreatedDateTime.ToString("yyyy-MM-dd HH:mm:ss")</dd>
+    </dl>
+</div>
+
+
+<p>
+    @Html.ActionLink("Edit", "Edit", new { id = Model.Id }) |
+    @Html.ActionLink("Back to List", "Index")
+</p>

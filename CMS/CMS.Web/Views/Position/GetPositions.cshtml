@@ -1,0 +1,35 @@
+﻿@model List<CMS.Application.DTOs.PositionDTO>
+
+<h1>Positions</h1>
+<p><a asp-action="AddPosition">add a new position</a></p>
+<table class="table">
+    <thead>
+        <tr>
+            <th>ID</th>
+            <th>position Name</th>
+           
+            <th>Delete position</th>
+            
+        </tr>
+    </thead>
+    <tbody>
+        @foreach(var pos in Model)
+        {
+            <tr>
+               <td>@pos.Id</td>
+                <td>@pos.Name</td>
+               
+                <td>
+                    <form method="post" asp-action="DeletePosition">
+                        <input type="hidden" name="id" value="@pos.Id"/>
+                        <button type="submit" class="btn btn-danger">Delete</button>
+                     </form>
+                </td>
+                <td>
+                    <a asp-action="UpdatePosition" asp-route-id="@pos.Id">Edit</a>
+                </td>
+            </tr>
+        }
+
+    </tbody>
+</table>

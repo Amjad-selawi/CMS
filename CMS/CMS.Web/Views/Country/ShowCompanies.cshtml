@@ -1,0 +1,19 @@
+﻿@model CMS.Application.DTOs.CountryDTO
+<h3>List of companies</h3>
+<table class="table">
+    <thead>
+      <tr>
+          <th>Name</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach(var com in Model.companyDTOs)
+        {
+            <tr><td>@com.Name</td></tr>
+        }
+    </tbody>
+
+</table>
+<p>
+    <a asp-action="GetCountries"> back to list</a>
+</p>
