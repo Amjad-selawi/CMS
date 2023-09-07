@@ -19,6 +19,9 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
+using CMS.Application.DTOs;
+using Microsoft.AspNetCore.Mvc.ViewEngines;
+using System.Security.Principal;
 
 namespace CMS.Web
 {
@@ -43,6 +46,8 @@ namespace CMS.Web
                 options.UseSqlServer(Configuration.GetConnectionString("Defultconiction"));
             });
 
+            services.AddScoped(typeof(IUserRepository), typeof(UserRepository));
+            services.AddTransient<IAccountService, AccountService>();
 
             services.AddScoped(typeof(ICompanyRepository), typeof(CompanyRepository));
             services.AddTransient<ICompanyService, CompanyService>();
@@ -60,17 +65,12 @@ namespace CMS.Web
 
             services.AddScoped(typeof(ICarrerOfferRepository), typeof(CarrerOfferRepository));
             services.AddScoped<ICarrerOfferService, CarrerOfferService>();
+
             services.AddScoped(typeof(ICandidateRepository), typeof(CandidateRepository));
             services.AddScoped<ICandidateService, CandidateService>();
 
             services.AddScoped(typeof(IAttachmentRepository), typeof(AttachmentRepository));
             services.AddScoped<IAttachmentService, AttachmentService>();
-
-
-
-
-
-
 
 
 
@@ -89,7 +89,7 @@ namespace CMS.Web
 
             services.AddDbContext<ApplicationDbContext>(x =>
             {
-                x.UseSqlServer(Configuration.GetConnectionString("SqlCon"));
+                x.UseSqlServer(Configuration.GetConnectionString("Defultconiction"));
             });
 
             services.AddDefaultIdentity<IdentityUser>().AddDefaultTokenProviders().AddRoles<IdentityRole>()
@@ -97,7 +97,20 @@ namespace CMS.Web
 
 
 
+            services.ConfigureApplicationCookie(options =>
+            {
+                options.LoginPath = "/Account/Login";
+            });
+            services.Configure<IdentityOptions>(x =>
+            {
 
+                x.Password.RequireDigit = false;
+                x.Password.RequiredLength = 5;
+                x.Password.RequireNonAlphanumeric = false;
+                x.Password.RequireLowercase = false;
+                x.Password.RequireUppercase = false;
+
+            });
 
         }
 

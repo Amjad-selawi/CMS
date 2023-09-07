@@ -14,12 +14,18 @@ namespace CMS.Application.DTOs
         
         public DateTime Date { get; set; }
 
-        public int CandidateId { get; set; }
-
         public int ParentId { get; set; }
 
         public string Status { get; set; }
 
         public string Notes { get; set; }
+
+        public int InterviewerId { get; set; }
+
+        public CandidateDTO candidateDTO { get; set; }
+        public string FullName{ get; set; }
+
+        public PositionDTO positionDTO { get; set; }
+        public string Name { get; set; }
     }
 }

@@ -11,5 +11,7 @@ namespace CMS.Domain.Entities
 
         [Required]
         public string Name { get; set; }
+
+        public virtual ICollection<Interviews> Interviews { get; set; }
     }
 }

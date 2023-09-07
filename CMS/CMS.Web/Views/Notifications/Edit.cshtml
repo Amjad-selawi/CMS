@@ -23,8 +23,8 @@
 
 
     <div class="form-group">
-        <label asp-for="templatesDTO.TemplatesId" class="control-label">Template</label>
-        @Html.DropDownListFor(model => model.templatesDTO.TemplatesId, (SelectList)ViewBag.templetList, "Select a Template", new { @class = "form-control" })
+        <label asp-for="templatesDTO.TemplatesId" class="control-label">Title</label>
+        @Html.DropDownListFor(model => model.templatesDTO.TemplatesId, (SelectList)ViewBag.templetList, "Select a Title", new { @class = "form-control" })
         <span asp-validation-for="templatesDTO.TemplatesId" class="text-danger"></span>
     </div>
 

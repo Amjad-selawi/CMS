@@ -14,11 +14,14 @@ namespace CMS.Services.Services
     public class InterviewsService : IInterviewsService
     {
        private readonly  IInterviewsRepository _interviewsRepository;
+        private readonly ICandidateService _candidateService;
+        private readonly IPositionService _positionService;
 
-        public InterviewsService(IInterviewsRepository interviewsRepository)
+        public InterviewsService(IInterviewsRepository interviewsRepository,ICandidateService candidateService,IPositionService positionService)
         {
             _interviewsRepository = interviewsRepository;
-            
+            _candidateService = candidateService;
+            _positionService = positionService;
         }
 
         public async Task<IEnumerable<InterviewsDTO>> GetAllInterviewsAsync()
@@ -30,9 +33,20 @@ namespace CMS.Services.Services
                 Score = i.Score,
                 Date = i.Date,
                 ParentId = i.ParentId,
-                CandidateId = i.CandidateId,
+                InterviewerId=i.InterviewerId,
                 Notes=i.Notes,
                 Status =i.Status.ToString(),
+                candidateDTO = new CandidateDTO
+                {
+                    Id = i.CandidateId,
+                    FullName = _candidateService.GetCandidateByIdAsync(i.CandidateId).Result?.FullName
+                },
+                positionDTO = new PositionDTO
+                {
+                    Id = i.PositionId,
+                    Name = _positionService.GetById(i.PositionId).Result?.Name
+                }
+
             });
         }
 
@@ -42,14 +56,34 @@ namespace CMS.Services.Services
             if (interview == null)
                 return null;
 
+            var candidateDTO = new CandidateDTO
+            {
+                Id = interview.CandidateId,
+                FullName = _candidateService.GetCandidateByIdAsync(interview.InterviewsId).Result?.FullName,
+            };
+
+            var positionDTO = new PositionDTO
+            {
+                Id = interview.PositionId,
+                Name = _positionService.GetById(interview.InterviewsId).Result?.Name,
+
+            };
+
             return new InterviewsDTO
             {
                 InterviewsId = interview.InterviewsId,
                 Score = interview.Score,
                 Date = interview.Date,
                 ParentId = interview.ParentId,
-                CandidateId = interview.CandidateId,
+                InterviewerId = interview.InterviewerId,
                 Notes = interview.Notes,
+
+                candidateDTO = candidateDTO,
+                positionDTO = positionDTO,
+
+                FullName = candidateDTO.FullName,
+                Name=positionDTO.Name,
+
                 Status = interview.Status.ToString(),
             };
         }
@@ -63,9 +97,12 @@ namespace CMS.Services.Services
                     Score = entity.Score,
                     Date = entity.Date,
                     ParentId = entity.ParentId,
-                    CandidateId = entity.CandidateId,
+                    InterviewerId = entity.InterviewerId,
                     Notes = entity.Notes,
-                    Status = status
+                    Status = status,
+
+                    CandidateId=entity.candidateDTO.Id,
+                    PositionId=entity.positionDTO.Id,
                 };
                 await _interviewsRepository.Create(interview);
             }
@@ -85,8 +122,10 @@ namespace CMS.Services.Services
             existingInterview.Score = entity.Score;
             existingInterview.Date = entity.Date;
             existingInterview.ParentId = entity.ParentId;
-            existingInterview.CandidateId = entity.CandidateId;
+            existingInterview.InterviewerId = entity.InterviewerId;
             existingInterview.Notes = entity.Notes;
+            existingInterview.CandidateId = entity.candidateDTO.Id;
+            existingInterview.PositionId = entity.positionDTO.Id;
             existingInterview.Status = status;
 
             await _interviewsRepository.Update(existingInterview);

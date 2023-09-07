@@ -32,5 +32,7 @@ namespace CMS.Domain.Entities
         public int CVAttachmentId { get; set; } 
         public string LinkedInUrl { get; set; }
         public virtual Attachment CV { get; set; }
+
+        public virtual ICollection<Interviews> Interviews { get; set; }
     }
 }

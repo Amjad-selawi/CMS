@@ -18,7 +18,14 @@ namespace CMS.Domain.Entities
         public InterviewStatus Status { get; set; }
  
         public int CandidateId { get; set; }
-        //public Candidates Candidate { get; set; }
+        public Candidate Candidate { get; set; }
+
+        public int PositionId { get; set; }
+        public Position Position { get; set; }
+
+
+        public int InterviewerId { get; set; }
+        //public Interviewers Interviewer { get; set; }
 
 
         public int ParentId { get; set; }

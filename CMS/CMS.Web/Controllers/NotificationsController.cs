@@ -35,6 +35,11 @@ namespace CMS.Web.Controllers
         public async Task<ActionResult> Details(int id)
         {
             var notifications = await _notificationsService.GetNotificationByIdAsync(id);
+
+            var templets = await _templatesService.GetAllTemplatesAsync();
+            ViewBag.templetList = new SelectList(templets, "TemplatesId", "Title", notifications.NotificationsId);
+
+
             return View(notifications);
         }
 

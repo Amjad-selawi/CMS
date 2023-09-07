@@ -10,9 +10,9 @@ namespace CMS.Services.Interfaces
     public interface IPositionService
     {
         Task<Result<PositionDTO>> Insert(PositionDTO data);
-        Task<Result<List<PositionDTO>>> GetAll();
+        Task<IEnumerable<PositionDTO>> GetAll();
         Task<Result<PositionDTO>> Delete(int id);
-        Task<Result<PositionDTO>> GetById(int id);
+        Task<PositionDTO> GetById(int id);
         Task<Result<PositionDTO>> Update(PositionDTO data);
     }
 }
