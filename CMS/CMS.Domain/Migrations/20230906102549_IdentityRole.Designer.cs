@@ -4,14 +4,16 @@ using CMS.Domain;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 namespace CMS.Domain.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20230906102549_IdentityRole")]
+    partial class IdentityRole
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -215,10 +217,6 @@ namespace CMS.Domain.Migrations
                         .HasColumnType("int");
 
                     b.HasKey("InterviewsId");
-
-                    b.HasIndex("CandidateId");
-
-                    b.HasIndex("PositionId");
 
                     b.ToTable("Interviews");
                 });
@@ -543,21 +541,6 @@ namespace CMS.Domain.Migrations
                     b.HasOne("CMS.Domain.Entities.Country", "Country")
                         .WithMany("Companies")
                         .HasForeignKey("CountryId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-                });
-
-            modelBuilder.Entity("CMS.Domain.Entities.Interviews", b =>
-                {
-                    b.HasOne("CMS.Domain.Entities.Candidate", "Candidate")
-                        .WithMany("Interviews")
-                        .HasForeignKey("CandidateId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("CMS.Domain.Entities.Position", "Position")
-                        .WithMany("Interviews")
-                        .HasForeignKey("PositionId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
                 });

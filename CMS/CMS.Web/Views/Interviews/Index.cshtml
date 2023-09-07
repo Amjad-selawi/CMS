@@ -9,21 +9,23 @@
 <table class="datatable">
     <thead>
         <tr>
-        
+
+            <th>
+                Candidate Name
+            </th>
+            <th>Position</th>
+            <th>InterviewerId</th>
+            <th>
+                Date
+            </th>
+            <th hidden>
+                Parent ID
+            </th>
+
             <th>
                 Score
             </th>
             <th>
-                Date
-            </th>
-            <th>
-                Parent ID
-            </th>
-            <th>
-                Candidate ID
-            </th>
-            
-             <th>
                 Status
             </th>
             <th>Notes</th>
@@ -34,22 +36,28 @@
         @foreach (var item in Model)
         {
             <tr>
+
+                <td>
+                    @item.FullName
+                </td>
+                <td>@item.Name</td>
+
+                <td>@item.InterviewerId</td>
+                <td>
+                    @item.Date
+                </td>
+                <td hidden>
+                    @item.ParentId
+                </td>
+
+
                 <td>
                     @item.Score
                 </td>
                 <td>
-                    @item.Date
-                </td>
-                <td>
-                    @item.ParentId
-                </td>
-                <td>
-                    @item.CandidateId
-                </td>
-                
-                <td>
                     @item.Status
                 </td>
+
                 <td>@item.Notes</td>
 
                 <td>
