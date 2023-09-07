@@ -16,12 +16,14 @@ namespace CMS.Web.Controllers
     public class InterviewsController : Controller
     {
         private readonly IInterviewsService _interviewsService;
-        
+        private readonly ICandidateService _candidateService;
+        private readonly IPositionService _positionService;
 
-        public InterviewsController(IInterviewsService interviewsService)
+        public InterviewsController(IInterviewsService interviewsService,ICandidateService candidateService,IPositionService positionService)
         {
             _interviewsService = interviewsService;
-            
+            _candidateService = candidateService;
+            _positionService = positionService;
         }
 
         // GET: InterviewsController
@@ -35,12 +37,28 @@ namespace CMS.Web.Controllers
         public async Task<ActionResult> Details(int id)
         {
             var interview = await _interviewsService.GetInterviewByIdAsync(id);
+
+            var candidate = await _candidateService.GetAllCandidatesAsync();
+            ViewBag.candidateList = new SelectList(candidate,"Id", "FullName", interview.InterviewsId);
+
+            var position = await _positionService.GetAll();
+            ViewBag.positionList = new SelectList(position, "Id", "Name", interview.InterviewsId);
+
+        
+
             return View(interview);
         }
 
         // GET: InterviewsController/Create
         public async Task<ActionResult> Create()
         {
+            var candidate = await _candidateService.GetAllCandidatesAsync();
+            ViewBag.candidateList = new SelectList(candidate, "Id", "FullName");
+
+            var position = await _positionService.GetAll();
+            ViewBag.positionList = new SelectList(position, "Id", "Name");
+
+
             var interviewStatuses = Enum.GetValues(typeof(InterviewStatus))
             .Cast<InterviewStatus>()
             .Select(status => new SelectListItem
@@ -49,6 +67,7 @@ namespace CMS.Web.Controllers
                 Value = status.ToString()
             })
         .ToList();
+
 
             ViewBag.InterviewStatuses = interviewStatuses;
 
@@ -67,6 +86,13 @@ namespace CMS.Web.Controllers
                 await _interviewsService.Create(collection);
                 return RedirectToAction(nameof(Index));
             }
+
+            var candidate = await _candidateService.GetAllCandidatesAsync();
+            ViewBag.candidateList = new SelectList(candidate,"Id","FullName");
+
+            var position = await _positionService.GetAll();
+            ViewBag.positionList = new SelectList(position,"Id","Name");
+
 
             var interviewStatuses = Enum.GetValues(typeof(InterviewStatus))
             .Cast<InterviewStatus>()
@@ -90,6 +116,12 @@ namespace CMS.Web.Controllers
         {
             var interview = await _interviewsService.GetInterviewByIdAsync(id);
 
+            var candidate = await _candidateService.GetAllCandidatesAsync();
+            ViewBag.candidateList = new SelectList(candidate, "Id", "FullName", interview.InterviewsId);
+
+            var position = await _positionService.GetAll();
+            ViewBag.positionList = new SelectList(position, "Id", "Name", interview.InterviewsId);
+
             return View(interview);
         }
 
@@ -103,13 +135,21 @@ namespace CMS.Web.Controllers
                 return NotFound();
             }
 
+            var cand = await _candidateService.GetCandidateByIdAsync(id);
+            var posi = await _positionService.GetById(id);
+
             if (ModelState.IsValid)
             {
                 await _interviewsService.Update(id, collection);
                 return RedirectToAction(nameof(Index));
             }
 
-     
+            var candidate = await _candidateService.GetAllCandidatesAsync();
+            ViewBag.candidateList = new SelectList(candidate, "Id", "FullName", cand.Id);
+
+            var position = await _positionService.GetAll();
+            ViewBag.positionList = new SelectList(position, "Id", "Name", posi.Id);
+
             return View(collection);
         }
 

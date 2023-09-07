@@ -52,6 +52,13 @@ namespace CMS.Services.Services
             if (notification == null)
                 return null;
 
+            var templatesDTO = new TemplatesDTO
+            {
+                TemplatesId = notification.TemplatesId,
+                Title = _templatesService.GetTemplateByIdAsync(notification.TemplatesId).Result?.Title,
+            };
+
+
             return new NotificationsDTO
             {
                 NotificationsId = notification.NotificationsId,
@@ -59,8 +66,12 @@ namespace CMS.Services.Services
                 ReceiverId = notification.ReceiverId,
                 IsReceived = notification.IsReceived,
                 Type = notification.Type.ToString(),
+                templatesDTO = templatesDTO,
+                Title = templatesDTO.Title
+
             };
-        }
+        
+            }
 
         public async Task Create(NotificationsDTO entity)
         {

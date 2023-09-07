@@ -23,7 +23,8 @@ namespace CMS.Application.DTOs
 
         public string Title { get; set; }
 
-        //public int TemplatesId { get; set; }
+  
+
 
 
     }

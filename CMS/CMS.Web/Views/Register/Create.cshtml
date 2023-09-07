@@ -1,0 +1,46 @@
+﻿@model CMS.Application.DTOs.Register
+
+<h2>Create User</h2>
+
+<form asp-action="Create" method="post">
+    <div class="form-group">
+        <label asp-for="Email">Email</label>
+        <input asp-for="Email" class="form-control" />
+        <span asp-validation-for="Email" class="text-danger"></span>
+    </div>
+    <div class="form-group">
+        <label asp-for="UserName">Username</label>
+        <input asp-for="UserName" class="form-control" />
+        <span asp-validation-for="UserName" class="text-danger"></span>
+    </div>
+    <div class="form-group">
+        <label asp-for="Password">Password</label>
+        <input asp-for="Password" type="password" class="form-control" />
+        <span asp-validation-for="Password" class="text-danger"></span>
+    </div>
+    <div class="form-group">
+        <label asp-for="ConfirmPassword">Confirm Password</label>
+        <input asp-for="ConfirmPassword" type="password" class="form-control" />
+        <span asp-validation-for="ConfirmPassword" class="text-danger"></span>
+    </div>
+
+@*     <div class="form-group">
+        <label asp-for="SelectedRole">Role</label>
+        <select asp-for="SelectedRole" asp-items="new SelectList(ViewBag.Roles)" class="form-control">
+            <option value="">Select a Role</option>
+        </select>
+    </div> *@
+
+
+    <div class="form-group">
+        <label asp-for="SelectedRole" class="control-label">Role:</label>
+        @Html.DropDownListFor(model => model.SelectedRole, (SelectList)ViewBag.Roles, "Select a Role", new { @class = "form-control" })
+        <span asp-validation-for="SelectedRole" class="text-danger"></span>
+    </div>
+
+
+    <div class="form-group">
+        <a class="btn btn-secondary" asp-action="Index">Back to List</a>
+        <input type="submit" value="Create" class="btn btn-outline-primary" />
+    </div>
+</form>

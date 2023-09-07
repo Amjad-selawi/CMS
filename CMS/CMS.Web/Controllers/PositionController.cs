@@ -1,4 +1,5 @@
 ﻿using CMS.Application.DTOs;
+using CMS.Domain.Entities;
 using CMS.Services.Interfaces;
 using CMS.Services.Services;
 using Microsoft.AspNetCore.Mvc;
@@ -48,17 +49,22 @@ namespace CMS.Web.Controllers
         [HttpGet]
         public async Task<IActionResult> GetPositions()
         {
-            var result = await _positionService.GetAll();
-            if (result.IsSuccess)
-            {
-                var positionsDTOs = result.Value;
-                return View(positionsDTOs);
-            }
-            else
-            {
-                ModelState.AddModelError("", result.Error);
-                return View();
-            }
+
+            var position = await _positionService.GetAll();
+            return View(position);
+
+
+            //var result = await _positionService.GetAll();
+            //if (result.IsSuccess)
+            //{
+            //    var positionsDTOs = result.Value;
+            //    return View(positionsDTOs);
+            //}
+            //else
+            //{
+            //    ModelState.AddModelError("", result.Error);
+            //    return View();
+            //}
         }
         [HttpPost]
         public async Task<IActionResult> DeletePosition(int id)
@@ -80,17 +86,14 @@ namespace CMS.Web.Controllers
         [HttpGet]
         public async Task<IActionResult> UpdatePosition(int id)
         {
-            if (id <= 0)
+            var poisiton = await _positionService.GetById(id);
+
+            if (poisiton == null)
             {
                 return NotFound();
             }
-            var result = await _positionService.GetById(id);
-            var positionDTO = result.Value;
-            if (positionDTO == null)
-            {
-                return NotFound();
-            }
-            return View(positionDTO);
+         
+            return View(poisiton);
 
         }
 
