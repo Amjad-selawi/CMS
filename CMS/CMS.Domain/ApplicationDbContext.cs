@@ -17,12 +17,12 @@ namespace CMS.Domain
         public DbSet<CarrerOffer> CarrerOffers { get; set; }
         public DbSet<Country> Countries { get; set; }
         public DbSet<Position> Positions { get; set; }
-
         public DbSet<Candidate> Candidates { get; set; }
         public DbSet<Attachment> Attachments { get; set; }
         public DbSet<Interviews> Interviews { get; set; }
         public DbSet<Notifications> Notifications { get; set; }
         public DbSet<Templates> Templates { get; set; }
+        public DbSet<Status> Statuses { get; set; }
 
 
 
@@ -33,6 +33,8 @@ namespace CMS.Domain
             builder.ApplyConfiguration(new CandidateMapper());
             builder.ApplyConfiguration(new NotificationsMapper());
             builder.ApplyConfiguration(new InterviewsMapper());
+            builder.ApplyConfiguration(new PositionMapper());  
+            builder.ApplyConfiguration(new StatusMapper());
             base.OnModelCreating(builder);
         }
     }

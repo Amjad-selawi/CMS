@@ -13,6 +13,7 @@ namespace CMS.Application.DTOs
         [Required(ErrorMessage = "Phone is required.")]
         public int Phone { get; set; }
         [Required(ErrorMessage = "DesiredPosition is required.")]
+        public int PositionId { get; set; }
         public string DesiredPosition { get; set; }
         [Required(ErrorMessage = "Email is required.")]
         public string Email { get; set; }

@@ -4,6 +4,7 @@ using CMS.Repository.Interfaces;
 using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -20,9 +21,19 @@ namespace CMS.Repository.Implementation
         {
             try
             {
-                var country=await _context.Positions.FindAsync(id);
-                _context.Positions.Remove(country);
-               return await _context.SaveChangesAsync();
+                //var position=await _context.Positions.FindAsync(id);
+
+                var position =await _context.Positions.Include(c => c.Candidates)
+                    .FirstOrDefaultAsync(c => c.Id == id);
+                if (position.Candidates != null && position.Candidates.Any()) {
+                    foreach (var c in position.Candidates.ToList())
+                    {
+                        _context.Candidates.Remove(c);
+                    }
+                }
+           
+                _context.Positions.Remove(position);
+                return await _context.SaveChangesAsync();
                 
             }
             catch (Exception ex)

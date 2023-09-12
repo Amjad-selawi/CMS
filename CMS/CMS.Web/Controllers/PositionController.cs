@@ -51,6 +51,7 @@ namespace CMS.Web.Controllers
         {
 
             var position = await _positionService.GetAll();
+            
             return View(position);
 
 

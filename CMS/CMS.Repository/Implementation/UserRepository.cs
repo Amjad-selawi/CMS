@@ -18,7 +18,7 @@ namespace CMS.Repository.Implementation
 
         public UserRepository(UserManager<IdentityUser> userManager, SignInManager<IdentityUser> signInManager, ApplicationDbContext dbContext)
         {
-                 _userManager = userManager;
+            _userManager = userManager;
             _signInManager = signInManager;
             _dbContext = dbContext;
         }

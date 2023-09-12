@@ -1,9 +1,11 @@
 ﻿using CMS.Application.DTOs;
 using CMS.Services.Interfaces;
 using CMS.Web.Utils;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Rendering;
 using System;
 using System.Diagnostics;
 using System.IO;
@@ -11,12 +13,14 @@ using System.Threading.Tasks;
 
 namespace CMS.Web.Controllers
 {
+    
     public class CandidatesController : Controller
     {
         private readonly ICandidateService _candidateService;
         private readonly string _attachmentStoragePath;
+        private readonly IPositionService _positionService;
 
-        public CandidatesController(ICandidateService candidateService, IWebHostEnvironment env)
+        public CandidatesController(ICandidateService candidateService, IWebHostEnvironment env, IPositionService positionService)
         {
             _candidateService = candidateService;
             _attachmentStoragePath = Path.Combine(env.WebRootPath, "attachments");
@@ -25,6 +29,7 @@ namespace CMS.Web.Controllers
             {
                 Directory.CreateDirectory(_attachmentStoragePath);
             }
+            _positionService = positionService;
         }
 
         public async Task<IActionResult> Index()
@@ -43,15 +48,20 @@ namespace CMS.Web.Controllers
             return View(candidate);
         }
 
-        public IActionResult Create()
+        public async Task<IActionResult>Create()
         {
+            var positions=await _positionService.GetAll();
+            ViewBag.positions = new SelectList(positions,"Id","Name");
             return View();
         }
-
+        
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create(CandidateCreateDTO candidateDTO, IFormFile file)
         {
+            var positions = await _positionService.GetAll();
+            ViewBag.positions = new SelectList(positions, "Id", "Name");
+
             if (file == null || file.Length == 0)
             {
                 ModelState.AddModelError("File", "Please choose a file to upload.");
@@ -79,7 +89,9 @@ namespace CMS.Web.Controllers
             {
                 return NotFound();
             }
-            
+            var positions = await _positionService.GetAll();
+            ViewBag.positions = new SelectList(positions, "Id", "Name");
+
             return View(candidate);
         }
 
@@ -91,6 +103,8 @@ namespace CMS.Web.Controllers
             {
                 return NotFound();
             }
+            var positions = await _positionService.GetAll();
+            ViewBag.positions = new SelectList(positions, "Id", "Name");
             if (ModelState.IsValid)
             {
                 await _candidateService.UpdateCandidateAsync(id, candidateDTO);

@@ -71,6 +71,7 @@ namespace CMS.Web.Controllers
 
 
         // GET: Register/Create
+       
         public IActionResult Create()
         {
             var roles = _roleManager.Roles.Select(r => r.Name).ToList();
@@ -82,13 +83,16 @@ namespace CMS.Web.Controllers
 
             ViewBag.Roles = new SelectList(roles);
 
-            return View(model);
+            return View(model); 
+          
         }
 
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create(Register collection)
         {
+            var roles = _roleManager.Roles.Select(r => r.Name).ToList();
+            ViewBag.Roles = new SelectList(roles);
             if (ModelState.IsValid)
             {
                 var user = new IdentityUser
@@ -111,17 +115,19 @@ namespace CMS.Web.Controllers
                 }
                 else
                 {
+                   
                     foreach (var error in result.Errors)
                     {
                         ModelState.AddModelError(string.Empty, error.Description);
                     }
+                
                 }
+
             }
 
-            var roles = _roleManager.Roles.Select(r => r.Name).ToList();
-            ViewBag.Roles = new SelectList(roles);
 
             return View(collection);
+          
         }
 
         public async Task<IActionResult> Edit(string id)
@@ -133,6 +139,7 @@ namespace CMS.Web.Controllers
 
             var model = new Register
             {
+                RegisterrId = user.Id,
                 Email = user.Email,
                 UserName = user.UserName,
                 SelectedRole = roles.FirstOrDefault(),
@@ -144,15 +151,14 @@ namespace CMS.Web.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(Register collection, string id)
+        public async Task<IActionResult> Edit(Register collection/*, string id*/)
         {
             if (ModelState.IsValid)
             {
-                var user = await _userManager.FindByIdAsync(id);
+                var user = await _userManager.FindByIdAsync(collection.RegisterrId);
 
                 user.Email = collection.Email;
                 user.UserName = collection.UserName;
-
 
                 var result = await _userManager.UpdateAsync(user);
 
@@ -211,9 +217,6 @@ namespace CMS.Web.Controllers
 
             return View(model);
         }
-
-
-
 
         [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]

@@ -17,7 +17,8 @@ namespace CMS.Domain.Entities
         public int Phone { get; set; }
 
         [Required(ErrorMessage = "DesiredPosition is required.")]
-        public string DesiredPosition { get; set; }
+        public int PositionId { get; set; }
+        public virtual Position Position { get; set; }
 
         [Required(ErrorMessage = "Email is required.")]
         public string Email { get; set; }

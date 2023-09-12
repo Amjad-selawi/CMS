@@ -1,4 +1,7 @@
 ﻿@model IEnumerable<CMS.Application.DTOs.Login>
+@using Microsoft.AspNetCore.Identity
+@inject UserManager<IdentityUser> userManager
+@inject RoleManager<IdentityRole> RoleManager
 
 @{
     ViewData["Title"] = "ListUsers";
@@ -24,9 +27,10 @@
             <th>
                 @Html.DisplayNameFor(model => model.Password)
             </th>
-
-
-            <th></th>
+            Roles
+            <th>
+              
+            </th>
         </tr>
     </thead>
     <tbody>
@@ -38,6 +42,19 @@
                 </td>
                 <td>
                     @Html.DisplayFor(modelItem => item.Password)
+                </td>
+                <td>
+                    @{
+                        var user = await userManager.FindByIdAsync(item.Id);
+                        if (user != null)
+                        {
+                            var roles = await userManager.GetRolesAsync(user);
+                            if(roles!=null && roles.Any())
+                            {
+                                @string.Join(", ", roles)
+                            }
+                        }
+                    }
                 </td>
 
                 <td>

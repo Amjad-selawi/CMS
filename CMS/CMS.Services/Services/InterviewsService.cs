@@ -1,5 +1,6 @@
 ﻿// CMS.Application/Services/InterviewsService.cs
 using CMS.Application.DTOs;
+using CMS.Application.Extensions;
 using CMS.Domain.Entities;
 using CMS.Domain.Enums;
 using CMS.Repository.Interfaces;
@@ -35,17 +36,23 @@ namespace CMS.Services.Services
                 ParentId = i.ParentId,
                 InterviewerId=i.InterviewerId,
                 Notes=i.Notes,
-                Status =i.Status.ToString(),
-                candidateDTO = new CandidateDTO
-                {
-                    Id = i.CandidateId,
-                    FullName = _candidateService.GetCandidateByIdAsync(i.CandidateId).Result?.FullName
-                },
-                positionDTO = new PositionDTO
-                {
-                    Id = i.PositionId,
-                    Name = _positionService.GetById(i.PositionId).Result?.Name
-                }
+                // Status =i.Status.ToString(),
+                StatusName=i.Status.Name,
+                StatusId=i.StatusId,
+                candidateId=i.CandidateId,
+                FullName=i.Candidate.FullName,
+                positionId=i.PositionId,
+                Name=i.Position.Name,
+                //candidateDTO = new CandidateDTO
+                //{
+                //    Id = i.CandidateId,
+                //    FullName = _candidateService.GetCandidateByIdAsync(i.CandidateId).Result?.FullName
+                //},
+                //positionDTO = new PositionDTO
+                //{
+                //    Id = i.PositionId,
+                //    Name = _positionService.GetById(i.PositionId).Result?.Name
+                //}
 
             });
         }
@@ -59,14 +66,15 @@ namespace CMS.Services.Services
             var candidateDTO = new CandidateDTO
             {
                 Id = interview.CandidateId,
-                FullName = _candidateService.GetCandidateByIdAsync(interview.InterviewsId).Result?.FullName,
+                // FullName = _candidateService.GetCandidateByIdAsync(interview.InterviewsId).Result?.FullName,
+                FullName = _candidateService.GetCandidateByIdAsync(interview.CandidateId).Result?.FullName,
             };
 
             var positionDTO = new PositionDTO
             {
                 Id = interview.PositionId,
-                Name = _positionService.GetById(interview.InterviewsId).Result?.Name,
-
+                //Name = _positionService.GetById(interview.InterviewsId).Result?.Name,
+                Name = _positionService.GetById(interview.PositionId).Result?.Name,
             };
 
             return new InterviewsDTO
@@ -78,59 +86,69 @@ namespace CMS.Services.Services
                 InterviewerId = interview.InterviewerId,
                 Notes = interview.Notes,
 
-                candidateDTO = candidateDTO,
-                positionDTO = positionDTO,
+                candidateId = candidateDTO.Id,
+                positionId = positionDTO.Id,
 
                 FullName = candidateDTO.FullName,
                 Name=positionDTO.Name,
-
-                Status = interview.Status.ToString(),
+               // Status = interview.Status.ToString(),
+               StatusId=interview.StatusId,
+               StatusName=interview.Status.Name,
             };
         }
 
         public async Task Create(InterviewsDTO entity)
         {
-            if (Enum.TryParse(entity.Status, out InterviewStatus status))
-            {
-                var interview = new Interviews
-                {
-                    Score = entity.Score,
-                    Date = entity.Date,
-                    ParentId = entity.ParentId,
-                    InterviewerId = entity.InterviewerId,
-                    Notes = entity.Notes,
-                    Status = status,
+            try {
+                //if (Enum.TryParse(entity.Status, out InterviewStatus status))
+                //{
+                    var interview = new Interviews
+                    {
+                        //Score = entity.Score,
+                        Date = entity.Date,
+                        ParentId = entity.ParentId,
+                        InterviewerId = entity.InterviewerId,
+                        // Notes = entity.Notes,
+                       // Status = status,
+                       StatusId = entity.StatusId,
 
-                    CandidateId=entity.candidateDTO.Id,
-                    PositionId=entity.positionDTO.Id,
-                };
-                await _interviewsRepository.Create(interview);
+                        CandidateId = entity.candidateId,
+                        PositionId = entity.positionId,
+                    };
+                    await _interviewsRepository.Create(interview);
+               // }
             }
+            catch (Exception ex) {
+                throw ex;
+            }
+            
         }
 
         public async Task Update(int interviewId, InterviewsDTO entity)
         {
-            if (Enum.TryParse(entity.Status, out InterviewStatus status))
-            {
+            //if (Enum.TryParse(entity.Status, out InterviewStatus status))
+            //{
 
             
                 var existingInterview = await _interviewsRepository.GetInterviewById(interviewId);
-            if (existingInterview == null)
-                throw new Exception("Interview not found");
+                if (existingInterview == null)
+                {
+                    throw new Exception("Interview not found");
+                }
 
-
-            existingInterview.Score = entity.Score;
+            
+            //existingInterview.Score = entity.Score;
             existingInterview.Date = entity.Date;
             existingInterview.ParentId = entity.ParentId;
             existingInterview.InterviewerId = entity.InterviewerId;
-            existingInterview.Notes = entity.Notes;
-            existingInterview.CandidateId = entity.candidateDTO.Id;
-            existingInterview.PositionId = entity.positionDTO.Id;
-            existingInterview.Status = status;
+           // existingInterview.Notes = entity.Notes;
+            existingInterview.CandidateId = entity.candidateId;
+            existingInterview.PositionId = entity.positionId;
+            existingInterview.StatusId = entity.StatusId;
 
             await _interviewsRepository.Update(existingInterview);
 
-            }
+           // }
 
 
         }
@@ -140,6 +158,25 @@ namespace CMS.Services.Services
             var interview = await _interviewsRepository.GetInterviewById(interviewId);
             if (interview != null)
                 await _interviewsRepository.Delete(interview);
+        }
+        public async Task UpdateInterviewResult(InterviewsDTO entity)
+        {
+            var interview =await  _interviewsRepository.GetInterviewById(entity.InterviewsId);
+
+            if (interview == null)
+            {
+
+                throw new Exception();
+            }
+            interview.ParentId = interview.InterviewerId;
+            interview.Score = entity.Score;
+            interview.Notes=entity.Notes;
+            interview.StatusId=entity.StatusId;
+
+           await _interviewsRepository.Update(interview);
+
+
+
         }
 
 

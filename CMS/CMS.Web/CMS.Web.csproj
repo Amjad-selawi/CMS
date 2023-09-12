@@ -4,6 +4,11 @@
     <TargetFramework>netcoreapp3.1</TargetFramework>
   </PropertyGroup>
 
+  <ItemGroup>
+    <Content Remove="Views\Interviews\Index1.cshtml" />
+    <Content Remove="Views\Interviews\MyInterviews.cshtml" />
+  </ItemGroup>
+
 	<ItemGroup>
 		<PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="3.1.31" />
 		<PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="3.1.31">

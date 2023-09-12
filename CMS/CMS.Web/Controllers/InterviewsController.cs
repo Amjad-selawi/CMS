@@ -1,4 +1,5 @@
-﻿using CMS.Application.DTOs;
+﻿using Microsoft.AspNetCore;
+using CMS.Application.DTOs;
 using CMS.Domain.Entities;
 using CMS.Domain.Enums;
 using CMS.Services.Interfaces;
@@ -18,12 +19,14 @@ namespace CMS.Web.Controllers
         private readonly IInterviewsService _interviewsService;
         private readonly ICandidateService _candidateService;
         private readonly IPositionService _positionService;
+        private readonly IStatusService _StatusService;
 
-        public InterviewsController(IInterviewsService interviewsService,ICandidateService candidateService,IPositionService positionService)
+        public InterviewsController(IInterviewsService interviewsService,ICandidateService candidateService,IPositionService positionService,IStatusService statusService)
         {
             _interviewsService = interviewsService;
             _candidateService = candidateService;
             _positionService = positionService;
+            _StatusService = statusService;
         }
 
         // GET: InterviewsController
@@ -58,6 +61,9 @@ namespace CMS.Web.Controllers
             var position = await _positionService.GetAll();
             ViewBag.positionList = new SelectList(position, "Id", "Name");
 
+            var StatusDTOs = await _StatusService.GetAll();
+            ViewBag.StatusDTOs = new SelectList(StatusDTOs.Value, "Id", "Name");
+
 
             var interviewStatuses = Enum.GetValues(typeof(InterviewStatus))
             .Cast<InterviewStatus>()
@@ -66,7 +72,7 @@ namespace CMS.Web.Controllers
                 Text = status.ToString(),
                 Value = status.ToString()
             })
-        .ToList();
+          .ToList();
 
 
             ViewBag.InterviewStatuses = interviewStatuses;
@@ -86,12 +92,19 @@ namespace CMS.Web.Controllers
                 await _interviewsService.Create(collection);
                 return RedirectToAction(nameof(Index));
             }
+            else
+            {
+                ModelState.AddModelError("", "error validating the model");
+            }
 
             var candidate = await _candidateService.GetAllCandidatesAsync();
             ViewBag.candidateList = new SelectList(candidate,"Id","FullName");
 
             var position = await _positionService.GetAll();
             ViewBag.positionList = new SelectList(position,"Id","Name");
+
+            var StatusDTOs = await _StatusService.GetAll();
+            ViewBag.StatusDTOs = new SelectList(StatusDTOs.Value, "Id", "Name");
 
 
             var interviewStatuses = Enum.GetValues(typeof(InterviewStatus))
@@ -121,6 +134,8 @@ namespace CMS.Web.Controllers
 
             var position = await _positionService.GetAll();
             ViewBag.positionList = new SelectList(position, "Id", "Name", interview.InterviewsId);
+            var StatusDTOs = await _StatusService.GetAll();
+            ViewBag.StatusDTOs = new SelectList(StatusDTOs.Value, "Id", "Name");
 
             return View(interview);
         }
@@ -135,13 +150,17 @@ namespace CMS.Web.Controllers
                 return NotFound();
             }
 
-            var cand = await _candidateService.GetCandidateByIdAsync(id);
-            var posi = await _positionService.GetById(id);
+            var cand = await _candidateService.GetCandidateByIdAsync(collection.candidateId);
+            var posi = await _positionService.GetById(collection.positionId);
 
             if (ModelState.IsValid)
             {
                 await _interviewsService.Update(id, collection);
                 return RedirectToAction(nameof(Index));
+            }
+            else
+            {
+                ModelState.AddModelError("", "error validating the model...");
             }
 
             var candidate = await _candidateService.GetAllCandidatesAsync();
@@ -149,6 +168,9 @@ namespace CMS.Web.Controllers
 
             var position = await _positionService.GetAll();
             ViewBag.positionList = new SelectList(position, "Id", "Name", posi.Id);
+
+            var StatusDTOs = await _StatusService.GetAll();
+            ViewBag.StatusDTOs = new SelectList(StatusDTOs.Value, "Id", "Name");
 
             return View(collection);
         }
@@ -167,6 +189,7 @@ namespace CMS.Web.Controllers
         [ValidateAntiForgeryToken]
         public async Task<ActionResult> Delete(int id, InterviewsDTO collection)
         {
+
             try
             {
                 await _interviewsService.Delete(id);
@@ -177,6 +200,39 @@ namespace CMS.Web.Controllers
                 return View();
             }
         }
+
+        [HttpGet]
+        public async Task<IActionResult> UpdateAfterInterview(int id)
+        {
+            var StatusDTOs = await _StatusService.GetAll();
+            ViewBag.StatusDTOs = new SelectList(StatusDTOs.Value, "Id", "Name");
+
+            var interview = await _interviewsService.GetInterviewByIdAsync(id);
+            if(interview == null)
+            {
+                return NotFound();
+
+            }
+            return View(interview);
+
+
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> UpdateAfterInterview(InterviewsDTO interviewsDTO)
+        {
+            var StatusDTOs = await _StatusService.GetAll();
+            ViewBag.StatusDTOs = new SelectList(StatusDTOs.Value, "Id", "Name");
+            if (ModelState.IsValid)
+            {
+                await _interviewsService.UpdateInterviewResult(interviewsDTO);
+                
+                return RedirectToAction("Index");
+            }
+            return View(interviewsDTO);
+
+        }
+
 
     }
 }

@@ -26,10 +26,14 @@ namespace CMS.Web.Controllers
             return View(listuser);
         }
 
+        public ActionResult Index()
+        {
+            return View();
+        }
 
 
         //GET
-        public async Task<ActionResult> Login(int id)
+        public /*async*/ ActionResult Login(/*int id*/)
         {
             return View();
         }
@@ -41,20 +45,23 @@ namespace CMS.Web.Controllers
         {
             try
             {
+               
                 if (!ModelState.IsValid)
                 {
                     ModelState.AddModelError("", "Email or Password not correct..!");
                     return View();
                 }
-
+               
                 var result = await _accountService.LoginAsync(collection);
                 if (result)
                 {
-                    return RedirectToAction("Index", "Interviews");
+                    //return RedirectToAction("ListUsers");
+                  return RedirectToAction(nameof(Index));
+
                 }
                 else
                 {
-                    ModelState.AddModelError("", "Email or Password not correct..!");
+                    ModelState.AddModelError("", $"error logging in..!");
                     return View();
                 }
             }

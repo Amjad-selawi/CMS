@@ -20,6 +20,10 @@ namespace CMS.Domain.EntityMapper
               .WithMany(p => p.Interviews)
               .HasForeignKey(p => p.PositionId);
 
+            builder.HasOne(p => p.Status)
+                .WithMany(p => p.Interviews)
+                .HasForeignKey(p => p.StatusId);
+
         }
     }
 }

@@ -15,6 +15,13 @@ namespace CMS.Domain.EntityMapper
                 .HasOne(p => p.CV)
                 .WithMany()
                 .HasForeignKey(p => p.CVAttachmentId);
+            builder
+                .HasOne(p=>p.Position)
+                .WithMany(p=>p.Candidates)
+                .HasForeignKey(p=>p.PositionId);
+            builder
+                .HasMany(p => p.Interviews)
+                .WithOne(p => p.Candidate);
         }
     }
 }

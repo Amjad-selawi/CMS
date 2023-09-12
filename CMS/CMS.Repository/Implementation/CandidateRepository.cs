@@ -19,12 +19,12 @@ namespace CMS.Repository.Implementation
         }
         public async Task<IEnumerable<Candidate>> GetAllCandidatesAsync()
         {
-            return await _dbContext.Candidates.ToListAsync();
+            return await _dbContext.Candidates.Include(c=>c.Position).AsNoTracking().ToListAsync();
         }
 
         public async Task<Candidate> GetCandidateByIdAsync(int id)
         {
-            return await _dbContext.Candidates.FindAsync(id);
+            return await _dbContext.Candidates.Include(c=>c.Position).AsNoTracking().FirstOrDefaultAsync(c=>c.Id==id);
         }
 
         public async Task CreateCandidateAsync(Candidate candidate)
@@ -39,10 +39,10 @@ namespace CMS.Repository.Implementation
             await _dbContext.SaveChangesAsync();
         }
 
-        public async Task DeleteCandidateAsync(Candidate candidate)
+        public async Task<int> DeleteCandidateAsync(Candidate candidate)
         {
             _dbContext.Candidates.Remove(candidate);
-            await _dbContext.SaveChangesAsync();
+           return await _dbContext.SaveChangesAsync();
 
         }
     }

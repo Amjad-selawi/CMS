@@ -58,10 +58,6 @@ namespace CMS.Domain.Migrations
                     b.Property<int>("CVAttachmentId")
                         .HasColumnType("int");
 
-                    b.Property<string>("DesiredPosition")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
                     b.Property<string>("Email")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
@@ -80,9 +76,14 @@ namespace CMS.Domain.Migrations
                     b.Property<int>("Phone")
                         .HasColumnType("int");
 
+                    b.Property<int>("PositionId")
+                        .HasColumnType("int");
+
                     b.HasKey("Id");
 
                     b.HasIndex("CVAttachmentId");
+
+                    b.HasIndex("PositionId");
 
                     b.ToTable("Candidates");
                 });
@@ -202,16 +203,16 @@ namespace CMS.Domain.Migrations
                     b.Property<string>("Notes")
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<int>("ParentId")
+                    b.Property<int?>("ParentId")
                         .HasColumnType("int");
 
                     b.Property<int>("PositionId")
                         .HasColumnType("int");
 
-                    b.Property<int>("Score")
+                    b.Property<int?>("Score")
                         .HasColumnType("int");
 
-                    b.Property<int>("Status")
+                    b.Property<int>("StatusId")
                         .HasColumnType("int");
 
                     b.HasKey("InterviewsId");
@@ -219,6 +220,8 @@ namespace CMS.Domain.Migrations
                     b.HasIndex("CandidateId");
 
                     b.HasIndex("PositionId");
+
+                    b.HasIndex("StatusId");
 
                     b.ToTable("Interviews");
                 });
@@ -286,6 +289,22 @@ namespace CMS.Domain.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("Positions");
+                });
+
+            modelBuilder.Entity("CMS.Domain.Entities.Status", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int")
+                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("Statuses");
                 });
 
             modelBuilder.Entity("CMS.Domain.Entities.Templates", b =>
@@ -536,6 +555,12 @@ namespace CMS.Domain.Migrations
                         .HasForeignKey("CVAttachmentId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+
+                    b.HasOne("CMS.Domain.Entities.Position", "Position")
+                        .WithMany("Candidates")
+                        .HasForeignKey("PositionId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
                 });
 
             modelBuilder.Entity("CMS.Domain.Entities.Company", b =>
@@ -558,6 +583,12 @@ namespace CMS.Domain.Migrations
                     b.HasOne("CMS.Domain.Entities.Position", "Position")
                         .WithMany("Interviews")
                         .HasForeignKey("PositionId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("CMS.Domain.Entities.Status", "Status")
+                        .WithMany("Interviews")
+                        .HasForeignKey("StatusId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
                 });

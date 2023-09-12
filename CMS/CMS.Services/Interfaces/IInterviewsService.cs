@@ -1,5 +1,6 @@
 ﻿// CMS.Domain.Interfaces/IInterviewsService.cs
 using CMS.Application.DTOs;
+using Microsoft.AspNetCore.Mvc;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 
@@ -14,7 +15,9 @@ namespace CMS.Services.Interfaces
         //Task Update(InterviewsDTO entity);
 
         Task Delete(int interviewId);
+        Task UpdateInterviewResult(InterviewsDTO interviewsDTO);
 
-        
+
+
     }
 }

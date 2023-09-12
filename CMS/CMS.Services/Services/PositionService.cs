@@ -88,11 +88,6 @@ namespace CMS.Services.Services
                 Name = positions.Name,
                
             };
-
-
-
-
-
             //if (id <= 0)
             //{
             //    return Result<PositionDTO>.Failure(null, "Invalid position id");

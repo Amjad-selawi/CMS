@@ -1,0 +1,45 @@
+﻿@model CMS.Application.DTOs.InterviewsDTO
+
+<h2>Update Interview Result</h2>
+
+<form asp-action="UpdateAfterInterview" method="post">
+    <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+    <input type="hidden" asp-for="InterviewsId" />
+
+    <div class="form-group">
+        <label asp-for="Score">Score:</label>
+        <input asp-for="Score" class="form-control" />
+        <span asp-validation-for="Score" class="text-danger"></span>
+    </div>
+
+    <div class="form-group">
+        <label asp-for="Notes">Notes:</label>
+        <textarea asp-for="Notes" class="form-control"></textarea>
+        <span asp-validation-for="Notes" class="text-danger"></span>
+    </div>
+    <div class="form-group">
+        <label asp-for="StatusId" class="control-label">Status</label>
+        @if (ViewBag.StatusDTOs != null)
+        {
+            <select asp-for="StatusId" class="form-control">
+                <option value="">Select a Status</option>
+                @foreach (var status in ViewBag.StatusDTOs)
+                {
+                    <option value="@status.Value" selected="@(status.Value == Model.StatusId.ToString())">@status.Text</option>
+                }
+            </select>
+        }
+        else
+        {
+            <p>No statuses available.</p>
+        }
+        <span asp-validation-for="StatusId" class="text-danger"></span>
+
+    </div>
+
+    <button type="submit" class="btn btn-primary">Save</button>
+</form>
+
+<a asp-action="Index">Back to Interview List</a>
+
+<p>@Html.ValidationSummary()</p>
