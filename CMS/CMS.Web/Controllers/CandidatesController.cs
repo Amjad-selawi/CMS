@@ -99,6 +99,7 @@ namespace CMS.Web.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Edit(int id, CandidateDTO candidateDTO)
         {
+            //Edit
             if (id != candidateDTO.Id)
             {
                 return NotFound();
