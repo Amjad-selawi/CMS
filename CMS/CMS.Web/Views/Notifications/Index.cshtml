@@ -1,5 +1,6 @@
 ﻿@model IEnumerable<CMS.Application.DTOs.NotificationsDTO>
 
+
 <h1>Notifications</h1>
 
 <p>
@@ -12,10 +13,13 @@
            
             <th>Receiver ID</th>
             <th>Send Date</th>
-            <th>Type</th>
+            
             <th>
                 @Html.DisplayNameFor(model => model.templatesDTO.Title)
             </th>
+           @*  <th>
+                Template Name
+            </th> *@
             @* <th>Is Received</th> *@
             <th>Actions</th>
         </tr>
@@ -27,10 +31,14 @@
              
                 <td>@notification.ReceiverId</td>
                 <td>@notification.SendDate</td>
-                <td>@notification.Type</td>
+                
                 <td>
                     @Html.DisplayFor(modelItem => notification.templatesDTO.Title)
                 </td>
+               @*  <td>@notification.TemplateName</td> *@
+
+
+                
                 @* <td>@notification.IsReceived</td> *@
                 <td>
                     <a class="bx bxs-edit-alt" style="font-size:x-large" asp-action="Edit" asp-route-id="@notification.NotificationsId"></a> |

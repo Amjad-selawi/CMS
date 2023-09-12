@@ -22,10 +22,14 @@ namespace CMS.Application.DTOs
 
         public int InterviewerId { get; set; }
 
-        public CandidateDTO candidateDTO { get; set; }
-        public string FullName{ get; set; }
+        //public CandidateDTO candidateDTO { get; set; }
 
-        public PositionDTO positionDTO { get; set; }
-        public string Name { get; set; }
+        // public PositionDTO positionDTO { get; set; }
+
+        public int CandidateId { set; get; }
+        public string CandidateName { set; get; }
+
+        public int PositionId { set; get; }
+        public string PositionName { set; get; }
     }
 }

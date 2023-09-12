@@ -1,4 +1,8 @@
-﻿<!DOCTYPE html>
+﻿@using Microsoft.AspNetCore.Identity;
+@inject SignInManager<IdentityUser> SignInManager
+@inject UserManager<IdentityUser> UserManager
+
+<!DOCTYPE html>
 <html>
 <head>
     <meta charset="utf-8" />
@@ -65,44 +69,117 @@
     <nav class="navbar navbar-expand-lg navbar-light bg-light">
         <div class="container">
             <a class="navbar-brand" asp-area="" asp-controller="Home" asp-action="Index">CMS.Web</a>
+
+            <h6 style="font-size: 12px;margin-top: 11px;margin-left: 32px;">Welcome, @User.Identity.Name!</h6>
+            
             <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
                 <span class="navbar-toggler-icon"></span>
             </button>
             <div class="collapse navbar-collapse" id="navbarNav">
                 <ul class="navbar-nav ml-auto">
-                    <li class="nav-item">
-                        <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Index">Home</a>
+            
+                @*       @if (ViewData["UserId"] != null)
+                    {
+      
+                             var userRole = ViewData["UserRole"] as string;
+                                if (userRole == "HR")
+                                    {
+                     *@
+
+                            @* <li class="nav-item">
+                                <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Index">Home</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
+                            </li> *@
+                           @*  <li class="nav-item">
+                                <a class="nav-link text-dark" asp-area="" asp-controller="Company" asp-action="GetCompanies">Companies</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link text-dark" asp-area="" asp-controller="Country" asp-action="GetCountries">Countries</a>
+                            </li> *@
+
+
+
+                    @if (SignInManager.IsSignedIn(User))
+                    {
+
+                        @if (User.IsInRole("General Manger"))
+                        {
+                           
+                            <li class="nav-item">
+                                <a class="nav-link text-dark" asp-area="" asp-controller="CarrerOffer" asp-action="Index">CareerOffer</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link text-dark" asp-area="" asp-controller="Interviews" asp-action="Index">Interviews</a>
+                            </li>
+
+
+                        }
+                        else
+                        {
+                            <li class="nav-item">
+                                <a class="nav-link text-dark" asp-area="" asp-controller="Position" asp-action="GetPositions">Positions</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link text-dark" asp-area="" asp-controller="Candidates" asp-action="Index">Candidates</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link text-dark" asp-area="" asp-controller="Interviews" asp-action="Index">Interviews</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link text-dark" asp-area="" asp-controller="Notifications" asp-action="Index">Notifications</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link text-dark" asp-area="" asp-controller="Templates" asp-action="Index">Templates</a>
+                            </li>
+
+                        }
+
+
+                    }
+
+                    else
+                    {
+                        <li class="nav-item">
+                            <a class="nav-link text-dark" asp-area="" asp-controller="AppRoles" asp-action="Index">Roles</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link text-dark" asp-area="" asp-controller="Account" asp-action="Index">Register</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link text-dark" asp-area="" asp-controller="Account" asp-action="Login">Login</a>
+                        </li>
+
+                    }
+
+                    <li>
+                        <a style="margin-right: 40px;" class="nav-link text-dark" asp-area="" asp-action="Logout" asp-controller="Account">Logout</a>
                     </li>
-                    <li class="nav-item">
-                        <a class="nav-link text-dark" asp-area="" asp-controller="Company" asp-action="GetCompanies">Companies</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link text-dark" asp-area="" asp-controller="Country" asp-action="GetCountries">Countries</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link text-dark" asp-area="" asp-controller="Position" asp-action="GetPositions">Positions</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link text-dark" asp-area="" asp-controller="Candidates" asp-action="Index">Candidates</a>
-                    </li>
-                     <li class="nav-item">
-                        <a class="nav-link text-dark" asp-area="" asp-controller="Interviews" asp-action="Index">Interviews</a>
-                    </li>
-                     <li class="nav-item">
-                        <a class="nav-link text-dark" asp-area="" asp-controller="Notifications" asp-action="Index">Notifications</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link text-dark" asp-area="" asp-controller="Templates" asp-action="Index">Templates</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link text-dark" asp-area="" asp-controller="AppRoles" asp-action="Index">Roles</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link text-dark" asp-area="" asp-controller="Register" asp-action="Index">Register</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
-                    </li>
+
+
+
+
+
+                 
+                       
+
+                     
+
+
+                    <!-- Add this container for displaying notifications -->
+                    <div id="notification-container" class="dropdown">
+                        <button class="btn btn-secondary dropdown-toggle" type="button" id="notification-dropdown" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                            <i class="ri-notification-2-line"></i>
+                        </button>
+                        <div class="dropdown-menu dropdown-menu-right" aria-labelledby="notification-dropdown">
+                            <div id="notifications-list">
+                                <!-- Notifications will be displayed here -->
+                            </div>
+                        </div>
+                    </div>
+
+
                 </ul>
             </div>
         </div>
@@ -141,7 +218,32 @@
     <script src="https://cdn.jsdelivr.net/npm/simple-datatables@latest" crossorigin="anonymous"></script>
     <script src="~/js2/datatables-simple-demo.js"></script>
 
+@*     <script>
+        // Function to fetch and display notifications
+        function loadNotifications() {
+            // Make an AJAX request to fetch notifications
+            $.get('/notifications', function (data) {
+                // Assuming 'data' contains an array of notifications
+                var notifications = data.notifications;
 
+                // Clear the existing notifications
+                $('#notifications-list').empty();
+
+                // Loop through the notifications and display them
+                notifications.forEach(function (notification) {
+                    var notificationHtml = '<div class="notification">' + notification.message + '</div>';
+                    $('#notifications-list').append(notificationHtml);
+                });
+            });
+        }
+
+        // Attach a click event to the notification icon
+        $('#notification-container').on('click', function () {
+            // Load and display notifications when the icon is clicked
+            loadNotifications();
+        });
+    </script>
+ *@
 
 
     @*  @RenderSection("Scripts", required: false) *@

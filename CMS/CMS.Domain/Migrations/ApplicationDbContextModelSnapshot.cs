@@ -46,43 +46,61 @@ namespace CMS.Domain.Migrations
 
             modelBuilder.Entity("CMS.Domain.Entities.Candidate", b =>
                 {
-                    b.Property<int>("Id")
+                    b.Property<int>("CandidateId")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("int")
                         .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
 
                     b.Property<string>("Address")
-                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<int>("CVAttachmentId")
                         .HasColumnType("int");
 
+                    b.Property<int?>("CVId")
+                        .HasColumnType("int");
+
+                    b.Property<string>("CreatedBy")
+                        .HasColumnType("nvarchar(20)")
+                        .HasMaxLength(20);
+
+                    b.Property<DateTime>("CreatedOn")
+                        .HasColumnType("datetime2");
+
                     b.Property<string>("DesiredPosition")
-                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("Email")
-                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("Experience")
-                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("FullName")
-                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("bit");
+
+                    b.Property<bool>("IsDelete")
+                        .HasColumnType("bit");
 
                     b.Property<string>("LinkedInUrl")
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<string>("ModifiedBy")
+                        .HasColumnType("nvarchar(20)")
+                        .HasMaxLength(20);
+
+                    b.Property<DateTime>("ModifiedOn")
+                        .HasColumnType("datetime2");
+
                     b.Property<int>("Phone")
                         .HasColumnType("int");
 
-                    b.HasKey("Id");
+                    b.HasKey("CandidateId");
 
-                    b.HasIndex("CVAttachmentId");
+                    b.HasIndex("CVId");
 
                     b.ToTable("Candidates");
                 });
@@ -95,24 +113,38 @@ namespace CMS.Domain.Migrations
                         .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
 
                     b.Property<string>("CreatedBy")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("nvarchar(20)")
+                        .HasMaxLength(20);
 
-                    b.Property<DateTime>("CreatedDateTime")
+                    b.Property<DateTime>("CreatedOn")
                         .HasColumnType("datetime2");
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("bit");
+
+                    b.Property<bool>("IsDelete")
+                        .HasColumnType("bit");
 
                     b.Property<string>("LongDescription")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<string>("Position")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                    b.Property<string>("ModifiedBy")
+                        .HasColumnType("nvarchar(20)")
+                        .HasMaxLength(20);
+
+                    b.Property<DateTime>("ModifiedOn")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int>("PositionId")
+                        .HasColumnType("int");
 
                     b.Property<int>("YearsOfExperience")
                         .HasColumnType("int");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("PositionId");
 
                     b.ToTable("CarrerOffers");
                 });
@@ -173,22 +205,15 @@ namespace CMS.Domain.Migrations
                     b.Property<int>("CandidateId")
                         .HasColumnType("int");
 
-                    b.Property<DateTime>("CreatDate")
-                        .HasColumnType("datetime2");
-
-                    b.Property<string>("CreatId")
+                    b.Property<string>("CreatedBy")
                         .HasColumnType("nvarchar(20)")
                         .HasMaxLength(20);
+
+                    b.Property<DateTime>("CreatedOn")
+                        .HasColumnType("datetime2");
 
                     b.Property<DateTime>("Date")
                         .HasColumnType("datetime2");
-
-                    b.Property<DateTime>("EditDate")
-                        .HasColumnType("datetime2");
-
-                    b.Property<string>("EditId")
-                        .HasColumnType("nvarchar(20)")
-                        .HasMaxLength(20);
 
                     b.Property<int>("InterviewerId")
                         .HasColumnType("int");
@@ -198,6 +223,13 @@ namespace CMS.Domain.Migrations
 
                     b.Property<bool>("IsDelete")
                         .HasColumnType("bit");
+
+                    b.Property<string>("ModifiedBy")
+                        .HasColumnType("nvarchar(20)")
+                        .HasMaxLength(20);
+
+                    b.Property<DateTime>("ModifiedOn")
+                        .HasColumnType("datetime2");
 
                     b.Property<string>("Notes")
                         .HasColumnType("nvarchar(max)");
@@ -230,19 +262,12 @@ namespace CMS.Domain.Migrations
                         .HasColumnType("int")
                         .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
 
-                    b.Property<DateTime>("CreatDate")
-                        .HasColumnType("datetime2");
-
-                    b.Property<string>("CreatId")
+                    b.Property<string>("CreatedBy")
                         .HasColumnType("nvarchar(20)")
                         .HasMaxLength(20);
 
-                    b.Property<DateTime>("EditDate")
+                    b.Property<DateTime>("CreatedOn")
                         .HasColumnType("datetime2");
-
-                    b.Property<string>("EditId")
-                        .HasColumnType("nvarchar(20)")
-                        .HasMaxLength(20);
 
                     b.Property<bool>("IsActive")
                         .HasColumnType("bit");
@@ -253,6 +278,13 @@ namespace CMS.Domain.Migrations
                     b.Property<bool>("IsReceived")
                         .HasColumnType("bit");
 
+                    b.Property<string>("ModifiedBy")
+                        .HasColumnType("nvarchar(20)")
+                        .HasMaxLength(20);
+
+                    b.Property<DateTime>("ModifiedOn")
+                        .HasColumnType("datetime2");
+
                     b.Property<int>("ReceiverId")
                         .HasColumnType("int");
 
@@ -260,9 +292,6 @@ namespace CMS.Domain.Migrations
                         .HasColumnType("datetime2");
 
                     b.Property<int>("TemplatesId")
-                        .HasColumnType("int");
-
-                    b.Property<int>("Type")
                         .HasColumnType("int");
 
                     b.HasKey("NotificationsId");
@@ -274,16 +303,35 @@ namespace CMS.Domain.Migrations
 
             modelBuilder.Entity("CMS.Domain.Entities.Position", b =>
                 {
-                    b.Property<int>("Id")
+                    b.Property<int>("PositionId")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("int")
                         .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
 
+                    b.Property<string>("CreatedBy")
+                        .HasColumnType("nvarchar(20)")
+                        .HasMaxLength(20);
+
+                    b.Property<DateTime>("CreatedOn")
+                        .HasColumnType("datetime2");
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("bit");
+
+                    b.Property<bool>("IsDelete")
+                        .HasColumnType("bit");
+
+                    b.Property<string>("ModifiedBy")
+                        .HasColumnType("nvarchar(20)")
+                        .HasMaxLength(20);
+
+                    b.Property<DateTime>("ModifiedOn")
+                        .HasColumnType("datetime2");
+
                     b.Property<string>("Name")
-                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.HasKey("Id");
+                    b.HasKey("PositionId");
 
                     b.ToTable("Positions");
                 });
@@ -298,25 +346,25 @@ namespace CMS.Domain.Migrations
                     b.Property<string>("BodyDesc")
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<DateTime>("CreatDate")
-                        .HasColumnType("datetime2");
-
-                    b.Property<string>("CreatId")
+                    b.Property<string>("CreatedBy")
                         .HasColumnType("nvarchar(20)")
                         .HasMaxLength(20);
 
-                    b.Property<DateTime>("EditDate")
+                    b.Property<DateTime>("CreatedOn")
                         .HasColumnType("datetime2");
-
-                    b.Property<string>("EditId")
-                        .HasColumnType("nvarchar(20)")
-                        .HasMaxLength(20);
 
                     b.Property<bool>("IsActive")
                         .HasColumnType("bit");
 
                     b.Property<bool>("IsDelete")
                         .HasColumnType("bit");
+
+                    b.Property<string>("ModifiedBy")
+                        .HasColumnType("nvarchar(20)")
+                        .HasMaxLength(20);
+
+                    b.Property<DateTime>("ModifiedOn")
+                        .HasColumnType("datetime2");
 
                     b.Property<int>("Name")
                         .HasColumnType("int");
@@ -533,7 +581,14 @@ namespace CMS.Domain.Migrations
                 {
                     b.HasOne("CMS.Domain.Entities.Attachment", "CV")
                         .WithMany()
-                        .HasForeignKey("CVAttachmentId")
+                        .HasForeignKey("CVId");
+                });
+
+            modelBuilder.Entity("CMS.Domain.Entities.CarrerOffer", b =>
+                {
+                    b.HasOne("CMS.Domain.Entities.Position", "Positions")
+                        .WithMany("CareerOffer")
+                        .HasForeignKey("PositionId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
                 });

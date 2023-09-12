@@ -11,8 +11,8 @@ namespace CMS.Domain.Enums
 
     public enum InterviewStatus
     {
-        Accepted,
-        Rejected
+        Accepted=1,
+        Rejected=0
     }
 
 }

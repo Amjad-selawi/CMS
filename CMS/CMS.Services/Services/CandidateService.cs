@@ -1,4 +1,5 @@
 ﻿using CMS.Application.DTOs;
+using CMS.Application.Extensions;
 using CMS.Domain.Entities;
 using CMS.Repository.Interfaces;
 using CMS.Services.Interfaces;
@@ -22,12 +23,172 @@ namespace CMS.Services.Services
             _attachmentService = attachmentService;
         }
 
+        //public async Task<Result<CandidateCreateDTO>> Delete(int id)
+        //{
+        //    try
+        //    {
+        //        await _candidateRepository.Delete(id);
+        //        return Result<CandidateCreateDTO>.Success(null);
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        return Result<CandidateCreateDTO>.Failure(null, $"An error occurred while deleting the position{ex.InnerException.Message}");
+        //    }
+        //}
+
+        //public async Task<Result<List<CandidateCreateDTO>>> GetAll()
+        //{
+
+        //    var candidate = await _candidateRepository.GetAll();
+        //    if (candidate == null)
+        //    {
+        //        return Result<List<CandidateCreateDTO>>.Failure(null, "no candidates found");
+        //    }
+        //    try
+        //    {
+        //        var candidateDTOs = new List<CandidateCreateDTO>();
+        //        foreach (var co in candidate)
+        //        {
+        //            candidateDTOs.Add(new CandidateCreateDTO
+        //            {
+        //                CandidateId = co.CandidateId,
+        //                FullName = co.FullName,
+        //                InterviewsDTO = co.Interviews.Select(com => new InterviewsDTO
+        //                {
+        //                   InterviewsId=com.InterviewsId,
+        //                    CandidateId = com.CandidateId,
+        //                    Date= com.Date,
+        //                    Notes=com.Notes,
+        //                    InterviewerId = com.InterviewerId,
+        //                    ParentId=com.ParentId,
+        //                    Score=com.Score,
+        //                    Status = com.Status.ToString(),
+
+
+
+        //                }).ToList()
+
+        //            });
+
+        //        }
+        //        return Result<List<CandidateCreateDTO>>.Success(candidateDTOs);
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        return Result<List<CandidateCreateDTO>>.Failure(null, $"unable to get countries{ex.InnerException.Message}");
+        //    }
+
+        //}
+
+        //public async Task<Result<CandidateCreateDTO>> GetById(int id)
+        //{
+        //    if (id <= 0)
+        //    {
+        //        return Result<CandidateCreateDTO>.Failure(null, "Invalid candidate id");
+        //    }
+        //    try
+        //    {
+        //        var candidate = await _candidateRepository.GetById(id);
+        //        var candidateDTOs = new CandidateCreateDTO
+        //        {
+        //            CandidateId = candidate.CandidateId,
+        //            FullName = candidate.FullName,
+        //            InterviewsDTO = candidate.Interviews.Select(com => new InterviewsDTO
+        //            {
+        //                InterviewsId = com.InterviewsId,
+        //                CandidateId = com.CandidateId,
+        //                Date = com.Date,
+        //                Notes = com.Notes,
+        //                InterviewerId = com.InterviewerId,
+        //                ParentId = com.ParentId,
+        //                Score = com.Score,
+        //                Status = com.Status.ToString(),
+
+
+
+        //            }).ToList()
+
+        //        };
+        //        return Result<CandidateCreateDTO>.Success(candidateDTOs);
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        return Result<CandidateCreateDTO>.Failure(null, $"unable to retrieve the Candidate from the repository{ex.InnerException.Message}");
+        //    }
+        //}
+
+        //public async Task<Result<CandidateCreateDTO>> Insert(CandidateCreateDTO data)
+        //{
+
+        //    if (data == null)
+        //    {
+        //        return Result<CandidateCreateDTO>.Failure(data, "the candidate dto is null");
+        //    }
+        //    var candidate = new Candidate
+        //    {
+        //        FullName = data.FullName,
+        //        Address = data.Address,
+        //        Email=data.Email,
+        //        Experience = data.Experience,
+        //        Phone = data.Phone,
+        //        LinkedInUrl = data.LinkedInUrl,
+        //        CVAttachmentId = data.CVAttachmentId,
+        //        DesiredPosition = data.DesiredPosition,
+
+        //    };
+        //    try
+        //    {
+        //        await _candidateRepository.Insert(candidate);
+        //        return Result<CandidateCreateDTO>.Success(data);
+
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        return Result<CandidateCreateDTO>.Failure(data, $"unable to insert a position: {ex.InnerException.Message}");
+        //    }
+        //}
+
+        //public async Task<Result<CandidateCreateDTO>> Update(CandidateCreateDTO data)
+        //{
+        //    if (data == null)
+        //    {
+        //        return Result<CandidateCreateDTO>.Failure(null, "can not update a null object");
+        //    }
+        //    var candidate = new Candidate
+        //    {
+        //        FullName = data.FullName,
+        //        CandidateId = data.CandidateId,
+        //        Address = data.Address,
+        //        Email = data.Email,
+        //        Experience = data.Experience,
+        //        Phone = data.Phone,
+        //        LinkedInUrl = data.LinkedInUrl,
+        //        CVAttachmentId = data.CVAttachmentId,
+        //        DesiredPosition = data.DesiredPosition,
+
+
+        //    };
+        //    try
+        //    {
+        //        await _candidateRepository.Update(candidate);
+        //        return Result<CandidateCreateDTO>.Success(data);
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        return Result<CandidateCreateDTO>.Failure(data, $"unable to update the Candidate: {ex.InnerException.Message}");
+        //    }
+        //}
+
+
+
+
+
         public async Task<IEnumerable<CandidateDTO>> GetAllCandidatesAsync()
         {
             var candidates = await _candidateRepository.GetAllCandidatesAsync();
             return candidates.Select(c => new CandidateDTO
             {
-                Id = c.Id,
+                CandidateId = c.CandidateId,
                 FullName = c.FullName,
                 Phone = c.Phone,
                 DesiredPosition = c.DesiredPosition,
@@ -42,14 +203,14 @@ namespace CMS.Services.Services
         public async Task<CandidateDTO> GetCandidateByIdAsync(int id)
         {
             var candidate = await _candidateRepository.GetCandidateByIdAsync(id);
-            
+
 
             if (candidate == null)
                 return null;
-            
+
             return new CandidateDTO
             {
-                Id = candidate.Id,
+                CandidateId = candidate.CandidateId,
                 FullName = candidate.FullName,
                 Phone = candidate.Phone,
                 DesiredPosition = candidate.DesiredPosition,
@@ -57,13 +218,14 @@ namespace CMS.Services.Services
                 Address = candidate.Address,
                 Experience = candidate.Experience,
                 CVAttachmentId = candidate.CVAttachmentId,
-                LinkedInUrl = candidate.LinkedInUrl
+                LinkedInUrl = candidate.LinkedInUrl,
+
             };
         }
 
         public async Task CreateCandidateAsync(CandidateCreateDTO candidateDTO)
         {
-            int attachmentId = await _attachmentService.CreateAttachmentAsync(candidateDTO.FileName,candidateDTO.FileSize,candidateDTO.FileData);
+            int attachmentId = await _attachmentService.CreateAttachmentAsync(candidateDTO.FileName, candidateDTO.FileSize, candidateDTO.FileData);
             candidateDTO.CVAttachmentId = attachmentId;
             var candidate = new Candidate
             {
@@ -100,7 +262,7 @@ namespace CMS.Services.Services
         public async Task DeleteCandidateAsync(int id)
         {
             var candidate = await _candidateRepository.GetCandidateByIdAsync(id);
-          
+
             if (candidate != null)
             {
                 int attachmentToRemove = candidate.CVAttachmentId;
