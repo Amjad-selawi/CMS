@@ -14,63 +14,129 @@ namespace CMS.Repository.Repositories
 {
     public class InterviewsRepository : IInterviewsRepository
     {
-        private readonly ApplicationDbContext Db;
-        private readonly IHttpContextAccessor _httpContextAccessor;
+        private readonly ApplicationDbContext _context;
 
-        public InterviewsRepository(ApplicationDbContext _db,IHttpContextAccessor httpContextAccessor)
+        public InterviewsRepository(ApplicationDbContext context)
         {
-            Db = _db;
-            _httpContextAccessor = httpContextAccessor;
+            _context = context;
         }
 
-        public async Task<IEnumerable<Interviews>> GetAllInterviews()
-        {
-            return await Db.Interviews.Include(c=>c.Position).Include(c=>c.Candidate).Include(c=>c.Status).AsNoTracking().ToListAsync();
-        }
 
-        public async Task<Interviews> GetInterviewById(int interviewId)
-        {
-            //  return await Db.Interviews.FindAsync(interviewId);
-            return await Db.Interviews.Include(c => c.Position).Include(c => c.Candidate).Include(c=>c.Status).AsNoTracking().FirstOrDefaultAsync(c=>c.InterviewsId== interviewId);
-        }
 
-        public async Task Create(Interviews entity)
-      
+        public async Task<int> Delete(int id)
         {
             try
             {
-                entity.IsActive = true;
-               // entity.CreatId =_httpContextAccessor.HttpContext.User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-            
-                entity.CreatDate = DateTime.Now;
+                var careerOffer = await _context.CarrerOffers.FindAsync(id);
+                _context.CarrerOffers.Remove(careerOffer);
+                return await _context.SaveChangesAsync();
 
-            Db.Interviews.Add(entity);
-            await Db.SaveChangesAsync();
-            }catch (Exception ex)
-            {
-                throw ex.InnerException;
             }
-
-           }
-
-        public async Task Update(Interviews entity)
-        {
-            entity.IsActive = true;
-            entity.EditId = entity.EditId;
-            entity.EditDate = DateTime.Now;
-
-            Db.Interviews.Update(entity);
-            await Db.SaveChangesAsync();
+            catch (Exception ex)
+            {
+                throw ex;
+            }
         }
 
-        public async Task Delete(Interviews entity)
+        public async Task<List<Interviews>> GetAll()
         {
-            entity.IsDelete = true;
-            entity.EditId = entity.EditId;
-            entity.EditDate = DateTime.Now;
+            try
+            {
 
-            Db.Interviews.Remove(entity);
-            await Db.SaveChangesAsync();
+                return await _context.Interviews.Include(c => c.Position).Include(c=>c.Candidate).AsNoTracking().ToListAsync();
+
+
+
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
         }
+
+        public async Task<Interviews> GetById(int id)
+        {
+            try
+            {
+                var interview = await _context.Interviews.Include(c => c.Position).Include(c => c.Candidate).AsNoTracking().FirstOrDefaultAsync(c => c.InterviewsId == id);
+                return interview;
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+        public async Task<int> Insert(Interviews entity)
+        {
+            try
+            {
+
+                _context.Add(entity);
+                return await _context.SaveChangesAsync();
+
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+        public async Task<int> Update(Interviews entity)
+        {
+            try
+            {
+
+             
+                _context.Update(entity);
+
+                return await _context.SaveChangesAsync();
+
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+        //public async Task<IEnumerable<Interviews>> GetAllInterviews()
+        //{
+        //    return await Db.Interviews.ToListAsync();
+        //}
+
+        //public async Task<Interviews> GetInterviewById(int interviewId)
+        //{
+        //    return await Db.Interviews.FindAsync(interviewId);
+        //}
+
+        //public async Task Create(Interviews entity)
+        //{
+        //    entity.IsActive = true;
+        //    entity.ModifiedBy = entity.ModifiedBy;
+        //    entity.ModifiedOn = DateTime.Now;
+
+        //    Db.Interviews.Add(entity);
+        //    await Db.SaveChangesAsync();
+        //}
+
+        //public async Task Update(Interviews entity)
+        //{
+        //    entity.IsActive = true;
+        //    entity.ModifiedBy = entity.ModifiedBy;
+        //    entity.ModifiedOn = DateTime.Now;
+
+        //    Db.Interviews.Update(entity);
+        //    await Db.SaveChangesAsync();
+        //}
+
+        //public async Task Delete(Interviews entity)
+        //{
+        //    entity.IsDelete = true;
+        //    entity.ModifiedBy = entity.ModifiedBy;
+        //    entity.ModifiedOn = DateTime.Now;
+
+        //    Db.Interviews.Remove(entity);
+        //    await Db.SaveChangesAsync();
+        //}
     }
 }

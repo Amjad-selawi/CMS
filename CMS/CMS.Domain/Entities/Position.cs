@@ -5,11 +5,10 @@ using System.Text;
 
 namespace CMS.Domain.Entities
 {
-    public class Position
+    public class Position : BaseEntity
     {
-        public int Id { get; set; }
+        public int PositionId { get; set; }
 
-        [Required]
         public string Name { get; set; }
 
         public virtual ICollection<Interviews> Interviews { get; set; }

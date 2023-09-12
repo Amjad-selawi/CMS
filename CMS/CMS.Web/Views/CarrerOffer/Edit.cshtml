@@ -1,12 +1,37 @@
 ﻿@model CMS.Application.DTOs.CarrerOfferDTO
 <h2>Edit</h2>
 
-<form asp-action="Edit" asp-route-id="@Model.Id">
+<form asp-action="Edit" >
+    <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+    <div class="form-group"><input type="hidden" asp-for="Id" /></div>
+
+@* 
+      <div class="form-group">
+        <label asp-for="positionDTO.PositionId" class="control-label">Position</label>
+        @Html.DropDownListFor(model => model.positionDTO.PositionId, (SelectList)ViewBag.positionList, "Select a Position", new { @class = "form-control" })
+        <span asp-validation-for="positionDTO.PositionId" class="text-danger"></span>
+    </div> *@
+
     <div class="form-group">
-        <label asp-for="Position" class="control-label"></label>
-        <input asp-for="Position" class="form-control" />
-        <span asp-validation-for="Position" class="text-danger"></span>
+        <label asp-for="PositionId" class="control-label">Position</label>
+        @if (ViewBag.positionDTOs != null)
+        {
+            <select asp-for="PositionId" class="form-control">
+                <option value="">Select a position</option>
+                @foreach (var position in ViewBag.positionDTOs)
+                {
+                    <option value="@position.Value" selected="@(position.Value == Model.PositionId.ToString())">@position.Text</option>
+                }
+            </select>
+        }
+        else
+        {
+            <p>No positions available.</p>
+        }
+        <span asp-validation-for="PositionId" class="text-danger"></span>
+
     </div>
+
     <div class="form-group">
         <label asp-for="YearsOfExperience" class="control-label"></label>
         <input asp-for="YearsOfExperience" class="form-control" />
@@ -17,17 +42,9 @@
         <input asp-for="LongDescription" class="form-control" />
         <span asp-validation-for="LongDescription" class="text-danger"></span>
     </div>
+ 
     <div class="form-group">
-        <label asp-for="CreatedBy" class="control-label"></label>
-        <input asp-for="CreatedBy" class="form-control" />
-        <span asp-validation-for="CreatedBy" class="text-danger"></span>
-    </div>
-    <div class="form-group">
-        <label asp-for="CreatedDateTime" class="control-label"></label>
-        <input asp-for="CreatedDateTime" class="form-control" />
-        <span asp-validation-for="CreatedDateTime" class="text-danger"></span>
-    </div>
-    <div class="form-group">
-        <input type="submit" value="Save" class="btn btn-primary" />
+        <a class="btn btn-secondary" asp-action="Index">Back to List</a>
+        <input type="submit" value="Save" class="btn btn-outline-primary" />
     </div>
 </form>

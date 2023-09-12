@@ -2,7 +2,7 @@
 
 <h2>Edit Candidate</h2>
 
-<form asp-action="Edit" asp-route-id="@Model.Id">
+<form asp-action="Edit" asp-route-id="@Model.CandidateId">
     <div asp-validation-summary="ModelOnly" class="text-danger"></div>
     <div class="form-group">
         <label asp-for="FullName" class="control-label"></label>
@@ -59,7 +59,7 @@
         <input type="submit" value="Save" class="btn btn-primary" />
     </div>
 </form>
-<form asp-action="UpdateAttachment" asp-route-id="@Model.Id" enctype="multipart/form-data">
+<form asp-action="UpdateAttachment" asp-route-id="@Model.CandidateId" enctype="multipart/form-data">
     <div class="form-group">
         <label for="file">Upload CV:</label>
         <input type="file" id="file" name="file" class="form-control-file" />

@@ -3,6 +3,7 @@ using CMS.Domain.Entities;
 using CMS.Domain.Enums;
 using CMS.Services.Interfaces;
 using CMS.Services.Services;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;

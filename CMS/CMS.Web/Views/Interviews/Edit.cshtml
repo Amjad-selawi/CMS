@@ -7,17 +7,58 @@
     <div asp-validation-summary="ModelOnly" class="text-danger"></div>
     <div class="form-group">  <input type="hidden" asp-for="InterviewsId" /> </div>
 
-    <div class="form-group">
-        <label asp-for="candidateId" class="control-label">Candidate Name</label>
-        @Html.DropDownListFor(model => model.candidateId, (SelectList)ViewBag.candidateList, "Select a Name", new { @class = "form-control" })
-        <span asp-validation-for="candidateId" class="text-danger"></span>
+@*     <div class="form-group">
+        <label asp-for="candidateDTO.CandidateId" class="control-label">Candidate Name</label>
+        @Html.DropDownListFor(model => model.candidateDTO.CandidateId, (SelectList)ViewBag.candidateList, "Select a Name", new { @class = "form-control" })
+        <span asp-validation-for="candidateDTO.CandidateId" class="text-danger"></span>
     </div>
 
+
     <div class="form-group">
-        <label asp-for="positionId" class="control-label">Position</label>
-        @Html.DropDownListFor(model => model.positionId, (SelectList)ViewBag.positionList, "Select a Position", new { @class = "form-control" })
-        <span asp-validation-for="positionId" class="text-danger"></span>
+        <label asp-for="positionDTO.PositionId" class="control-label">Position</label>
+        @Html.DropDownListFor(model => model.positionDTO.PositionId, (SelectList)ViewBag.positionList, "Select a Position", new { @class = "form-control" })
+        <span asp-validation-for="positionDTO.PositionId" class="text-danger"></span>
+    </div> *@
+    <div class="form-group">
+        <label asp-for="CandidateId" class="control-label">Candidate Name</label>
+        @if (ViewBag.candidateDTOs != null)
+        {
+            <select asp-for="CandidateId" class="form-control">
+                <option value="">Select a Candidate Name</option>
+                @foreach (var position in ViewBag.candidateDTOs)
+                {
+                    <option value="@position.Value" selected="@(position.Value == Model.CandidateId.ToString())">@position.Text</option>
+                }
+            </select>
+        }
+        else
+        {
+            <p>No Candidate available.</p>
+        }
+        <span asp-validation-for="CandidateId" class="text-danger"></span>
+
     </div>
+
+     <div class="form-group">
+        <label asp-for="PositionId" class="control-label">Position</label>
+        @if (ViewBag.positionDTOs != null)
+        {
+            <select asp-for="PositionId" class="form-control">
+                <option value="">Select a position</option>
+                @foreach (var position in ViewBag.positionDTOs)
+                {
+                    <option value="@position.Value" selected="@(position.Value == Model.PositionId.ToString())">@position.Text</option>
+                }
+            </select>
+        }
+        else
+        {
+            <p>No positions available.</p>
+        }
+        <span asp-validation-for="PositionId" class="text-danger"></span>
+
+    </div>
+
 
     <div class="form-group">
         <label asp-for="InterviewerId" class="control-label"></label>
@@ -55,7 +96,8 @@
 
     </div>
 
-   @* <div class="form-group">
+  
+    <div class="form-group">
         <label asp-for="Score" class="control-label"></label>
         <input asp-for="Score" class="form-control" />
         <span asp-validation-for="Score" class="text-danger"></span>

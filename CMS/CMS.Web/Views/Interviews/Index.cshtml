@@ -11,10 +11,8 @@
     <thead>
         <tr>
 
-            <th>
-                Candidate Name
-            </th>
-            <th>Position</th>
+           <th> Candidate Name</th>
+           <th>Position</th>
             <th>InterviewerId</th>
             <th>
                 Date
@@ -40,9 +38,11 @@
             <tr>
 
                 <td>
-                    @item.FullName
+                    @Html.DisplayFor(modelItem => item.CandidateName)
                 </td>
-                <td>@item.Name</td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.PositionName)
+                </td>
 
                 <td>@item.InterviewerId</td>
                 <td>

@@ -10,11 +10,7 @@
         <input asp-for="ReceiverId" class="form-control" />
         <span asp-validation-for="ReceiverId" class="text-danger"></span>
     </div>
- @*    <div class="form-group">
-        <label asp-for="SendDate">Send Date:</label>
-        <input asp-for="SendDate" class="form-control" />
-        <span asp-validation-for="SendDate" class="text-danger"></span>
-    </div> *@
+
 @*     <div class="form-group">
         <label asp-for="IsReceived">Is Received:</label>
         <input asp-for="IsReceived" class="form-control" />
@@ -28,13 +24,12 @@
         <span asp-validation-for="templatesDTO.TemplatesId" class="text-danger"></span>
     </div>
 
-    <div class="form-group">
-        <label asp-for="Type" class="control-label"></label>
-        <select asp-for="Type" asp-items="Html.GetEnumSelectList<NotificationsType>()" class="form-control">
-            <option value="">Select Notification Type</option>
-        </select>
-        <span asp-validation-for="Type" class="text-danger"></span>
-    </div>
+  @*   <div class="form-group">
+        <label asp-for="TemplateName" class="control-label">Template Name</label>
+        @Html.DropDownListFor(model => model.TemplateName, (SelectList)ViewBag.TemplateEnumList, "Select a Template Name", new { @class = "form-control" })
+        <span asp-validation-for="TemplateName" class="text-danger"></span>
+    </div> *@
+
 
 
     <div class="form-group">

@@ -2,6 +2,7 @@
 using CMS.Domain.Entities;
 using CMS.Services.Interfaces;
 using CMS.Services.Services;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.Threading.Tasks;
 
@@ -27,6 +28,15 @@ namespace CMS.Web.Controllers
         [HttpPost]
         public async Task<IActionResult> AddPosition(PositionDTO positionDTO)
         {
+            //if (ModelState.IsValid)
+            //{
+            //    await _positionService.Insert(positionDTO);
+            //    return RedirectToAction(nameof(GetPositions));
+
+            //}
+
+            //return View(positionDTO);
+
             if (ModelState.IsValid)
             {
                 var result = await _positionService.Insert(positionDTO);
@@ -43,8 +53,8 @@ namespace CMS.Web.Controllers
                 ModelState.AddModelError("", "error validating the model");
             }
 
-            //return View("Index", positionDTO);
             return View(positionDTO);
+
         }
         [HttpGet]
         public async Task<IActionResult> GetPositions()
@@ -55,18 +65,41 @@ namespace CMS.Web.Controllers
             return View(position);
 
 
-            //var result = await _positionService.GetAll();
-            //if (result.IsSuccess)
-            //{
-            //    var positionsDTOs = result.Value;
-            //    return View(positionsDTOs);
-            //}
-            //else
-            //{
-            //    ModelState.AddModelError("", result.Error);
-            //    return View();
-            //}
+            var result = await _positionService.GetAll();
+            if (result.IsSuccess)
+            {
+                var positionsDTOs = result.Value;
+                return View(positionsDTOs);
+            }
+            else
+            {
+                ModelState.AddModelError("", result.Error);
+                return View();
+            }
         }
+        //public async Task<ActionResult> Delete(int id)
+        //{
+        //    var poistion = await _positionService.GetById(id);
+
+        //    return View(poistion);
+        //}
+
+        //// POST: TemplatesController/Delete/5
+        //[HttpPost]
+        //[ValidateAntiForgeryToken]
+        //public async Task<ActionResult> Delete(int id, PositionDTO collection)
+        //{
+        //    try
+        //    {
+        //        await _positionService.Delete(id);
+        //        return RedirectToAction(nameof(Index));
+        //    }
+        //    catch
+        //    {
+        //        return View();
+        //    }
+        //}
+
         [HttpPost]
         public async Task<IActionResult> DeletePosition(int id)
         {
@@ -87,20 +120,45 @@ namespace CMS.Web.Controllers
         [HttpGet]
         public async Task<IActionResult> UpdatePosition(int id)
         {
-            var poisiton = await _positionService.GetById(id);
+            //var poisiton = await _positionService.GetById(id);
 
-            if (poisiton == null)
+            //if (poisiton == null)
+            //{
+            //    return NotFound();
+            //}
+
+            //return View(poisiton);
+
+            if (id <= 0)
             {
                 return NotFound();
             }
-         
-            return View(poisiton);
-
+            var result = await _positionService.GetById(id);
+            var positionDTO = result.Value;
+            if (positionDTO == null)
+            {
+                return NotFound();
+            }
+            return View(positionDTO);
         }
 
         [HttpPost]
-        public async Task<IActionResult> UpdatePosition(PositionDTO positionDTO)
+        public async Task<IActionResult> UpdatePosition(int id,PositionDTO positionDTO)
         {
+
+            //if (id != positionDTO.PositionId)
+            //{
+            //    return NotFound();
+            //}
+
+            //if (ModelState.IsValid)
+            //{
+            //    await _positionService.Update(id, positionDTO);
+            //    return RedirectToAction(nameof(Index));
+            //}
+            //return View(positionDTO);
+
+
             if (ModelState.IsValid)
             {
                 var result = await _positionService.Update(positionDTO);
@@ -110,8 +168,8 @@ namespace CMS.Web.Controllers
                     return RedirectToAction("GetPositions");
                 }
                 ModelState.AddModelError("", result.Error);
-               // return RedirectToAction("GetPositions");
-               return View(positionDTO);
+                // return RedirectToAction("GetPositions");
+                return View(positionDTO);
             }
             else
             {
@@ -120,5 +178,29 @@ namespace CMS.Web.Controllers
             return View(positionDTO);
 
         }
+
+
+        [HttpGet]
+        public async Task<IActionResult> ShowCompanies(int id)
+        {
+
+            var result = await _positionService.GetById(id);
+            if (result.IsSuccess)
+            {
+                var positionDTO = result.Value;
+                return View(positionDTO);
+            }
+
+
+            else
+            {
+                ModelState.AddModelError("", result.Error);
+                return View();
+            }
+        }
+
+
+
+
     }
 }

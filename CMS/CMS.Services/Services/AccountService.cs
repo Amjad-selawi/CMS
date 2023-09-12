@@ -65,5 +65,67 @@ namespace CMS.Services.Services
         {
             await _signInManager.SignOutAsync();
         }
+
+
+
+        public async Task<string> GetUserRoleAsync(IdentityUser user)
+        {
+            var roles = await _userManager.GetRolesAsync(user);
+            return roles.FirstOrDefault(); 
+        }
+
+        public async Task<IdentityUser> GetUserByEmailAsync(string email)
+        {
+            return await _userManager.FindByEmailAsync(email);
+        }
+
+
+
+        public List<Register> GetAllUsersWithRoles()
+        {
+            var users = _userRepository.GetAllUsersWithRoles();
+            var usersWithRoles = new List<Register>();
+
+            foreach (var user in users)
+            {
+                var roles = _userRepository.GetUserRoles(user);
+
+                usersWithRoles.Add(new Register
+                {
+                    RegisterrId = user.Id,
+                    Email = user.Email,
+                    UserName = user.UserName,
+                    SelectedRole = roles.FirstOrDefault()
+                });
+            }
+
+            return usersWithRoles;
+        }
+
+
+        public Register GetUsersById(string userId)
+        {
+            var user = _userRepository.GetUserById(userId);
+
+            if (user == null)
+            {
+                return null; 
+            }
+            var roles = _userRepository.GetUserRoles(user);
+
+            var userDetails = new Register
+            {
+                RegisterrId = user.Id,
+                Email = user.Email,
+                UserName = user.UserName,
+                SelectedRole = roles.FirstOrDefault()
+            };
+
+            return userDetails;
+        }
+
+
+
+
     }
 }
