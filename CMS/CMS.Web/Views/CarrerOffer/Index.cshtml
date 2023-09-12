@@ -4,18 +4,16 @@
 <h2>Carrer Offers</h2>
 
 <p>
-    <a asp-action="Create">Create New</a>
+    <a class="btn btn-outline-primary font-italic" asp-action="Create">Create New</a>
 </p>
 
-<table class="table">
+<table class="datatable">
     <thead>
         <tr>
-            <th>ID</th>
             <th>Position</th>
             <th>Years of Experience</th>
             <th>Description</th>
-            <th>Created By</th>
-            <th>Created on</th>
+        
             <th>Actions</th>
         </tr>
     </thead>
@@ -23,17 +21,19 @@
         @foreach (var item in Model)
         {
             <tr>
-                <td>@item.Id</td>
-                <td>@item.Position</td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.PositionName)
+                </td>
                 <td>@item.YearsOfExperience</td>
                 <td>@item.LongDescription</td>
-                <td>@item.CreatedBy</td>
-                <td>@item.CreatedDateTime</td>
+                
+            
                 <td>
-                    <a asp-action="Edit" asp-route-id="@item.Id">Edit</a> |
-                    <a asp-action="Details" asp-route-id="@item.Id">Details</a> |
-                    <a asp-action="Delete" asp-route-id="@item.Id">Delete</a>
+                    <a class="bx bxs-edit-alt" style="font-size:x-large" asp-action="Edit" asp-route-id="@item.Id"></a> |
+                    <a class="bx bx-detail" style="font-size:x-large" asp-action="Details" asp-route-id="@item.Id"></a> |
+                    <a class="ri-delete-bin-2-line text-danger" style="font-size:x-large" asp-action="Delete" asp-route-id="@item.Id"></a>
                 </td>
+                         
             </tr>
         }
     </tbody>

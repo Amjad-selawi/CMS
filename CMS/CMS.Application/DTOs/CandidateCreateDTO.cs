@@ -8,7 +8,7 @@ namespace CMS.Application.DTOs
 {
     public class CandidateCreateDTO
     {
-        public int Id { get; set; }
+        public int CandidateId { get; set; }
         [Required(ErrorMessage = "FullName is required.")]
         public string FullName { get; set; }
         [Required(ErrorMessage = "Phone is required.")]
@@ -26,6 +26,10 @@ namespace CMS.Application.DTOs
         public string FileName { get; set; }
         public long FileSize { get; set; }
         public Stream FileData { get; set; }
-        public DateTime CreatedOn { get; set; }
+
+
+        public List<InterviewsDTO> InterviewsDTO { get; set; }
+
+
     }
 }

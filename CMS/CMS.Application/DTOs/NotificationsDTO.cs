@@ -10,9 +10,6 @@ namespace CMS.Application.DTOs
         
         public int NotificationsId { get; set; }
 
-        
-        public string Type { get; set; }
-
         public int ReceiverId { get; set; }
 
         public DateTime SendDate { get; set; }
@@ -23,7 +20,7 @@ namespace CMS.Application.DTOs
 
         public string Title { get; set; }
 
-  
+        //public string TemplateName { get; set; }
 
 
 

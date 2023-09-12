@@ -34,9 +34,9 @@
                 <td><a asp-controller="Attachments" asp-action="Download" asp-route-id="@candidate.CVAttachmentId">Download CV</a></td>
 
                 <td>
-                    <a asp-action="Edit" asp-route-id="@candidate.Id">Edit</a> |
-                    <a asp-action="Details" asp-route-id="@candidate.Id">Details</a> |
-                    <a asp-action="Delete" asp-route-id="@candidate.Id">Delete</a>
+                    <a asp-action="Edit" asp-route-id="@candidate.CandidateId">Edit</a> |
+                    <a asp-action="Details" asp-route-id="@candidate.CandidateId">Details</a> |
+                    <a asp-action="Delete" asp-route-id="@candidate.CandidateId">Delete</a>
                 </td>
             </tr>
         }

@@ -1,4 +1,5 @@
 ﻿using CMS.Application.DTOs;
+using CMS.Application.Extensions;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -15,5 +16,14 @@ namespace CMS.Services.Interfaces
         Task UpdateCandidateAsync(int id, CandidateDTO candidateDTO);
         Task UpdateCandidateCVAsync(int id, string fileName, long fileSize, Stream fileStream);
         Task DeleteCandidateAsync(int id);
+
+
+        //Task<Result<CandidateCreateDTO>> Insert(CandidateCreateDTO data);
+        //Task<Result<List<CandidateCreateDTO>>> GetAll();
+        //Task<Result<CandidateCreateDTO>> Delete(int id);
+        //Task<Result<CandidateCreateDTO>> GetById(int id);
+        //Task<Result<CandidateCreateDTO>> Update(CandidateCreateDTO data);
+
+
     }
 }

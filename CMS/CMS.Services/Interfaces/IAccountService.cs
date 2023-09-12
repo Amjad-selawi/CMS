@@ -1,5 +1,6 @@
 ﻿using CMS.Application.DTOs;
 using CMS.Application.Extensions;
+using Microsoft.AspNetCore.Identity;
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -13,5 +14,12 @@ namespace CMS.Services.Interfaces
         Task<bool> LoginAsync(Login collection);
         Task<bool> DeleteAccountAsync(string id);
         Task LogoutAsync();
+
+        Task<string> GetUserRoleAsync(IdentityUser user);
+        Task<IdentityUser> GetUserByEmailAsync(string email);
+
+
+        List<Register> GetAllUsersWithRoles();
+        Register GetUsersById(string userId);
     }
 }
