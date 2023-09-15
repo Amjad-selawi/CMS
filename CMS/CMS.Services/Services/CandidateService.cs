@@ -30,7 +30,7 @@ namespace CMS.Services.Services
                 Id = c.Id,
                 FullName = c.FullName,
                 Phone = c.Phone,
-                DesiredPosition = c.DesiredPosition,
+                PositionId = c.PositionId,
                 Email = c.Email,
                 Address = c.Address,
                 Experience = c.Experience,
@@ -52,7 +52,7 @@ namespace CMS.Services.Services
                 Id = candidate.Id,
                 FullName = candidate.FullName,
                 Phone = candidate.Phone,
-                DesiredPosition = candidate.DesiredPosition,
+                PositionId = candidate.PositionId,
                 Email = candidate.Email,
                 Address = candidate.Address,
                 Experience = candidate.Experience,
@@ -69,12 +69,13 @@ namespace CMS.Services.Services
             {
                 FullName = candidateDTO.FullName,
                 Phone = candidateDTO.Phone,
-                DesiredPosition = candidateDTO.DesiredPosition,
+                PositionId = candidateDTO.PositionId,
                 Email = candidateDTO.Email,
                 Address = candidateDTO.Address,
                 Experience = candidateDTO.Experience,
                 CVAttachmentId = candidateDTO.CVAttachmentId,
-                LinkedInUrl = candidateDTO.LinkedInUrl
+                LinkedInUrl = candidateDTO.LinkedInUrl,
+                CountryId = candidateDTO.CountryId
             };
             await _candidateRepository.CreateCandidateAsync(candidate);
         }
@@ -87,7 +88,7 @@ namespace CMS.Services.Services
 
             existingCandidate.FullName = candidateDTO.FullName;
             existingCandidate.Phone = candidateDTO.Phone;
-            existingCandidate.DesiredPosition = candidateDTO.DesiredPosition;
+            existingCandidate.PositionId = candidateDTO.PositionId;
             existingCandidate.Email = candidateDTO.Email;
             existingCandidate.Address = candidateDTO.Address;
             existingCandidate.Experience = candidateDTO.Experience;

@@ -13,51 +13,137 @@ namespace CMS.Repository.Repositories
 {
     public class InterviewsRepository : IInterviewsRepository
     {
-        private readonly ApplicationDbContext Db;
+        private readonly ApplicationDbContext _context;
 
-        public InterviewsRepository(ApplicationDbContext _db)
+        public InterviewsRepository(ApplicationDbContext context)
         {
-            Db = _db;
+            _context = context;
         }
 
-        public async Task<IEnumerable<Interviews>> GetAllInterviews()
+
+
+        public async Task<int> Delete(int id)
         {
-            return await Db.Interviews.ToListAsync();
+            try
+            {
+                var careerOffer = await _context.CarrerOffers.FindAsync(id)
+;
+                _context.CarrerOffers.Remove(careerOffer);
+                return await _context.SaveChangesAsync();
+
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
         }
 
-        public async Task<Interviews> GetInterviewById(int interviewId)
+        public async Task<List<Interviews>> GetAll()
         {
-            return await Db.Interviews.FindAsync(interviewId);
+            try
+            {
+
+                return await _context.Interviews.Include(c => c.Position).Include(c => c.Candidate).AsNoTracking().ToListAsync();
+
+
+
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
         }
 
-        public async Task Create(Interviews entity)
+        public async Task<Interviews> GetById(int id)
         {
-            entity.IsActive = true;
-            entity.EditId = entity.EditId;
-            entity.EditDate = DateTime.Now;
-
-            Db.Interviews.Add(entity);
-            await Db.SaveChangesAsync();
+            try
+            {
+                var interview = await _context.Interviews.Include(c => c.Position).Include(c => c.Candidate).AsNoTracking().FirstOrDefaultAsync(c => c.InterviewsId == id);
+                return interview;
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
         }
 
-        public async Task Update(Interviews entity)
+        public async Task<int> Insert(Interviews entity)
         {
-            entity.IsActive = true;
-            entity.EditId = entity.EditId;
-            entity.EditDate = DateTime.Now;
+            try
+            {
 
-            Db.Interviews.Update(entity);
-            await Db.SaveChangesAsync();
+                _context.Add(entity);
+                return await _context.SaveChangesAsync();
+
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
         }
 
-        public async Task Delete(Interviews entity)
+        public async Task<int> Update(Interviews entity)
         {
-            entity.IsDelete = true;
-            entity.EditId = entity.EditId;
-            entity.EditDate = DateTime.Now;
+            try
+            {
 
-            Db.Interviews.Remove(entity);
-            await Db.SaveChangesAsync();
+
+                _context.Update(entity);
+
+                return await _context.SaveChangesAsync();
+
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
         }
+
+        //private readonly ApplicationDbContext Db;
+
+        //public InterviewsRepository(ApplicationDbContext _db)
+        //{
+        //    Db = _db;
+        //}
+
+        //public async Task<IEnumerable<Interviews>> GetAllInterviews()
+        //{
+        //    return await Db.Interviews.ToListAsync();
+        //}
+
+        //public async Task<Interviews> GetInterviewById(int interviewId)
+        //{
+        //    return await Db.Interviews.FindAsync(interviewId);
+        //}
+
+        //public async Task Create(Interviews entity)
+        //{
+        //    entity.IsActive = true;
+        //    entity.EditId = entity.EditId;
+        //    entity.EditDate = DateTime.Now;
+
+        //    Db.Interviews.Add(entity);
+        //    await Db.SaveChangesAsync();
+        //}
+
+        //public async Task Update(Interviews entity)
+        //{
+        //    entity.IsActive = true;
+        //    entity.EditId = entity.EditId;
+        //    entity.EditDate = DateTime.Now;
+
+        //    Db.Interviews.Update(entity);
+        //    await Db.SaveChangesAsync();
+        //}
+
+        //public async Task Delete(Interviews entity)
+        //{
+        //    entity.IsDelete = true;
+        //    entity.EditId = entity.EditId;
+        //    entity.EditDate = DateTime.Now;
+
+        //    Db.Interviews.Remove(entity);
+        //    await Db.SaveChangesAsync();
+        //}
     }
 }
