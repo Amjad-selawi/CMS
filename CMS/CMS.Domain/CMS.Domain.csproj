@@ -29,6 +29,8 @@
     <Compile Remove="Migrations\20230915004438_corr.Designer.cs" />
     <Compile Remove="Migrations\20230915010316_ssm.cs" />
     <Compile Remove="Migrations\20230915010316_ssm.Designer.cs" />
+    <Compile Remove="Migrations\20230915154036_positionid.cs" />
+    <Compile Remove="Migrations\20230915154036_positionid.Designer.cs" />
   </ItemGroup>
 
 	<ItemGroup>

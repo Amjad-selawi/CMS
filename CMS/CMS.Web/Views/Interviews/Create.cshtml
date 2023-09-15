@@ -6,20 +6,20 @@
 <form asp-action="Create">
 
     <div class="form-group">
-        <label asp-for="candidateDTO.Id" class="control-label">Candidate Name</label>
-        @Html.DropDownListFor(model => model.candidateDTO.Id, (SelectList)ViewBag.candidateList, "Select a Name", new { @class = "form-control" })
-        <span asp-validation-for="candidateDTO.Id" class="text-danger"></span>
+        <label asp-for="CandidateId" class="control-label">Candidate Name</label>
+        @Html.DropDownListFor(model => model.CandidateId, (SelectList)ViewBag.candidateList, "Select a Name", new { @class = "form-control" })
+        <span asp-validation-for="CandidateId" class="text-danger"></span>
     </div>
 
     <div class="form-group">
-        <label asp-for="positionDTO.Id" class="control-label">Position</label>
-        @Html.DropDownListFor(model => model.positionDTO.Id, (SelectList)ViewBag.positionList, "Select a Position", new { @class = "form-control" })
-        <span asp-validation-for="positionDTO.Id" class="text-danger"></span>
+        <label asp-for="PositionId" class="control-label">Position</label>
+        @Html.DropDownListFor(model => model.PositionId, (SelectList)ViewBag.positionList, "Select a Position", new { @class = "form-control" })
+        <span asp-validation-for="PositionId" class="text-danger"></span>
     </div>
 
     <div class="form-group">
         <label asp-for="InterviewerId" class="control-label"></label>
-        <input asp-for="InterviewerId" class="form-control" />
+        @Html.DropDownListFor(model => model.InterviewerId, (SelectList)ViewBag.interviewersList, "Select an Interviewer", new { @class = "form-control" })
         <span asp-validation-for="InterviewerId" class="text-danger"></span>
     </div>
     <div class="form-group">
@@ -27,19 +27,23 @@
         <input asp-for="Date" class="form-control" />
         <span asp-validation-for="Date" class="text-danger"></span>
     </div>
-    <div class="form-group" hidden>
+   @* <div class="form-group" hidden>
+        <label asp-for="ParentId" class="control-label"></label>
+        <input asp-for="ParentId" class="form-control" />
+        <span asp-validation-for="ParentId" class="text-danger"></span>
+    </div>*@
+
+
+    <div class="form-group">
+        <label asp-for="Score" class="control-label"></label>
+        <input asp-for="Score" class="form-control" />
+        <span asp-validation-for="Score" class="text-danger"></span>
+    </div>
+    <div class="form-group">
         <label asp-for="ParentId" class="control-label"></label>
         <input asp-for="ParentId" class="form-control" />
         <span asp-validation-for="ParentId" class="text-danger"></span>
     </div>
-
-
-    <div class="form-group">
-        <label asp-for="Source" class="control-label"></label>
-        <input asp-for="Source" class="form-control" />
-        <span asp-validation-for="Source" class="text-danger"></span>
-    </div>
-
     <div class="form-group">
         <label asp-for="Status" class="control-label"></label>
         <select asp-for="Status" asp-items="Html.GetEnumSelectList<InterviewStatus>()" class="form-control">

@@ -1,4 +1,4 @@
-﻿@model IEnumerable<CMS.Application.DTOs.InterviewsDTO>
+﻿@model IEnumerable<CMS.Application.DTOs.InterviewViewDTO>
 @{
     ViewData["Title"] = "Interviews";
 }
@@ -19,9 +19,8 @@
                         <tr>
                             <th>Candidate Name</th>
                             <th>Position</th>
-                            <th>InterviewerId</th>
+                            <th>Interviewer Name</th>
                             <th>Date</th>
-                            <th hidden>Parent ID</th>
                             <th>Score</th>
                             <th>Status</th>
                             <th>Notes</th>
@@ -33,29 +32,13 @@
                         {
                             <tr>
 
-                                <td>
-                                    @item.FullName
-                                </td>
-                                <td>@item.Name</td>
-
-                                <td>@item.InterviewerId</td>
-                                <td>
-                                    @item.Date
-                                </td>
-                                <td hidden>
-                                    @item.ParentId
-                                </td>
-
-
-                                <td>
-                                    @item.Source
-                                </td>
-                                <td>
-                                    @item.Status
-                                </td>
-
+                                <td>@item.CandidateName</td>
+                                <td>@item.PositionName</td>
+                                <td>@item.InterviewerName</td>
+                                <td>@item.Date</td>
+                                <td>@item.Score</td>
+                                <td>@item.Status</td>
                                 <td>@item.Notes</td>
-
                                 <td>
                                     <a class="bx bxs-edit-alt" style="font-size:x-large" asp-action="Edit" asp-route-id="@item.InterviewsId"></a> |
                                     <a class="bx bx-detail" style="font-size:x-large" asp-action="Details" asp-route-id="@item.InterviewsId"></a> |

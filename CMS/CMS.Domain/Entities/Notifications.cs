@@ -16,7 +16,7 @@ namespace CMS.Domain.Entities
         public int ReceiverId { get; set; }
 
         public int TemplatesId { get; set; }
-        public Templates Templates { get; set; }
+        public virtual Templates Templates { get; set; }
 
         public DateTime SendDate { get; set; }
 

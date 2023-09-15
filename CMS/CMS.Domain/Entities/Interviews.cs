@@ -1,4 +1,5 @@
 ﻿using CMS.Domain.Enums;
+using Microsoft.AspNetCore.Identity;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
@@ -10,11 +11,10 @@ namespace CMS.Domain.Entities
     {
 
         public int InterviewsId { get; set; }
-
-        public int Score { get; set; }
+        public int? Score { get; set; }
         public DateTime Date { get; set; }
 
-        public InterviewStatus Status { get; set; }
+        public InterviewStatus? Status { get; set; }
 
         public int CandidateId { get; set; }
         public virtual Candidate Candidate { get; set; }
@@ -22,11 +22,12 @@ namespace CMS.Domain.Entities
         public int PositionId { get; set; }
         public virtual Position Position { get; set; }
 
-        public int InterviewerId { get; set; }
+        public string InterviewerId { get; set; }
+        public virtual IdentityUser Interviewer { get; set; }
 
-        public int ParentId { get; set; }
-
-        public string Notes { get; set; }
+        public int? ParentId { get; set; }
+        #nullable enable
+        public string? Notes { get; set; }
 
     }
 }

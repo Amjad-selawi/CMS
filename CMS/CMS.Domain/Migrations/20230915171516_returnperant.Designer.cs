@@ -4,18 +4,20 @@ using CMS.Domain;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 namespace CMS.Domain.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20230915171516_returnperant")]
+    partial class returnperant
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
-                .HasAnnotation("ProductVersion", "3.1.32")
+                .HasAnnotation("ProductVersion", "3.1.31")
                 .HasAnnotation("Relational:MaxIdentifierLength", 128)
                 .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
 
@@ -222,8 +224,8 @@ namespace CMS.Domain.Migrations
                         .HasColumnType("nvarchar(20)")
                         .HasMaxLength(20);
 
-                    b.Property<string>("InterviewerId")
-                        .HasColumnType("nvarchar(450)");
+                    b.Property<int>("InterviewerId")
+                        .HasColumnType("int");
 
                     b.Property<bool>("IsActive")
                         .HasColumnType("bit");
@@ -234,23 +236,21 @@ namespace CMS.Domain.Migrations
                     b.Property<string>("Notes")
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<int?>("ParentId")
+                    b.Property<int>("ParentId")
                         .HasColumnType("int");
 
                     b.Property<int>("PositionId")
                         .HasColumnType("int");
 
-                    b.Property<int?>("Score")
+                    b.Property<int>("Score")
                         .HasColumnType("int");
 
-                    b.Property<int?>("Status")
+                    b.Property<int>("Status")
                         .HasColumnType("int");
 
                     b.HasKey("InterviewsId");
 
                     b.HasIndex("CandidateId");
-
-                    b.HasIndex("InterviewerId");
 
                     b.HasIndex("PositionId");
 
@@ -393,28 +393,28 @@ namespace CMS.Domain.Migrations
                         new
                         {
                             Id = "b024cbbe-f64e-4d1b-9c6e-05ac0f0e3ebb",
-                            ConcurrencyStamp = "57749260-16a4-4c21-ba27-d1c377a54dc5",
+                            ConcurrencyStamp = "4110d089-1878-4339-8e93-6943c6ade017",
                             Name = "Admin",
                             NormalizedName = "ADMIN"
                         },
                         new
                         {
                             Id = "1eecb40c-c701-4445-89d4-d1aa7d70460d",
-                            ConcurrencyStamp = "746a7f29-4f73-4a76-9702-e65b1eb7f76a",
+                            ConcurrencyStamp = "2746a8f7-4101-4e6b-b5c1-c2189a73c74a",
                             Name = "General Manager",
                             NormalizedName = "GENERAL MANAGER"
                         },
                         new
                         {
                             Id = "226cca69-f046-4d15-8b81-9b9ba34f2214",
-                            ConcurrencyStamp = "25bdf6be-921e-4991-93b7-e397f0bef7ea",
+                            ConcurrencyStamp = "e63541e5-2e99-40b2-9788-3fcc6230e0ec",
                             Name = "HR Manager",
                             NormalizedName = "HR MANAGER"
                         },
                         new
                         {
                             Id = "91c3461a-7da3-4033-b907-b104b903d793",
-                            ConcurrencyStamp = "61050574-0f22-4fe3-b841-8739547c67ce",
+                            ConcurrencyStamp = "09ca257b-f8cc-4e89-b1f5-01cf2d68d789",
                             Name = "Interviewer",
                             NormalizedName = "INTERVIEWER"
                         });
@@ -513,15 +513,15 @@ namespace CMS.Domain.Migrations
                         {
                             Id = "c6585ab9-8b5f-4332-a174-92429db8add2",
                             AccessFailedCount = 0,
-                            ConcurrencyStamp = "ffe418a7-39ba-4400-b1e1-937e6f325f76",
+                            ConcurrencyStamp = "33ce003b-2c28-4484-8ab2-e606ce9908e2",
                             Email = "admin@admin.com",
                             EmailConfirmed = true,
                             LockoutEnabled = false,
                             NormalizedEmail = "ADMIN@ADMIN.COM",
                             NormalizedUserName = "ADMIN",
-                            PasswordHash = "AQAAAAEAACcQAAAAEAPiRBBmOYEc4HhVOyxoc3KkFO8W0UefR6XKRUWLfhWckoCpBMjvSnIk+iThljjULQ==",
+                            PasswordHash = "AQAAAAEAACcQAAAAELFkGT2onYxSqGoY/ztQViL2Ouv6KGVmYziB/av3IEQ0tTGCwPy+MlO+LTf4I1ibDg==",
                             PhoneNumberConfirmed = false,
-                            SecurityStamp = "cc963135-5106-4a7c-a4bf-0bf82b7e7290",
+                            SecurityStamp = "cb63eb34-b9a8-4974-92c3-a3a16a9cf925",
                             TwoFactorEnabled = false,
                             UserName = "admin"
                         });
@@ -668,10 +668,6 @@ namespace CMS.Domain.Migrations
                         .HasForeignKey("CandidateId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
-
-                    b.HasOne("Microsoft.AspNetCore.Identity.IdentityUser", "Interviewer")
-                        .WithMany()
-                        .HasForeignKey("InterviewerId");
 
                     b.HasOne("CMS.Domain.Entities.Position", "Position")
                         .WithMany("Interviews")

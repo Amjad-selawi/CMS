@@ -43,6 +43,7 @@ namespace CMS.Web
             services.AddScoped<ICarrerOfferService, CarrerOfferService>();
             services.AddDbContext<ApplicationDbContext>(options =>
             {
+                options.UseLazyLoadingProxies();
                 options.UseSqlServer(Configuration.GetConnectionString("Defultconiction"));
             });
 
