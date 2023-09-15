@@ -1,4 +1,4 @@
-﻿@model CMS.Application.DTOs.CandidateDTO
+﻿@model CMS.Application.DTOs.CandidateCreateDTO
 
 <h2>Edit Candidate</h2>
 
@@ -15,9 +15,9 @@
         <span asp-validation-for="Phone" class="text-danger"></span>
     </div>
     <div class="form-group">
-        <label asp-for="DesiredPosition" class="control-label"></label>
-        <input asp-for="DesiredPosition" class="form-control" />
-        <span asp-validation-for="DesiredPosition" class="text-danger"></span>
+        <label asp-for="PositionId" class="control-label"></label>
+        <input asp-for="PositionId" class="form-control" />
+        <span asp-validation-for="PositionId" class="text-danger"></span>
     </div>
     <div class="form-group">
         <label asp-for="Email" class="control-label"></label>
@@ -38,6 +38,11 @@
         <label asp-for="LinkedInUrl" class="control-label"></label>
         <input asp-for="LinkedInUrl" class="form-control" />
         <span asp-validation-for="LinkedInUrl" class="text-danger"></span>
+    </div>
+    <div class="form-group">
+        <label asp-for="CountryId" class="control-label"></label>
+        <input asp-for="CountryId" class="form-control" />
+        <span asp-validation-for="CountryId" class="text-danger"></span>
     </div>
     <div class="form-group">
         <input asp-for="CVAttachmentId" class="form-control"  hidden />

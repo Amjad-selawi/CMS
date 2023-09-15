@@ -14,7 +14,7 @@ namespace CMS.Application.DTOs
         [Required(ErrorMessage = "Phone is required.")]
         public int Phone { get; set; }
         [Required(ErrorMessage = "DesiredPosition is required.")]
-        public string DesiredPosition { get; set; }
+        public int PositionId { get; set; }
         [Required(ErrorMessage = "Email is required.")]
         public string Email { get; set; }
         [Required(ErrorMessage = "Address is required.")]
@@ -27,5 +27,6 @@ namespace CMS.Application.DTOs
         public long FileSize { get; set; }
         public Stream FileData { get; set; }
         public DateTime CreatedOn { get; set; }
+        public int CountryId { get; set; }
     }
 }

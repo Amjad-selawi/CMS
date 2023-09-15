@@ -26,7 +26,7 @@
                             <th>LinkedInUrl</th>
                             <th>CV</th>
                             <th>Actions</th>
-                            <th></th>
+                            <th>CountryId</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -35,11 +35,12 @@
                             <tr>
                                 <td>@Html.DisplayFor(modelItem => candidate.FullName)</td>
                                 <td>@Html.DisplayFor(modelItem => candidate.Phone)</td>
-                                <td>@Html.DisplayFor(modelItem => candidate.DesiredPosition)</td>
+                                <td>@Html.DisplayFor(modelItem => candidate.PositionId)</td>
                                 <td>@Html.DisplayFor(modelItem => candidate.Email)</td>
                                 <td>@Html.DisplayFor(modelItem => candidate.Address)</td>
                                 <td>@Html.DisplayFor(modelItem => candidate.Experience)</td>
                                 <td>@Html.DisplayFor(modelItem => candidate.LinkedInUrl)</td>
+                                <td>@Html.DisplayFor(modelItem => candidate.CountryId)</td>
                                 <td><a asp-controller="Attachments" asp-action="Download" asp-route-id="@candidate.CVAttachmentId">Download CV</a></td>
 
                                 <td>
