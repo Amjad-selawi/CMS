@@ -12,11 +12,13 @@ namespace CMS.Web.Controllers
 {
     public class AccountController : Controller
     {
+        SignInManager<IdentityUser> _signInManager;
         private readonly IAccountService _accountService;
 
-        public AccountController(IAccountService accountService)
+        public AccountController(IAccountService accountService, SignInManager<IdentityUser> signInManager)
         {
             _accountService = accountService;
+            _signInManager = signInManager;
         }
 
         //GET
@@ -29,9 +31,17 @@ namespace CMS.Web.Controllers
 
 
         //GET
-        public async Task<ActionResult> Login(int id)
+        public async Task<ActionResult> Login()
         {
-            return View();
+            if (_signInManager.IsSignedIn(User))
+            {
+                return RedirectToAction("Index", "Home");
+                
+            }
+            else
+            {
+                return View();
+            }
         }
 
         //POST
@@ -50,7 +60,7 @@ namespace CMS.Web.Controllers
                 var result = await _accountService.LoginAsync(collection);
                 if (result)
                 {
-                    return RedirectToAction("Index", "Interviews");
+                    return RedirectToAction("Index", "Home");
                 }
                 else
                 {
@@ -86,7 +96,7 @@ namespace CMS.Web.Controllers
         }
 
         //GET
-        public async Task<ActionResult> Logout(int id)
+        public async Task<ActionResult> Logout()
         {
             await _accountService.LogoutAsync();
             return RedirectToAction("Login", "Account");

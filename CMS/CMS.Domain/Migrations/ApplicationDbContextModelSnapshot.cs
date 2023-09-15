@@ -80,9 +80,14 @@ namespace CMS.Domain.Migrations
                     b.Property<int>("Phone")
                         .HasColumnType("int");
 
+                    b.Property<int?>("PositionId")
+                        .HasColumnType("int");
+
                     b.HasKey("Id");
 
                     b.HasIndex("CVAttachmentId");
+
+                    b.HasIndex("PositionId");
 
                     b.ToTable("Candidates");
                 });
@@ -94,25 +99,30 @@ namespace CMS.Domain.Migrations
                         .HasColumnType("int")
                         .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
 
-                    b.Property<string>("CreatedBy")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                    b.Property<int>("CreatedBy")
+                        .HasColumnType("int");
 
                     b.Property<DateTime>("CreatedDateTime")
                         .HasColumnType("datetime2");
+
+                    b.Property<string>("CreatorId")
+                        .HasColumnType("nvarchar(450)");
 
                     b.Property<string>("LongDescription")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<string>("Position")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                    b.Property<int>("PositionId")
+                        .HasColumnType("int");
 
                     b.Property<int>("YearsOfExperience")
                         .HasColumnType("int");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("CreatorId");
+
+                    b.HasIndex("PositionId");
 
                     b.ToTable("CarrerOffers");
                 });
@@ -163,6 +173,27 @@ namespace CMS.Domain.Migrations
                     b.ToTable("Countries");
                 });
 
+            modelBuilder.Entity("CMS.Domain.Entities.Interviewer", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int")
+                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
+
+                    b.Property<string>("Email")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("FullName")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("Phone")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("Interviewers");
+                });
+
             modelBuilder.Entity("CMS.Domain.Entities.Interviews", b =>
                 {
                     b.Property<int>("InterviewsId")
@@ -208,7 +239,10 @@ namespace CMS.Domain.Migrations
                     b.Property<int>("PositionId")
                         .HasColumnType("int");
 
-                    b.Property<int>("Score")
+                    b.Property<int>("Source")
+                        .HasColumnType("int");
+
+                    b.Property<int?>("SourceCountryId")
                         .HasColumnType("int");
 
                     b.Property<int>("Status")
@@ -219,6 +253,8 @@ namespace CMS.Domain.Migrations
                     b.HasIndex("CandidateId");
 
                     b.HasIndex("PositionId");
+
+                    b.HasIndex("SourceCountryId");
 
                     b.ToTable("Interviews");
                 });
@@ -354,6 +390,36 @@ namespace CMS.Domain.Migrations
                         .HasFilter("[NormalizedName] IS NOT NULL");
 
                     b.ToTable("AspNetRoles");
+
+                    b.HasData(
+                        new
+                        {
+                            Id = "b024cbbe-f64e-4d1b-9c6e-05ac0f0e3ebb",
+                            ConcurrencyStamp = "499c99e3-6d06-4571-9e04-1467b86d7a90",
+                            Name = "Admin",
+                            NormalizedName = "ADMIN"
+                        },
+                        new
+                        {
+                            Id = "1eecb40c-c701-4445-89d4-d1aa7d70460d",
+                            ConcurrencyStamp = "efb814dc-ce2e-4544-be42-58753edb47e2",
+                            Name = "General Manager",
+                            NormalizedName = "GENERAL MANAGER"
+                        },
+                        new
+                        {
+                            Id = "226cca69-f046-4d15-8b81-9b9ba34f2214",
+                            ConcurrencyStamp = "ee7cdba7-2174-4736-8dc3-1ad9faa7f691",
+                            Name = "HR Manager",
+                            NormalizedName = "HR MANAGER"
+                        },
+                        new
+                        {
+                            Id = "91c3461a-7da3-4033-b907-b104b903d793",
+                            ConcurrencyStamp = "afa32351-9d26-48c3-b824-f7b184734e39",
+                            Name = "Interviewer",
+                            NormalizedName = "INTERVIEWER"
+                        });
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<string>", b =>
@@ -443,6 +509,24 @@ namespace CMS.Domain.Migrations
                         .HasFilter("[NormalizedUserName] IS NOT NULL");
 
                     b.ToTable("AspNetUsers");
+
+                    b.HasData(
+                        new
+                        {
+                            Id = "c6585ab9-8b5f-4332-a174-92429db8add2",
+                            AccessFailedCount = 0,
+                            ConcurrencyStamp = "5f1cc9a6-3c85-4821-b804-b331e90c75a4",
+                            Email = "admin@admin.com",
+                            EmailConfirmed = true,
+                            LockoutEnabled = false,
+                            NormalizedEmail = "ADMIN@ADMIN.COM",
+                            NormalizedUserName = "ADMIN",
+                            PasswordHash = "AQAAAAEAACcQAAAAEFn3tyiZHnmOpjwbg49AIoO1n9gT95NEHT2I+SMFf+1YBeU0SHDaY/opJiM2y5+a1w==",
+                            PhoneNumberConfirmed = false,
+                            SecurityStamp = "166484ea-15a5-4859-9510-8fe68c10ce42",
+                            TwoFactorEnabled = false,
+                            UserName = "admin"
+                        });
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserClaim<string>", b =>
@@ -506,6 +590,13 @@ namespace CMS.Domain.Migrations
                     b.HasIndex("RoleId");
 
                     b.ToTable("AspNetUserRoles");
+
+                    b.HasData(
+                        new
+                        {
+                            UserId = "c6585ab9-8b5f-4332-a174-92429db8add2",
+                            RoleId = "b024cbbe-f64e-4d1b-9c6e-05ac0f0e3ebb"
+                        });
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserToken<string>", b =>
@@ -536,6 +627,23 @@ namespace CMS.Domain.Migrations
                         .HasForeignKey("CVAttachmentId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+
+                    b.HasOne("CMS.Domain.Entities.Position", null)
+                        .WithMany("Candidates")
+                        .HasForeignKey("PositionId");
+                });
+
+            modelBuilder.Entity("CMS.Domain.Entities.CarrerOffer", b =>
+                {
+                    b.HasOne("Microsoft.AspNetCore.Identity.IdentityUser", "Creator")
+                        .WithMany()
+                        .HasForeignKey("CreatorId");
+
+                    b.HasOne("CMS.Domain.Entities.Position", "Position")
+                        .WithMany("Offers")
+                        .HasForeignKey("PositionId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
                 });
 
             modelBuilder.Entity("CMS.Domain.Entities.Company", b =>
@@ -560,6 +668,10 @@ namespace CMS.Domain.Migrations
                         .HasForeignKey("PositionId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+
+                    b.HasOne("CMS.Domain.Entities.Country", "SourceCountry")
+                        .WithMany()
+                        .HasForeignKey("SourceCountryId");
                 });
 
             modelBuilder.Entity("CMS.Domain.Entities.Notifications", b =>

@@ -30,7 +30,7 @@ namespace CMS.Services.Services
             return interviews.Select(i => new InterviewsDTO
             {
                 InterviewsId = i.InterviewsId,
-                Score = i.Score,
+                Source = i.Source,
                 Date = i.Date,
                 ParentId = i.ParentId,
                 InterviewerId=i.InterviewerId,
@@ -72,7 +72,7 @@ namespace CMS.Services.Services
             return new InterviewsDTO
             {
                 InterviewsId = interview.InterviewsId,
-                Score = interview.Score,
+                Source = interview.Source,
                 Date = interview.Date,
                 ParentId = interview.ParentId,
                 InterviewerId = interview.InterviewerId,
@@ -94,7 +94,7 @@ namespace CMS.Services.Services
             {
                 var interview = new Interviews
                 {
-                    Score = entity.Score,
+                    Source = entity.Source,
                     Date = entity.Date,
                     ParentId = entity.ParentId,
                     InterviewerId = entity.InterviewerId,
@@ -119,7 +119,7 @@ namespace CMS.Services.Services
                 throw new Exception("Interview not found");
 
 
-            existingInterview.Score = entity.Score;
+            existingInterview.Source = entity.Source;
             existingInterview.Date = entity.Date;
             existingInterview.ParentId = entity.ParentId;
             existingInterview.InterviewerId = entity.InterviewerId;

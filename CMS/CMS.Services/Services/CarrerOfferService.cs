@@ -27,7 +27,7 @@ namespace CMS.Services.Services
             return carrerOffers.Select(co => new CarrerOfferDTO
             {
                 Id = co.Id,
-                Position = co.Position,
+                PositionId = co.PositionId,
                 YearsOfExperience = co.YearsOfExperience,
                 LongDescription = co.LongDescription,
                 CreatedBy = co.CreatedBy,
@@ -44,7 +44,7 @@ namespace CMS.Services.Services
             return new CarrerOfferDTO
             {
                 Id = carrerOffer.Id,
-                Position = carrerOffer.Position,
+                PositionId = carrerOffer.PositionId,
                 YearsOfExperience = carrerOffer.YearsOfExperience,
                 LongDescription = carrerOffer.LongDescription,
                 CreatedBy = carrerOffer.CreatedBy,
@@ -56,7 +56,7 @@ namespace CMS.Services.Services
         {
             var carrerOffer = new CarrerOffer
             {
-                Position = carrerOfferDTO.Position,
+                PositionId = carrerOfferDTO.PositionId,
                 YearsOfExperience = carrerOfferDTO.YearsOfExperience,
                 LongDescription = carrerOfferDTO.LongDescription,
                 CreatedBy = carrerOfferDTO.CreatedBy
@@ -71,7 +71,7 @@ namespace CMS.Services.Services
             if (existingCarrerOffer == null)
                 throw new Exception("Carrer offer not found");
 
-            existingCarrerOffer.Position = carrerOfferDTO.Position;
+            existingCarrerOffer.PositionId = carrerOfferDTO.PositionId;
             existingCarrerOffer.YearsOfExperience = carrerOfferDTO.YearsOfExperience;
             existingCarrerOffer.LongDescription = carrerOfferDTO.LongDescription;
             existingCarrerOffer.CreatedBy = carrerOfferDTO.CreatedBy;

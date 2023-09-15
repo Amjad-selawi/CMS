@@ -24,5 +24,6 @@ namespace CMS.Application.DTOs
       
         public int CVAttachmentId { get; set; } 
         public string LinkedInUrl { get; set; }
+        
     }
 }

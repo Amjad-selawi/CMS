@@ -4,6 +4,33 @@
     <TargetFramework>netcoreapp3.1</TargetFramework>
   </PropertyGroup>
 
+  <ItemGroup>
+    <Compile Remove="Migrations\20230914215508_ModelsChanges.cs" />
+    <Compile Remove="Migrations\20230914215508_ModelsChanges.Designer.cs" />
+    <Compile Remove="Migrations\20230914230103_UsersSeed.cs" />
+    <Compile Remove="Migrations\20230914230103_UsersSeed.Designer.cs" />
+    <Compile Remove="Migrations\20230914234920_PositionBreakdown.cs" />
+    <Compile Remove="Migrations\20230914234920_PositionBreakdown.Designer.cs" />
+    <Compile Remove="Migrations\20230914235307_PositionBreakdown.cs" />
+    <Compile Remove="Migrations\20230914235307_PositionBreakdown.Designer.cs" />
+    <Compile Remove="Migrations\20230915000702_PositionBreakdown.cs" />
+    <Compile Remove="Migrations\20230915000702_PositionBreakdown.Designer.cs" />
+    <Compile Remove="Migrations\20230915001844_Position.cs" />
+    <Compile Remove="Migrations\20230915001844_Position.Designer.cs" />
+    <Compile Remove="Migrations\20230915002324_Position.cs" />
+    <Compile Remove="Migrations\20230915002324_Position.Designer.cs" />
+    <Compile Remove="Migrations\20230915003053_modelswithseeding.cs" />
+    <Compile Remove="Migrations\20230915003053_modelswithseeding.Designer.cs" />
+    <Compile Remove="Migrations\20230915003538_modelswithseeding.cs" />
+    <Compile Remove="Migrations\20230915003538_modelswithseeding.Designer.cs" />
+    <Compile Remove="Migrations\20230915003827_modelswithseeding.cs" />
+    <Compile Remove="Migrations\20230915003827_modelswithseeding.Designer.cs" />
+    <Compile Remove="Migrations\20230915004438_corr.cs" />
+    <Compile Remove="Migrations\20230915004438_corr.Designer.cs" />
+    <Compile Remove="Migrations\20230915010316_ssm.cs" />
+    <Compile Remove="Migrations\20230915010316_ssm.Designer.cs" />
+  </ItemGroup>
+
 	<ItemGroup>
 		<PackageReference Include="Microsoft.AspNetCore.Identity.EntityFrameworkCore" Version="3.1.31" />
 		<PackageReference Include="Microsoft.AspNetCore.Identity.UI" Version="3.1.31" />

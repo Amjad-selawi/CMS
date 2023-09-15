@@ -15,6 +15,8 @@ namespace CMS.Domain.EntityMapper
                 .HasOne(p => p.CV)
                 .WithMany()
                 .HasForeignKey(p => p.CVAttachmentId);
+            
+
         }
     }
 }

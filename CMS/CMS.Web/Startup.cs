@@ -84,6 +84,8 @@ namespace CMS.Web
 
             services.AddScoped(typeof(ITemplatesRepository), typeof(TemplatesRepository));
             services.AddTransient<ITemplatesService, TemplatesService>();
+            services.AddScoped(typeof(IInterviewerRepository), typeof(InterviewerRepository));
+            services.AddScoped<IInterviewerService, InterviewerService>();
 
 
 
@@ -133,6 +135,7 @@ namespace CMS.Web
             app.UseRouting();
 
             app.UseAuthorization();
+            app.UseAuthentication();
 
             app.UseEndpoints(endpoints =>
             {

@@ -130,6 +130,12 @@ namespace CMS.Web.Controllers
         [ValidateAntiForgeryToken]
         public async Task<ActionResult> Edit(int id, InterviewsDTO collection)
         {
+           
+            if (collection == null)
+            {
+                return NotFound();
+            }
+
             if (id != collection.InterviewsId)
             {
                 return NotFound();
@@ -137,6 +143,11 @@ namespace CMS.Web.Controllers
 
             var cand = await _candidateService.GetCandidateByIdAsync(id);
             var posi = await _positionService.GetById(id);
+
+            if (cand == null || posi == null)
+            {
+                return NotFound();
+            }
 
             if (ModelState.IsValid)
             {

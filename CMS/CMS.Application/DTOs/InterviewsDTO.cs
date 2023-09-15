@@ -10,7 +10,7 @@ namespace CMS.Application.DTOs
         
         public int InterviewsId { get; set; }
 
-        public int Score { get; set; }
+        public int Source { get; set; }
         
         public DateTime Date { get; set; }
 
