@@ -13,7 +13,7 @@ namespace CMS.Repository.Interfaces
         Task CreateCarrerOfferAsync(CarrerOffer carrerOffer);
         Task UpdateCarrerOfferAsync(CarrerOffer carrerOffer);
         Task DeleteCarrerOfferAsync(CarrerOffer carrerOffer);
-       
+        Task<int> CountAllAsync();
     }
 }
     

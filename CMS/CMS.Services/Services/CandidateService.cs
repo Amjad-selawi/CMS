@@ -57,7 +57,8 @@ namespace CMS.Services.Services
                 Address = candidate.Address,
                 Experience = candidate.Experience,
                 CVAttachmentId = candidate.CVAttachmentId,
-                LinkedInUrl = candidate.LinkedInUrl
+                LinkedInUrl = candidate.LinkedInUrl,
+                CountryId = candidate.CountryId,
             };
         }
 
@@ -94,6 +95,7 @@ namespace CMS.Services.Services
             existingCandidate.Experience = candidateDTO.Experience;
             existingCandidate.CVAttachmentId = candidateDTO.CVAttachmentId;
             existingCandidate.LinkedInUrl = candidateDTO.LinkedInUrl;
+            existingCandidate.CountryId = candidateDTO.CountryId;
 
             await _candidateRepository.UpdateCandidateAsync(existingCandidate);
         }

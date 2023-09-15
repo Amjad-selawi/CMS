@@ -1,4 +1,5 @@
-﻿@{
+﻿@model CMS.Application.DTOs.PerformanceReportDTO 
+@{
     ViewData["Title"] = "Dashboard";
     ViewData["additionalJS"] =new[]
     {
@@ -9,6 +10,7 @@
         "/dashboard-js/countries-hash.js",
         "/dashboard-js/candidate-sources-map.js"
     };
+    
 }
 
 <div class="row">
@@ -19,7 +21,7 @@
                 <div class="d-flex justify-content-between">
                     <div>
                         <p class="fw-medium text-muted mb-0">Candidates</p>
-                        <h2 class="mt-4 ff-secondary fw-semibold"><span class="counter-value" data-target="28.05">28.05</span>k</h2>
+                        <h2 class="mt-4 ff-secondary fw-semibold"><span class="counter-value" data-target="@Model.NumberOfCandidates">@Model.NumberOfCandidates</span></h2>
                     </div>
                     <div>
                         <div class="avatar-sm flex-shrink-0">
@@ -49,9 +51,9 @@
                 <div class="d-flex align-items-center">
                     <div class="flex-grow-1 overflow-hidden">
                         <p class="text-uppercase fw-medium text-muted text-truncate mb-3"> Accepted</p>
-                        <h4 class="fs-22 fw-semibold ff-secondary mb-0"><span class="counter-value" data-target="600">0</span></h4>
+                        <h4 class="fs-22 fw-semibold ff-secondary mb-0"><span class="counter-value" data-target="@Model.NumberOfAccepted">0</span></h4>
                     </div>
-                    <div id="accepted-chart" data-percent="60"></div>
+                    <div id="accepted-chart" data-percent="@ViewBag.Percentage"></div>
                 </div>
             </div><!-- end card body -->
         </div><!-- end card -->
@@ -62,7 +64,7 @@
                 <div class="d-flex justify-content-between">
                     <div>
                         <p class="fw-medium text-muted mb-0">Job Offers</p>
-                        <h2 class="mt-4 ff-secondary fw-semibold"><span class="counter-value" data-target="28.05">28.05</span>k</h2>
+                        <h2 class="mt-4 ff-secondary fw-semibold"><span class="counter-value" data-target="@Model.CarrerOffers">@Model.CarrerOffers</span></h2>
                     </div>
                     <div>
                         <div class="avatar-sm flex-shrink-0">
@@ -88,7 +90,7 @@
             <!-- card body -->
             <div class="card-body">
                 <div id="candidate-sources-map"
-                     data-locations="['Jordan','Morocco','Cuba']"></div>
+                     data-locations="@ViewBag.CountriesList"></div>
                 <table class="table table-nowrap dt-responsive table-bordered display" style="width:100%">
                     <thead>
                         <tr>
@@ -98,14 +100,13 @@
                         </tr>
                     </thead>
                     <tbody>
-                        <tr>
-                            <td>Jordan</td>
-                            <td>500</td>
-                        </tr>
-                        <tr>
-                            <td>Egypt</td>
-                            <td>300</td>
-                        </tr>
+                        @foreach(var item in Model.CandidatesPerCountry)
+                        {
+                            <tr>
+                                <td>@item.Key</td>
+                                <td>@item.Value</td>
+                            </tr>
+                        }
                     </tbody>
                 </table>
             </div>

@@ -4,8 +4,11 @@ using System.Text;
 
 namespace CMS.Application.DTOs
 {
-    internal class PerformanceReportDTO
+    public class PerformanceReportDTO
     {
-        
+        public int NumberOfCandidates { get; set; }
+        public int NumberOfAccepted { get; set; }
+        public int CarrerOffers { get; set; }
+        public Dictionary<string, int> CandidatesPerCountry { get; set; }
     }
 }

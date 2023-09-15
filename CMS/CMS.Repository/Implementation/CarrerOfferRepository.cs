@@ -44,6 +44,10 @@ namespace CMS.Repository.Implementation
             _dbContext.CarrerOffers.Remove(carrerOffer);
             await _dbContext.SaveChangesAsync();
         }
+        public async Task<int> CountAllAsync()
+        {
+            return await _dbContext.CarrerOffers.CountAsync();
+        }
 
     }
 }

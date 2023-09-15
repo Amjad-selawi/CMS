@@ -88,7 +88,7 @@ namespace CMS.Web
             services.AddScoped(typeof(IInterviewerRepository), typeof(InterviewerRepository));
             services.AddScoped<IInterviewerService, InterviewerService>();
 
-
+            services.AddTransient<IReportingService, ReportingService>();
 
             services.AddDbContext<ApplicationDbContext>(x =>
             {

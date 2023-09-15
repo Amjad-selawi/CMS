@@ -1,0 +1,1396 @@
+using Dapper;
+using Repository._Helpers;
+using Domain.Base;
+using Domain.Interfaces.Repository.Common;
+using Domain.Models.Common;
+using System;
+using System.Collections.Generic;
+using System.Data;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+namespace Repository.Common
+{
+    public class BanksRepo : IBanksRepo<BanksENT>
+    {
+                private DapperContext _DapperContext { get; }
+        public BanksRepo(DapperContext dapperContext)
+        {
+            _DapperContext = dapperContext;
+        }
+        public ReturnResponse<BanksENT> Add(BanksENT REQ)
+        {
+            ReturnResponse<BanksENT> RES = new();
+            try
+            {
+                using (IDbConnection connection = _DapperContext.CreateDefultConnection())
+                {
+
+                    _DapperContext.Prameters.Add("Id", null, DbType.Guid, System.Data.ParameterDirection.Output);
+                    _DapperContext.Prameters.Add("NameAr", REQ.NameAr);
+                    _DapperContext.Prameters.Add("NameEn", REQ.NameEn);
+                    _DapperContext.Prameters.Add("Code", REQ.Code);
+                    _DapperContext.Prameters.Add("CountryId", REQ.CountryId);
+                    _DapperContext.Prameters.Add("StartIBANCode", REQ.StartIBANCode);
+                    _DapperContext.Prameters.Add("AccountLength", REQ.AccountLength);
+                    _DapperContext.Prameters.Add("AddressFree", REQ.AddressFree);
+                    _DapperContext.Prameters.Add("RoutingNumber", REQ.RoutingNumber);
+                    _DapperContext.Prameters.Add("SwiftCode", REQ.SwiftCode);
+                    _DapperContext.Prameters.Add("SortCode", REQ.SortCode);
+                    _DapperContext.Prameters.Add("modifyBy", REQ.ModifyBy);
+                    _DapperContext.Prameters.Add("ProcessStatus", null, DbType.Boolean, System.Data.ParameterDirection.Output);
+                    var response = connection.Execute("cmn.Banks_Insert_SP", _DapperContext.Prameters, commandType: CommandType.StoredProcedure);
+
+                    if (_DapperContext.Prameters.Get<Boolean>("ProcessStatus"))
+                    {
+                        RES.Header.Status = Domain.Enums.ResultType.Successfully;
+                        RES.Data = new BanksENT
+                        {
+                            Id = _DapperContext.Prameters.Get<Guid>("Id")
+                        };
+                    }
+                    else
+                    {
+                        RES.Header.Status = Domain.Enums.ResultType.Error;
+                        RES.Header.MessagesList = new List<Messages>
+                        {
+                            new Messages()
+                            {
+                                MessageCode = "400",
+                                MessageDesc = "Error occurred while trying to add new receord to Database",
+                                ErrorSource = Domain.Enums.ErrorSource.DatabaseError
+                            }
+                        };
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                RES.Header = new ResponseHeader
+                {
+                    Status = Domain.Enums.ResultType.Error,
+                    MessagesList = new List<Messages>
+                    {
+                        new Messages
+                        {
+                            MessageCode=ex.HResult.ToString(),
+                            MessageDesc=ex.Message,
+                            ErrorSource = Domain.Enums.ErrorSource.RepositoryError
+                        }
+                    }
+                };
+            }
+            return RES;
+        }
+        public ReturnResponse<BanksENT> Delete(BanksENT REQ)
+        {
+            ReturnResponse<BanksENT> RES = new();
+            try
+            {
+                using (IDbConnection connection = _DapperContext.CreateDefultConnection())
+                {
+                    
+                     _DapperContext.Prameters.Add("Id", REQ.Id);
+                    _DapperContext.Prameters.Add("modifyBy", REQ.ModifyBy);
+                    _DapperContext.Prameters.Add("ProcessStatus", null, DbType.Boolean, System.Data.ParameterDirection.Output);
+                    var response = connection.Execute("cmn.Banks_Delete_SP", _DapperContext.Prameters, commandType: CommandType.StoredProcedure);
+                    if (_DapperContext.Prameters.Get<Boolean>("ProcessStatus"))
+                    {
+                        RES.Header.Status = Domain.Enums.ResultType.Successfully;
+                        RES.Data = new ();
+                    }
+                    else
+                    {
+                        RES.Header.Status = Domain.Enums.ResultType.Error;
+                        RES.Header.MessagesList = new List<Messages>
+                        {
+                            new Messages()
+                            {
+                                MessageCode = "400",
+                                MessageDesc = "Error occurred while trying to delete receord from Database",
+                                ErrorSource = Domain.Enums.ErrorSource.DatabaseError
+                            }
+                        };
+                    }
+                
+                }
+            }
+            catch (Exception ex)
+            {
+                RES.Header = new ResponseHeader
+                {
+                    Status = Domain.Enums.ResultType.Error,
+                    MessagesList = new List<Messages>
+                    {
+                        new Messages
+                        {
+                            MessageCode=ex.HResult.ToString(),
+                            MessageDesc=ex.Message,
+                            ErrorSource = Domain.Enums.ErrorSource.RepositoryError
+                        }
+                    }
+                };
+            }
+            return RES;
+        }
+        public ReturnResponse<IList<BanksENT>> GetDataList(BanksENT REQ)
+        {
+            ReturnResponse<IList<BanksENT>> RES = new();
+            try
+            {
+                using (IDbConnection connection = _DapperContext.CreateDefultConnection())
+                {
+                    
+                    RES.Data = connection.Query<BanksENT>("cmn.Banks_GetData_SP", _DapperContext.Prameters, commandType: CommandType.StoredProcedure).ToList();
+                    RES.Header = new ResponseHeader
+                    {
+                        Status = Domain.Enums.ResultType.Successfully,
+                        MessagesList = new List<Messages>()
+                    };
+                }
+        
+            }
+            catch (Exception ex)
+            {
+                RES.Header = new ResponseHeader
+                {
+                    Status = Domain.Enums.ResultType.Error,
+                    MessagesList = new List<Messages>
+                    {
+                        new Messages
+                        {
+                            MessageCode=ex.HResult.ToString(),
+                            MessageDesc=ex.Message,
+                            ErrorSource = Domain.Enums.ErrorSource.RepositoryError
+                        }
+                    }
+                };
+            }
+            return RES;
+        }
+        public ReturnResponse<BanksENT> GetDataRecord(BanksENT REQ)
+        {
+            ReturnResponse<BanksENT> RES = new();
+            try
+            {
+                using (IDbConnection connection = _DapperContext.CreateDefultConnection())
+                {
+                    _DapperContext.Prameters.Add("Id", REQ.Id);
+                    _DapperContext.Prameters.Add("Code", REQ.Code);
+                    _DapperContext.Prameters.Add("CountryId", REQ.CountryId);
+                    RES.Data = connection.QueryFirstOrDefault<BanksENT>("cmn.Banks_GetData_SP", _DapperContext.Prameters, commandType: CommandType.StoredProcedure);
+                    RES.Header = new ResponseHeader
+                    {
+                        Status = Domain.Enums.ResultType.Successfully,
+                        MessagesList = new List<Messages>()
+                    };
+                }
+            
+            }
+            catch (Exception ex)
+            {
+                RES.Header = new ResponseHeader
+                {
+                    Status = Domain.Enums.ResultType.Error,
+                    MessagesList = new List<Messages>
+                    {
+                        new Messages
+                        {
+                            MessageCode=ex.HResult.ToString(),
+                            MessageDesc=ex.Message,
+                            ErrorSource = Domain.Enums.ErrorSource.RepositoryError
+                        }
+                    }
+                };
+            }
+            return RES;
+        }
+        public ReturnResponse<BanksENT> Update(BanksENT REQ)
+        {
+            ReturnResponse<BanksENT> RES = new();
+            try
+            {
+                using (IDbConnection connection = _DapperContext.CreateDefultConnection())
+                {
+                    
+                    _DapperContext.Prameters.Add("Id", REQ.Id);
+                    _DapperContext.Prameters.Add("NameAr", REQ.NameAr);
+                    _DapperContext.Prameters.Add("NameEn", REQ.NameEn);
+                    _DapperContext.Prameters.Add("Code", REQ.Code);
+                    _DapperContext.Prameters.Add("CountryId", REQ.CountryId);
+                    _DapperContext.Prameters.Add("StartIBANCode", REQ.StartIBANCode);
+                    _DapperContext.Prameters.Add("AccountLength", REQ.AccountLength);
+                    _DapperContext.Prameters.Add("AddressFree", REQ.AddressFree);
+                    _DapperContext.Prameters.Add("RoutingNumber", REQ.RoutingNumber);
+                    _DapperContext.Prameters.Add("SwiftCode", REQ.SwiftCode);
+                    _DapperContext.Prameters.Add("SortCode", REQ.SortCode);
+                    _DapperContext.Prameters.Add("modifyBy", REQ.ModifyBy);
+                    _DapperContext.Prameters.Add("ProcessStatus", null, DbType.Boolean, System.Data.ParameterDirection.Output);
+                    var response = connection.Execute("cmn.Banks_Update_SP", _DapperContext.Prameters, commandType: CommandType.StoredProcedure);
+
+                    if (_DapperContext.Prameters.Get<Boolean>("ProcessStatus"))
+                    {
+                        RES.Header.Status = Domain.Enums.ResultType.Successfully;
+                        RES.Data = new BanksENT();
+                    }
+                    else
+                    {
+                        RES.Header.Status = Domain.Enums.ResultType.Error;
+                        RES.Header.MessagesList = new List<Messages>
+                        {
+                            new Messages()
+                            {
+                                MessageCode = "400",
+                                MessageDesc = "Error occurred while trying to update Database record",
+                                ErrorSource = Domain.Enums.ErrorSource.DatabaseError
+                            }
+                        };
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                RES.Header = new ResponseHeader
+                {
+                    Status = Domain.Enums.ResultType.Error,
+                    MessagesList = new List<Messages>
+                    {
+                        new Messages
+                        {
+                            MessageCode=ex.HResult.ToString(),
+                            MessageDesc=ex.Message,
+                            ErrorSource = Domain.Enums.ErrorSource.RepositoryError
+                        }
+                    }
+                };
+            }
+            return RES;
+        }
+        public ReturnResponse<BanksENT> GetDataByCode(BanksENT REQ)
+        {
+            throw new NotImplementedException();
+        }
+        public ReturnResponse<IList<BanksENT>> GetDataPagination(BanksENT REQ)
+        {
+            ReturnResponse<IList<BanksENT>> RES = new();
+            try
+            {
+                using (IDbConnection connection = _DapperContext.CreateDefultConnection())
+                {
+                    _DapperContext.Prameters.Add("PageSize", REQ.PageSize);
+                    _DapperContext.Prameters.Add("PageIndex", REQ.PageIndex);
+                    _DapperContext.Prameters.Add("OrderBy", REQ.OrderBy);
+
+                    var data = connection.QueryMultiple("cmn.Banks_Pagination_SP", _DapperContext.Prameters, commandType: CommandType.StoredProcedure);
+
+                    RES.Paginaition= data.ReadFirst<Paginaition>();
+                    RES.Data = data.Read<BanksENT>().ToList();
+                    RES.Header = new ResponseHeader
+                    {
+                        Status = Domain.Enums.ResultType.Successfully,
+                        MessagesList = new List<Messages>()
+                    };
+                }
+
+            }
+            catch (Exception ex)
+            {
+                RES.Header = new ResponseHeader
+                {
+                    Status = Domain.Enums.ResultType.Error,
+                    MessagesList = new List<Messages>
+                    {
+                        new Messages
+                        {
+                            MessageCode=ex.HResult.ToString(),
+                            MessageDesc=ex.Message,
+                            ErrorSource = Domain.Enums.ErrorSource.RepositoryError
+                        }
+                    }
+                };
+            }
+            return RES;
+        }
+    }
+}
+explain this code fore me with all details
+ChatGPT
+This code appears to be a C# class that implements a repository for interacting with a database using Dapper, a popular micro ORM (Object-Relational Mapping) library. It seems to be designed for working with the "Banks" entity in a database. Let's break down the code section by section:
+
+Using Directives: These are C# statements that specify which namespaces are being used in the code. They simplify code by allowing you to use types from those namespaces without fully qualifying their names. Here are the namespaces being used:
+
+using Dapper;: Importing Dapper, which is used for database interactions.
+using Repository._Helpers;: Importing some custom helper classes or extensions.
+using Domain.Base;: Importing a namespace related to domain entities or models.
+using Domain.Interfaces.Repository.Common;: Importing an interface related to common repository operations.
+using Domain.Models.Common;: Importing a namespace related to common domain models.
+Other standard C# namespaces for data manipulation.
+Class Definition (BanksRepo): This class implements the IBanksRepo<BanksENT> interface, which appears to define a set of common repository operations for the "Banks" entity.
+
+Constructor: The class has a constructor that accepts an instance of DapperContext as a parameter and assigns it to a private field _DapperContext. This context is presumably used for establishing database connections.
+
+Repository Methods:
+
+Add(BanksENT REQ): This method is used to add a new bank record to the database. It seems to be working with stored procedures, taking input parameters from the REQ object, executing the appropriate stored procedure, and returning a ReturnResponse object with the result.
+
+Delete(BanksENT REQ): This method is used to delete a bank record from the database. Like the Add method, it works with stored procedures, takes input parameters from the REQ object, and returns a ReturnResponse object with the result.
+
+GetDataList(BanksENT REQ): This method retrieves a list of bank records from the database. It appears to execute a stored procedure named "cmn.Banks_GetData_SP" and returns the data as a list of BanksENT objects wrapped in a ReturnResponse object.
+
+GetDataRecord(BanksENT REQ): This method retrieves a single bank record based on the provided REQ object. It again seems to work with a stored procedure and returns the result as a BanksENT object wrapped in a ReturnResponse object.
+
+Update(BanksENT REQ): This method is used to update a bank record in the database. It works with a stored procedure, takes input parameters from the REQ object, and returns a ReturnResponse object with the result.
+
+GetDataByCode(BanksENT REQ): This method is not implemented (throw new NotImplementedException();). It suggests that this functionality has not been implemented yet.
+
+GetDataPagination(BanksENT REQ): This method retrieves a paginated list of bank records. It appears to work with a stored procedure, taking pagination-related parameters from the REQ object and returning a ReturnResponse object containing the pagination information and the list of bank records.
+
+Error Handling: Each repository method includes try-catch blocks to handle exceptions. If an exception occurs during database operations or other parts of the code, the method sets appropriate error messages and statuses in the ResponseHeader of the ReturnResponse object.
+
+Overall Purpose: This class serves as a repository for interacting with a database for CRUD (Create, Read, Update, Delete) operations related to the "Banks" entity. It uses Dapper for database communication and returns responses encapsulated in a custom ReturnResponse class, which includes status information and, in some cases, data from the database.
+
+Please note that this code assumes a certain database structure and stored procedures, and it relies on other classes like DapperContext, BanksENT, and custom data structures not provided in this code snippet. The exact behavior and functionality depend on the implementation of these missing components.
+
+
+
+
+User
+using Dapper;
+using Repository._Helpers;
+using Domain.Base;
+using Domain.Interfaces.Repository.Common;
+using Domain.Models.Common;
+using System;
+using System.Collections.Generic;
+using System.Data;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+namespace Repository.Common
+{
+    public class BanksRepo : IBanksRepo<BanksENT>
+    {
+                private DapperContext _DapperContext { get; }
+        public BanksRepo(DapperContext dapperContext)
+        {
+            _DapperContext = dapperContext;
+        }
+        public ReturnResponse<BanksENT> Add(BanksENT REQ)
+        {
+            ReturnResponse<BanksENT> RES = new();
+            try
+            {
+                using (IDbConnection connection = _DapperContext.CreateDefultConnection())
+                {
+
+                    _DapperContext.Prameters.Add("Id", null, DbType.Guid, System.Data.ParameterDirection.Output);
+                    _DapperContext.Prameters.Add("NameAr", REQ.NameAr);
+                    _DapperContext.Prameters.Add("NameEn", REQ.NameEn);
+                    _DapperContext.Prameters.Add("Code", REQ.Code);
+                    _DapperContext.Prameters.Add("CountryId", REQ.CountryId);
+                    _DapperContext.Prameters.Add("StartIBANCode", REQ.StartIBANCode);
+                    _DapperContext.Prameters.Add("AccountLength", REQ.AccountLength);
+                    _DapperContext.Prameters.Add("AddressFree", REQ.AddressFree);
+                    _DapperContext.Prameters.Add("RoutingNumber", REQ.RoutingNumber);
+                    _DapperContext.Prameters.Add("SwiftCode", REQ.SwiftCode);
+                    _DapperContext.Prameters.Add("SortCode", REQ.SortCode);
+                    _DapperContext.Prameters.Add("modifyBy", REQ.ModifyBy);
+                    _DapperContext.Prameters.Add("ProcessStatus", null, DbType.Boolean, System.Data.ParameterDirection.Output);
+                    var response = connection.Execute("cmn.Banks_Insert_SP", _DapperContext.Prameters, commandType: CommandType.StoredProcedure);
+
+                    if (_DapperContext.Prameters.Get<Boolean>("ProcessStatus"))
+                    {
+                        RES.Header.Status = Domain.Enums.ResultType.Successfully;
+                        RES.Data = new BanksENT
+                        {
+                            Id = _DapperContext.Prameters.Get<Guid>("Id")
+                        };
+                    }
+                    else
+                    {
+                        RES.Header.Status = Domain.Enums.ResultType.Error;
+                        RES.Header.MessagesList = new List<Messages>
+                        {
+                            new Messages()
+                            {
+                                MessageCode = "400",
+                                MessageDesc = "Error occurred while trying to add new receord to Database",
+                                ErrorSource = Domain.Enums.ErrorSource.DatabaseError
+                            }
+                        };
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                RES.Header = new ResponseHeader
+                {
+                    Status = Domain.Enums.ResultType.Error,
+                    MessagesList = new List<Messages>
+                    {
+                        new Messages
+                        {
+                            MessageCode=ex.HResult.ToString(),
+                            MessageDesc=ex.Message,
+                            ErrorSource = Domain.Enums.ErrorSource.RepositoryError
+                        }
+                    }
+                };
+            }
+            return RES;
+        }
+        public ReturnResponse<BanksENT> Delete(BanksENT REQ)
+        {
+            ReturnResponse<BanksENT> RES = new();
+            try
+            {
+                using (IDbConnection connection = _DapperContext.CreateDefultConnection())
+                {
+                    
+                     _DapperContext.Prameters.Add("Id", REQ.Id);
+                    _DapperContext.Prameters.Add("modifyBy", REQ.ModifyBy);
+                    _DapperContext.Prameters.Add("ProcessStatus", null, DbType.Boolean, System.Data.ParameterDirection.Output);
+                    var response = connection.Execute("cmn.Banks_Delete_SP", _DapperContext.Prameters, commandType: CommandType.StoredProcedure);
+                    if (_DapperContext.Prameters.Get<Boolean>("ProcessStatus"))
+                    {
+                        RES.Header.Status = Domain.Enums.ResultType.Successfully;
+                        RES.Data = new ();
+                    }
+                    else
+                    {
+                        RES.Header.Status = Domain.Enums.ResultType.Error;
+                        RES.Header.MessagesList = new List<Messages>
+                        {
+                            new Messages()
+                            {
+                                MessageCode = "400",
+                                MessageDesc = "Error occurred while trying to delete receord from Database",
+                                ErrorSource = Domain.Enums.ErrorSource.DatabaseError
+                            }
+                        };
+                    }
+                
+                }
+            }
+            catch (Exception ex)
+            {
+                RES.Header = new ResponseHeader
+                {
+                    Status = Domain.Enums.ResultType.Error,
+                    MessagesList = new List<Messages>
+                    {
+                        new Messages
+                        {
+                            MessageCode=ex.HResult.ToString(),
+                            MessageDesc=ex.Message,
+                            ErrorSource = Domain.Enums.ErrorSource.RepositoryError
+                        }
+                    }
+                };
+            }
+            return RES;
+        }
+        public ReturnResponse<IList<BanksENT>> GetDataList(BanksENT REQ)
+        {
+            ReturnResponse<IList<BanksENT>> RES = new();
+            try
+            {
+                using (IDbConnection connection = _DapperContext.CreateDefultConnection())
+                {
+                    
+                    RES.Data = connection.Query<BanksENT>("cmn.Banks_GetData_SP", _DapperContext.Prameters, commandType: CommandType.StoredProcedure).ToList();
+                    RES.Header = new ResponseHeader
+                    {
+                        Status = Domain.Enums.ResultType.Successfully,
+                        MessagesList = new List<Messages>()
+                    };
+                }
+        
+            }
+            catch (Exception ex)
+            {
+                RES.Header = new ResponseHeader
+                {
+                    Status = Domain.Enums.ResultType.Error,
+                    MessagesList = new List<Messages>
+                    {
+                        new Messages
+                        {
+                            MessageCode=ex.HResult.ToString(),
+                            MessageDesc=ex.Message,
+                            ErrorSource = Domain.Enums.ErrorSource.RepositoryError
+                        }
+                    }
+                };
+            }
+            return RES;
+        }
+        public ReturnResponse<BanksENT> GetDataRecord(BanksENT REQ)
+        {
+            ReturnResponse<BanksENT> RES = new();
+            try
+            {
+                using (IDbConnection connection = _DapperContext.CreateDefultConnection())
+                {
+                    _DapperContext.Prameters.Add("Id", REQ.Id);
+                    _DapperContext.Prameters.Add("Code", REQ.Code);
+                    _DapperContext.Prameters.Add("CountryId", REQ.CountryId);
+                    RES.Data = connection.QueryFirstOrDefault<BanksENT>("cmn.Banks_GetData_SP", _DapperContext.Prameters, commandType: CommandType.StoredProcedure);
+                    RES.Header = new ResponseHeader
+                    {
+                        Status = Domain.Enums.ResultType.Successfully,
+                        MessagesList = new List<Messages>()
+                    };
+                }
+            
+            }
+            catch (Exception ex)
+            {
+                RES.Header = new ResponseHeader
+                {
+                    Status = Domain.Enums.ResultType.Error,
+                    MessagesList = new List<Messages>
+                    {
+                        new Messages
+                        {
+                            MessageCode=ex.HResult.ToString(),
+                            MessageDesc=ex.Message,
+                            ErrorSource = Domain.Enums.ErrorSource.RepositoryError
+                        }
+                    }
+                };
+            }
+            return RES;
+        }
+        public ReturnResponse<BanksENT> Update(BanksENT REQ)
+        {
+            ReturnResponse<BanksENT> RES = new();
+            try
+            {
+                using (IDbConnection connection = _DapperContext.CreateDefultConnection())
+                {
+                    
+                    _DapperContext.Prameters.Add("Id", REQ.Id);
+                    _DapperContext.Prameters.Add("NameAr", REQ.NameAr);
+                    _DapperContext.Prameters.Add("NameEn", REQ.NameEn);
+                    _DapperContext.Prameters.Add("Code", REQ.Code);
+                    _DapperContext.Prameters.Add("CountryId", REQ.CountryId);
+                    _DapperContext.Prameters.Add("StartIBANCode", REQ.StartIBANCode);
+                    _DapperContext.Prameters.Add("AccountLength", REQ.AccountLength);
+                    _DapperContext.Prameters.Add("AddressFree", REQ.AddressFree);
+                    _DapperContext.Prameters.Add("RoutingNumber", REQ.RoutingNumber);
+                    _DapperContext.Prameters.Add("SwiftCode", REQ.SwiftCode);
+                    _DapperContext.Prameters.Add("SortCode", REQ.SortCode);
+                    _DapperContext.Prameters.Add("modifyBy", REQ.ModifyBy);
+                    _DapperContext.Prameters.Add("ProcessStatus", null, DbType.Boolean, System.Data.ParameterDirection.Output);
+                    var response = connection.Execute("cmn.Banks_Update_SP", _DapperContext.Prameters, commandType: CommandType.StoredProcedure);
+
+                    if (_DapperContext.Prameters.Get<Boolean>("ProcessStatus"))
+                    {
+                        RES.Header.Status = Domain.Enums.ResultType.Successfully;
+                        RES.Data = new BanksENT();
+                    }
+                    else
+                    {
+                        RES.Header.Status = Domain.Enums.ResultType.Error;
+                        RES.Header.MessagesList = new List<Messages>
+                        {
+                            new Messages()
+                            {
+                                MessageCode = "400",
+                                MessageDesc = "Error occurred while trying to update Database record",
+                                ErrorSource = Domain.Enums.ErrorSource.DatabaseError
+                            }
+                        };
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                RES.Header = new ResponseHeader
+                {
+                    Status = Domain.Enums.ResultType.Error,
+                    MessagesList = new List<Messages>
+                    {
+                        new Messages
+                        {
+                            MessageCode=ex.HResult.ToString(),
+                            MessageDesc=ex.Message,
+                            ErrorSource = Domain.Enums.ErrorSource.RepositoryError
+                        }
+                    }
+                };
+            }
+            return RES;
+        }
+        public ReturnResponse<BanksENT> GetDataByCode(BanksENT REQ)
+        {
+            throw new NotImplementedException();
+        }
+        public ReturnResponse<IList<BanksENT>> GetDataPagination(BanksENT REQ)
+        {
+            ReturnResponse<IList<BanksENT>> RES = new();
+            try
+            {
+                using (IDbConnection connection = _DapperContext.CreateDefultConnection())
+                {
+                    _DapperContext.Prameters.Add("PageSize", REQ.PageSize);
+                    _DapperContext.Prameters.Add("PageIndex", REQ.PageIndex);
+                    _DapperContext.Prameters.Add("OrderBy", REQ.OrderBy);
+
+                    var data = connection.QueryMultiple("cmn.Banks_Pagination_SP", _DapperContext.Prameters, commandType: CommandType.StoredProcedure);
+
+                    RES.Paginaition= data.ReadFirst<Paginaition>();
+                    RES.Data = data.Read<BanksENT>().ToList();
+                    RES.Header = new ResponseHeader
+                    {
+                        Status = Domain.Enums.ResultType.Successfully,
+                        MessagesList = new List<Messages>()
+                    };
+                }
+
+            }
+            catch (Exception ex)
+            {
+                RES.Header = new ResponseHeader
+                {
+                    Status = Domain.Enums.ResultType.Error,
+                    MessagesList = new List<Messages>
+                    {
+                        new Messages
+                        {
+                            MessageCode=ex.HResult.ToString(),
+                            MessageDesc=ex.Message,
+                            ErrorSource = Domain.Enums.ErrorSource.RepositoryError
+                        }
+                    }
+                };
+            }
+            return RES;
+        }
+    }
+}
+explain this code fore me with all details
+ChatGPT
+The provided C# code represents a repository class named BanksRepo. This class is responsible for interacting with a database using Dapper to perform common database operations on a "Banks" entity. Let's break down the code:
+
+Namespace and Using Directives: The code is organized into a C# namespace named Repository.Common. Within this namespace, several using directives are included to import necessary dependencies for the code to work correctly.
+
+Class Definition (BanksRepo):
+
+This class implements the IBanksRepo<BanksENT> interface, which suggests that it provides specific methods for CRUD (Create, Read, Update, Delete) operations related to the "Banks" entity.
+Constructor (BanksRepo):
+
+The class has a constructor that accepts an instance of DapperContext as a parameter and assigns it to a private field _DapperContext. This context is likely used for establishing database connections.
+Repository Methods:
+
+The BanksRepo class contains several methods for common database operations:
+
+a. Add(BanksENT REQ): This method is used to add a new bank record to the database. It utilizes a stored procedure named "cmn.Banks_Insert_SP" and sets up parameters for the stored procedure using _DapperContext.Prameters. It executes the stored procedure and returns a ReturnResponse object with the result.
+
+b. Delete(BanksENT REQ): This method is used to delete a bank record from the database. Similar to the Add method, it works with a stored procedure named "cmn.Banks_Delete_SP" and returns a ReturnResponse object with the result.
+
+c. GetDataList(BanksENT REQ): This method retrieves a list of bank records from the database. It executes a stored procedure named "cmn.Banks_GetData_SP" and returns the data as a list of BanksENT objects wrapped in a ReturnResponse object.
+
+d. GetDataRecord(BanksENT REQ): This method retrieves a single bank record based on the provided REQ object. It uses a stored procedure named "cmn.Banks_GetData_SP" and returns the result as a BanksENT object wrapped in a ReturnResponse object.
+
+e. Update(BanksENT REQ): This method is used to update a bank record in the database. It works with a stored procedure named "cmn.Banks_Update_SP," updates the record based on the provided parameters, and returns a ReturnResponse object with the result.
+
+f. GetDataByCode(BanksENT REQ): This method is not implemented and throws a NotImplementedException. It suggests that this functionality has not been implemented yet.
+
+g. GetDataPagination(BanksENT REQ): This method retrieves a paginated list of bank records. It executes a stored procedure named "cmn.Banks_Pagination_SP," takes pagination-related parameters from the REQ object, and returns a ReturnResponse object containing pagination information and the list of bank records.
+
+Error Handling:
+
+Each repository method includes try-catch blocks to handle exceptions. If an exception occurs during database operations or other parts of the code, the method sets appropriate error messages and statuses in the ResponseHeader of the ReturnResponse object.
+Overall Purpose:
+
+The BanksRepo class serves as a repository for performing common database operations (CRUD) on bank records in the database. It uses Dapper for database communication and returns responses encapsulated in a custom ReturnResponse class, which includes status information and, in some cases, data from the database.
+Please note that the code assumes the existence of a specific database schema, stored procedures, and a data model (BanksENT) that have not been provided in the code snippet. The exact behavior and functionality of this repository depend on the implementation of these missing components.
+
+
+
+
+User
+using Domain.Base;
+using Domain.Interfaces.Services.Common;
+using Domain.Models.Common;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc;
+using System.Security.Claims;
+
+namespace SystemName_API.Controllers.Common
+{
+    [Route("api/[controller]")]
+    [ApiController]
+    [Authorize]
+    public class cmnBanksController : ControllerBase
+    {
+        private IBanksSvc<BanksENT> _BanksSvc { get; }
+        public cmnBanksController(IBanksSvc<BanksENT> BanksSvc)
+        {
+            _BanksSvc = BanksSvc;
+        }
+        [HttpPost]
+        [Route("Add")]
+        public ReturnResponse<BanksENT> Add(BanksENT REQ)
+        {
+            ReturnResponse<BanksENT> RES = new ReturnResponse<BanksENT>();
+            try
+            {
+                REQ.ModifyBy = User.FindFirstValue("UserId");
+                RES = _BanksSvc.Add(REQ);
+            }
+            catch (Exception ex)
+            {
+                RES.Header = new ResponseHeader
+                {
+                    Status = Domain.Enums.ResultType.Error,
+                    MessagesList = new List<Messages>
+                    {
+                        new Messages
+                        {
+                            MessageCode=ex.HResult.ToString(),
+                            MessageDesc=ex.Message,
+                            ErrorSource = Domain.Enums.ErrorSource.ApiError
+                        }
+                    }
+                };
+            }
+            return RES;
+        }
+        [HttpPost]
+        [Route("Delete")]
+        public ReturnResponse<BanksENT> Delete(BanksENT REQ)
+        {
+            ReturnResponse<BanksENT> RES = new ReturnResponse<BanksENT>();
+            try
+            {
+                REQ.ModifyBy = User.FindFirstValue("UserId");
+                RES = _BanksSvc.Delete(REQ);
+            }
+            catch (Exception ex)
+            {
+                RES.Header = new ResponseHeader
+                {
+                    Status = Domain.Enums.ResultType.Error,
+                    MessagesList = new List<Messages>
+                    {
+                        new Messages
+                        {
+                            MessageCode=ex.HResult.ToString(),
+                            MessageDesc=ex.Message,
+                            ErrorSource = Domain.Enums.ErrorSource.ApiError
+                        }
+                    }
+                };
+            }
+            return RES;
+        }
+        [HttpPost]
+        [Route("Update")]
+        public ReturnResponse<BanksENT> Update(BanksENT REQ)
+        {
+            ReturnResponse<BanksENT> RES = new ReturnResponse<BanksENT>();
+            try
+            {
+                REQ.ModifyBy = User.FindFirstValue("UserId");
+                RES = _BanksSvc.Update(REQ);
+            }
+            catch (Exception ex)
+            {
+                RES.Header = new ResponseHeader
+                {
+                    Status = Domain.Enums.ResultType.Error,
+                    MessagesList = new List<Messages>
+                    {
+                        new Messages
+                        {
+                            MessageCode=ex.HResult.ToString(),
+                            MessageDesc=ex.Message,
+                            ErrorSource = Domain.Enums.ErrorSource.ApiError
+                        }
+                    }
+                };
+            }
+            return RES;
+        }
+        [HttpGet]
+        [Route("GetDataList")]
+        public ReturnResponse<IList<BanksENT>> GetDataList(BanksENT REQ)
+        {
+            ReturnResponse<IList<BanksENT>> RES = new ReturnResponse<IList<BanksENT>>();
+            try
+            {
+                RES = _BanksSvc.GetDataList(REQ);
+            }
+            catch (Exception ex)
+            {
+                RES.Header = new ResponseHeader
+                {
+                    Status = Domain.Enums.ResultType.Error,
+                    MessagesList = new List<Messages>
+                    {
+                        new Messages
+                        {
+                            MessageCode=ex.HResult.ToString(),
+                            MessageDesc=ex.Message,
+                            ErrorSource = Domain.Enums.ErrorSource.ApiError
+                        }
+                    }
+                };
+            }
+            return RES;
+        }
+        [HttpGet]
+        [Route("GetDataRecord")]
+        public ReturnResponse<BanksENT> GetDataRecord(BanksENT REQ)
+        {
+            ReturnResponse<BanksENT> RES = new ReturnResponse<BanksENT>();
+            try
+            {
+                RES = _BanksSvc.GetDataRecord(REQ);
+            }
+            catch (Exception ex)
+            {
+                RES.Header = new ResponseHeader
+                {
+                    Status = Domain.Enums.ResultType.Error,
+                    MessagesList = new List<Messages>
+                    {
+                        new Messages
+                        {
+                            MessageCode=ex.HResult.ToString(),
+                            MessageDesc=ex.Message,
+                            ErrorSource = Domain.Enums.ErrorSource.ApiError
+                        }
+                    }
+                };
+            }
+            return RES;
+        }
+        [HttpGet]
+        [Route("GetDataPagination")]
+        public ReturnResponse<IList<BanksENT>> GetDataPagination(BanksENT REQ)
+        {
+            ReturnResponse<IList<BanksENT>> RES = new ReturnResponse<IList<BanksENT>>();
+            try
+            {
+                RES = _BanksSvc.GetDataPagination(REQ);
+            }
+            catch (Exception ex)
+            {
+                RES.Header = new ResponseHeader
+                {
+                    Status = Domain.Enums.ResultType.Error,
+                    MessagesList = new List<Messages>
+                    {
+                        new Messages
+                        {
+                            MessageCode=ex.HResult.ToString(),
+                            MessageDesc=ex.Message,
+                            ErrorSource = Domain.Enums.ErrorSource.ApiError
+                        }
+                    }
+                };
+            }
+            return RES;
+        }
+    }
+}
+}
+explain this code fore me with all details
+ChatGPT
+The provided C# code represents an ASP.NET Core Web API controller named cmnBanksController. This controller is responsible for handling HTTP requests related to common banking operations, such as adding, deleting, updating, and retrieving bank records. Let's break down the code:
+
+Namespace and Using Directives: The code is organized into a C# namespace named SystemName_API.Controllers.Common. Within this namespace, several using directives are included to import necessary dependencies for the code to work correctly.
+
+Class Definition (cmnBanksController):
+
+This class inherits from ControllerBase, which is a base class for controllers in ASP.NET Core.
+Constructor (cmnBanksController):
+
+The class has a constructor that accepts an instance of IBanksSvc<BanksENT> (a service interface) as a parameter. This parameter is injected into the controller using dependency injection. The controller will use this service to perform banking operations.
+Controller Actions:
+
+The controller defines several HTTP endpoints (actions) that correspond to different banking operations:
+
+a. Add(BanksENT REQ): This HTTP POST endpoint is used to add a new bank record to the database. It accepts a BanksENT object as a parameter, which represents the bank record to be added. The controller calls the Add method of the injected service (_BanksSvc) and sets the ModifyBy property based on the authenticated user. It returns a ReturnResponse<BanksENT> containing the result.
+
+b. Delete(BanksENT REQ): This HTTP POST endpoint is used to delete a bank record from the database. It accepts a BanksENT object as a parameter, representing the bank record to be deleted. Similar to the Add method, it calls the Delete method of the injected service, sets the ModifyBy property, and returns a response.
+
+c. Update(BanksENT REQ): This HTTP POST endpoint is used to update an existing bank record in the database. It accepts a BanksENT object as a parameter, representing the updated bank record. It calls the Update method of the injected service, sets the ModifyBy property, and returns a response.
+
+d. GetDataList(BanksENT REQ): This HTTP GET endpoint retrieves a list of bank records from the database. It accepts a BanksENT object as a parameter (possibly for filtering or pagination purposes) and calls the GetDataList method of the injected service. It returns a response containing a list of bank records.
+
+e. GetDataRecord(BanksENT REQ): This HTTP GET endpoint retrieves a single bank record based on the provided BanksENT object. It calls the GetDataRecord method of the injected service and returns the result.
+
+f. GetDataPagination(BanksENT REQ): This HTTP GET endpoint retrieves a paginated list of bank records. It accepts a BanksENT object with pagination parameters, calls the GetDataPagination method of the injected service, and returns the paginated result.
+
+Authorization Attribute:
+
+The [Authorize] attribute is applied to the controller, indicating that access to its actions is restricted to authenticated users. This means that users must be logged in to access the controller's functionality.
+Error Handling:
+
+Each action includes try-catch blocks to handle exceptions. If an exception occurs during the execution of an action, the code sets appropriate error messages and statuses in the ResponseHeader of the ReturnResponse object, indicating the error source as "ApiError."
+Overall, this controller serves as an API endpoint for performing common banking operations and interacts with a service (IBanksSvc) to execute these operations. The service is responsible for interacting with the database and business logic, while the controller handles HTTP requests and responses.
+
+
+
+
+User
+using RemitPlus_Manager.Helpers;
+using Domain.Base;
+using Domain.Models.Common;
+using Microsoft.AspNetCore.Mvc;
+namespace RemitPlus_Manager.Areas.Common.Controllers
+{
+    [Area("Common")]
+    public class BanksController : Controller
+    {
+        private IHttpManagerHelper _HttpManagerHelper { get; }
+        public BanksController(IHttpManagerHelper httpClientHelper)
+        {
+            _HttpManagerHelper = httpClientHelper;
+        }
+        public IActionResult Index()
+        {
+            try
+            {
+                if (_HttpManagerHelper.GetPage())
+                {
+                    return View("Banks");
+                }
+                else
+                {
+                    return RedirectToAction("Login", "Account");
+                }
+            }
+            catch (Exception)
+            {
+                return RedirectToAction("Login", "Account");
+            }
+        }
+        [HttpPost]
+        public ReturnResponse<BanksENT> Delete(BanksENT REQ)
+        {
+            ReturnResponse<BanksENT> RES = new ReturnResponse<BanksENT>();
+            try
+            {
+                RES = _HttpManagerHelper.Send<BanksENT>(REQ, "api/cmnBanks/Delete", HttpMethod.Post);
+            }
+            catch (Exception ex)
+            {
+                RES.Header = new ResponseHeader
+                {
+                    Status = Domain.Enums.ResultType.Error,
+                    MessagesList = new List<Messages>
+                    {
+                        new Messages
+                        {
+                            MessageCode=ex.HResult.ToString(),
+                            MessageDesc=ex.Message,
+                            ErrorSource = Domain.Enums.ErrorSource.WebControllerError
+                        }
+                    }
+                };
+            }
+            return RES;
+        }
+        [HttpGet]
+        public ReturnResponse<IList<BanksENT>> GetDataList(BanksENT REQ)
+        {
+            ReturnResponse<IList<BanksENT>> RES = new ReturnResponse<IList<BanksENT>>();
+            try
+            {
+                RES = _HttpManagerHelper.Send<IList<BanksENT>>(REQ, "api/cmnBanks/GetDataList", HttpMethod.Get);
+            }
+            catch (Exception ex)
+            {
+                RES.Header = new ResponseHeader
+                {
+                    Status = Domain.Enums.ResultType.Error,
+                    MessagesList = new List<Messages>
+                    {
+                        new Messages
+                        {
+                            MessageCode=ex.HResult.ToString(),
+                            MessageDesc=ex.Message,
+                            ErrorSource = Domain.Enums.ErrorSource.WebControllerError
+                        }
+                    }
+                };
+            }
+            return RES;
+        }
+        [HttpGet]
+        public ReturnResponse<BanksENT> GetDataRecord(BanksENT REQ)
+        {
+            ReturnResponse<BanksENT> RES = new ReturnResponse<BanksENT>();
+            try
+            {
+                RES = _HttpManagerHelper.Send<BanksENT>(REQ, "api/cmnBanks/GetDataRecord", HttpMethod.Get);
+            }
+            catch (Exception ex)
+            {
+                RES.Header = new ResponseHeader
+                {
+                    Status = Domain.Enums.ResultType.Error,
+                    MessagesList = new List<Messages>
+                    {
+                        new Messages
+                        {
+                            MessageCode=ex.HResult.ToString(),
+                            MessageDesc=ex.Message,
+                            ErrorSource = Domain.Enums.ErrorSource.WebControllerError
+                        }
+                    }
+                };
+            }
+            return RES;
+        }
+        [HttpPost]
+        public ReturnResponse<BanksENT> Post(BanksENT REQ)
+        {
+            ReturnResponse<BanksENT> RES = new ReturnResponse<BanksENT>();
+            try
+            {
+                if (REQ.Id == null)
+                {
+                    RES = _HttpManagerHelper.Send<BanksENT>(REQ, "api/cmnBanks/Add", HttpMethod.Post);
+                }
+                else
+                {
+                    RES = _HttpManagerHelper.Send<BanksENT>(REQ, "api/cmnBanks/Update", HttpMethod.Post);
+                }
+            }
+            catch (Exception ex)
+            {
+                RES.Header = new ResponseHeader
+                {
+                    Status = Domain.Enums.ResultType.Error,
+                    MessagesList = new List<Messages>
+                    {
+                        new Messages
+                        {
+                            MessageCode=ex.HResult.ToString(),
+                            MessageDesc=ex.Message,
+                            ErrorSource = Domain.Enums.ErrorSource.WebControllerError
+                        }
+                    }
+                };
+            }
+            return RES;
+        }
+        [HttpGet]
+        public ReturnResponse<IList<BanksENT>> GetDataPagination(BanksENT REQ)
+        {
+            ReturnResponse<IList<BanksENT>> RES = new ReturnResponse<IList<BanksENT>>();
+            try
+            {
+                RES = _HttpManagerHelper.Send<IList<BanksENT>>(REQ, "api/cmnBanks/GetDataPagination", HttpMethod.Get);
+            }
+            catch (Exception ex)
+            {
+                RES.Header = new ResponseHeader
+                {
+                    Status = Domain.Enums.ResultType.Error,
+                    MessagesList = new List<Messages>
+                    {
+                        new Messages
+                        {
+                            MessageCode=ex.HResult.ToString(),
+                            MessageDesc=ex.Message,
+                            ErrorSource = Domain.Enums.ErrorSource.WebControllerError
+                        }
+                    }
+                };
+            }
+            return RES;
+        }
+    }
+}
+explain this code fore me
+ChatGPT
+The provided C# code represents an ASP.NET Core MVC controller named BanksController located in the "Common" area of a web application. This controller is responsible for handling HTTP requests related to bank data in the application. Let's break down the code:
+
+Namespace and Using Directives: The code is organized into a C# namespace named RemitPlus_Manager.Areas.Common.Controllers. Within this namespace, several using directives are included to import necessary dependencies for the code to work correctly.
+
+Class Definition (BanksController):
+
+This class inherits from Controller, which is a base class for controllers in ASP.NET Core MVC.
+Constructor (BanksController):
+
+The class has a constructor that accepts an instance of IHttpManagerHelper as a parameter. This parameter is injected into the controller using dependency injection. The controller will use this helper to make HTTP requests to external endpoints.
+Action Method Index():
+
+This method is an action method that responds to an HTTP GET request to the default URL for this controller (e.g., "/Common/Banks"). It is responsible for rendering the "Banks" view.
+Inside the method, there is a try-catch block to handle exceptions. If _HttpManagerHelper.GetPage() returns true, it returns a view named "Banks," which is presumably the page for managing banks. If it returns false, it redirects the user to the "Login" page of the "Account" controller.
+If an exception is caught, it also redirects the user to the "Login" page.
+Action Methods for CRUD Operations:
+
+The controller defines several action methods that correspond to Create, Read, Update, and Delete (CRUD) operations on bank data.
+
+a. Delete(BanksENT REQ): This HTTP POST endpoint is responsible for deleting a bank record. It accepts a BanksENT object as a parameter (REQ) representing the bank record to be deleted. It then makes an HTTP POST request to the "api/cmnBanks/Delete" endpoint using _HttpManagerHelper.Send(). The result is a ReturnResponse<BanksENT> object containing the result of the delete operation.
+
+b. GetDataList(BanksENT REQ): This HTTP GET endpoint is responsible for retrieving a list of bank records. It accepts a BanksENT object as a parameter (REQ) possibly for filtering or pagination purposes. It makes an HTTP GET request to the "api/cmnBanks/GetDataList" endpoint and returns a ReturnResponse<IList<BanksENT>> containing the list of bank records.
+
+c. GetDataRecord(BanksENT REQ): This HTTP GET endpoint is responsible for retrieving a single bank record based on the provided BanksENT object. It makes an HTTP GET request to the "api/cmnBanks/GetDataRecord" endpoint and returns a ReturnResponse<BanksENT> containing the retrieved record.
+
+d. Post(BanksENT REQ): This HTTP POST endpoint is used to either add a new bank record or update an existing one. It checks if the Id property of the REQ object is null to determine whether to add or update. It makes an HTTP POST request to either the "api/cmnBanks/Add" or "api/cmnBanks/Update" endpoint accordingly. The result is a ReturnResponse<BanksENT> containing the result of the operation.
+
+e. GetDataPagination(BanksENT REQ): This HTTP GET endpoint is responsible for retrieving a paginated list of bank records. It accepts a BanksENT object with pagination parameters, makes an HTTP GET request to the "api/cmnBanks/GetDataPagination" endpoint, and returns a ReturnResponse<IList<BanksENT>> containing the paginated list.
+
+Error Handling:
+
+Each action method includes try-catch blocks to handle exceptions. If an exception occurs during the execution of an action, the code sets appropriate error messages and statuses in the ResponseHeader of the ReturnResponse object, indicating the error source as "WebControllerError."
+Overall, this controller serves as the interface between the front-end views and the backend API for managing bank data. It makes use of an IHttpManagerHelper to make HTTP requests to the API endpoints and handles the responses, including error handling.
+
+
+
+
+User
+@{
+    ViewData["Title"] = "Banks";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+@section Styles
+    {
+}
+<style>
+    .DESC:after {
+        opacity: 1;
+        background-repeat: no-repeat;
+        background-position: center;
+        background-color: transparent;
+        background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 9 8' fill='%23A1A5B7'%3e%3cpath fill-rule='evenodd' clip-rule='evenodd' d='M4.42111 5.93537C4.22088 6.03839 3.9637 6.0191 3.78597 5.87137L0.177181 2.87153C-0.046034 2.68598 -0.060261 2.36951 0.145404 2.16468C0.351069 1.95985 0.698744 1.94422 0.921959 2.12977L4.14137 4.80594L7.06417 2.15586C7.27904 1.96104 7.62686 1.96165 7.84105 2.15722C8.05524 2.35279 8.05469 2.66927 7.83982 2.86409L4.54449 5.85194C4.50704 5.8859 4.46541 5.91371 4.42111 5.93537Z'/%3e%3c/svg%3e");
+    }
+
+    
+</style>
+    <div class="toolbar mb-5 mb-lg-7" id="kt_toolbar">
+        <div class="page-title d-flex flex-column me-3">
+            <h1 class="d-flex text-dark fw-bolder my-1 fs-3">Banks</h1>
+            <ul class="breadcrumb breadcrumb-dot fw-bold text-gray-600 fs-7 my-1">
+                <li class="breadcrumb-item text-gray-600">
+                    <a class="text-gray-600 text-hover-primary">Dashboard</a>
+                </li>
+                <li class="breadcrumb-item text-gray-600">Common</li>
+                <li class="breadcrumb-item text-gray-500">Banks</li>
+            </ul>
+        </div>
+        <div class="d-flex align-items-center py-2 py-md-1">
+    </div>
+    <div class="d-flex justify-content-end" data-kt-customer-table-toolbar="base">
+        <button type="button" class="btn btn-sm btn-custom" data-bs-toggle="modal" data-bs-target="#modalPost" id="Add">Add Bank</button>
+    </div>
+    </div>
+    <div class="content flex-column-fluid" id="kt_content">
+        <div class="card ">
+        <div class="card-header border-0 pt-6" style="justify-content: end !important">
+        </div>
+            <div class="card-body pt-0 overflow-auto">
+                <table class="table align-middle table-row-bordered fs-6 gy-5" id="Banks_table">
+                    <thead>
+                        <tr class="text-start fw-bolder fs-7 text-uppercase gs-0">
+                        <th class="min-w-125px ordering" name="B.Code" IsDesc="DESC">Code<i class=" m-2"></i></th>
+                        <th class="min-w-125px ordering" name="B.NameAr" IsDesc="DESC" >Name (Ar)<i class=" m-2"></i></th>
+                        <th class="min-w-125px ordering" name="B.NameEn" IsDesc="DESC" >Name (En)<i class=" m-2"></i></th>
+                        <th class="min-w-125px ordering" name="C.NameAr" IsDesc="DESC">Country Name (Ar)<i class=" m-2"></i></th>
+                        <th class="min-w-125px ordering" name="C.NameEn" IsDesc="DESC">Country Name (En)<i class=" m-2"></i></th>
+                        @* <th class="min-w-125px">Start IBAN Code</th>
+                        <th class="min-w-125px">Account Length</th>
+                        <th class="min-w-125px">AddressFree</th>
+                        <th class="min-w-125px">RoutingNumber</th>
+                        <th class="min-w-125px">Swift Code</th>
+                        <th class="min-w-125px">SortCode</th>*@
+                            <th class="min-w-125px">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody class="fw-bold text-gray-600" id="Table">
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    <div class="row d-flex justify-content-between mt-5">
+        <div class="col-sm-4 bold">
+            <label id="lblFooterToDisplay" class="h6 mt-2"></label>
+        </div>
+        <div class="col-sm-4">
+            <div class="input-group input-large" style="align-items: center;">
+                <label class=" h6 mr-3 mt-2" style="margin-right: 0.4rem!important;">No. Of Rows</label>
+                <select id="ddlPageSize" class="form-control form-control-sm form-control-sm text-center mr-2">
+                    <option value="5" selected="selected">5</option>
+                    <option value="10">10</option>
+                    <option value="20">20</option>
+                    <option value="50">50</option>
+                    <option value="100">100</option>
+                </select>
+                <span class="input-group-btn">
+                    <button id="btnFirst" class="btn btn-sm btn-sm btn-dark" type="button"><i class="fa fa-angle-double-left"></i></button>
+                    <button id="btnPrev" class="btn btn-sm btn-sm btn-custom" type="button"><i class="fa fa-angle-left"></i></button>
+                </span>
+                <input id="txtpageindex" class="form-control form-control-sm form-control-sm text-center FelIntegers" type="text" value="1" />
+                <span class="input-group-btn">
+                    <button id="btnNext" class="btn btn-sm btn-sm btn-custom" type="button"><i class="fa fa-angle-right"></i></button>
+                    <button id="btnLast" class="btn btn-sm btn-sm btn-dark" type="button"><i class="fa fa-angle-double-right"></i></button>
+                </span>
+            </div>
+        </div>
+        <div class="col-sm-4 bold text-center" style="display: none">
+            <label id="footerPageRowCount"></label>
+            <label id="footerTotalRowCount"></label>
+            <label id="footerTotalPageCount"></label>
+        </div>
+    </div>
+    <div class="modal fade" id="modalPost" tabindex="-1" aria-hidden="true">
+            <div class="modal-dialog modal-dialog-centered " style="max-width:1500px">
+                <div class="modal-content">
+                    <form class="form" method="post" id="post_form">
+                        <div class="modal-header" id="post_header">
+                            <h2 class="fw-bolder">
+                            </h2>
+                            <div id="btnclose" class="btn btn-sm btn-icon btn-sm btn-active-icon-primary">
+                                <span class="svg-icon svg-icon-1">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none">
+                                        <rect opacity="0.5" x="6" y="17.3137" width="16" height="2" rx="1" transform="rotate(-45 6 17.3137)" fill="black" />
+                                        <rect x="7.41422" y="6" width="16" height="2" rx="1" transform="rotate(45 7.41422 6)" fill="black" />
+                                    </svg>
+                                </span>
+                            </div>
+                        </div>
+                        <div class="modal-body py-10 px-lg-17">
+                        <div class="scroll-y me-n7 pe-7" id="post_scroll" data-kt-scroll="true" data-kt-scroll-activate="{default: false, lg: true}" data-kt-scroll-max-height="auto" data-kt-scroll-dependencies="#post_header" data-kt-scroll-wrappers="#post_scroll" data-kt-scroll-offset="300px">
+                                
+                                <input type="hidden" class="form-control form-control-sm form-control-solid" name="Id" id="Id" />  
+
+                                <div class="row">
+                                    <div class="col-4">
+                                        <div class="fv-row mb-7">
+                                            <label class="required fs-6 fw-bold mb-2">Name (Ar)</label>
+                                        <input type="text" class="form-control form-control-sm form-control-solid " placeholder="NameAr" name="txtNameAr" id="txtNameAr" />
+                                        </div>
+                                    </div>
+                                    <div class="col-4">
+                                        <div class="fv-row mb-7">
+                                            <label class="required fs-6 fw-bold mb-2">Name (En)</label>
+                                        <input type="text" class="form-control form-control-sm form-control-solid " placeholder="NameEn" name="txtNameEn" id="txtNameEn" />
+                                        </div>
+                                    </div>  
+                                    <div class="col-4">
+                                        <div class="fv-row mb-7">
+                                            <label class="required fs-6 fw-bold mb-2">Country</label>
+                                            <select aria-label="Select a Country" data-control="select2" data-placeholder="Select a Country..." data-dropdown-parent="#modalPost" class="form-select form-select-sm form-select-solid fw-bolder" name="ddlCountryId" id="ddlCountryId">
+                                               <option></option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                </div>
+                            <div class="row">
+                                <div class="col-4">
+                                    <div class="fv-row mb-7">
+                                        <label class="required fs-6 fw-bold mb-2">Start IBAN Code</label>
+                                        <input type="text" class="form-control form-control-sm form-control-solid " placeholder="Start IBAN Code" name="txtStartIBANCode" id="txtStartIBANCode" />
+                                    </div>
+                                </div>
+                                <div class="col-4">
+                                    <div class="fv-row mb-7">
+                                        <label class="required fs-6 fw-bold mb-2">Account Length</label>
+                                        <input type="text" class="form-control form-control-sm form-control-solid " placeholder="Account Length" name="txtAccountLength" id="txtAccountLength" />
+                                    </div>
+                                </div>
+                                <div class="col-4">
+                                    <div class="fv-row mb-7">
+                                        <label class="required fs-6 fw-bold mb-2">Address Free </label>
+                                        <input type="text" class="form-control form-control-sm form-control-solid" placeholder="Address Free" name="txtAddressFree" id="txtAddressFree" />
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-4">
+                                    <div class="fv-row mb-7">
+                                        <label class="required fs-6 fw-bold mb-2">Routing Number </label>
+                                        <input type="Text" class="form-control form-control-sm form-control-solid" placeholder="Routing Number " name="txtRoutingNumber" id="txtRoutingNumber" />
+                                    </div>
+                                </div>
+                                <div class="col-4">
+                                    <div class="fv-row mb-7">
+                                        <label class="required fs-6 fw-bold mb-2">Swift Code</label>
+                                        <input type="text" class="form-control form-control-sm form-control-solid" placeholder="Swift Code" name="txtSwiftCode" id="txtSwiftCode" />
+                                    </div>
+                                </div>
+                                <div class="col-4">
+                                    <div class="fv-row mb-7">
+                                        <label class="required fs-6 fw-bold mb-2">Sort Code</label>
+                                        <input type="text" class="form-control form-control-sm form-control-solid" placeholder="Sort Code" name="txtSortCode" id="txtSortCode" />
+                                    </div>
+                                </div>
+                            </div>
+                            </div>
+                        </div>
+                        <div class="modal-footer flex-center">
+                            <button type="reset" id="btncancel" class="btn btn-sm btn-light me-3">Discard</button>
+                            <button type="submit" id="btnsubmit" class="btn btn-sm btn-custom">
+                                <span class="indicator-label">Submit</span>
+                            <span class="indicator-progress">
+                                Please wait...
+                                <span class="spinner-border spinner-border-sm align-middle ms-2"></span>
+                            </span>
+                            </button>
+                           
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+
+    @section Scripts
+    {
+    @*<script src="~/assets/js/custom/apps/customers/list/export.js"></script>*@
+    @*<script src="~/assets/js/custom/apps/customers/list/list.js"></script>*@
+    @*<script src="~/assets/plugins/custom/datatables/datatables.bundle.js"></script>*@
+    @*<script src="~/assets/js/custom/pages/careers/apply.js"></script>*@
+    @*<script src="~/assets/js/custom/modals/create-app.js"></script>
+      <script src="~/assets/js/custom/modals/users-search.js"></script>*@
+    <script src="~/areasjs/common/Banks.js"></script>
+    <script src="~/scriptsystem/common/HandleFormAdd_Edit.js"></script>
+
+} ecplain this code fore me
+ChatGPT
+
+2 / 2
+
+This code appears to be a Razor view for displaying and managing a list of banks in an ASP.NET Core MVC application. Razor views are used in ASP.NET Core MVC to define the HTML structure and render dynamic content using C# code. Let's break down this Razor view step by step:
+
+View Title and Layout Declaration:
+
+The @{ ... } block at the beginning of the view is used to set the view's title and layout. It sets the page's title to "Banks" and specifies the layout to be used (_Layout.cshtml).
+Styles Section:
+
+Within the @section Styles { ... } block, no specific styles are defined. This section is typically used to include CSS styles relevant to this view, but in this case, it appears to be empty.
+Custom CSS Styles:
+
+A <style> block is defined to provide custom CSS styles for the view. It contains a CSS rule that adds a background image to elements with the class "DESC." The image is inlined using a data URI.
+Page Structure:
+
+The view defines the page structure, including a page title, breadcrumb navigation, and a button to add a new bank record.
+Table for Displaying Banks:
+
+A table with the ID "Banks_table" is defined for displaying a list of bank records. It has a table header with column headers for properties like "Code," "Name (Ar)," "Name (En)," "Country Name (Ar)," and "Country Name (En)." There is also a column for actions (e.g., edit and delete).
+Pagination Controls:
+
+Pagination controls are provided at the bottom of the table. Users can select the number of rows to display per page, navigate to the first, previous, next, or last page, and see information about the current page and the total number of records.
+Add/Edit Bank Modal:
+
+A modal dialog with the ID "modalPost" is defined for adding or editing bank records. It contains form fields for bank details such as names (Ar and En), country, IBAN code, account length, address, routing number, swift code, and sort code. The modal also includes buttons for submitting the form and discarding changes.
+Scripts Section:
+
+Within the @section Scripts { ... } block, JavaScript files are included using <script> tags. These scripts likely contain client-side functionality related to this view, such as handling form submissions and interacting with the server to fetch or update bank records.
+Custom JavaScript Files:
+
+Two custom JavaScript files are included: "Banks.js" and "HandleFormAdd_Edit.js." These files likely contain JavaScript code specific to this view, such as making AJAX requests to retrieve or update bank data.
+Overall, this Razor view defines the structure of the "Banks" page, including HTML elements for displaying bank records in a table, pagination controls, and a modal for adding or editing bank records. The view relies on client-side JavaScript to provide interactivity and communicate with the server to perform CRUD operations on bank data.

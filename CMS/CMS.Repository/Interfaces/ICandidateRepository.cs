@@ -13,5 +13,8 @@ namespace CMS.Repository.Interfaces
         Task CreateCandidateAsync(Candidate candidate);
         Task UpdateCandidateAsync(Candidate candidate);
         Task DeleteCandidateAsync(Candidate candidate);
+        Task<int> CountAllAsync();
+        Task<int> CountAcceptedAsync();
+        Task<Dictionary<string, int>> CountCandidatesPerCountry();
     }
 }
