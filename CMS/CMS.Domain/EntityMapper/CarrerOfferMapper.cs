@@ -15,6 +15,10 @@ namespace CMS.Domain.EntityMapper
                 .HasOne(o => o.Position)
                 .WithMany(p=>p.Offers)
                 .HasForeignKey(o => o.PositionId);
+            builder
+                .HasOne(o => o.Creator)
+                .WithMany()
+                .HasForeignKey(o => o.CreatedBy);
         }
     }
 }

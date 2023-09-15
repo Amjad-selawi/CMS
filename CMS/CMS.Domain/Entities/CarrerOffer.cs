@@ -19,7 +19,7 @@ namespace CMS.Domain.Entities
         [Required(ErrorMessage = "LongDescription is required.")]
         public string LongDescription { get; set; }
         [Required(ErrorMessage = "CreatedBy is required.")]
-        public int CreatedBy { get; set; }
+        public string CreatedBy { get; set; }
         public virtual IdentityUser Creator { get; set; }
         public DateTime CreatedDateTime { get; set; } = DateTime.Now;
     }
