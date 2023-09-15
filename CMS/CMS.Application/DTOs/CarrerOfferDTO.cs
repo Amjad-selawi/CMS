@@ -1,4 +1,5 @@
-﻿using System;
+﻿using CMS.Domain.Entities;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Text;
@@ -10,7 +11,8 @@ namespace CMS.Application.DTOs
         public int Id { get; set; }
         [Required(ErrorMessage = "Position is required.")]
         public int PositionId { get; set; }
-        [Required(ErrorMessage = "YearsOfExperience is required.")]
+       
+    [Required(ErrorMessage = "YearsOfExperience is required.")]
         public int YearsOfExperience { get; set; }
         [Required(ErrorMessage = "LongDescription is required.")]
         public string LongDescription { get; set; }

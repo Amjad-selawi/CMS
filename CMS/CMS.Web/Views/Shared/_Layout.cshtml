@@ -53,7 +53,11 @@
                                 </span>
                                 <span class="logo-lg">
                                     <img src="/theme/images/logo-light.png" alt="" height="17">
-                                </span>
+                             
+                                 </span>
+                               @* <span class="logo-lg">
+                                    <img src="/theme/images/candidate-logo.png" alt="" height="17">
+                                </span>*@
                             </a>
                         </div>
 
@@ -562,6 +566,27 @@
                                 <i class=" ri-map-pin-user-fill"></i> <span data-key="t-dashboards">Roles</span>
                             </a>
                         </li>
+                        <li class="nav-item">
+                            <a class="nav-link menu-link" asp-controller="Account" asp-action="ListUsers">
+                                <i class=" ri-map-pin-user-fill"></i> <span data-key="t-dashboards">Users</span>
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link menu-link" asp-controller="Register" asp-action="Index">
+                                <i class="bx bx-add-to-queue"></i> <span data-key="t-dashboards">Add Users</span>
+                            </a>
+                        </li>
+                       
+                        <li class="nav-item">
+                            <a class="nav-link menu-link" asp-controller="Country" asp-action="GetCountries">
+                                <i class=" ri-map-pin-user-line"></i> <span data-key="t-dashboards">Country</span>
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link menu-link" asp-controller="Company" asp-action="GetCompanies">
+                                <i class=" ri-community-line"></i> <span data-key="t-dashboards">Company</span>
+                            </a>
+                        </li>
 
 
                         <!-- <li class="menu-title"><i class="ri-more-fill"></i> <span data-key="t-pages">References</span></li>
@@ -684,7 +709,17 @@
     <script src="/theme/libs/feather-icons/feather.min.js"></script>
     <script src="/theme/js/pages/plugins/lord-icon-2.1.0.js"></script>
     <script src="/theme/js/plugins.js"></script>
-
+    @{
+        string[] scripts = ViewData["additionalJS"] as string[];
+        if(scripts != null )
+        {
+            foreach (var item in scripts)
+            {
+                <script src="@item"></script>
+            }
+        }
+    }
+    
     <!-- App js -->
     <script src="/theme/js/app.js"></script>
 </body>

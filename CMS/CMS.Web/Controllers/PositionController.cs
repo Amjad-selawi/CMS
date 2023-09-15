@@ -54,19 +54,19 @@ namespace CMS.Web.Controllers
             return View(position);
 
 
-            //var result = await _positionService.GetAll();
-            //if (result.IsSuccess)
-            //{
-            //    var positionsDTOs = result.Value;
-            //    return View(positionsDTOs);
-            //}
-            //else
-            //{
-            //    ModelState.AddModelError("", result.Error);
-            //    return View();
-            //}
-        }
-        [HttpPost]
+            //    var result = await _positionService.GetAll();
+            //    if (result.IsSuccess)
+            //    {
+            //        var positionsDTOs = result.Value;
+            //        return View(positionsDTOs);
+            //    }
+            //    else
+            //    {
+            //        ModelState.AddModelError("", result.Error);
+            //        return View();
+            //    }
+            }
+            [HttpPost]
         public async Task<IActionResult> DeletePosition(int id)
         {
             if (id <= 0)

@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using System.Net.Mime;
 using System.Text;
 
 namespace CMS.Domain.Entities
@@ -35,6 +36,8 @@ namespace CMS.Domain.Entities
         public int CVAttachmentId { get; set; }
         public virtual Attachment CV { get; set; }
         public string LinkedInUrl { get; set; }
+        public int CountryId { get; set; }
+        public virtual Country Country { get; set; }
         public virtual ICollection<Interviews> Interviews { get; set; }
     }
 }

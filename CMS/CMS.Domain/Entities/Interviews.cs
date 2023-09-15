@@ -11,8 +11,7 @@ namespace CMS.Domain.Entities
 
         public int InterviewsId { get; set; }
 
-        public int Source { get; set; }
-        public virtual Country SourceCountry { get; set; }
+        public int Score { get; set; }
         public DateTime Date { get; set; }
 
         public InterviewStatus Status { get; set; }

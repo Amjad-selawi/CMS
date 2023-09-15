@@ -4,14 +4,16 @@ using CMS.Domain;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 namespace CMS.Domain.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20230915152018_candidateCountryRelation")]
+    partial class candidateCountryRelation
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -244,7 +246,10 @@ namespace CMS.Domain.Migrations
                     b.Property<int>("PositionId")
                         .HasColumnType("int");
 
-                    b.Property<int>("Score")
+                    b.Property<int>("Source")
+                        .HasColumnType("int");
+
+                    b.Property<int?>("SourceCountryId")
                         .HasColumnType("int");
 
                     b.Property<int>("Status")
@@ -255,6 +260,8 @@ namespace CMS.Domain.Migrations
                     b.HasIndex("CandidateId");
 
                     b.HasIndex("PositionId");
+
+                    b.HasIndex("SourceCountryId");
 
                     b.ToTable("Interviews");
                 });
@@ -395,28 +402,28 @@ namespace CMS.Domain.Migrations
                         new
                         {
                             Id = "b024cbbe-f64e-4d1b-9c6e-05ac0f0e3ebb",
-                            ConcurrencyStamp = "584e60d7-72de-4ec4-97b2-cb90aba06cf5",
+                            ConcurrencyStamp = "a16ad11d-ce36-46dd-91fd-f8ceebedc9ba",
                             Name = "Admin",
                             NormalizedName = "ADMIN"
                         },
                         new
                         {
                             Id = "1eecb40c-c701-4445-89d4-d1aa7d70460d",
-                            ConcurrencyStamp = "84d1019a-fdaf-412c-93b4-2cf39a3b65ac",
+                            ConcurrencyStamp = "235fbd96-0bef-4704-b9b9-0d7c70f55ff8",
                             Name = "General Manager",
                             NormalizedName = "GENERAL MANAGER"
                         },
                         new
                         {
                             Id = "226cca69-f046-4d15-8b81-9b9ba34f2214",
-                            ConcurrencyStamp = "998a7451-a879-4683-8592-8bda52bf4778",
+                            ConcurrencyStamp = "0336d0e9-611a-41be-bc15-7d1dd212c294",
                             Name = "HR Manager",
                             NormalizedName = "HR MANAGER"
                         },
                         new
                         {
                             Id = "91c3461a-7da3-4033-b907-b104b903d793",
-                            ConcurrencyStamp = "d24d732a-367d-4813-ba4a-93a6839d04ef",
+                            ConcurrencyStamp = "a03df5b1-b928-476e-b782-ed4bbe19e1df",
                             Name = "Interviewer",
                             NormalizedName = "INTERVIEWER"
                         });
@@ -515,15 +522,15 @@ namespace CMS.Domain.Migrations
                         {
                             Id = "c6585ab9-8b5f-4332-a174-92429db8add2",
                             AccessFailedCount = 0,
-                            ConcurrencyStamp = "a86f0066-ff69-44f8-befc-5ba448d76544",
+                            ConcurrencyStamp = "514871e0-20c6-443c-a9cf-43e9fa82eb0c",
                             Email = "admin@admin.com",
                             EmailConfirmed = true,
                             LockoutEnabled = false,
                             NormalizedEmail = "ADMIN@ADMIN.COM",
                             NormalizedUserName = "ADMIN",
-                            PasswordHash = "AQAAAAEAACcQAAAAEEc4RYI1sykd2A6fTL/gcbqmVJddGIat9Pl9+NuA5BzDh1vAMsZiOxTnS1H8/aJf2g==",
+                            PasswordHash = "AQAAAAEAACcQAAAAEAGsZR1/LL9PAx84TFX+vOqvKENYU6MU06vTaBe4Bdpw1QDNzhFs3WH3fb4WgbXjBQ==",
                             PhoneNumberConfirmed = false,
-                            SecurityStamp = "848c423a-6bd5-4e8c-8c3c-17d7a9165e7b",
+                            SecurityStamp = "ce4a225f-7a32-4c5e-bfc2-fdb62570a50b",
                             TwoFactorEnabled = false,
                             UserName = "admin"
                         });
@@ -674,6 +681,10 @@ namespace CMS.Domain.Migrations
                         .HasForeignKey("PositionId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+
+                    b.HasOne("CMS.Domain.Entities.Country", "SourceCountry")
+                        .WithMany()
+                        .HasForeignKey("SourceCountryId");
                 });
 
             modelBuilder.Entity("CMS.Domain.Entities.Notifications", b =>
