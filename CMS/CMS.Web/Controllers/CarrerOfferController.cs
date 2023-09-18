@@ -4,6 +4,7 @@ using CMS.Domain.Entities;
 using CMS.Services.Interfaces;
 using CMS.Services.Services;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
@@ -16,13 +17,18 @@ namespace CMS.Web.Controllers
     {
         private readonly ICarrerOfferService _carrerOfferService;
         private readonly IPositionService _positionService;
-        
+        private readonly UserManager<IdentityUser> _userManager;
+        private readonly INotificationsService _notificationsService;
+        private readonly RoleManager<IdentityRole> _roleManager;
 
-        public CarrerOfferController(ICarrerOfferService carrerOfferService,IPositionService positionService)
+        public CarrerOfferController(ICarrerOfferService carrerOfferService,IPositionService positionService, UserManager<IdentityUser> userManager,
+            INotificationsService notificationsService,RoleManager<IdentityRole> roleManager)
         {
             _carrerOfferService = carrerOfferService;
             _positionService = positionService;
-          
+            _userManager = userManager;
+            _notificationsService = notificationsService;
+            _roleManager = roleManager;
         }
 
 
@@ -73,18 +79,23 @@ namespace CMS.Web.Controllers
             return View();
         }
 
+
+
+
+
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create(CarrerOfferDTO carrerOfferDTO)
+        public async Task<IActionResult> Create(CarrerOfferDTO carrerOfferDTO, NotificationsDTO notificationsDTO)
         {
             var positionDTOs = await _positionService.GetAll();
             ViewBag.positionDTOs = new SelectList(positionDTOs.Value, "PositionId", "Name");
             if (ModelState.IsValid)
             {
-                var result = await _carrerOfferService.Insert(carrerOfferDTO);
+                var result = await _carrerOfferService.Insert(carrerOfferDTO, notificationsDTO);
 
                 if (result.IsSuccess)
                 {
+                   
                     return RedirectToAction("Index");
                 }
 

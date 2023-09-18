@@ -11,17 +11,24 @@
     <thead>
         <tr>
            
-            <th>Receiver ID</th>
-            <th>Send Date</th>
-            
+            @* <th>Receiver ID</th> *@
             <th>
-                @Html.DisplayNameFor(model => model.templatesDTO.Title)
+                @Html.DisplayNameFor(model => model.Title)
             </th>
+
+            <th>Sent Date</th>
+           
+           @*  <th>
+                @Html.DisplayNameFor(model => model.BodyDesc)
+            </th> *@
+           @*  <th>
+                @Html.DisplayNameFor(model => model.templatesDTO.Title)
+            </th> *@
            @*  <th>
                 Template Name
             </th> *@
             @* <th>Is Received</th> *@
-            <th>Actions</th>
+           @*  <th>Actions</th> *@
         </tr>
     </thead>
     <tbody>
@@ -29,23 +36,36 @@
         {
             <tr>
              
-                <td>@notification.ReceiverId</td>
-                <td>@notification.SendDate</td>
-                
+               @*  <td>@notification.ReceiverId</td> *@
+
                 <td>
-                    @Html.DisplayFor(modelItem => notification.templatesDTO.Title)
+                    <a href="@Url.Action("Details", "Notifications", new { id = notification.NotificationsId })">
+                        @notification.Title
+                    </a>
                 </td>
+
+                <td>@notification.SendDate</td>
+
+
+            
+
+             @*    <td>
+                    @Html.DisplayFor(modelItem => notification.BodyDesc)
+                </td> *@
+               @*  <td>
+                    @Html.DisplayFor(modelItem => notification.templatesDTO.Title)
+                </td> *@
                @*  <td>@notification.TemplateName</td> *@
 
 
                 
                 @* <td>@notification.IsReceived</td> *@
-                <td>
+              @*   <td>
                     <a class="bx bxs-edit-alt" style="font-size:x-large" asp-action="Edit" asp-route-id="@notification.NotificationsId"></a> |
                     <a class="bx bx-detail" style="font-size:x-large" asp-action="Details" asp-route-id="@notification.NotificationsId"></a> |
                     <a class="ri-delete-bin-2-line text-danger" style="font-size:x-large" asp-action="Delete" asp-route-id="@notification.NotificationsId"></a>
                    
-                </td>
+                </td> *@
             </tr>
         }
     </tbody>

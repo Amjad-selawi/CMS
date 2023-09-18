@@ -17,13 +17,15 @@ namespace CMS.Services.Services
         private readonly UserManager<IdentityUser> _userManager;
         private readonly SignInManager<IdentityUser> _signInManager;
         private readonly IUserRepository _userRepository;
+        private readonly RoleManager<IdentityRole> _roleManager;
 
         public AccountService(UserManager<IdentityUser> userManager, SignInManager<IdentityUser> signInManager, ApplicationDbContext dbContext,
-            IUserRepository userRepository)
+            IUserRepository userRepository, RoleManager<IdentityRole> roleManager)
         {
             _userManager = userManager;
             _signInManager = signInManager;
             _userRepository = userRepository;
+            _roleManager = roleManager;
         }
 
 
@@ -115,6 +117,23 @@ namespace CMS.Services.Services
             };
 
             return userDetails;
+        }
+
+
+
+
+        public async Task<List<IdentityUser>> GetUsersInRole(string roleName)
+        {
+            var role = await _roleManager.FindByNameAsync(roleName);
+
+            if (role == null)
+            {
+                throw new ApplicationException($"Role '{roleName}' not found.");
+            }
+
+            var usersInRole = await _userManager.GetUsersInRoleAsync(roleName);
+
+            return usersInRole.ToList();
         }
 
 

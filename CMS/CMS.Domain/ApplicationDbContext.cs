@@ -24,6 +24,8 @@ namespace CMS.Domain
         public DbSet<Notifications> Notifications { get; set; }
         public DbSet<Templates> Templates { get; set; }
 
+        public DbSet<Status> Statuses { get; set; }
+
 
 
         protected override void OnModelCreating(ModelBuilder builder)
@@ -31,7 +33,7 @@ namespace CMS.Domain
             builder.ApplyConfiguration(new CompanyMapper());
             builder.ApplyConfiguration(new CountryMapper());
             //builder.ApplyConfiguration(new CandidateMapper());
-            builder.ApplyConfiguration(new NotificationsMapper());
+            //builder.ApplyConfiguration(new NotificationsMapper());
             //builder.ApplyConfiguration(new InterviewsMapper());
             base.OnModelCreating(builder);
         }

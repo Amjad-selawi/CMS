@@ -1,10 +1,14 @@
 ﻿using CMS.Application.DTOs;
 using CMS.Application.Extensions;
 using CMS.Domain.Entities;
+using CMS.Repository.Implementation;
 using CMS.Repository.Interfaces;
+using CMS.Repository.Repositories;
 using CMS.Services.Interfaces;
+using Microsoft.AspNetCore.Identity;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -16,10 +20,25 @@ namespace CMS.Services.Services
     {
         private readonly ICarrerOfferRepository _carrerOfferRepository;
         private readonly IPositionService _positionService;
-        public CarrerOfferService(ICarrerOfferRepository carrerOfferRepository, IPositionService positionService)
+        private readonly IAccountService _accountService;
+        private readonly INotificationsRepository _notificationsRepository;
+        private readonly IAttachmentService _attachmentService;
+        private readonly RoleManager<IdentityRole> _roleManager;
+        private readonly UserManager<IdentityUser> _userManager;
+
+        public CarrerOfferService(ICarrerOfferRepository carrerOfferRepository, IPositionService positionService,IAccountService accountService
+            ,INotificationsRepository notificationsRepository,
+            IAttachmentService attachmentService,
+            RoleManager<IdentityRole> roleManager,
+             UserManager<IdentityUser> userManager)
         {
             _carrerOfferRepository = carrerOfferRepository;
             _positionService = positionService;
+            _accountService = accountService;
+            _notificationsRepository = notificationsRepository;
+            _attachmentService = attachmentService;
+            _roleManager = roleManager;
+            _userManager = userManager;
         }
         public async Task<Result<CarrerOfferDTO>> Delete(int id)
         {
@@ -56,7 +75,7 @@ namespace CMS.Services.Services
                         LongDescription = c.LongDescription,
                         YearsOfExperience = c.YearsOfExperience,
                         PositionId = c.PositionId,
-                        PositionName = c.Positions.Name
+                        PositionName = c.Positions.Name,
                        
 
                     };
@@ -89,7 +108,7 @@ namespace CMS.Services.Services
                     LongDescription = careeroffer.LongDescription,
                     YearsOfExperience = careeroffer.YearsOfExperience,
                     PositionId = careeroffer.PositionId,
-                    PositionName = careeroffer.Positions.Name
+                    PositionName = careeroffer.Positions.Name,
 
                 };
                 return Result<CarrerOfferDTO>.Success(careerofferDTO);
@@ -101,7 +120,7 @@ namespace CMS.Services.Services
 
         }
 
-        public async Task<Result<CarrerOfferDTO>> Insert(CarrerOfferDTO data)
+        public async Task<Result<CarrerOfferDTO>> Insert(CarrerOfferDTO data, NotificationsDTO entity)
         {
             if (data == null)
             {
@@ -113,14 +132,41 @@ namespace CMS.Services.Services
                 PositionId=data.PositionId,
                 LongDescription=data.LongDescription,
                 YearsOfExperience=data.YearsOfExperience,
-               
+                
 
 
             };
 
+            var position = await _carrerOfferRepository.GetPositionByIdAsync(careeroffer.PositionId);
+            var positionName = position?.Name ?? "Unknown Position";
+
+            var experience = careeroffer.YearsOfExperience;
+            var HrId = "";
+
+            var Hr = await _roleManager.FindByNameAsync("HR");
+
+            HrId = (await _userManager.GetUsersInRoleAsync(Hr.Name)).FirstOrDefault().Id;
+
+
+            var notification = new Notifications
+            {
+                SendDate = DateTime.Now,
+                IsReceived = true,
+               ReceiverId = HrId, //HRid
+               Title = "New Position",
+               BodyDesc=$"There A Career Offer with Position {positionName} with experience {experience} years"
+               
+               //TemplatesId = entity.templatesDTO.TemplatesId,
+               
+            };
+
+
+
             try
             {
+             
                 await _carrerOfferRepository.Insert(careeroffer);
+                await _notificationsRepository.Create(notification);
 
                 return Result<CarrerOfferDTO>.Success(data);
 
@@ -147,7 +193,6 @@ namespace CMS.Services.Services
                 YearsOfExperience = data.YearsOfExperience,
 
 
-
             };
 
             try
@@ -160,6 +205,12 @@ namespace CMS.Services.Services
                 return Result<CarrerOfferDTO>.Failure(data, $"error updating the career offer {ex.Message}");
             }
         }
+
+
+
+
+
+
         //public async Task<IEnumerable<CarrerOfferDTO>> GetAllCarrerOffersAsync()
         //{
         //    var carrerOffers = await _carrerOfferRepository.GetAllCarrerOffersAsync();

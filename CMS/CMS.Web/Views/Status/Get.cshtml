@@ -1,0 +1,28 @@
+﻿@model List<CMS.Application.DTOs.StatusDTO>
+
+<h1>statuses</h1>
+<p>
+<h6><a asp-action="Add">add a new status</a></h6>
+</p>
+<table class="table">
+    <thead>
+        <tr>
+            <th>ID</th>
+            <th>Status Name</th>
+            <th>Code</th>
+          
+        </tr>
+    </thead>
+    <tbody>
+        @foreach(var s in Model)
+        {
+            <tr>
+                <td>@s.Id</td>
+                <td>@s.Name</td>
+                <td>@s.Code</td>
+                
+            </tr>
+        }
+
+    </tbody>
+</table>

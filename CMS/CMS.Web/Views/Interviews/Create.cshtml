@@ -1,143 +1,82 @@
 ﻿@using CMS.Domain.Enums;
 @model CMS.Application.DTOs.InterviewsDTO
-@using Microsoft.AspNetCore.Identity;
-@inject SignInManager<IdentityUser> SignInManager
-@inject UserManager<IdentityUser> UserManager
-
 
 <h2>Create</h2>
 
-<form asp-action="Create">
-
-  @*   <div class="form-group">
-        <label asp-for="positionDTO.Id" class="control-label">Position Name</label>
-        <select asp-for="positionDTO.Id" asp-items="ViewBag.Positions" class="form-control">
-            <option value="">Select Position</option>
-        </select>
-        <span asp-validation-for="positionDTO.Id" class="text-danger"></span>
-    </div>
- *@
-
-
-  @*   @if (SignInManager.IsSignedIn(User))
-    {
-        @if (User.IsInRole("General Manager"))
-        {
-
-            <div class="form-group">
-                <label asp-for="Score" class="control-label"></label>
-                <input asp-for="Score" class="form-control" />
-                <span asp-validation-for="Score" class="text-danger"></span>
-            </div>
-
-            <div class="form-group">
-                <label asp-for="Status" class="control-label"></label>
-                <select asp-for="Status" asp-items="Html.GetEnumSelectList<InterviewStatus>()" class="form-control">
-                    <option value="">Select Status</option>
-                </select>
-                <span asp-validation-for="Status" class="text-danger"></span>
-            </div>
-
-            <div class="form-group">
-                <label asp-for="Notes" class="control-label"></label>
-                <input asp-for="Notes" class="form-control" />
-                <span asp-validation-for="Notes" class="text-danger"></span>
-            </div>
-        } *@
-      @*   else
-        { *@
-
-          @*   <div class="form-group">
-                <label asp-for="candidateDTO.CandidateId" class="control-label">Candidate Name</label>
-                @Html.DropDownListFor(model => model.candidateDTO.CandidateId, (SelectList)ViewBag.candidateList, "Select a Name", new { @class = "form-control" })
-                <span asp-validation-for="candidateDTO.CandidateId" class="text-danger"></span>
-            </div>
-
-
-            <div class="form-group">
-                <label asp-for="positionDTO.PositionId" class="control-label">Position</label>
-                @Html.DropDownListFor(model => model.positionDTO.PositionId, (SelectList)ViewBag.positionList, "Select a Position", new { @class = "form-control" })
-                <span asp-validation-for="positionDTO.PositionId" class="text-danger"></span>
-            </div> *@
-
+<form asp-action="Create" id="createForm">
+    <div asp-validation-summary="ModelOnly" class="text-danger"></div>
 
     <div class="form-group">
 
-        <label asp-for="CandidateId" class="control-label">Candidate Name</label>
+        <label asp-for="CandidateId" class="control-label">candidate</label>
         @if (ViewBag.candidateDTOs != null)
         {
             <select asp-for="CandidateId" asp-items="@(ViewBag.candidateDTOs)" class="form-control">
-                <option value="">Select a Candidate Name</option>
+                <option value="">Select a candidate</option>
 
             </select>
         }
         else
         {
-            <p>No Candidate available.</p>
+            <p>No candidates available.</p>
         }
         <span asp-validation-for="CandidateId" class="text-danger"></span>
 
     </div>
 
+    <div class="form-group">
+        <label asp-for="PositionId" class="control-label">Position</label>
+        @Html.DropDownListFor(model => model.PositionId, (SelectList)ViewBag.positionDTOs, "Select a Position", new { @class = "form-control" })
+        <span asp-validation-for="PositionId" class="text-danger"></span>
+    </div>
 
     <div class="form-group">
 
-        <label asp-for="PositionId" class="control-label">Position</label>
-        @if (ViewBag.positionDTOs != null)
+        <label asp-for="InterviewerId" class="control-label">interviewer</label>
+        @if (ViewBag.interviewersDTOs != null)
         {
-            <select asp-for="PositionId" asp-items="@(ViewBag.positionDTOs)" class="form-control">
-                <option value="">Select a position</option>
+            <select asp-for="InterviewerId" asp-items="@(ViewBag.interviewersDTOs)" class="form-control">
+                <option value="">Select an Interviewer </option>
 
             </select>
         }
         else
         {
-            <p>No positions available.</p>
+            <p>No interviewers available.</p>
         }
-        <span asp-validation-for="PositionId" class="text-danger"></span>
+        <span asp-validation-for="InterviewerId" class="text-danger"></span>
 
     </div>
-            <div class="form-group">
-                <label asp-for="InterviewerId" class="control-label"></label>
-                <input asp-for="InterviewerId" class="form-control" />
-                <span asp-validation-for="InterviewerId" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="Date" class="control-label"></label>
-                <input asp-for="Date" class="form-control" />
-                <span asp-validation-for="Date" class="text-danger"></span>
-            </div>
-            <div class="form-group" hidden>
-                <label asp-for="ParentId" class="control-label"></label>
-                <input asp-for="ParentId" class="form-control" />
-                <span asp-validation-for="ParentId" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="Score" class="control-label"></label>
-                <input asp-for="Score" class="form-control" />
-                <span asp-validation-for="Score" class="text-danger"></span>
-            </div>
+    <div class="form-group">
+        <label asp-for="Date" class="control-label"></label>
+        <input asp-for="Date" class="form-control" />
+        <span asp-validation-for="Date" class="text-danger"></span>
+    </div>
+    <div class="form-group" hidden>
+        <label asp-for="ParentId" class="control-label"></label>
+        <input asp-for="ParentId" class="form-control" />
+        <span asp-validation-for="ParentId" class="text-danger"></span>
+    </div>
 
-            <div class="form-group">
-                <label asp-for="Status" class="control-label"></label>
-                <select asp-for="Status" asp-items="Html.GetEnumSelectList<InterviewStatus>()" class="form-control">
-                    <option value="">Select Status</option>
-                </select>
-                <span asp-validation-for="Status" class="text-danger"></span>
-            </div>
-
-            <div class="form-group">
-                <label asp-for="Notes" class="control-label"></label>
-                <input asp-for="Notes" class="form-control" />
-                <span asp-validation-for="Notes" class="text-danger"></span>
-            </div>
-
-    @*     }
-    } *@
 
     <div class="form-group">
-        <a class="btn btn-secondary" asp-action="Index">Back to List</a>
-        <input type="submit" value="Create" class="btn btn-outline-primary" />
+
+        <input type="submit" value="Create"  class="btn btn-outline-primary" />
     </div>
 
 </form>
+<a class="btn btn-secondary" asp-action="Index">Back to List</a>
+<p>@Html.ValidationSummary()</p>
+<script>
+    document.getElementById("createForm").onsubmit=function(){
+        return confirmCreate();
+    };
+
+    function confirmCreate(){
+        if(confirm("Are you sure from the info you want to submit? it can not be modified")){
+            return true;
+        }else{
+            return false;
+        }
+    }
+</script>

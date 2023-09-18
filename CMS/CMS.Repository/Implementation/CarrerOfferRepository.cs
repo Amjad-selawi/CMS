@@ -4,6 +4,7 @@ using CMS.Repository.Interfaces;
 using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -53,7 +54,8 @@ namespace CMS.Repository.Implementation
         {
             try
             {
-                var carrerOffer = await _context.CarrerOffers.Include(c => c.Positions).AsNoTracking().FirstOrDefaultAsync(c => c.Id == id);
+                var carrerOffer = await _context.CarrerOffers.Include(c => c.Positions)
+                    .AsNoTracking().FirstOrDefaultAsync(c => c.Id == id);
                 return carrerOffer;
             }
             catch (Exception ex)
@@ -92,6 +94,22 @@ namespace CMS.Repository.Implementation
             catch (Exception ex)
             {
                 throw ex;
+            }
+        }
+
+        public async Task<Position> GetPositionByIdAsync(int positionId)
+        {
+            try
+            {
+                var position = await _context.Positions
+                    .FirstOrDefaultAsync(p => p.PositionId == positionId);
+
+                return position;
+            }
+            catch (Exception ex)
+            {
+                // Log the exception or handle it as appropriate for your application
+                throw;
             }
         }
 

@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
+using System.IO;
 using System.Text;
 
 namespace CMS.Application.DTOs
@@ -10,26 +11,35 @@ namespace CMS.Application.DTOs
         
         public int InterviewsId { get; set; }
 
-        public int Score { get; set; }
-        
+        public int? Score { get; set; }
+        [Required]
         public DateTime Date { get; set; }
 
-        public int ParentId { get; set; }
-
-        public string Status { get; set; }
+        public int? ParentId { get; set; }
+       // [Required]
+        public int StatusId { set; get; }
+        public string StatusName { get; set; }
 
         public string Notes { get; set; }
 
-        public int InterviewerId { get; set; }
+        [Required]
+        public string InterviewerId { get; set; }
+        public string InterviewerName { get; set;}
+        [Required]
+        public int CandidateId { get; set; }
+        public string FullName{ get; set; }
 
-        //public CandidateDTO candidateDTO { get; set; }
+        [Required]
+        public int PositionId { get; set; }
+        public string Name { get; set; }
 
-        // public PositionDTO positionDTO { get; set; }
+        public int? AttachmentId { set; get; }
 
-        public int CandidateId { set; get; }
-        public string CandidateName { set; get; }
+        public string FileName { get; set; }
+        public long? FileSize { get; set; }
+        public Stream FileData { get; set; }
 
-        public int PositionId { set; get; }
-        public string PositionName { set; get; }
+        public  bool isUpdated { set; get; } = false;
+
     }
 }

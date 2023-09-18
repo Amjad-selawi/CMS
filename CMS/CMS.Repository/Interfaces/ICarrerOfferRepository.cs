@@ -20,6 +20,8 @@ namespace CMS.Repository.Interfaces
         Task<CarrerOffer> GetById(int id);
         Task<List<CarrerOffer>> GetAll();
 
+        Task<Position> GetPositionByIdAsync(int positionId);
+
     }
 }
     

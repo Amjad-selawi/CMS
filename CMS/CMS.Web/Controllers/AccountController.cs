@@ -27,14 +27,7 @@ namespace CMS.Web.Controllers
             _roleManager = roleManager;
         }
 
-        ////GET
-        //public async Task<ActionResult> ListUsers()
-        //{
-        //    var listuser = await _accountService.GetAllUsersAsync();
-        //    return View(listuser);
-        //}
-
-
+ 
 
         //GET
         public async Task<ActionResult> Login(int id)
@@ -59,19 +52,20 @@ namespace CMS.Web.Controllers
                 if (result)
                 {
 
-                    var user = await _accountService.GetUserByEmailAsync(collection.UserEmail);
 
-                    var userRole = await _accountService.GetUserRoleAsync(user);
+                        //var user = await _accountService.GetUserByEmailAsync(collection.UserEmail);
 
-                    //HttpContext.Session.SetString("UserId", user.Id);
-                    //HttpContext.Session.SetString("UserRole", userRole);
+                        //var userRole = await _accountService.GetUserRoleAsync(user);
 
-
-                    //ViewData["UserId"] = user.Id;
-                    //ViewData["UserRole"] = userRole;
+                        //HttpContext.Session.SetString("UserId", user.Id);
+                        //HttpContext.Session.SetString("UserRole", userRole);
 
 
-                    return RedirectToAction("Index", "Home");
+                        //ViewData["UserId"] = user.Id;
+                        //ViewData["UserRole"] = userRole;
+
+
+                        return RedirectToAction("Index", "Home");
                 }
                 else
                 {
@@ -129,26 +123,7 @@ namespace CMS.Web.Controllers
             var usersWithRoles = _accountService.GetAllUsersWithRoles();
             return View(usersWithRoles);
 
-            //var users = Db.Users.ToList();
-
-            //var modelList = new List<Register>();
-
-            //foreach (var user in users)
-            //{
-            //    var roles = _userManager.GetRolesAsync(user).Result;
-
-            //    var model = new Register
-            //    {
-            //        RegisterrId = user.Id,
-            //        Email = user.Email,
-            //        UserName = user.UserName,
-            //        SelectedRole = roles.FirstOrDefault()
-            //    };
-
-            //    modelList.Add(model);
-            //}
-
-            //return View(modelList);
+           
         }
 
 
@@ -156,17 +131,7 @@ namespace CMS.Web.Controllers
         public async Task<IActionResult> Details(string id)
         {
             var userDetails =  _accountService.GetUsersById(id);
-            //var user = await _userManager.FindByIdAsync(id);
-
-            //var roles = await _accountService.GetUserRoleAsync(user);
-
-            //var model = new Register
-            //{
-            //    RegisterrId = user.Id,
-            //    Email = user.Email,
-            //    UserName = user.UserName,
-            //    SelectedRole = roles
-            //};
+         
 
             return View(userDetails);
         }
@@ -209,7 +174,6 @@ namespace CMS.Web.Controllers
                         await _userManager.AddToRoleAsync(user, collection.SelectedRole);
                     }
 
-                    // Your registration success logic here
                     return RedirectToAction("Index");
                 }
                 else

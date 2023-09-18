@@ -38,6 +38,8 @@ namespace CMS.Web
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
+            services.AddHttpContextAccessor();
+
             services.AddControllersWithViews();
              
             services.AddScoped<ICarrerOfferService, CarrerOfferService>();
@@ -86,6 +88,10 @@ namespace CMS.Web
             services.AddTransient<ITemplatesService, TemplatesService>();
 
 
+            services.AddScoped(typeof(IStatusRepository), typeof(StatusRepository));
+            services.AddTransient<IStatusService, StatusService>();
+
+
 
             services.AddDbContext<ApplicationDbContext>(x =>
             {
@@ -112,6 +118,9 @@ namespace CMS.Web
 
             });
 
+
+
+
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -135,8 +144,11 @@ namespace CMS.Web
             app.UseAuthorization();
             app.UseAuthentication();
 
+          
+
             app.UseEndpoints(endpoints =>
             {
+
                 endpoints.MapControllerRoute(
                     name: "default",
                     pattern: "{controller=Account}/{action=Login}/{id?}");

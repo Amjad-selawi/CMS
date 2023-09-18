@@ -2,6 +2,7 @@
 using CMS.Application.DTOs;
 using CMS.Application.Extensions;
 using System.Collections.Generic;
+using System.IO;
 using System.Threading.Tasks;
 
 namespace CMS.Services.Interfaces
@@ -22,6 +23,19 @@ namespace CMS.Services.Interfaces
         Task<Result<InterviewsDTO>> Delete(int id);
         Task<Result<InterviewsDTO>> GetById(int id);
         Task<Result<InterviewsDTO>> Update(InterviewsDTO data);
+
+
+        Task<List<UsersDTO>> GetInterviewers();
+
+        Task<string> GetInterviewerName(string id);
+
+        Task UpdateInterviewAttachmentAsync(int id, string fileName, long fileSize, Stream fileStream);
+
+        Task ConductInterview(InterviewsDTO entity);
+
+        Task<Result<List<InterviewsDTO>>> MyInterviews();
+
+
 
 
     }

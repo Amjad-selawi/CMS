@@ -21,6 +21,7 @@ namespace CMS.Domain.Entities
 
         [Required(ErrorMessage = "LongDescription is required.")]
         public string LongDescription { get; set; }
-     
+
+
     }
 }
