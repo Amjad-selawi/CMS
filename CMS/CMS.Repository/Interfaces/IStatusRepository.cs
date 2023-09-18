@@ -10,5 +10,8 @@ namespace CMS.Repository.Interfaces
     {
         Task<int> Insert(Status entity);
         Task<List<Status>> GetAll();
+
+        Task<Status> GetByCode(string co);
+        Task<Status> GetById(int id);
     }
 }

@@ -5,10 +5,10 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Compile Remove="Migrations\20230910072511_modifyPositionsAndCandidates.cs" />
-    <Compile Remove="Migrations\20230910072511_modifyPositionsAndCandidates.Designer.cs" />
-    <Compile Remove="Migrations\20230910120421_secondmodifyPositionsAndCandidates.cs" />
-    <Compile Remove="Migrations\20230910120421_secondmodifyPositionsAndCandidates.Designer.cs" />
+    <Compile Remove="Migrations\20230912155556_addUsersAsinterviewerandattatchmentdana.cs" />
+    <Compile Remove="Migrations\20230912155556_addUsersAsinterviewerandattatchmentdana.Designer.cs" />
+    <Compile Remove="Migrations\20230912173357_maketheattachmentidnullable.cs" />
+    <Compile Remove="Migrations\20230912173357_maketheattachmentidnullable.Designer.cs" />
   </ItemGroup>
 
 	<ItemGroup>

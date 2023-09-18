@@ -6,7 +6,6 @@
 
   <ItemGroup>
     <Content Remove="Views\Interviews\Index1.cshtml" />
-    <Content Remove="Views\Interviews\MyInterviews.cshtml" />
   </ItemGroup>
 
 	<ItemGroup>

@@ -47,7 +47,7 @@ namespace CMS.Repository.Implementation
             try
             {
 
-                return await _context.Positions.Include(c => c.CareerOffer).Include(c=>c.Interviews).AsNoTracking().ToListAsync();
+                return await _context.Positions.Include(c => c.CarrerOffer).Include(c=>c.Interviews).Include(c=>c.Candidates).AsNoTracking().ToListAsync();
 
             }
             catch (Exception ex)
@@ -61,9 +61,9 @@ namespace CMS.Repository.Implementation
             try
             {
                 var postion = await _context.Positions
-                    .Include(c => c.CareerOffer).Include(c => c.Interviews)
+                    .Include(c => c.CarrerOffer).Include(c => c.Interviews).Include(c=>c.Candidates)
                     .AsNoTracking()
-                    .FirstOrDefaultAsync(c => c.PositionId == id);
+                    .FirstOrDefaultAsync(c => c.Id == id);
                 return postion;
             }
             catch (Exception ex)

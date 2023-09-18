@@ -4,6 +4,7 @@ using CMS.Repository.Interfaces;
 using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -27,6 +28,16 @@ namespace CMS.Repository.Implementation
             {
                 throw ex;
             }
+        }
+
+        public async  Task<Status> GetByCode(string co)
+        {
+             return await _context.Statuses.Where(c => c.Code == co).AsNoTracking().FirstOrDefaultAsync();
+        }
+
+        public async Task<Status> GetById(int id)
+        {
+           return await _context.Statuses.AsNoTracking().FirstOrDefaultAsync(c => c.Id == id);
         }
 
         public async Task<int> Insert(Status entity)

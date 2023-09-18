@@ -2,22 +2,22 @@
 
 namespace CMS.Domain.Migrations
 {
-    public partial class rebuildParentId : Migration
+    public partial class addCodeToStatus : Migration
     {
         protected override void Up(MigrationBuilder migrationBuilder)
         {
-            migrationBuilder.AddColumn<int>(
-                name: "ParentId",
-                table: "Interviews",
+            migrationBuilder.AddColumn<string>(
+                name: "Code",
+                table: "Statuses",
                 nullable: false,
-                defaultValue: 0);
+                defaultValue: "");
         }
 
         protected override void Down(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.DropColumn(
-                name: "ParentId",
-                table: "Interviews");
+                name: "Code",
+                table: "Statuses");
         }
     }
 }

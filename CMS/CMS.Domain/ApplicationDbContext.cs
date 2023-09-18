@@ -30,7 +30,7 @@ namespace CMS.Domain
         {
             builder.ApplyConfiguration(new CompanyMapper());
             builder.ApplyConfiguration(new CountryMapper());
-            //builder.ApplyConfiguration(new CandidateMapper());
+            builder.ApplyConfiguration(new CandidateMapper());
             builder.ApplyConfiguration(new NotificationsMapper());
             builder.ApplyConfiguration(new InterviewsMapper());
             builder.ApplyConfiguration(new PositionMapper());  

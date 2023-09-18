@@ -34,6 +34,7 @@ namespace CMS.Services.Services
                     {
                         Id = s.Id,
                         Name = s.Name,
+                        Code = s.Code,
                         
                     });
 
@@ -59,6 +60,7 @@ namespace CMS.Services.Services
             var status = new Status
             {
                 Name = data.Name,
+                Code = data.Code,
             };
             try
             {

@@ -1,5 +1,4 @@
 ﻿using CMS.Application.DTOs;
-using CMS.Application.Extensions;
 using CMS.Domain.Entities;
 using CMS.Repository.Interfaces;
 using CMS.Services.Interfaces;
@@ -23,176 +22,18 @@ namespace CMS.Services.Services
             _attachmentService = attachmentService;
         }
 
-        //public async Task<Result<CandidateCreateDTO>> Delete(int id)
-        //{
-        //    try
-        //    {
-        //        await _candidateRepository.Delete(id);
-        //        return Result<CandidateCreateDTO>.Success(null);
-        //    }
-        //    catch (Exception ex)
-        //    {
-        //        return Result<CandidateCreateDTO>.Failure(null, $"An error occurred while deleting the position{ex.InnerException.Message}");
-        //    }
-        //}
-
-        //public async Task<Result<List<CandidateCreateDTO>>> GetAll()
-        //{
-
-        //    var candidate = await _candidateRepository.GetAll();
-        //    if (candidate == null)
-        //    {
-        //        return Result<List<CandidateCreateDTO>>.Failure(null, "no candidates found");
-        //    }
-        //    try
-        //    {
-        //        var candidateDTOs = new List<CandidateCreateDTO>();
-        //        foreach (var co in candidate)
-        //        {
-        //            candidateDTOs.Add(new CandidateCreateDTO
-        //            {
-        //                CandidateId = co.CandidateId,
-        //                FullName = co.FullName,
-        //                InterviewsDTO = co.Interviews.Select(com => new InterviewsDTO
-        //                {
-        //                   InterviewsId=com.InterviewsId,
-        //                    CandidateId = com.CandidateId,
-        //                    Date= com.Date,
-        //                    Notes=com.Notes,
-        //                    InterviewerId = com.InterviewerId,
-        //                    ParentId=com.ParentId,
-        //                    Score=com.Score,
-        //                    Status = com.Status.ToString(),
-
-
-
-        //                }).ToList()
-
-        //            });
-
-        //        }
-        //        return Result<List<CandidateCreateDTO>>.Success(candidateDTOs);
-        //    }
-        //    catch (Exception ex)
-        //    {
-        //        return Result<List<CandidateCreateDTO>>.Failure(null, $"unable to get countries{ex.InnerException.Message}");
-        //    }
-
-        //}
-
-        //public async Task<Result<CandidateCreateDTO>> GetById(int id)
-        //{
-        //    if (id <= 0)
-        //    {
-        //        return Result<CandidateCreateDTO>.Failure(null, "Invalid candidate id");
-        //    }
-        //    try
-        //    {
-        //        var candidate = await _candidateRepository.GetById(id);
-        //        var candidateDTOs = new CandidateCreateDTO
-        //        {
-        //            CandidateId = candidate.CandidateId,
-        //            FullName = candidate.FullName,
-        //            InterviewsDTO = candidate.Interviews.Select(com => new InterviewsDTO
-        //            {
-        //                InterviewsId = com.InterviewsId,
-        //                CandidateId = com.CandidateId,
-        //                Date = com.Date,
-        //                Notes = com.Notes,
-        //                InterviewerId = com.InterviewerId,
-        //                ParentId = com.ParentId,
-        //                Score = com.Score,
-        //                Status = com.Status.ToString(),
-
-
-
-        //            }).ToList()
-
-        //        };
-        //        return Result<CandidateCreateDTO>.Success(candidateDTOs);
-        //    }
-        //    catch (Exception ex)
-        //    {
-        //        return Result<CandidateCreateDTO>.Failure(null, $"unable to retrieve the Candidate from the repository{ex.InnerException.Message}");
-        //    }
-        //}
-
-        //public async Task<Result<CandidateCreateDTO>> Insert(CandidateCreateDTO data)
-        //{
-
-        //    if (data == null)
-        //    {
-        //        return Result<CandidateCreateDTO>.Failure(data, "the candidate dto is null");
-        //    }
-        //    var candidate = new Candidate
-        //    {
-        //        FullName = data.FullName,
-        //        Address = data.Address,
-        //        Email=data.Email,
-        //        Experience = data.Experience,
-        //        Phone = data.Phone,
-        //        LinkedInUrl = data.LinkedInUrl,
-        //        CVAttachmentId = data.CVAttachmentId,
-        //        DesiredPosition = data.DesiredPosition,
-
-        //    };
-        //    try
-        //    {
-        //        await _candidateRepository.Insert(candidate);
-        //        return Result<CandidateCreateDTO>.Success(data);
-
-        //    }
-        //    catch (Exception ex)
-        //    {
-        //        return Result<CandidateCreateDTO>.Failure(data, $"unable to insert a position: {ex.InnerException.Message}");
-        //    }
-        //}
-
-        //public async Task<Result<CandidateCreateDTO>> Update(CandidateCreateDTO data)
-        //{
-        //    if (data == null)
-        //    {
-        //        return Result<CandidateCreateDTO>.Failure(null, "can not update a null object");
-        //    }
-        //    var candidate = new Candidate
-        //    {
-        //        FullName = data.FullName,
-        //        CandidateId = data.CandidateId,
-        //        Address = data.Address,
-        //        Email = data.Email,
-        //        Experience = data.Experience,
-        //        Phone = data.Phone,
-        //        LinkedInUrl = data.LinkedInUrl,
-        //        CVAttachmentId = data.CVAttachmentId,
-        //        DesiredPosition = data.DesiredPosition,
-
-
-        //    };
-        //    try
-        //    {
-        //        await _candidateRepository.Update(candidate);
-        //        return Result<CandidateCreateDTO>.Success(data);
-        //    }
-        //    catch (Exception ex)
-        //    {
-        //        return Result<CandidateCreateDTO>.Failure(data, $"unable to update the Candidate: {ex.InnerException.Message}");
-        //    }
-        //}
-
-
-
-
-
         public async Task<IEnumerable<CandidateDTO>> GetAllCandidatesAsync()
         {
             var candidates = await _candidateRepository.GetAllCandidatesAsync();
             return candidates.Select(c => new CandidateDTO
             {
-                CandidateId = c.CandidateId,
+                Id = c.Id,
                 FullName = c.FullName,
                 Phone = c.Phone,
                 PositionId = c.PositionId,
                 DesiredPosition = c.Position.Name,
+                CompanyId = c.CompanyId,
+                CompanyName=c.Company.Name,
                 Email = c.Email,
                 Address = c.Address,
                 Experience = c.Experience,
@@ -211,17 +52,18 @@ namespace CMS.Services.Services
 
             return new CandidateDTO
             {
-                CandidateId = candidate.CandidateId,
+                Id = candidate.Id,
                 FullName = candidate.FullName,
                 Phone = candidate.Phone,
                 PositionId = candidate.PositionId,
                 DesiredPosition = candidate.Position.Name,
+                CompanyId=candidate.CompanyId,
+                CompanyName=candidate.Company.Name,
                 Email = candidate.Email,
                 Address = candidate.Address,
                 Experience = candidate.Experience,
                 CVAttachmentId = candidate.CVAttachmentId,
-                LinkedInUrl = candidate.LinkedInUrl,
-
+                LinkedInUrl = candidate.LinkedInUrl
             };
         }
 
@@ -234,6 +76,7 @@ namespace CMS.Services.Services
                 FullName = candidateDTO.FullName,
                 Phone = candidateDTO.Phone,
                 PositionId = candidateDTO.PositionId,
+                CompanyId=candidateDTO.CompanyId,
                 Email = candidateDTO.Email,
                 Address = candidateDTO.Address,
                 Experience = candidateDTO.Experience,
@@ -252,6 +95,7 @@ namespace CMS.Services.Services
             existingCandidate.FullName = candidateDTO.FullName;
             existingCandidate.Phone = candidateDTO.Phone;
             existingCandidate.PositionId = candidateDTO.PositionId;
+            existingCandidate.CompanyId= candidateDTO.CompanyId;
             existingCandidate.Email = candidateDTO.Email;
             existingCandidate.Address = candidateDTO.Address;
             existingCandidate.Experience = candidateDTO.Experience;

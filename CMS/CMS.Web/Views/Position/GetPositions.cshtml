@@ -1,45 +1,35 @@
-﻿@model IEnumerable<CMS.Application.DTOs.PositionDTO>
-
-
-@model IEnumerable<CMS.Application.DTOs.PositionDTO>
-
+﻿@model List<CMS.Application.DTOs.PositionDTO>
 
 <h1>Positions</h1>
-
-
-<p>
-    <a class="btn btn-outline-primary font-italic" asp-action="AddPosition">Create New</a>
-</p>
-
-<table class="datatable">
+<p><a asp-action="AddPosition">add a new position</a></p>
+<table class="table">
     <thead>
         <tr>
-           
-            <th>Position Name</th>
-          
-            <th>Actions</th>
+            <th>ID</th>
+            <th>position Name</th>
+
+            <th>Delete position</th>
+
         </tr>
     </thead>
     <tbody>
-        @if(Model!=null)
-        @foreach(var pos in Model)
+        @foreach (var pos in Model)
         {
             <tr>
-             
-                <td>@position.Name</td>
+                <td>@pos.Id</td>
+                <td>@pos.Name</td>
+
                 <td>
-                    <a class="bx bxs-edit-alt" style="font-size:x-large" asp-action="UpdatePosition" asp-route-id="@position.PositionId"></a> |
-                  @* <a class="bx bx-detail" style="font-size:x-large" asp-action="Details" asp-route-id="@position.Id"></a> | *@
-                   @*  <a class="ri-delete-bin-2-line text-danger" style="font-size:x-large" asp-action="Delete" asp-route-id="@position.Id"></a> *@
-                   
+                    <form method="post" asp-action="DeletePosition">
+                        <input type="hidden" name="id" value="@pos.Id" />
+                        <button type="submit" class="btn btn-danger">Delete</button>
+                    </form>
+                </td>
+                <td>
+                    <a asp-action="UpdatePosition" asp-route-id="@pos.Id">Edit</a>
                 </td>
             </tr>
         }
+
     </tbody>
 </table>
-
-
-  
-
-
-

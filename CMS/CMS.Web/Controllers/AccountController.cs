@@ -34,11 +34,7 @@ namespace CMS.Web.Controllers
         //    return View(listuser);
         //}
 
-        public ActionResult Index()
-        {
-            return View();
-        }
-
+       
 
         //GET
         public /*async*/ ActionResult Login(/*int id*/)

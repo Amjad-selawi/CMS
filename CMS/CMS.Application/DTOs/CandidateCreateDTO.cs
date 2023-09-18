@@ -16,6 +16,9 @@ namespace CMS.Application.DTOs
         [Required(ErrorMessage = "DesiredPosition is required.")]
         public int PositionId { set; get; } 
         public string DesiredPosition { get; set; }
+        [Required(ErrorMessage = "company is required.")]
+        public int CompanyId { set; get; }
+        public string CompanyName { set; get; }
         [Required(ErrorMessage = "Email is required.")]
         public string Email { get; set; }
         [Required(ErrorMessage = "Address is required.")]
@@ -25,8 +28,8 @@ namespace CMS.Application.DTOs
         public string LinkedInUrl { get; set; }
         public int CVAttachmentId { get; set; }
         public string FileName { get; set; }
-        public long FileSize { get; set; }
-        public Stream FileData { get; set; }
+        public long FileSize { get; set; } 
+        public Stream FileData { get; set; } 
 
 
         public List<InterviewsDTO> InterviewsDTO { get; set; }

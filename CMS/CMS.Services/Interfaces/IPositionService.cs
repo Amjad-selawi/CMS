@@ -16,13 +16,12 @@ namespace CMS.Services.Interfaces
         //Task Update(int positionId,PositionDTO data);
 
 
+        
         Task<Result<PositionDTO>> Insert(PositionDTO data);
         Task<Result<List<PositionDTO>>> GetAll();
         Task<Result<PositionDTO>> Delete(int id);
         Task<Result<PositionDTO>> GetById(int id);
         Task<Result<PositionDTO>> Update(PositionDTO data);
-
-
 
     }
 }
