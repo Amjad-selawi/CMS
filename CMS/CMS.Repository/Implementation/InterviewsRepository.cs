@@ -1,12 +1,14 @@
 ﻿// CMS.Infrastructure/Repositories/InterviewsRepository.cs
+using CMS.Application.DTOs;
 using CMS.Domain;
 using CMS.Domain.Entities;
-
 using CMS.Repository.Interfaces;
+using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Security.Claims;
 using System.Threading.Tasks;
 
 namespace CMS.Repository.Repositories
@@ -14,7 +16,7 @@ namespace CMS.Repository.Repositories
     public class InterviewsRepository : IInterviewsRepository
     {
         private readonly ApplicationDbContext _context;
-
+       
         public InterviewsRepository(ApplicationDbContext context)
         {
             _context = context;
@@ -26,8 +28,8 @@ namespace CMS.Repository.Repositories
         {
             try
             {
-                var careerOffer = await _context.CarrerOffers.FindAsync(id);
-                _context.CarrerOffers.Remove(careerOffer);
+                var interviews = await _context.Interviews.FindAsync(id);
+                _context.Interviews.Remove(interviews);
                 return await _context.SaveChangesAsync();
 
             }
@@ -36,15 +38,19 @@ namespace CMS.Repository.Repositories
                 throw ex;
             }
         }
+       
 
         public async Task<List<Interviews>> GetAll()
         {
             try
             {
 
-                return await _context.Interviews.Include(c => c.Position).Include(c=>c.Candidate).AsNoTracking().ToListAsync();
-
-
+                return await _context.Interviews
+                    .Include(c => c.Position)
+                    .Include(c=>c.Candidate)
+                    .Include(c=>c.Status)
+                    //.Include(c=>c.Interviewer)
+                    .AsNoTracking().ToListAsync();
 
             }
             catch (Exception ex)
@@ -57,8 +63,33 @@ namespace CMS.Repository.Repositories
         {
             try
             {
-                var interview = await _context.Interviews.Include(c => c.Position).Include(c => c.Candidate).AsNoTracking().FirstOrDefaultAsync(c => c.InterviewsId == id);
+                var interview = await _context.Interviews
+                    .Include(c => c.Position)
+                    .Include(c => c.Candidate)
+                    .Include(c=>c.Status)
+                   // .Include(c=>c.Interviewer)
+                    .AsNoTracking().FirstOrDefaultAsync(c => c.InterviewsId == id);
                 return interview;
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+        public Task<List<Interviews>> GetCurrentInterviews(string id)
+        {
+            try
+            {
+               return  _context.Interviews
+                    .Include(c => c.Position)
+                    .Include(c=>c.Candidate)
+                    .Include(c=>c.Status)
+                   // .Include(c=>c.Interviewer)
+                    .Where(c=>c.InterviewerId == id)
+                    .AsNoTracking() .ToListAsync();
+                    
+
             }
             catch (Exception ex)
             {
@@ -77,7 +108,7 @@ namespace CMS.Repository.Repositories
             }
             catch (Exception ex)
             {
-                throw ex;
+                throw ex.InnerException;
             }
         }
 
@@ -98,44 +129,5 @@ namespace CMS.Repository.Repositories
             }
         }
 
-        //public async Task<IEnumerable<Interviews>> GetAllInterviews()
-        //{
-        //    return await Db.Interviews.ToListAsync();
-        //}
-
-        //public async Task<Interviews> GetInterviewById(int interviewId)
-        //{
-        //    return await Db.Interviews.FindAsync(interviewId);
-        //}
-
-        //public async Task Create(Interviews entity)
-        //{
-        //    entity.IsActive = true;
-        //    entity.ModifiedBy = entity.ModifiedBy;
-        //    entity.ModifiedOn = DateTime.Now;
-
-        //    Db.Interviews.Add(entity);
-        //    await Db.SaveChangesAsync();
-        //}
-
-        //public async Task Update(Interviews entity)
-        //{
-        //    entity.IsActive = true;
-        //    entity.ModifiedBy = entity.ModifiedBy;
-        //    entity.ModifiedOn = DateTime.Now;
-
-        //    Db.Interviews.Update(entity);
-        //    await Db.SaveChangesAsync();
-        //}
-
-        //public async Task Delete(Interviews entity)
-        //{
-        //    entity.IsDelete = true;
-        //    entity.ModifiedBy = entity.ModifiedBy;
-        //    entity.ModifiedOn = DateTime.Now;
-
-        //    Db.Interviews.Remove(entity);
-        //    await Db.SaveChangesAsync();
-        //}
     }
 }

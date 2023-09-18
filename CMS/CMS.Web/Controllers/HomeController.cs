@@ -8,6 +8,7 @@ using System.Threading.Tasks;
 
 namespace CMS.Web.Controllers
 {
+    [Authorize]
     public class HomeController : Controller
     {
         public HomeController()

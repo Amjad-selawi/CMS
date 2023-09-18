@@ -8,13 +8,15 @@ namespace CMS.Repository.Interfaces
 {
     public interface ICandidateRepository
     {
+       
+
         Task<IEnumerable<Candidate>> GetAllCandidatesAsync();
         Task<Candidate> GetCandidateByIdAsync(int id);
         Task CreateCandidateAsync(Candidate candidate);
         Task UpdateCandidateAsync(Candidate candidate);
-        Task DeleteCandidateAsync(Candidate candidate);
+        Task<int> DeleteCandidateAsync(Candidate candidate);
 
-        
+
 
     }
 }

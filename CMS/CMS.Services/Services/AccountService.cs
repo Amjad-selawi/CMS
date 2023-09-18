@@ -3,10 +3,13 @@ using CMS.Application.Extensions;
 using CMS.Domain;
 using CMS.Repository.Interfaces;
 using CMS.Services.Interfaces;
+using Microsoft.AspNetCore.Authentication;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Security.Claims;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -44,8 +47,12 @@ namespace CMS.Services.Services
         }
 
         public async Task<bool> LoginAsync(Login collection)
+        
         {
-            var result = await _signInManager.PasswordSignInAsync(collection.UserEmail, collection.Password, collection.RememberMe, false);
+            var signedUser = await _userManager.FindByEmailAsync(collection.UserEmail);
+
+            var result = await _signInManager.PasswordSignInAsync(signedUser.UserName, collection.Password, collection.RememberMe, false);
+            
             return result.Succeeded;
         }
 

@@ -10,8 +10,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace CMS.Domain.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20230911210300_new")]
-    partial class @new
+    [Migration("20230912175151_maketheattachmentidnullable")]
+    partial class maketheattachmentidnullable
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
@@ -48,61 +48,44 @@ namespace CMS.Domain.Migrations
 
             modelBuilder.Entity("CMS.Domain.Entities.Candidate", b =>
                 {
-                    b.Property<int>("CandidateId")
+                    b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("int")
                         .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
 
                     b.Property<string>("Address")
+                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<int>("CVAttachmentId")
                         .HasColumnType("int");
 
-                    b.Property<int?>("CVId")
-                        .HasColumnType("int");
-
-                    b.Property<string>("CreatedBy")
-                        .HasColumnType("nvarchar(20)")
-                        .HasMaxLength(20);
-
-                    b.Property<DateTime>("CreatedOn")
-                        .HasColumnType("datetime2");
-
-                    b.Property<string>("DesiredPosition")
-                        .HasColumnType("nvarchar(max)");
-
                     b.Property<string>("Email")
+                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("Experience")
+                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("FullName")
+                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
-
-                    b.Property<bool>("IsActive")
-                        .HasColumnType("bit");
-
-                    b.Property<bool>("IsDelete")
-                        .HasColumnType("bit");
 
                     b.Property<string>("LinkedInUrl")
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<string>("ModifiedBy")
-                        .HasColumnType("nvarchar(20)")
-                        .HasMaxLength(20);
-
-                    b.Property<DateTime>("ModifiedOn")
-                        .HasColumnType("datetime2");
-
                     b.Property<int>("Phone")
                         .HasColumnType("int");
 
-                    b.HasKey("CandidateId");
+                    b.Property<int>("PositionId")
+                        .HasColumnType("int");
 
-                    b.HasIndex("CVId");
+                    b.HasKey("Id");
+
+                    b.HasIndex("CVAttachmentId");
+
+                    b.HasIndex("PositionId");
 
                     b.ToTable("Candidates");
                 });
@@ -204,6 +187,9 @@ namespace CMS.Domain.Migrations
                         .HasColumnType("int")
                         .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
 
+                    b.Property<int?>("AttachmentId")
+                        .HasColumnType("int");
+
                     b.Property<int>("CandidateId")
                         .HasColumnType("int");
 
@@ -217,8 +203,9 @@ namespace CMS.Domain.Migrations
                     b.Property<DateTime>("Date")
                         .HasColumnType("datetime2");
 
-                    b.Property<int>("InterviewerId")
-                        .HasColumnType("int");
+                    b.Property<string>("InterviewerId")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(450)");
 
                     b.Property<bool>("IsActive")
                         .HasColumnType("bit");
@@ -236,23 +223,29 @@ namespace CMS.Domain.Migrations
                     b.Property<string>("Notes")
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<int>("ParentId")
+                    b.Property<int?>("ParentId")
                         .HasColumnType("int");
 
                     b.Property<int>("PositionId")
                         .HasColumnType("int");
 
-                    b.Property<int>("Score")
+                    b.Property<int?>("Score")
                         .HasColumnType("int");
 
-                    b.Property<int>("Status")
+                    b.Property<int>("StatusId")
                         .HasColumnType("int");
 
                     b.HasKey("InterviewsId");
 
+                    b.HasIndex("AttachmentId");
+
                     b.HasIndex("CandidateId");
 
+                    b.HasIndex("InterviewerId");
+
                     b.HasIndex("PositionId");
+
+                    b.HasIndex("StatusId");
 
                     b.ToTable("Interviews");
                 });
@@ -305,37 +298,34 @@ namespace CMS.Domain.Migrations
 
             modelBuilder.Entity("CMS.Domain.Entities.Position", b =>
                 {
-                    b.Property<int>("PositionId")
+                    b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("int")
                         .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
 
-                    b.Property<string>("CreatedBy")
-                        .HasColumnType("nvarchar(20)")
-                        .HasMaxLength(20);
-
-                    b.Property<DateTime>("CreatedOn")
-                        .HasColumnType("datetime2");
-
-                    b.Property<bool>("IsActive")
-                        .HasColumnType("bit");
-
-                    b.Property<bool>("IsDelete")
-                        .HasColumnType("bit");
-
-                    b.Property<string>("ModifiedBy")
-                        .HasColumnType("nvarchar(20)")
-                        .HasMaxLength(20);
-
-                    b.Property<DateTime>("ModifiedOn")
-                        .HasColumnType("datetime2");
-
                     b.Property<string>("Name")
+                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.HasKey("PositionId");
+                    b.HasKey("Id");
 
                     b.ToTable("Positions");
+                });
+
+            modelBuilder.Entity("CMS.Domain.Entities.Status", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int")
+                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("Statuses");
                 });
 
             modelBuilder.Entity("CMS.Domain.Entities.Templates", b =>
@@ -442,6 +432,10 @@ namespace CMS.Domain.Migrations
                         .IsConcurrencyToken()
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<string>("Discriminator")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<string>("Email")
                         .HasColumnType("nvarchar(256)")
                         .HasMaxLength(256);
@@ -493,6 +487,8 @@ namespace CMS.Domain.Migrations
                         .HasFilter("[NormalizedUserName] IS NOT NULL");
 
                     b.ToTable("AspNetUsers");
+
+                    b.HasDiscriminator<string>("Discriminator").HasValue("IdentityUser");
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserClaim<string>", b =>
@@ -579,17 +575,32 @@ namespace CMS.Domain.Migrations
                     b.ToTable("AspNetUserTokens");
                 });
 
+            modelBuilder.Entity("CMS.Domain.Entities.AplicationUser", b =>
+                {
+                    b.HasBaseType("Microsoft.AspNetCore.Identity.IdentityUser");
+
+                    b.HasDiscriminator().HasValue("AplicationUser");
+                });
+
             modelBuilder.Entity("CMS.Domain.Entities.Candidate", b =>
                 {
                     b.HasOne("CMS.Domain.Entities.Attachment", "CV")
                         .WithMany()
-                        .HasForeignKey("CVId");
+                        .HasForeignKey("CVAttachmentId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("CMS.Domain.Entities.Position", "Position")
+                        .WithMany("Candidates")
+                        .HasForeignKey("PositionId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
                 });
 
             modelBuilder.Entity("CMS.Domain.Entities.CarrerOffer", b =>
                 {
                     b.HasOne("CMS.Domain.Entities.Position", "Positions")
-                        .WithMany("CareerOffer")
+                        .WithMany("CarrerOffer")
                         .HasForeignKey("PositionId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
@@ -606,15 +617,32 @@ namespace CMS.Domain.Migrations
 
             modelBuilder.Entity("CMS.Domain.Entities.Interviews", b =>
                 {
+                    b.HasOne("CMS.Domain.Entities.Attachment", "Attachment")
+                        .WithMany()
+                        .HasForeignKey("AttachmentId")
+                        .HasConstraintName("FK_Interviews_Attachments");
+
                     b.HasOne("CMS.Domain.Entities.Candidate", "Candidate")
                         .WithMany("Interviews")
                         .HasForeignKey("CandidateId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
+                    b.HasOne("CMS.Domain.Entities.AplicationUser", "Interviewer")
+                        .WithMany()
+                        .HasForeignKey("InterviewerId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
                     b.HasOne("CMS.Domain.Entities.Position", "Position")
                         .WithMany("Interviews")
                         .HasForeignKey("PositionId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("CMS.Domain.Entities.Status", "Status")
+                        .WithMany("Interviews")
+                        .HasForeignKey("StatusId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
                 });

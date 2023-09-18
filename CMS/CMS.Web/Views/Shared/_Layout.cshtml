@@ -77,84 +77,48 @@
             </button>
             <div class="collapse navbar-collapse" id="navbarNav">
                 <ul class="navbar-nav ml-auto">
-            
-                @*       @if (ViewData["UserId"] != null)
-                    {
-      
-                             var userRole = ViewData["UserRole"] as string;
-                                if (userRole == "HR")
-                                    {
-                     *@
-
-                            @* <li class="nav-item">
-                                <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Index">Home</a>
-                            </li>
-                            <li class="nav-item">
-                                <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
-                            </li> *@
-                           @*  <li class="nav-item">
-                                <a class="nav-link text-dark" asp-area="" asp-controller="Company" asp-action="GetCompanies">Companies</a>
-                            </li>
-                            <li class="nav-item">
-                                <a class="nav-link text-dark" asp-area="" asp-controller="Country" asp-action="GetCountries">Countries</a>
-                            </li> *@
-
-
-
-                    @if (SignInManager.IsSignedIn(User))
-                    {
-
-                        @if (User.IsInRole("General Manger"))
-                        {
-                           
-                            <li class="nav-item">
-                                <a class="nav-link text-dark" asp-area="" asp-controller="CarrerOffer" asp-action="Index">CareerOffer</a>
-                            </li>
-                            <li class="nav-item">
-                                <a class="nav-link text-dark" asp-area="" asp-controller="Interviews" asp-action="Index">Interviews</a>
-                            </li>
-
-
-                        }
-                        else
-                        {
-                            <li class="nav-item">
-                                <a class="nav-link text-dark" asp-area="" asp-controller="Position" asp-action="GetPositions">Positions</a>
-                            </li>
-                            <li class="nav-item">
-                                <a class="nav-link text-dark" asp-area="" asp-controller="Candidates" asp-action="Index">Candidates</a>
-                            </li>
-                            <li class="nav-item">
-                                <a class="nav-link text-dark" asp-area="" asp-controller="Interviews" asp-action="Index">Interviews</a>
-                            </li>
-                            <li class="nav-item">
-                                <a class="nav-link text-dark" asp-area="" asp-controller="Notifications" asp-action="Index">Notifications</a>
-                            </li>
-                            <li class="nav-item">
-                                <a class="nav-link text-dark" asp-area="" asp-controller="Templates" asp-action="Index">Templates</a>
-                            </li>
-
-                        }
-
-
-                    }
-
-                    else
-                    {
+                    <li class="nav-item">
+                        <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Index">Home</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link text-dark" asp-area="" asp-controller="Status" asp-action="Get">Status</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link text-dark" asp-area="" asp-controller="Company" asp-action="GetCompanies">Companies</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link text-dark" asp-area="" asp-controller="Country" asp-action="GetCountries">Countries</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link text-dark" asp-area="" asp-controller="Position" asp-action="GetPositions">Positions</a>
+                    </li>
                         <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="AppRoles" asp-action="Index">Roles</a>
+                            <a class="nav-link text-dark" asp-area="" asp-controller="Candidates" asp-action="Index">Candidates</a>
                         </li>
-                        <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="Account" asp-action="Index">Register</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="Account" asp-action="Login">Login</a>
-                        </li>
-
-                    }
-
-                    <li>
-                        <a style="margin-right: 40px;" class="nav-link text-dark" asp-area="" asp-action="Logout" asp-controller="Account">Logout</a>
+                    
+                    <li class="nav-item">
+                        <a class="nav-link text-dark" asp-area="" asp-controller="Interviews" asp-action="Index">Interviews</a>
+                    </li>
+                     <li class="nav-item">
+                        <a class="nav-link text-dark" asp-area="" asp-controller="Notifications" asp-action="Index">Notifications</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link text-dark" asp-area="" asp-controller="Templates" asp-action="Index">Templates</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link text-dark" asp-area="" asp-controller="Interviews" asp-action="MyInterviews">my interviews</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link text-dark" asp-area="" asp-controller="AppRoles" asp-action="Index">Roles</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link text-dark" asp-area="" asp-controller="Register" asp-action="Index">Register</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link text-dark" asp-area="" asp-controller="Account" asp-action="Logout">Logout</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
                     </li>
 
 

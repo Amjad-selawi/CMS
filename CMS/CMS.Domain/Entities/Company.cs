@@ -16,5 +16,7 @@ namespace CMS.Domain.Entities
         [Required]
         public int CountryId { get; set; }
         public virtual Country Country { get; set; }
+
+        public virtual ICollection<Candidate> Candidates { get; set; }
     }
 }

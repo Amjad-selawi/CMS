@@ -6,17 +6,18 @@
     <a asp-action="Create" class="btn btn-outline-primary font-italic">Create New</a>
 </p>
 
+
 <table class="datatable">
     <thead>
         <tr>
 
            <th> Candidate Name</th>
            <th>Position</th>
-            <th>InterviewerId</th>
+            <th>Interviewer</th>
             <th>
                 Date
             </th>
-            <th hidden>
+            <th @*hidden*@>
                 Parent ID
             </th>
 
@@ -27,44 +28,57 @@
                 Status
             </th>
             <th>Notes</th>
+            <th>Evaluation</th>
             <th>Actions</th>
+            <th></th>
         </tr>
     </thead>
     <tbody>
+        @if(Model!=null)
         @foreach (var item in Model)
         {
             <tr>
 
                 <td>
-                    @Html.DisplayFor(modelItem => item.CandidateName)
+                    @Html.DisplayFor(modelItem => item.FullName)
                 </td>
                 <td>
-                    @Html.DisplayFor(modelItem => item.PositionName)
+                    @Html.DisplayFor(modelItem => item.Name)
                 </td>
 
-                <td>@item.InterviewerId</td>
+                <td>@item.InterviewerName</td>
                 <td>
                     @item.Date
                 </td>
-                <td hidden>
+                <td @*hidden*@>
                     @item.ParentId
                 </td>
-
 
                 <td>
                     @item.Score
                 </td>
                 <td>
-                    @item.Status
+                    @item.StatusName 
                 </td>
 
                 <td>@item.Notes</td>
+                    @if (item.AttachmentId != null)
+                    {
+                        <td><a asp-controller="Attachments" asp-action="Download" asp-route-id="@item.AttachmentId">Download evaluation</a></td>
+                    }
+                    else
+                    {
+                        <td></td>
+                    }
+                   
 
                 <td>
-                    <a class="bx bxs-edit-alt" style="font-size:x-large" asp-action="Edit" asp-route-id="@item.InterviewsId"></a> |
+                   @* <a class="bx bxs-edit-alt" style="font-size:x-large" asp-action="Edit" asp-route-id="@item.InterviewsId" asp-route-idd="@item.StatusId"></a> |*@
                     <a class="bx bx-detail" style="font-size:x-large" asp-action="Details" asp-route-id="@item.InterviewsId"></a> |
                     <a class="ri-delete-bin-2-line text-danger" style="font-size:x-large" asp-action="Delete" asp-route-id="@item.InterviewsId"></a>
+
                 </td>
+               
             </tr>
         }
     </tbody>

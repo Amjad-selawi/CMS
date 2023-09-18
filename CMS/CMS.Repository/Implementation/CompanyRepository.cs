@@ -6,6 +6,7 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 using System.Threading.Tasks;
+using System.Linq;
 
 namespace CMS.Repository.Implementation
 {
@@ -21,7 +22,17 @@ namespace CMS.Repository.Implementation
         {
             try
             {
-                var company=await _context.Companies.FindAsync(id);
+                // var company=await _context.Companies.FindAsync(id);
+                var company = await _context.Companies.Include(c => c.Candidates)
+                     .FirstOrDefaultAsync(c=>c.Id==id);
+
+                if (company.Candidates != null && company.Candidates.Any())
+                {
+                    foreach (var c in company.Candidates.ToList())
+                    {
+                        _context.Candidates.Remove(c);
+                    }
+                }
                 _context.Companies.Remove(company);
               return  await _context.SaveChangesAsync();
                 
@@ -37,7 +48,9 @@ namespace CMS.Repository.Implementation
             try
             {
 
-              return await _context.Companies.Include(c=>c.Country).AsNoTracking().ToListAsync();
+              return await _context.Companies.Include(c=>c.Country)
+                    .Include(c=>c.Candidates)
+                    .AsNoTracking().ToListAsync();
             
                
 
@@ -52,7 +65,10 @@ namespace CMS.Repository.Implementation
         {
             try
             {
-                var company=await _context.Companies.Include(c=>c.Country).AsNoTracking().FirstOrDefaultAsync(c=>c.Id==id);
+                var company=await _context.Companies
+                    .Include(c=>c.Country)
+                    .Include(c=>c.Candidates)
+                    .AsNoTracking().FirstOrDefaultAsync(c=>c.Id==id);
                // var company=await _context.FindAsync<Company>(id);
                 return company;
             }

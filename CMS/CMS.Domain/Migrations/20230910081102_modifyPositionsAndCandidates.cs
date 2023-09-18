@@ -2,51 +2,52 @@
 
 namespace CMS.Domain.Migrations
 {
-    public partial class ChangedOnCarrerOfferEntity : Migration
+    public partial class modifyPositionsAndCandidates : Migration
     {
         protected override void Up(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.DropColumn(
-                name: "Position",
-                table: "CarrerOffers");
+                name: "DesiredPosition",
+                table: "Candidates");
 
             migrationBuilder.AddColumn<int>(
                 name: "PositionId",
-                table: "CarrerOffers",
+                table: "Candidates",
                 nullable: false,
                 defaultValue: 0);
 
             migrationBuilder.CreateIndex(
-                name: "IX_CarrerOffers_PositionId",
-                table: "CarrerOffers",
+                name: "IX_Candidates_PositionId",
+                table: "Candidates",
                 column: "PositionId");
 
             migrationBuilder.AddForeignKey(
-                name: "FK_CarrerOffers_Positions_PositionId",
-                table: "CarrerOffers",
+                name: "FK_Candidates_Positions_PositionId",
+                table: "Candidates",
                 column: "PositionId",
                 principalTable: "Positions",
                 principalColumn: "Id",
-                onDelete: ReferentialAction.Cascade);
+                onDelete: ReferentialAction.NoAction,
+                onUpdate: ReferentialAction.NoAction);
         }
 
         protected override void Down(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.DropForeignKey(
-                name: "FK_CarrerOffers_Positions_PositionId",
-                table: "CarrerOffers");
+                name: "FK_Candidates_Positions_PositionId",
+                table: "Candidates");
 
             migrationBuilder.DropIndex(
-                name: "IX_CarrerOffers_PositionId",
-                table: "CarrerOffers");
+                name: "IX_Candidates_PositionId",
+                table: "Candidates");
 
             migrationBuilder.DropColumn(
                 name: "PositionId",
-                table: "CarrerOffers");
+                table: "Candidates");
 
             migrationBuilder.AddColumn<string>(
-                name: "Position",
-                table: "CarrerOffers",
+                name: "DesiredPosition",
+                table: "Candidates",
                 type: "nvarchar(max)",
                 nullable: false,
                 defaultValue: "");

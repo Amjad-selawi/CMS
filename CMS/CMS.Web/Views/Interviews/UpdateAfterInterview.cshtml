@@ -1,0 +1,79 @@
+﻿@using CMS.Domain.Enums;
+@model CMS.Application.DTOs.InterviewsDTO
+
+<h2>Update Interview Result</h2>
+
+<form asp-action="UpdateAfterInterview" id="updateForm" method="post" enctype="multipart/form-data">
+    <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+    <input type="hidden" asp-for="InterviewsId" />
+    <input type="hidden" asp-for="InterviewerId" />
+    <input type="hidden" asp-for="isUpdated"/>
+
+    <div class="form-group">
+        <label asp-for="Score">Score:</label>
+        <input asp-for="Score" class="form-control" />
+        <span asp-validation-for="Score" class="text-danger"></span>
+    </div>
+
+    <div class="form-group">
+        <label asp-for="Notes">Notes:</label>
+        <textarea asp-for="Notes" class="form-control"></textarea>
+        <span asp-validation-for="Notes" class="text-danger"></span>
+    </div>
+    <div class="form-group">
+
+        <label asp-for="StatusId" class="control-label">Status</label>
+        @if (ViewBag.StatusDTOs != null)
+        {
+          @*  <select asp-for="StatusId" asp-items="@(ViewBag.StatusDTOs)" class="form-control">
+                <option value="">Select a Status</option>
+
+            </select>*@
+
+            <select asp-for="StatusId" class="form-control">
+                <option value="">Select a Status</option>
+                @foreach (var sta in ViewBag.StatusDTOs)
+                {
+                    if (sta.Text != StatusCode.GetName("PND"))
+                    {
+                        <option value="@sta.Value">@sta.Text</option>
+                    }
+                }
+                
+            </select>
+        }
+        else
+        {
+            <p>No statuses available.</p>
+        }
+        <span asp-validation-for="StatusId" class="text-danger"></span>
+
+    </div>
+    <div class="form-group">
+        <label for="file">Upload An evaluation:</label>
+        <input type="file" id="file" name="file" class="form-control-file" />
+    </div>
+
+    <button type="submit" class="btn btn-primary">Save</button>
+</form>
+
+
+
+
+<a asp-action="MyInterviews">Back to Interview List</a>
+
+<p>@Html.ValidationSummary()</p>
+<script>
+    document.getElementById("updateForm").onsubmit = function () {
+        return confirmCreate();
+    };
+
+    function confirmCreate() {
+        if (confirm("Are you sure from the info you want to submit? it can not be modified")) {
+           
+            return true;
+        } else {
+            return false;
+        }
+    }
+</script>

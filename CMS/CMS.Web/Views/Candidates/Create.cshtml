@@ -1,4 +1,4 @@
-﻿@model CMS.Application.DTOs.CandidateDTO
+﻿@model CMS.Application.DTOs.CandidateCreateDTO
 
 <h2>Create Candidate</h2>
 
@@ -14,11 +14,34 @@
         <input asp-for="Phone" class="form-control" autocomplete="off" />
         <span asp-validation-for="Phone" class="text-danger"></span>
     </div>
+
     <div class="form-group">
-        <label asp-for="DesiredPosition" class="control-label"></label>
-        <input asp-for="DesiredPosition" class="form-control" autocomplete="off" />
-        <span asp-validation-for="DesiredPosition" class="text-danger"></span>
+
+        <label asp-for="PositionId" class="control-label"></label>
+        @if (ViewBag.positions != null)
+        {
+            <select asp-for="PositionId" asp-items="@(ViewBag.positions)" class="form-control">
+                <option value=""> Position</option>
+                
+            </select>
+        }
+
+        <span asp-validation-for="PositionId" class="text-danger"></span>
     </div>
+    <div class="form-group">
+
+        <label asp-for="CompanyId" class="control-label"></label>
+        @if (ViewBag.CompaniesDTOs != null)
+        {
+            <select asp-for="CompanyId" asp-items="@(ViewBag.CompaniesDTOs)" class="form-control">
+                <option value=""> company </option>
+
+            </select>
+        }
+
+        <span asp-validation-for="CompanyId" class="text-danger"></span>
+    </div>
+
     <div class="form-group">
         <label asp-for="Email" class="control-label"></label>
         <input asp-for="Email" class="form-control" autocomplete="off" />

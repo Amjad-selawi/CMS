@@ -2,7 +2,7 @@
 
 <h2>Edit Candidate</h2>
 
-<form asp-action="Edit" asp-route-id="@Model.CandidateId">
+<form asp-action="Edit" asp-route-id="@Model.Id">
     <div asp-validation-summary="ModelOnly" class="text-danger"></div>
     <div class="form-group">
         <label asp-for="FullName" class="control-label"></label>
@@ -15,10 +15,39 @@
         <span asp-validation-for="Phone" class="text-danger"></span>
     </div>
     <div class="form-group">
-        <label asp-for="DesiredPosition" class="control-label"></label>
-        <input asp-for="DesiredPosition" class="form-control" />
-        <span asp-validation-for="DesiredPosition" class="text-danger"></span>
+
+        <label asp-for="PositionId" class="control-label"></label>
+        @if (ViewBag.positions != null)
+        {
+            <select asp-for="PositionId"  class="form-control">
+                <option value=""> Position</option>
+                @foreach (var pos in ViewBag.positions)
+                {
+                    <option value="@pos.Value" selected="@(pos.Value == Model.PositionId.ToString())">@pos.Text</option>
+                }
+
+            </select>
+        }
+        <span asp-validation-for="PositionId" class="text-danger"></span>
     </div>
+
+    <div class="form-group">
+
+        <label asp-for="CompanyId" class="control-label"></label>
+        @if (ViewBag.CompaniesDTOs != null)
+        {
+            <select asp-for="CompanyId" class="form-control">
+                <option value=""> Company</option>
+                @foreach (var c in ViewBag.CompaniesDTOs)
+                {
+                    <option value="@c.Value" selected="@(c.Value == Model.CompanyId.ToString())">@c.Text</option>
+                }
+
+            </select>
+        }
+        <span asp-validation-for="CompanyId" class="text-danger"></span>
+    </div>
+
     <div class="form-group">
         <label asp-for="Email" class="control-label"></label>
         <input asp-for="Email" class="form-control" />
@@ -47,7 +76,7 @@
         <input type="submit" value="Save" class="btn btn-primary" />
     </div>
 </form>
-<form asp-action="UpdateAttachment" asp-route-id="@Model.CandidateId" enctype="multipart/form-data">
+<form asp-action="UpdateAttachment" asp-route-id="@Model.Id" enctype="multipart/form-data">
     <div class="form-group">
         <label for="file">Upload CV:</label>
         <input type="file" id="file" name="file" class="form-control-file" />

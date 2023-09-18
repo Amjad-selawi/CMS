@@ -5,15 +5,15 @@ using System.Text;
 
 namespace CMS.Domain.Entities
 {
-    public class Position : BaseEntity
+    public class Position
     {
-        public int PositionId { get; set; }
+        public int Id { get; set; }
 
+        [Required]
         public string Name { get; set; }
 
         public virtual ICollection<Interviews> Interviews { get; set; }
-
-        public virtual ICollection<CarrerOffer> CareerOffer { get; set; }
-
+        public virtual ICollection<Candidate> Candidates { get; set; }
+        public virtual ICollection<CarrerOffer> CarrerOffer { get; set; }
     }
 }
