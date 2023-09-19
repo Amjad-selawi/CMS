@@ -7,23 +7,23 @@
         <tr>
             <th>ID</th>
             <th>position Name</th>
-           
+
             <th>Delete position</th>
-            
+
         </tr>
     </thead>
     <tbody>
-        @foreach(var pos in Model)
+        @foreach (var pos in Model)
         {
             <tr>
-               <td>@pos.Id</td>
+                <td>@pos.Id</td>
                 <td>@pos.Name</td>
-               
+
                 <td>
                     <form method="post" asp-action="DeletePosition">
-                        <input type="hidden" name="id" value="@pos.Id"/>
+                        <input type="hidden" name="id" value="@pos.Id" />
                         <button type="submit" class="btn btn-danger">Delete</button>
-                     </form>
+                    </form>
                 </td>
                 <td>
                     <a asp-action="UpdatePosition" asp-route-id="@pos.Id">Edit</a>

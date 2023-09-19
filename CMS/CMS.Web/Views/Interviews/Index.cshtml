@@ -14,41 +14,87 @@
             </div>
             <div class="card-body">
 
-                <table id="add-rows" class="table table-nowrap dt-responsive table-bordered display" style="width:100%">
-                    <thead>
-                        <tr>
-                            <th>Candidate Name</th>
-                            <th>Position</th>
-                            <th>Interviewer Name</th>
-                            <th>Date</th>
-                            <th>Score</th>
-                            <th>Status</th>
-                            <th>Notes</th>
-                            <th>Actions</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        @foreach (var item in Model)
-                        {
-                            <tr>
+<p>
+    <a asp-action="Create" class="btn btn-outline-primary font-italic">Create New</a>
+</p>
 
-                                <td>@item.CandidateName</td>
-                                <td>@item.PositionName</td>
-                                <td>@item.InterviewerName</td>
-                                <td>@item.Date</td>
-                                <td>@item.Score</td>
-                                <td>@item.Status</td>
-                                <td>@item.Notes</td>
-                                <td>
-                                    <a class="bx bxs-edit-alt" style="font-size:x-large" asp-action="Edit" asp-route-id="@item.InterviewsId"></a> |
-                                    <a class="bx bx-detail" style="font-size:x-large" asp-action="Details" asp-route-id="@item.InterviewsId"></a> |
-                                    <a class="ri-delete-bin-2-line text-danger" style="font-size:x-large" asp-action="Delete" asp-route-id="@item.InterviewsId"></a>
-                                </td>
-                            </tr>
-                        }
-                    </tbody>
-                </table>
-            </div>
-        </div>
-    </div><!--end col-->
-</div><!--end row-->
+
+<table class="datatable">
+    <thead>
+        <tr>
+
+           <th> Candidate Name</th>
+           <th>Position</th>
+            <th>Interviewer</th>
+            <th>
+                Date
+            </th>
+            <th @*hidden*@>
+                Parent ID
+            </th>
+
+            <th>
+                Score
+            </th>
+            <th>
+                Status
+            </th>
+            <th>Notes</th>
+            <th>Evaluation</th>
+            <th>Actions</th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+        @if(Model!=null)
+        @foreach (var item in Model)
+        {
+            <tr>
+
+                <td>
+                    @Html.DisplayFor(modelItem => item.FullName)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Name)
+                </td>
+
+                <td>@item.InterviewerName</td>
+                <td>
+                    @item.Date
+                </td>
+                <td @*hidden*@>
+                    @item.ParentId
+                </td>
+
+                <td>
+                    @item.Score
+                </td>
+                <td>
+                    @item.StatusName 
+                </td>
+
+                <td>@item.Notes</td>
+                    @if (item.AttachmentId != null)
+                    {
+                        <td><a asp-controller="Attachments" asp-action="Download" asp-route-id="@item.AttachmentId">Download evaluation</a></td>
+                    }
+                    else
+                    {
+                        <td></td>
+                    }
+                   
+
+                <td>
+                   @* <a class="bx bxs-edit-alt" style="font-size:x-large" asp-action="Edit" asp-route-id="@item.InterviewsId" asp-route-idd="@item.StatusId"></a> |*@
+                    <a class="bx bx-detail" style="font-size:x-large" asp-action="Details" asp-route-id="@item.InterviewsId"></a> |
+                    <a class="ri-delete-bin-2-line text-danger" style="font-size:x-large" asp-action="Delete" asp-route-id="@item.InterviewsId"></a>
+
+                </td>
+               
+            </tr>
+        }
+    </tbody>
+</table>
+
+
+

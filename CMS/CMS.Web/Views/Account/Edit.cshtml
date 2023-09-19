@@ -1,36 +1,40 @@
-﻿@model CMS.Application.DTOs.Register
+﻿@using Microsoft.AspNetCore.Identity;
+@model CMS.Application.DTOs.Register
+@inject UserManager<IdentityUser> user
 
-<h2>Create User</h2>
+<h2>Edit User</h2>
 
-<form asp-action="Create" method="post">
+<form asp-action="Edit" method="post" asp-route-id="@user.GetUserId(User)">
+    <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+    <div class="form-group"><input type="hidden" asp-for="RegisterrId" /></div>
     <div class="form-group">
-        <label asp-for="Email">Email</label>
+        <label asp-for="Email" class="control-label">Email</label>
         <input asp-for="Email" class="form-control" />
         <span asp-validation-for="Email" class="text-danger"></span>
     </div>
     <div class="form-group">
-        <label asp-for="UserName">Username</label>
+        <label asp-for="UserName" class="control-label">Username</label>
         <input asp-for="UserName" class="form-control" />
         <span asp-validation-for="UserName" class="text-danger"></span>
     </div>
     <div class="form-group">
-        <label asp-for="Password">Password</label>
+        <label asp-for="Password" class="control-label">Password</label>
         <input asp-for="Password" type="password" class="form-control" />
         <span asp-validation-for="Password" class="text-danger"></span>
     </div>
     <div class="form-group">
-        <label asp-for="ConfirmPassword">Confirm Password</label>
+        <label asp-for="ConfirmPassword" class="control-label">Confirm Password</label>
         <input asp-for="ConfirmPassword" type="password" class="form-control" />
         <span asp-validation-for="ConfirmPassword" class="text-danger"></span>
     </div>
 
 @*     <div class="form-group">
         <label asp-for="SelectedRole">Role</label>
-        <select asp-for="SelectedRole" asp-items="new SelectList(ViewBag.Roles)" class="form-control">
+        <select asp-for="SelectedRole" class="form-control" asp-items="ViewBag.Roles">
             <option value="">Select a Role</option>
         </select>
+        <span asp-validation-for="SelectedRole" class="text-danger"></span>
     </div> *@
-
 
     <div class="form-group">
         <label asp-for="SelectedRole" class="control-label">Role:</label>
@@ -38,9 +42,8 @@
         <span asp-validation-for="SelectedRole" class="text-danger"></span>
     </div>
 
-
     <div class="form-group">
-        <a class="btn btn-secondary" asp-action="Index">Back to List</a>
-        <input type="submit" value="Create" class="btn btn-outline-primary" />
+        <input type="submit" value="Save" class="btn btn-outline-primary" />
     </div>
 </form>
+<a class="btn btn-secondary" asp-action="Index">Back to List</a>

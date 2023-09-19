@@ -1,6 +1,7 @@
 ﻿using CMS.Application.DTOs;
 using CMS.Services.Interfaces;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using System.Runtime.InteropServices.WindowsRuntime;
@@ -8,6 +9,7 @@ using System.Threading.Tasks;
 
 namespace CMS.Web.Controllers
 {
+    [Authorize]
     public class HomeController : Controller
     {
         SignInManager<IdentityUser> _signInManager;

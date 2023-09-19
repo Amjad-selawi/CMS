@@ -1,5 +1,7 @@
-﻿using CMS.Application.Extensions;
+﻿using CMS.Application.DTOs;
+using CMS.Application.Extensions;
 using CMS.Domain;
+using CMS.Domain.Entities;
 using CMS.Repository.Interfaces;
 using Microsoft.AspNetCore.Identity;
 using System;
@@ -18,7 +20,7 @@ namespace CMS.Repository.Implementation
 
         public UserRepository(UserManager<IdentityUser> userManager, SignInManager<IdentityUser> signInManager, ApplicationDbContext dbContext)
         {
-                 _userManager = userManager;
+            _userManager = userManager;
             _signInManager = signInManager;
             _dbContext = dbContext;
         }
@@ -42,9 +44,25 @@ namespace CMS.Repository.Implementation
             }
         }
 
-        public Task<string> Register(IdentityUser user, string password)
+
+
+        public List<IdentityUser> GetAllUsersWithRoles()
         {
-            throw new NotImplementedException();
+            return _dbContext.Users.ToList();
         }
+
+        public List<string> GetUserRoles(IdentityUser user)
+        {
+            return _userManager.GetRolesAsync(user).Result.ToList();
+        }
+
+        public IdentityUser GetUserById(string userId)
+        {
+            return _dbContext.Users.FirstOrDefault(u => u.Id == userId);
+        }
+
+
+
+
     }
 }

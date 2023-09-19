@@ -23,6 +23,19 @@ namespace CMS.Domain.EntityMapper
               .WithMany()
               .HasForeignKey(i => i.InterviewerId);
 
+            builder.HasOne(p => p.Status)
+                .WithMany(p => p.Interviews)
+                .HasForeignKey(p => p.StatusId);
+
+            builder.HasOne(p=>p.Interviewer)
+                .WithMany()
+                .HasForeignKey(p=>p.InterviewerId);
+
+            builder.HasOne(P => P.Attachment)
+                .WithMany()
+                .HasForeignKey(P => P.AttachmentId).HasConstraintName("FK_Interviews_Attachments");
+             
+
         }
     }
 }

@@ -4,6 +4,7 @@ using CMS.Repository.Interfaces;
 using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -16,13 +17,23 @@ namespace CMS.Repository.Implementation
         {
             _context = context;
         }
-        public async  Task<int> Delete(int id)
+        public async Task<int> Delete(int id)
         {
             try
             {
-                var country=await _context.Positions.FindAsync(id);
-                _context.Positions.Remove(country);
-               return await _context.SaveChangesAsync();
+                //var position=await _context.Positions.FindAsync(id);
+
+                var position =await _context.Positions.Include(c => c.Candidates)
+                    .FirstOrDefaultAsync(c => c.Id == id);
+                if (position.Candidates != null && position.Candidates.Any()) {
+                    foreach (var c in position.Candidates.ToList())
+                    {
+                        _context.Candidates.Remove(c);
+                    }
+                }
+           
+                _context.Positions.Remove(position);
+                return await _context.SaveChangesAsync();
                 
             }
             catch (Exception ex)
@@ -35,9 +46,12 @@ namespace CMS.Repository.Implementation
         {
             try
             {
-                return await _context.Positions.AsNoTracking().ToListAsync();
+
+                return await _context.Positions.Include(c => c.CarrerOffer).Include(c=>c.Interviews).Include(c=>c.Candidates).AsNoTracking().ToListAsync();
+
             }
-            catch (Exception ex){
+            catch (Exception ex)
+            {
                 throw ex;
             }
         }
@@ -46,14 +60,17 @@ namespace CMS.Repository.Implementation
         {
             try
             {
-                //var pos = await _context.FindAsync<Position>(id);
-                var pos=await _context.Positions.AsNoTracking().FirstOrDefaultAsync(p=>p.Id==id);
-                return pos;
+                var postion = await _context.Positions
+                    .Include(c => c.CarrerOffer).Include(c => c.Interviews).Include(c=>c.Candidates)
+                    .AsNoTracking()
+                    .FirstOrDefaultAsync(c => c.Id == id);
+                return postion;
             }
             catch (Exception ex)
             {
                 throw ex;
             }
+
         }
 
         public async Task<int> Insert(Position entity)
@@ -61,8 +78,8 @@ namespace CMS.Repository.Implementation
             try
             {
                 _context.Add(entity);
-               return await _context.SaveChangesAsync();
-                
+                return await _context.SaveChangesAsync();
+
             }
             catch (Exception ex)
             {
@@ -76,8 +93,8 @@ namespace CMS.Repository.Implementation
             {
 
                 _context.Update(entity);
-               return await _context.SaveChangesAsync();
-               
+                return await _context.SaveChangesAsync();
+
 
             }
             catch (Exception ex)
@@ -85,5 +102,102 @@ namespace CMS.Repository.Implementation
                 throw ex;
             }
         }
+        //public async  Task Delete(Position entity)
+        //{
+        //    entity.IsDelete = true;
+        //    entity.ModifiedBy = entity.ModifiedBy;
+        //    entity.ModifiedOn = DateTime.Now;
+
+        //    _context.Positions.Remove(entity);
+        //    await _context.SaveChangesAsync();
+
+
+        //    //try
+        //    //{
+        //    //    var country=await _context.Positions.FindAsync(id);
+        //    //    _context.Positions.Remove(country);
+        //    //   return await _context.SaveChangesAsync();
+
+        //    //}
+        //    //catch (Exception ex)
+        //    //{
+        //    //    throw ex;
+        //    //}
+        //}
+
+        //public async Task<IEnumerable<Position>> GetAll()
+        //{
+        //    return await _context.Positions.ToListAsync();
+
+
+        //    //try
+        //    //{
+        //    //    return await _context.Positions.AsNoTracking().ToListAsync();
+        //    //}
+        //    //catch (Exception ex){
+        //    //    throw ex;
+        //    //}
+        //}
+
+        //public async Task<Position> GetById(int id)
+        //{
+        //    return await _context.Positions.FindAsync(id);
+
+        //    //try
+        //    //{
+        //    //    //var pos = await _context.FindAsync<Position>(id);
+        //    //    var pos=await _context.Positions.AsNoTracking().FirstOrDefaultAsync(p=>p.Id==id);
+        //    //    return pos;
+        //    //}
+        //    //catch (Exception ex)
+        //    //{
+        //    //    throw ex;
+        //    //}
+        //}
+
+        //public async Task Insert(Position entity)
+        //{
+
+        //    entity.IsActive = true;
+        //    entity.ModifiedBy = entity.ModifiedBy;
+        //    entity.ModifiedOn = DateTime.Now;
+
+        //    _context.Positions.Add(entity);
+        //    await _context.SaveChangesAsync();
+
+        //    //try
+        //    //{
+        //    //    _context.Add(entity);
+        //    //   return await _context.SaveChangesAsync();
+
+        //    //}
+        //    //catch (Exception ex)
+        //    //{
+        //    //    throw ex;
+        //    //}
+        //}
+
+        //public async Task Update(Position entity)
+        //{
+        //    entity.IsActive = true;
+        //    entity.ModifiedBy = entity.ModifiedBy;
+        //    entity.ModifiedOn = DateTime.Now;
+
+        //    _context.Positions.Update(entity);
+        //    await _context.SaveChangesAsync();
+
+        //    //try
+        //    //{
+
+        //    //    _context.Update(entity);
+        //    //   return await _context.SaveChangesAsync();
+
+
+        //    //}
+        //    //catch (Exception ex)
+        //    //{
+        //    //    throw ex;
+        //    //}
     }
-}
+    }
+

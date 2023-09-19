@@ -4,9 +4,12 @@ using CMS.Domain;
 using CMS.Domain.Entities;
 using CMS.Repository.Interfaces;
 using CMS.Services.Interfaces;
+using Microsoft.AspNetCore.Authentication;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using System.Collections.Generic;
 using System.Linq;
+using System.Security.Claims;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -48,8 +51,12 @@ namespace CMS.Services.Services
         }
 
         public async Task<bool> LoginAsync(Login collection)
+        
         {
-            var result = await _signInManager.PasswordSignInAsync(collection.UserEmail, collection.Password, collection.RememberMe, false);
+            var signedUser = await _userManager.FindByEmailAsync(collection.UserEmail);
+
+            var result = await _signInManager.PasswordSignInAsync(signedUser.UserName, collection.Password, collection.RememberMe, false);
+            
             return result.Succeeded;
         }
 
@@ -76,5 +83,67 @@ namespace CMS.Services.Services
             }
             return Result<IList<IdentityUser>>.Success(interviewers);
         }
+
+
+
+        public async Task<string> GetUserRoleAsync(IdentityUser user)
+        {
+            var roles = await _userManager.GetRolesAsync(user);
+            return roles.FirstOrDefault(); 
+        }
+
+        public async Task<IdentityUser> GetUserByEmailAsync(string email)
+        {
+            return await _userManager.FindByEmailAsync(email);
+        }
+
+
+
+        public List<Register> GetAllUsersWithRoles()
+        {
+            var users = _userRepository.GetAllUsersWithRoles();
+            var usersWithRoles = new List<Register>();
+
+            foreach (var user in users)
+            {
+                var roles = _userRepository.GetUserRoles(user);
+
+                usersWithRoles.Add(new Register
+                {
+                    RegisterrId = user.Id,
+                    Email = user.Email,
+                    UserName = user.UserName,
+                    SelectedRole = roles.FirstOrDefault()
+                });
+            }
+
+            return usersWithRoles;
+        }
+
+
+        public Register GetUsersById(string userId)
+        {
+            var user = _userRepository.GetUserById(userId);
+
+            if (user == null)
+            {
+                return null; 
+            }
+            var roles = _userRepository.GetUserRoles(user);
+
+            var userDetails = new Register
+            {
+                RegisterrId = user.Id,
+                Email = user.Email,
+                UserName = user.UserName,
+                SelectedRole = roles.FirstOrDefault()
+            };
+
+            return userDetails;
+        }
+
+
+
+
     }
 }

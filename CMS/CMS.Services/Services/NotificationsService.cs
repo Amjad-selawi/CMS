@@ -34,11 +34,12 @@ namespace CMS.Services.Services
                 SendDate= i.SendDate,
                 ReceiverId = i.ReceiverId,
                 IsReceived=i.IsReceived,
-                Type=i.Type.ToString(),
+                //TemplateName = i.TemplateName.ToString(),
                 templatesDTO = new TemplatesDTO 
                 {
                     TemplatesId = i.TemplatesId,
-                    Title = _templatesService.GetTemplateByIdAsync(i.TemplatesId).Result?.Title 
+                    Title = _templatesService.GetTemplateByIdAsync(i.TemplatesId).Result?.Title,
+                    //Name = _templatesService.GetTemplateByIdAsync(i.TemplatesId).Result?.Name.ToString()
                 },
                 
             });
@@ -56,6 +57,8 @@ namespace CMS.Services.Services
             {
                 TemplatesId = notification.TemplatesId,
                 Title = _templatesService.GetTemplateByIdAsync(notification.TemplatesId).Result?.Title,
+                //Name = _templatesService.GetTemplateByIdAsync(notification.TemplatesId).Result?.Name.ToString() 
+
             };
 
 
@@ -65,9 +68,9 @@ namespace CMS.Services.Services
                 SendDate = notification.SendDate,
                 ReceiverId = notification.ReceiverId,
                 IsReceived = notification.IsReceived,
-                Type = notification.Type.ToString(),
                 templatesDTO = templatesDTO,
-                Title = templatesDTO.Title
+                Title = templatesDTO.Title,
+                //TemplateName = templatesDTO.Name
 
             };
         
@@ -77,24 +80,23 @@ namespace CMS.Services.Services
         {
           
              
-            if (Enum.TryParse(entity.Type, out NotificationsType type))
-            {
+            
                 var notification = new Notifications
                 {
                     SendDate = DateTime.Now,
                     ReceiverId = entity.ReceiverId,
                     IsReceived = entity.IsReceived,
                     TemplatesId = entity.templatesDTO.TemplatesId,
-                    Type=type,
+                    //TemplateName = entity.TemplateName.ToString()
+
                 };
                 await _notificationsRepository.Create(notification);
-            }
+           
         }
 
         public async Task Update(int notificationId, NotificationsDTO entity)
         {
-            if (Enum.TryParse(entity.Type, out NotificationsType type))
-            {
+            
                 var existingNotification = await _notificationsRepository.GetNotificationsById(notificationId);
                 if (existingNotification == null)
                     throw new Exception("Notifications not found");
@@ -103,10 +105,10 @@ namespace CMS.Services.Services
                 existingNotification.ReceiverId = entity.ReceiverId;
                 existingNotification.IsReceived = entity.IsReceived;
                 existingNotification.TemplatesId = entity.templatesDTO.TemplatesId;
-                existingNotification.Type = type;
+                //existingNotification.TemplateName = entity.templatesDTO.Name;
 
                 await _notificationsRepository.Update(existingNotification);
-            }
+           
         }
 
         public async Task Delete(int notificationId)

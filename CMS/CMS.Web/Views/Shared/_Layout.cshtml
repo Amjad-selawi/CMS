@@ -700,7 +700,32 @@
         </div>
     </div>
 
+@*     <script>
+        // Function to fetch and display notifications
+        function loadNotifications() {
+            // Make an AJAX request to fetch notifications
+            $.get('/notifications', function (data) {
+                // Assuming 'data' contains an array of notifications
+                var notifications = data.notifications;
 
+                // Clear the existing notifications
+                $('#notifications-list').empty();
+
+                // Loop through the notifications and display them
+                notifications.forEach(function (notification) {
+                    var notificationHtml = '<div class="notification">' + notification.message + '</div>';
+                    $('#notifications-list').append(notificationHtml);
+                });
+            });
+        }
+
+        // Attach a click event to the notification icon
+        $('#notification-container').on('click', function () {
+            // Load and display notifications when the icon is clicked
+            loadNotifications();
+        });
+    </script>
+ *@
 
     <!-- JAVASCRIPT -->
     <script src="/theme/libs/bootstrap/js/bootstrap.bundle.min.js"></script>

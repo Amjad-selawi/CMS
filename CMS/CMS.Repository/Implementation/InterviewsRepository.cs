@@ -1,12 +1,14 @@
 ﻿// CMS.Infrastructure/Repositories/InterviewsRepository.cs
+using CMS.Application.DTOs;
 using CMS.Domain;
 using CMS.Domain.Entities;
-
 using CMS.Repository.Interfaces;
+using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Security.Claims;
 using System.Threading.Tasks;
 
 namespace CMS.Repository.Repositories

@@ -6,9 +6,11 @@ using System.Text;
 
 namespace CMS.Domain.Entities
 {
-    public class CarrerOffer
+    public class CarrerOffer : BaseEntity
     {
         public int Id { get; set; }
+
+
         [Required(ErrorMessage = "Position is required.")]
         public int PositionId { get; set; }
         public virtual Position Position { get; set; }

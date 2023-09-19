@@ -15,10 +15,39 @@
         <span asp-validation-for="Phone" class="text-danger"></span>
     </div>
     <div class="form-group">
+
         <label asp-for="PositionId" class="control-label"></label>
-        <input asp-for="PositionId" class="form-control" />
+        @if (ViewBag.positions != null)
+        {
+            <select asp-for="PositionId"  class="form-control">
+                <option value=""> Position</option>
+                @foreach (var pos in ViewBag.positions)
+                {
+                    <option value="@pos.Value" selected="@(pos.Value == Model.PositionId.ToString())">@pos.Text</option>
+                }
+
+            </select>
+        }
         <span asp-validation-for="PositionId" class="text-danger"></span>
     </div>
+
+    <div class="form-group">
+
+        <label asp-for="CompanyId" class="control-label"></label>
+        @if (ViewBag.CompaniesDTOs != null)
+        {
+            <select asp-for="CompanyId" class="form-control">
+                <option value=""> Company</option>
+                @foreach (var c in ViewBag.CompaniesDTOs)
+                {
+                    <option value="@c.Value" selected="@(c.Value == Model.CompanyId.ToString())">@c.Text</option>
+                }
+
+            </select>
+        }
+        <span asp-validation-for="CompanyId" class="text-danger"></span>
+    </div>
+
     <div class="form-group">
         <label asp-for="Email" class="control-label"></label>
         <input asp-for="Email" class="form-control" />

@@ -39,7 +39,8 @@ namespace CMS.Web
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddControllersWithViews();
-             
+            services.AddHttpContextAccessor();
+            
             services.AddScoped<ICarrerOfferService, CarrerOfferService>();
             services.AddDbContext<ApplicationDbContext>(options =>
             {
@@ -58,6 +59,8 @@ namespace CMS.Web
 
             services.AddScoped(typeof(IPositionRepository), typeof(PositionRepository));
             services.AddTransient<IPositionService, PositionService>();
+            services.AddScoped(typeof(IStatusRepository), typeof(StatusRepository));
+            services.AddTransient<IStatusService, StatusService>();
             services.AddLogging(builder =>
             {
                 builder.AddConsole();
@@ -90,10 +93,10 @@ namespace CMS.Web
 
             services.AddTransient<IReportingService, ReportingService>();
 
-            services.AddDbContext<ApplicationDbContext>(x =>
-            {
-                x.UseSqlServer(Configuration.GetConnectionString("Defultconiction"));
-            });
+            //services.AddDbContext<ApplicationDbContext>(x =>
+            //{
+            //    x.UseSqlServer(Configuration.GetConnectionString("Defultconiction"));
+            //});
 
             services.AddDefaultIdentity<IdentityUser>().AddDefaultTokenProviders().AddRoles<IdentityRole>()
           .AddEntityFrameworkStores<ApplicationDbContext>();
@@ -135,6 +138,7 @@ namespace CMS.Web
 
             app.UseRouting();
 
+            app.UseAuthentication();
             app.UseAuthorization();
             app.UseAuthentication();
 
@@ -142,7 +146,7 @@ namespace CMS.Web
             {
                 endpoints.MapControllerRoute(
                     name: "default",
-                    pattern: "{controller=Home}/{action=Index}/{id?}");
+                    pattern: "{controller=Account}/{action=Login}/{id?}");
             });
         }
     }

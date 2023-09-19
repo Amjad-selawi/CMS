@@ -31,6 +31,8 @@ namespace CMS.Services.Services
                 FullName = c.FullName,
                 Phone = c.Phone,
                 PositionId = c.PositionId,
+                CompanyId = c.CompanyId,
+                CompanyName=c.Company.Name,
                 Email = c.Email,
                 Address = c.Address,
                 Experience = c.Experience,
@@ -42,17 +44,19 @@ namespace CMS.Services.Services
         public async Task<CandidateDTO> GetCandidateByIdAsync(int id)
         {
             var candidate = await _candidateRepository.GetCandidateByIdAsync(id);
-            
+
 
             if (candidate == null)
                 return null;
-            
+
             return new CandidateDTO
             {
                 Id = candidate.Id,
                 FullName = candidate.FullName,
                 Phone = candidate.Phone,
                 PositionId = candidate.PositionId,
+                CompanyId=candidate.CompanyId,
+                CompanyName=candidate.Company.Name,
                 Email = candidate.Email,
                 Address = candidate.Address,
                 Experience = candidate.Experience,
@@ -64,13 +68,14 @@ namespace CMS.Services.Services
 
         public async Task CreateCandidateAsync(CandidateCreateDTO candidateDTO)
         {
-            int attachmentId = await _attachmentService.CreateAttachmentAsync(candidateDTO.FileName,candidateDTO.FileSize,candidateDTO.FileData);
+            int attachmentId = await _attachmentService.CreateAttachmentAsync(candidateDTO.FileName, candidateDTO.FileSize, candidateDTO.FileData);
             candidateDTO.CVAttachmentId = attachmentId;
             var candidate = new Candidate
             {
                 FullName = candidateDTO.FullName,
                 Phone = candidateDTO.Phone,
                 PositionId = candidateDTO.PositionId,
+                CompanyId=candidateDTO.CompanyId,
                 Email = candidateDTO.Email,
                 Address = candidateDTO.Address,
                 Experience = candidateDTO.Experience,
@@ -90,6 +95,7 @@ namespace CMS.Services.Services
             existingCandidate.FullName = candidateDTO.FullName;
             existingCandidate.Phone = candidateDTO.Phone;
             existingCandidate.PositionId = candidateDTO.PositionId;
+            existingCandidate.CompanyId= candidateDTO.CompanyId;
             existingCandidate.Email = candidateDTO.Email;
             existingCandidate.Address = candidateDTO.Address;
             existingCandidate.Experience = candidateDTO.Experience;
@@ -103,7 +109,7 @@ namespace CMS.Services.Services
         public async Task DeleteCandidateAsync(int id)
         {
             var candidate = await _candidateRepository.GetCandidateByIdAsync(id);
-          
+
             if (candidate != null)
             {
                 int attachmentToRemove = candidate.CVAttachmentId;

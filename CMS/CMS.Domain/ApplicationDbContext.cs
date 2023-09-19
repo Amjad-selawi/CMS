@@ -18,12 +18,12 @@ namespace CMS.Domain
         public DbSet<CarrerOffer> CarrerOffers { get; set; }
         public DbSet<Country> Countries { get; set; }
         public DbSet<Position> Positions { get; set; }
-
         public DbSet<Candidate> Candidates { get; set; }
         public DbSet<Attachment> Attachments { get; set; }
         public DbSet<Interviews> Interviews { get; set; }
         public DbSet<Notifications> Notifications { get; set; }
         public DbSet<Templates> Templates { get; set; }
+        public DbSet<Status> Statuses { get; set; }
         public DbSet<Interviewer> Interviewers { get; set; }
 
 
@@ -51,6 +51,8 @@ namespace CMS.Domain
             
             builder.Entity<IdentityUser>().HasData(adminUser);
             builder.Entity<IdentityUserRole<string>>().HasData(new IdentityUserRole<string> { RoleId = adminRole.Id, UserId= adminUser.Id });
+            builder.ApplyConfiguration(new PositionMapper());  
+            builder.ApplyConfiguration(new StatusMapper());
             base.OnModelCreating(builder);
         }
     }

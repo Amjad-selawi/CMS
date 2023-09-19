@@ -8,9 +8,11 @@ namespace CMS.Application.DTOs
 {
     public class Login : IdentityUser
     {
+
         public string LoginId { get; set; }
         [Required]
         public string UserEmail { get; set; }
+
         [Required]
         [DataType(DataType.Password)]
         public string Password { get; set; }

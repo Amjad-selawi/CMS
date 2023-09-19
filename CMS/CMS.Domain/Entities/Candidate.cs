@@ -19,10 +19,13 @@ namespace CMS.Domain.Entities
         public int Phone { get; set; }
 
         [Required(ErrorMessage = "PositionId is required.")]
-        
+
         public int PositionId { get; set; }
-        
+
         public virtual Position Position { get; set; }
+        [Required(ErrorMessage = "Company is required.")]
+        public int CompanyId { set; get; }
+        public virtual Company Company { set; get; }
 
         [Required(ErrorMessage = "Email is required.")]
         public string Email { get; set; }

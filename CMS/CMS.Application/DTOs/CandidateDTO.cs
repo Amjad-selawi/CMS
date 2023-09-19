@@ -14,6 +14,9 @@ namespace CMS.Application.DTOs
         public int Phone { get; set; }
         [Required(ErrorMessage = "DesiredPosition is required.")]
         public int PositionId { get; set; }
+        [Required(ErrorMessage = "company is required.")]
+        public int CompanyId { set; get; }
+        public string CompanyName { set; get; }
         [Required(ErrorMessage = "Email is required.")]
         public string Email { get; set; }
         [Required(ErrorMessage = "Address is required.")]
@@ -21,8 +24,8 @@ namespace CMS.Application.DTOs
 
         [Required(ErrorMessage = "Experience is required.")]
         public string Experience { get; set; }
-      
-        public int CVAttachmentId { get; set; } 
+
+        public int CVAttachmentId { get; set; }
         public string LinkedInUrl { get; set; }
         public int CountryId { get; set; }
         public List<InterviewsDTO> InterviewsDTO { get; set; }

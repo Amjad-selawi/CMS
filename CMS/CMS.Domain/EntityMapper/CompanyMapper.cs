@@ -15,6 +15,9 @@ namespace CMS.Domain.EntityMapper
                 .HasOne(p => p.Country)
                 .WithMany(p => p.Companies)
                 .HasForeignKey(p => p.CountryId);
+
+            builder.HasMany(p => p.Candidates)
+                .WithOne(p => p.Company);
         }
     }
 }

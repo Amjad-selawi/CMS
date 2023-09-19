@@ -3,6 +3,7 @@ using CMS.Domain.Entities;
 using CMS.Domain.Enums;
 using CMS.Services.Interfaces;
 using CMS.Services.Services;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
@@ -49,17 +50,19 @@ namespace CMS.Web.Controllers
             var templets = await _templatesService.GetAllTemplatesAsync();
             ViewBag.templetList = new SelectList(templets, "TemplatesId", "Title");
 
-            var notificationtype = Enum.GetValues(typeof(NotificationsType))
-          .Cast<NotificationsType>()
-          .Select(name => new SelectListItem
-          {
-              Text = name.ToString(),
-              Value = name.ToString()
-          })
-           .ToList();
 
-            ViewBag.NotificationType = notificationtype;
 
+            //var enumSelectList = new SelectList(Enum.GetValues(typeof(TemplatesName)).Cast<TemplatesName>().Select(e => new SelectListItem
+            //{
+            //    Text = e.ToString(),
+            //    Value = ((int)e).ToString(),
+            //}), "Value", "Text");
+
+            //ViewBag.TemplateEnumList = enumSelectList;
+
+            //var notificationsDto = new NotificationsDTO();
+
+            //return View(notificationsDto);
             return View();
         }
 
@@ -78,16 +81,19 @@ namespace CMS.Web.Controllers
             ViewBag.templetList = new SelectList(templets, "TemplatesId", "Title");
 
 
-            var notificationtype = Enum.GetValues(typeof(NotificationsType))
-          .Cast<NotificationsType>()
-          .Select(name => new SelectListItem
-          {
-              Text = name.ToString(),
-              Value = name.ToString()
-          })
-           .ToList();
 
-            ViewBag.NotificationType = notificationtype;
+
+            //var enumSelectList = new SelectList(Enum.GetValues(typeof(TemplatesName)).Cast<TemplatesName>().Select(e => new SelectListItem
+            //{
+            //    Text = e.ToString(),
+            //    Value = ((int)e).ToString()
+            //}), "Value", "Text");
+
+            //ViewBag.TemplateEnumList = enumSelectList;
+
+
+
+
 
             return View(collection);
         }
@@ -100,6 +106,14 @@ namespace CMS.Web.Controllers
             var templets = await _templatesService.GetAllTemplatesAsync();
             ViewBag.templetList = new SelectList(templets, "TemplatesId", "Title", notifications.NotificationsId);
 
+
+            //var enumSelectList = new SelectList(Enum.GetValues(typeof(TemplatesName)).Cast<TemplatesName>().Select(e => new SelectListItem
+            //{
+            //    Text = e.ToString(),
+            //    Value = ((int)e).ToString(),
+            //}), "Value", "Text");
+
+            //ViewBag.TemplateEnumList = enumSelectList;
 
             return View(notifications);
         }
@@ -124,6 +138,15 @@ namespace CMS.Web.Controllers
             var templets = await _templatesService.GetAllTemplatesAsync();
             ViewBag.templetList = new SelectList(templets, "TemplatesId", "Title", temp.TemplatesId);
 
+
+
+            //var enumSelectList = new SelectList(Enum.GetValues(typeof(TemplatesName)).Cast<TemplatesName>().Select(e => new SelectListItem
+            //{
+            //    Text = e.ToString(),
+            //    Value = ((int)e).ToString(),
+            //}), "Value", "Text");
+
+            //ViewBag.TemplateEnumList = enumSelectList;
 
             return View(collection);
         }

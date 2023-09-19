@@ -11,43 +11,135 @@ namespace CMS.Repository.Implementation
 {
     public class CarrerOfferRepository : ICarrerOfferRepository
     {
-        private readonly ApplicationDbContext _dbContext;
+        private readonly ApplicationDbContext _context;
 
         public CarrerOfferRepository(ApplicationDbContext dbContext)
         {
-            _dbContext = dbContext;
+            _context = dbContext;
         }
 
-        public async Task<IEnumerable<CarrerOffer>> GetAllCarrerOffersAsync()
+        public async Task<int> Delete(int id)
         {
-            return await _dbContext.CarrerOffers.ToListAsync();
-        }
-        public async Task<CarrerOffer> GetCarrerOfferByIdAsync(int carrerOfferId)
-        {
-            return await _dbContext.CarrerOffers.FindAsync(carrerOfferId);
+            try
+            {
+                var careerOffer = await _context.CarrerOffers.FindAsync(id);
+                _context.CarrerOffers.Remove(careerOffer);
+                return await _context.SaveChangesAsync();
+
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
         }
 
-        public async Task CreateCarrerOfferAsync(CarrerOffer carrerOffer)
+        public async Task<List<CarrerOffer>> GetAll()
         {
-            _dbContext.CarrerOffers.Add(carrerOffer);
-            await _dbContext.SaveChangesAsync();
+            try
+            {
+
+                return await _context.CarrerOffers.Include(c => c.Positions).AsNoTracking().ToListAsync();
+
+
+
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
         }
 
-        public async Task UpdateCarrerOfferAsync(CarrerOffer carrerOffer)
+        public async Task<CarrerOffer> GetById(int id)
         {
-            _dbContext.Entry(carrerOffer).State = EntityState.Modified;
-            await _dbContext.SaveChangesAsync();
+            try
+            {
+                var carrerOffer = await _context.CarrerOffers.Include(c => c.Positions).AsNoTracking().FirstOrDefaultAsync(c => c.Id == id);
+                return carrerOffer;
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
         }
 
-        public async Task DeleteCarrerOfferAsync(CarrerOffer carrerOffer)
+        public async Task<int> Insert(CarrerOffer entity)
         {
-            _dbContext.CarrerOffers.Remove(carrerOffer);
-            await _dbContext.SaveChangesAsync();
+            try
+            {
+
+                _context.Add(entity);
+                return await _context.SaveChangesAsync();
+
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
         }
         public async Task<int> CountAllAsync()
         {
             return await _dbContext.CarrerOffers.CountAsync();
         }
+
+        public async Task<int> Update(CarrerOffer entity)
+        {
+            try
+            {
+
+                // _context.Entry<Company>(entity).State = EntityState.Detached;
+                //  _context.Set<Company>().Update(entity);
+                _context.Update(entity);
+
+                return await _context.SaveChangesAsync();
+
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+        //public async Task<IEnumerable<CarrerOffer>> GetAllCarrerOffersAsync()
+        //{
+        //    return await _dbContext.CarrerOffers.ToListAsync();
+        //}
+        //public async Task<CarrerOffer> GetCarrerOfferByIdAsync(int carrerOfferId)
+        //{
+        //    return await _dbContext.CarrerOffers.FindAsync(carrerOfferId);
+        //}
+
+        //public async Task CreateCarrerOfferAsync(CarrerOffer carrerOffer)
+        //{
+        //    carrerOffer.IsActive = true;
+        //    carrerOffer.ModifiedBy = carrerOffer.ModifiedBy;
+        //    carrerOffer.ModifiedOn = DateTime.Now;
+
+
+        //    _dbContext.CarrerOffers.Add(carrerOffer);
+        //    await _dbContext.SaveChangesAsync();
+        //}
+
+        //public async Task UpdateCarrerOfferAsync(CarrerOffer carrerOffer)
+        //{
+        //    carrerOffer.IsActive = true;
+        //    carrerOffer.ModifiedBy = carrerOffer.ModifiedBy;
+        //    carrerOffer.ModifiedOn = DateTime.Now;
+
+
+        //    _dbContext.Entry(carrerOffer).State = EntityState.Modified;
+        //    await _dbContext.SaveChangesAsync();
+        //}
+
+        //public async Task DeleteCarrerOfferAsync(CarrerOffer carrerOffer)
+        //{
+        //    carrerOffer.IsActive = true;
+        //    carrerOffer.ModifiedBy = carrerOffer.ModifiedBy;
+        //    carrerOffer.ModifiedOn = DateTime.Now;
+
+
+        //    _dbContext.CarrerOffers.Remove(carrerOffer);
+        //    await _dbContext.SaveChangesAsync();
+        //}
 
     }
 }

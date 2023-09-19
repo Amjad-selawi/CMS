@@ -13,7 +13,7 @@ using System.Threading.Tasks;
 
 namespace CMS.Services.Services
 {
-    public class PositionService:IPositionService
+    public class PositionService : IPositionService
     {
         IPositionRepository _repository;
         public PositionService(IPositionRepository repository)
@@ -21,100 +21,75 @@ namespace CMS.Services.Services
             _repository = repository;
         }
 
-        public async  Task<Result<PositionDTO>> Delete(int id)
+        public async Task<Result<PositionDTO>> Delete(int id)
         {
             try
             {
                 await _repository.Delete(id);
                 return Result<PositionDTO>.Success(null);
 
-            }  
+            }
             catch (Exception ex)
             {
-                return Result<PositionDTO>.Failure(null,  $"An error occurred while deleting the position {ex.InnerException.Message}");
+                return Result<PositionDTO>.Failure(null, $"An error occurred while deleting the position {ex.InnerException.Message}");
             }
-           
 
-          
+
+
         }
 
-        public async Task<IEnumerable<PositionDTO>> GetAll()
+        public async Task<Result<List<PositionDTO>>> GetAll()
         {
-
-            var poistion = await _repository.GetAll();
-            return poistion.Select(i => new PositionDTO
-            {
-                Id = i.Id,
-                Name=i.Name
-
-            });
-
-
-
-
-            //var positions = await _repository.GetAll();
-            //if (positions == null)
-            //{
-            //    return Result<List<PositionDTO>>.Failure(null, "no positions found");
-            //}
-            //try
-            //{
-            //    var positionDTOS = new List<PositionDTO>();
-            //    foreach (var position in positions)
-            //    {
-            //        positionDTOS.Add(new PositionDTO{
-            //            Id = position.Id,
-            //            Name = position.Name,
-            //        });
-            //    }
-            //    return Result<List<PositionDTO>>.Success(positionDTOS);
-
-            //}
-            //catch (Exception ex) {
-            //    return Result<List<PositionDTO>>.Failure(null, $"unable to get positions{ex.InnerException.Message}");
-            //}
-        }
-
-        public async Task<PositionDTO> GetById(int id)
-        {
-
-            var positions = await _repository.GetById(id);
+            var positions = await _repository.GetAll();
             if (positions == null)
-                return null;
-
-            return new PositionDTO
             {
-                Id = positions.Id,
-                Name = positions.Name,
+                return Result<List<PositionDTO>>.Failure(null, "no positions found");
+            }
+            try
+            {
+                var positionDTOS = new List<PositionDTO>();
+                foreach (var position in positions)
+                {
+                    positionDTOS.Add(new PositionDTO
+                    {
+                        Id = position.Id,
+                        Name = position.Name,
+                    });
+                }
+                return Result<List<PositionDTO>>.Success(positionDTOS);
 
-            };
+            }
+            catch (Exception ex)
+            {
+                return Result<List<PositionDTO>>.Failure(null, $"unable to get positions{ex.InnerException.Message}");
+            }
+        }
 
-
-
-
-
-            //if (id <= 0)
-            //{
-            //    return Result<PositionDTO>.Failure(null, "Invalid position id");
-            //}
-            //try
-            //{
-            //    var position = await _repository.GetById(id);
-            //    var positionDTO = new PositionDTO
-            //    {
-            //        Id = position.Id,
-            //        Name = position.Name,
-            //    };
-            //    return Result<PositionDTO>.Success(positionDTO);
-            //} catch (Exception ex)
-            //{
-            //    return Result<PositionDTO>.Failure(null, $"unable to retrieve the position from the repository{ex.InnerException.Message}");
-            //}
+        public async Task<Result<PositionDTO>> GetById(int id)
+        {
+            if (id <= 0)
+            {
+                return Result<PositionDTO>.Failure(null, "Invalid position id");
+            }
+            try
+            {
+                var position = await _repository.GetById(id);
+                var positionDTO = new PositionDTO
+                {
+                    Id = position.Id,
+                    Name = position.Name,
+                };
+                return Result<PositionDTO>.Success(positionDTO);
+            }
+            catch (Exception ex)
+            {
+                return Result<PositionDTO>.Failure(null, $"unable to retrieve the position from the repository{ex.InnerException.Message}");
+            }
         }
 
         public async Task<Result<PositionDTO>> Insert(PositionDTO data)
         {
-            if(data == null)
+            if (data == null)
             {
                 return Result<PositionDTO>.Failure(data, "the position DTO is null");
             }
@@ -124,7 +99,7 @@ namespace CMS.Services.Services
                 {
                     Name = data.Name,
                 };
-               await _repository.Insert(position);
+                await _repository.Insert(position);
                 return Result<PositionDTO>.Success(data);
             }
             catch (Exception ex)
@@ -148,7 +123,8 @@ namespace CMS.Services.Services
                 };
                 await _repository.Update(position);
                 return Result<PositionDTO>.Success(data);
-            } catch (Exception ex)
+            }
+            catch (Exception ex)
             {
                 return Result<PositionDTO>.Failure(data, $"error updating the position {ex.InnerException.Message}");
             }

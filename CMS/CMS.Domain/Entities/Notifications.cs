@@ -11,7 +11,6 @@ namespace CMS.Domain.Entities
     {
         public int NotificationsId { get; set; }
 
-        public NotificationsType Type { get; set; }
 
         public int ReceiverId { get; set; }
 
@@ -22,7 +21,8 @@ namespace CMS.Domain.Entities
 
         public bool IsReceived { get; set; }
 
-     
+
+        //public string TemplateName { get; set; }
 
 
 

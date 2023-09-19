@@ -60,6 +60,8 @@ namespace CMS.Domain.Migrations
 
                     b.Property<int>("CountryId")
                         .HasColumnType("int");
+                    b.Property<int>("CompanyId")
+                        .HasColumnType("int");
 
                     b.Property<string>("Email")
                         .IsRequired()
@@ -85,10 +87,11 @@ namespace CMS.Domain.Migrations
                     b.HasKey("Id");
 
                     b.HasIndex("CVAttachmentId");
-
                     b.HasIndex("CountryId");
+                    b.HasIndex("CompanyId");
 
                     b.HasIndex("PositionId");
+
 
                     b.ToTable("Candidates");
                 });
@@ -104,12 +107,30 @@ namespace CMS.Domain.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(450)");
 
-                    b.Property<DateTime>("CreatedDateTime")
+                    b.Property<DateTime>("CreatedOn")
                         .HasColumnType("datetime2");
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("bit");
+
+                    b.Property<bool>("IsDelete")
+                        .HasColumnType("bit");
 
                     b.Property<string>("LongDescription")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("PositionId")
+                      .HasColumnType("int");
+                    b.Property<string>("ModifiedBy")
+                       .HasColumnType("nva
+
+                   b.Property<string>("Position")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime>("ModifiedOn")
+                        .HasColumnType("datetime2");
 
                     b.Property<int>("PositionId")
                         .HasColumnType("int");
@@ -200,20 +221,20 @@ namespace CMS.Domain.Migrations
                         .HasColumnType("int")
                         .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
 
+                    b.Property<int?>("AttachmentId")
+                        .HasColumnType("int");
+
                     b.Property<int>("CandidateId")
                         .HasColumnType("int");
 
-                    b.Property<DateTime>("CreatDate")
-                        .HasColumnType("datetime2");
-
-                    b.Property<string>("CreatId")
+                    b.Property<string>("CreatedBy")
                         .HasColumnType("nvarchar(20)")
                         .HasMaxLength(20);
 
-                    b.Property<DateTime>("Date")
+                    b.Property<DateTime>("CreatedOn")
                         .HasColumnType("datetime2");
 
-                    b.Property<DateTime>("EditDate")
+                    b.Property<DateTime>("Date")
                         .HasColumnType("datetime2");
 
                     b.Property<string>("EditId")
@@ -229,6 +250,13 @@ namespace CMS.Domain.Migrations
                     b.Property<bool>("IsDelete")
                         .HasColumnType("bit");
 
+                    b.Property<string>("ModifiedBy")
+                        .HasColumnType("nvarchar(20)")
+                        .HasMaxLength(20);
+
+                    b.Property<DateTime>("ModifiedOn")
+                        .HasColumnType("datetime2");
+
                     b.Property<string>("Notes")
                         .HasColumnType("nvarchar(max)");
 
@@ -241,16 +269,20 @@ namespace CMS.Domain.Migrations
                     b.Property<int?>("Score")
                         .HasColumnType("int");
 
-                    b.Property<int?>("Status")
+                    b.Property<int>("StatusId")
                         .HasColumnType("int");
 
                     b.HasKey("InterviewsId");
+
+                    b.HasIndex("AttachmentId");
 
                     b.HasIndex("CandidateId");
 
                     b.HasIndex("InterviewerId");
 
                     b.HasIndex("PositionId");
+
+                    b.HasIndex("StatusId");
 
                     b.ToTable("Interviews");
                 });
@@ -262,19 +294,12 @@ namespace CMS.Domain.Migrations
                         .HasColumnType("int")
                         .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
 
-                    b.Property<DateTime>("CreatDate")
-                        .HasColumnType("datetime2");
-
-                    b.Property<string>("CreatId")
+                    b.Property<string>("CreatedBy")
                         .HasColumnType("nvarchar(20)")
                         .HasMaxLength(20);
 
-                    b.Property<DateTime>("EditDate")
+                    b.Property<DateTime>("CreatedOn")
                         .HasColumnType("datetime2");
-
-                    b.Property<string>("EditId")
-                        .HasColumnType("nvarchar(20)")
-                        .HasMaxLength(20);
 
                     b.Property<bool>("IsActive")
                         .HasColumnType("bit");
@@ -285,6 +310,13 @@ namespace CMS.Domain.Migrations
                     b.Property<bool>("IsReceived")
                         .HasColumnType("bit");
 
+                    b.Property<string>("ModifiedBy")
+                        .HasColumnType("nvarchar(20)")
+                        .HasMaxLength(20);
+
+                    b.Property<DateTime>("ModifiedOn")
+                        .HasColumnType("datetime2");
+
                     b.Property<int>("ReceiverId")
                         .HasColumnType("int");
 
@@ -292,9 +324,6 @@ namespace CMS.Domain.Migrations
                         .HasColumnType("datetime2");
 
                     b.Property<int>("TemplatesId")
-                        .HasColumnType("int");
-
-                    b.Property<int>("Type")
                         .HasColumnType("int");
 
                     b.HasKey("NotificationsId");
@@ -320,6 +349,26 @@ namespace CMS.Domain.Migrations
                     b.ToTable("Positions");
                 });
 
+            modelBuilder.Entity("CMS.Domain.Entities.Status", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int")
+                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
+
+                    b.Property<string>("Code")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("Statuses");
+                });
+
             modelBuilder.Entity("CMS.Domain.Entities.Templates", b =>
                 {
                     b.Property<int>("TemplatesId")
@@ -330,25 +379,25 @@ namespace CMS.Domain.Migrations
                     b.Property<string>("BodyDesc")
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<DateTime>("CreatDate")
-                        .HasColumnType("datetime2");
-
-                    b.Property<string>("CreatId")
+                    b.Property<string>("CreatedBy")
                         .HasColumnType("nvarchar(20)")
                         .HasMaxLength(20);
 
-                    b.Property<DateTime>("EditDate")
+                    b.Property<DateTime>("CreatedOn")
                         .HasColumnType("datetime2");
-
-                    b.Property<string>("EditId")
-                        .HasColumnType("nvarchar(20)")
-                        .HasMaxLength(20);
 
                     b.Property<bool>("IsActive")
                         .HasColumnType("bit");
 
                     b.Property<bool>("IsDelete")
                         .HasColumnType("bit");
+
+                    b.Property<string>("ModifiedBy")
+                        .HasColumnType("nvarchar(20)")
+                        .HasMaxLength(20);
+
+                    b.Property<DateTime>("ModifiedOn")
+                        .HasColumnType("datetime2");
 
                     b.Property<int>("Name")
                         .HasColumnType("int");
@@ -452,6 +501,10 @@ namespace CMS.Domain.Migrations
 
                     b.Property<string>("ConcurrencyStamp")
                         .IsConcurrencyToken()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Discriminator")
+                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("Email")
@@ -616,6 +669,13 @@ namespace CMS.Domain.Migrations
                     b.ToTable("AspNetUserTokens");
                 });
 
+            modelBuilder.Entity("CMS.Domain.Entities.AplicationUser", b =>
+                {
+                    b.HasBaseType("Microsoft.AspNetCore.Identity.IdentityUser");
+
+                    b.HasDiscriminator().HasValue("AplicationUser");
+                });
+
             modelBuilder.Entity("CMS.Domain.Entities.Candidate", b =>
                 {
                     b.HasOne("CMS.Domain.Entities.Attachment", "CV")
@@ -623,10 +683,20 @@ namespace CMS.Domain.Migrations
                         .HasForeignKey("CVAttachmentId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+                    b.HasOne("CMS.Domain.Entities.Country", "Country")
+                        .WithMany()
+                        .HasForeignKey("CountryId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
 
                     b.HasOne("CMS.Domain.Entities.Country", "Country")
                         .WithMany()
                         .HasForeignKey("CountryId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                    b.HasOne("CMS.Domain.Entities.Company", "Company")
+                        .WithMany("Candidates")
+                        .HasForeignKey("CompanyId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
@@ -639,14 +709,8 @@ namespace CMS.Domain.Migrations
 
             modelBuilder.Entity("CMS.Domain.Entities.CarrerOffer", b =>
                 {
-                    b.HasOne("Microsoft.AspNetCore.Identity.IdentityUser", "Creator")
-                        .WithMany()
-                        .HasForeignKey("CreatedBy")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("CMS.Domain.Entities.Position", "Position")
-                        .WithMany("Offers")
+                    b.HasOne("CMS.Domain.Entities.Position", "Positions")
+                        .WithMany("CarrerOffer")
                         .HasForeignKey("PositionId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
@@ -663,6 +727,11 @@ namespace CMS.Domain.Migrations
 
             modelBuilder.Entity("CMS.Domain.Entities.Interviews", b =>
                 {
+                    b.HasOne("CMS.Domain.Entities.Attachment", "Attachment")
+                        .WithMany()
+                        .HasForeignKey("AttachmentId")
+                        .HasConstraintName("FK_Interviews_Attachments");
+
                     b.HasOne("CMS.Domain.Entities.Candidate", "Candidate")
                         .WithMany("Interviews")
                         .HasForeignKey("CandidateId")
@@ -676,6 +745,12 @@ namespace CMS.Domain.Migrations
                     b.HasOne("CMS.Domain.Entities.Position", "Position")
                         .WithMany("Interviews")
                         .HasForeignKey("PositionId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("CMS.Domain.Entities.Status", "Status")
+                        .WithMany("Interviews")
+                        .HasForeignKey("StatusId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
                 });

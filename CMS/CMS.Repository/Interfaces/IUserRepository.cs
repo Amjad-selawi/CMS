@@ -1,4 +1,5 @@
 ﻿using CMS.Application.Extensions;
+using CMS.Domain.Entities;
 using Microsoft.AspNetCore.Identity;
 using System;
 using System.Collections.Generic;
@@ -9,7 +10,10 @@ namespace CMS.Repository.Interfaces
 {
     public interface IUserRepository
     {
+        List<IdentityUser> GetAllUsersWithRoles();
+        List<string> GetUserRoles(IdentityUser user);
         Task<bool> Delete(string id);
-        Task<string> Register(IdentityUser user, string password);
+
+        IdentityUser GetUserById(string userId);
     }
 }

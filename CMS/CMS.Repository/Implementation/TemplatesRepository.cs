@@ -31,8 +31,8 @@ namespace CMS.Repository.Implementation
         public async Task Create(Templates entity)
         {
             entity.IsActive = true;
-            entity.EditId = entity.EditId;
-            entity.EditDate = DateTime.Now;
+            entity.ModifiedBy = entity.ModifiedBy;
+            entity.ModifiedOn = DateTime.Now;
 
             Db.Templates.Add(entity);
             await Db.SaveChangesAsync();
@@ -41,8 +41,8 @@ namespace CMS.Repository.Implementation
         public async Task Update(Templates entity)
         {
             entity.IsActive = true;
-            entity.EditId = entity.EditId;
-            entity.EditDate = DateTime.Now;
+            entity.ModifiedBy = entity.ModifiedBy;
+            entity.ModifiedOn = DateTime.Now;
 
             Db.Templates.Update(entity);
             await Db.SaveChangesAsync();
@@ -51,8 +51,8 @@ namespace CMS.Repository.Implementation
         public async Task Delete(Templates entity)
         {
             entity.IsDelete = true;
-            entity.EditId = entity.EditId;
-            entity.EditDate = DateTime.Now;
+            entity.ModifiedBy = entity.ModifiedBy;
+            entity.ModifiedOn = DateTime.Now;
 
             Db.Templates.Remove(entity);
             await Db.SaveChangesAsync();
