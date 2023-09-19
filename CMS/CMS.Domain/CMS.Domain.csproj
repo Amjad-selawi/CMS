@@ -33,7 +33,6 @@
     <Compile Remove="Migrations\20230915154036_positionid.Designer.cs" />
   </ItemGroup>
 
-	<ItemGroup>
   <ItemGroup>
     <Compile Remove="Migrations\20230912155556_addUsersAsinterviewerandattatchmentdana.cs" />
     <Compile Remove="Migrations\20230912155556_addUsersAsinterviewerandattatchmentdana.Designer.cs" />
