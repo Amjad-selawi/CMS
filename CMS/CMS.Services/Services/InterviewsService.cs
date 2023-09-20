@@ -11,6 +11,7 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc.Formatters.Xml;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Runtime.InteropServices.WindowsRuntime;
@@ -258,103 +259,56 @@ namespace CMS.Services.Services
         }
 
 
-        public async Task ConductInterview(InterviewsDTO entity)
+        public async Task ConductInterview(InterviewsDTO completedDTO)
         {
             try
             {
 
-                var interview = await _interviewsRepository.GetById(entity.InterviewsId);
-                int attachmentId = await _attachmentService.CreateAttachmentAsync(entity.FileName, (long)entity.FileSize, entity.FileData);
-                entity.AttachmentId = attachmentId;
-
-                if (interview == null)
+                var interview = await _interviewsRepository.GetById(completedDTO.InterviewsId);
+                int attachmentId = await _attachmentService.CreateAttachmentAsync(completedDTO.FileName, (long)completedDTO.FileSize, completedDTO.FileData);
+                completedDTO.AttachmentId = attachmentId;
+                Debug.Assert(interview != null, "No Interview Provided for Conduct Interview Method");
+                // Step 1: Update Completed Interview
+                interview.StatusId = (int)completedDTO.StatusId;
+                interview.Score = completedDTO.Score;
+                interview.Notes = completedDTO.Notes;
+                interview.AttachmentId = attachmentId;
+                await _interviewsRepository.Update(interview);
+                // Step 2: Create Next Interview if Needed.
+                var Completedstatus = await _statusRepository.GetById((int)completedDTO.StatusId);
+                bool isApproved = Completedstatus.Code == StatusCode.Approved;
+                bool isLastInterviewerAnHR = await _userManager.IsInRoleAsync(interview.Interviewer, "HR Manager");
+                if(isApproved && !isLastInterviewerAnHR) // There is a next interview
                 {
-                    throw new Exception();
-                }
-                var managerId = "";
-               
-                var status = await _statusRepository.GetById((int)entity.StatusId);
-
-                var manager = await _roleManager.FindByNameAsync("Manager");
-                if (manager != null)
-                {
-                    managerId = (await _userManager.GetUsersInRoleAsync(manager.Name)).FirstOrDefault().Id;
-                   
-                }
-                var HRId = "";
-                var HR = await _roleManager.FindByNameAsync("HR");
-                if (HR != null)
-                {
-                    HRId = (await _userManager.GetUsersInRoleAsync(HR.Name)).FirstOrDefault().Id;
-                   
-                }
-                bool ff = false;
-                if (entity.InterviewerId == HRId)
-                {
-                    ff= true;
-                }
-
-                var nextInterviewer = "";
-
-                if (interview.ParentId == null)
-                {
-                    nextInterviewer = managerId;
-                   
-                }
-                else
-                {
-                    nextInterviewer = HRId;
-                   
-                }
-                bool f = false;
-                if (status.Code==StatusCode.Rejected)
-                {
-                    f= true;
-                }
-                var statID=await _statusRepository.GetByCode(StatusCode.Pending);
-                if (!f && !ff)
-                {
+                    bool isFirstMeeting = interview.ParentId == null;
+                    var PendeingStatus = await _statusRepository.GetByCode(StatusCode.Pending);
                     var newInterview = new Interviews
                     {
-                        //Score = entity.Score,
-                        StatusId = statID.Id,
+                        StatusId = PendeingStatus.Id,
                         Date = interview.Date,
                         CandidateId = interview.CandidateId,
                         PositionId = interview.PositionId,
-
-                        InterviewerId = nextInterviewer,
-                        //  AttachmentId = entity.AttachmentId,
-                        // Notes = entity.Notes,
-                        ParentId = entity.InterviewsId
-
+                        ParentId = completedDTO.InterviewsId
                     };
+                    if (isFirstMeeting) // Second Interview Needed which done by General Manager
+                    {
+                        var manager = (await _userManager.GetUsersInRoleAsync("General Manager")).FirstOrDefault();
+                        Debug.Assert(manager != null, "There is No Valid General Manager in The System");
+                        newInterview.InterviewerId = manager.Id;
+                    }
+                    else // Third Interview Needed which done by HR Manager
+                    {
+                        var hr = (await _userManager.GetUsersInRoleAsync("HR Manager")).FirstOrDefault();
+                        Debug.Assert(hr != null, "There is No Valid HR Manager in The System");
+                        newInterview.InterviewerId = hr.Id;
+                    }
                     await _interviewsRepository.Insert(newInterview);
                 }
-                var updatedInterview = new Interviews
-                {
-                    InterviewsId=entity.InterviewsId,
-                    Score=entity.Score,
-                    Date= interview.Date,
-                    StatusId= (int)entity.StatusId,
-                    CandidateId=interview.CandidateId,
-                    PositionId=interview.PositionId,
-                    InterviewerId=interview.InterviewerId,
-                    AttachmentId=entity.AttachmentId,
-                    Notes=entity.Notes,
-                    ParentId=interview.ParentId
-                };
-               
-
-                await _interviewsRepository.Update(updatedInterview);
-
-              
             }
             catch (Exception ex)
             {
                 throw ex;
             }
-
-
         }
 
         public async Task<Result<List<InterviewsDTO>>> MyInterviews()
