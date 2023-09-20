@@ -26,14 +26,9 @@ namespace CMS.Domain.Entities
         [Required]
         public int PositionId { get; set; }
         public virtual Position Position { get; set; }
-
+        public int? AttachmentId { get; set; }
+        public virtual Attachment Attachment { get; set; }
         [Required]
-        public int InterviewerId { get; set; }
-        //public Interviewers Interviewer { get; set; }
-
-
-     
-
         public string InterviewerId { get; set; }
         public virtual IdentityUser Interviewer { get; set; }
         public int? ParentId { get; set; }

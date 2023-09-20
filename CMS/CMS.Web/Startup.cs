@@ -88,8 +88,6 @@ namespace CMS.Web
 
             services.AddScoped(typeof(ITemplatesRepository), typeof(TemplatesRepository));
             services.AddTransient<ITemplatesService, TemplatesService>();
-            services.AddScoped(typeof(IInterviewerRepository), typeof(InterviewerRepository));
-            services.AddScoped<IInterviewerService, InterviewerService>();
 
             services.AddTransient<IReportingService, ReportingService>();
 

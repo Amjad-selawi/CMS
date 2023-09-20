@@ -11,7 +11,8 @@ namespace CMS.Application.DTOs
         public int Id { get; set; }
         [Required(ErrorMessage = "Position is required.")]
         public int PositionId { get; set; }
-       
+        public string PositionName { get; set; }
+
         [Required(ErrorMessage = "YearsOfExperience is required.")]
         public int YearsOfExperience { get; set; }
         [Required(ErrorMessage = "LongDescription is required.")]

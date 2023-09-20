@@ -4,7 +4,6 @@ using Microsoft.Data.SqlClient.Server;
 using System.Text;
 using System;
 using System.Threading.Tasks;
-using static Microsoft.EntityFrameworkCore.DbLoggerCategory.Database;
 using System.Linq;
 
 namespace CMS.Web.Controllers

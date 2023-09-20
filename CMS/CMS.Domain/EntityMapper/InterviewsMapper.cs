@@ -12,28 +12,31 @@ namespace CMS.Domain.EntityMapper
         public void Configure(EntityTypeBuilder<Interviews> builder)
         {
 
-            builder.HasOne(p => p.Candidate)
-                .WithMany(p => p.Interviews)
-                .HasForeignKey(p => p.CandidateId);
+            builder.HasOne(interview => interview.Candidate)
+                .WithMany(candidate => candidate.Interviews)
+                .HasForeignKey(interview => interview.CandidateId);
 
-            builder.HasOne(p => p.Position)
-              .WithMany(p => p.Interviews)
-              .HasForeignKey(p => p.PositionId);
-            builder.HasOne(i => i.Interviewer)
+            builder.HasOne(interview => interview.Position)
+              .WithMany(position => position.Interviews)
+              .HasForeignKey(interview => interview.PositionId)
+              .OnDelete(DeleteBehavior.Restrict);
+
+            builder.HasOne(interview => interview.Interviewer)
               .WithMany()
-              .HasForeignKey(i => i.InterviewerId);
+              .HasForeignKey(interview => interview.InterviewerId);
 
-            builder.HasOne(p => p.Status)
-                .WithMany(p => p.Interviews)
-                .HasForeignKey(p => p.StatusId);
+            builder.HasOne(interview => interview.Status)
+                .WithMany(status => status.Interviews)
+                .HasForeignKey(interview => interview.StatusId);
 
-            builder.HasOne(p=>p.Interviewer)
+            builder.HasOne(interview => interview.Interviewer)
                 .WithMany()
-                .HasForeignKey(p=>p.InterviewerId);
+                .HasForeignKey(interview => interview.InterviewerId);
 
-            builder.HasOne(P => P.Attachment)
+            builder.HasOne(interview => interview.Attachment)
                 .WithMany()
-                .HasForeignKey(P => P.AttachmentId).HasConstraintName("FK_Interviews_Attachments");
+                .HasForeignKey(interview => interview.AttachmentId)
+                .HasConstraintName("FK_Interviews_Attachments");
              
 
         }

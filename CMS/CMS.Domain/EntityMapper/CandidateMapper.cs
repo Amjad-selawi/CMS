@@ -12,20 +12,25 @@ namespace CMS.Domain.EntityMapper
         public void Configure(EntityTypeBuilder<Candidate> builder)
         {
             builder
-                .HasOne(p => p.CV)
+                .HasOne(candidate => candidate.CV)
                 .WithMany()
-                .HasForeignKey(p => p.CVAttachmentId);
+                .HasForeignKey(candidate => candidate.CVAttachmentId);
             builder
-                .HasOne(p=>p.Position)
-                .WithMany(p=>p.Candidates)
-                .HasForeignKey(p=>p.PositionId);
+                .HasOne(candidate => candidate.Position)
+                .WithMany(position=>position.Candidates)
+                .HasForeignKey(candidate => candidate.PositionId);
             builder
-                .HasMany(p => p.Interviews)
-                .WithOne(p => p.Candidate);
+                .HasOne(candidate => candidate.Country)
+                .WithMany()
+                .HasForeignKey(candidate => candidate.CountryId)
+                .OnDelete(DeleteBehavior.Restrict);
+            builder
+                .HasMany(candidate => candidate.Interviews)
+                .WithOne(interview => interview.Candidate);
 
-            builder.HasOne(p=>p.Company)
-                .WithMany(p=>p.Candidates)
-                .HasForeignKey(p=>p.CompanyId);
+            builder.HasOne(candidate => candidate.Company)
+                .WithMany(company=>company.Candidates)
+                .HasForeignKey(candidate => candidate.CompanyId);
         }
     }
 }

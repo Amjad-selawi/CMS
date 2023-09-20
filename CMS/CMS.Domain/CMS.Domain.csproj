@@ -38,6 +38,16 @@
     <Compile Remove="Migrations\20230912155556_addUsersAsinterviewerandattatchmentdana.Designer.cs" />
     <Compile Remove="Migrations\20230912173357_maketheattachmentidnullable.cs" />
     <Compile Remove="Migrations\20230912173357_maketheattachmentidnullable.Designer.cs" />
+    <Compile Remove="Migrations\20230919222608_CombinationofWork.cs" />
+    <Compile Remove="Migrations\20230919222608_CombinationofWork.Designer.cs" />
+    <Compile Remove="Migrations\20230919223018_CombinationofWork.cs" />
+    <Compile Remove="Migrations\20230919223018_CombinationofWork.Designer.cs" />
+    <Compile Remove="Migrations\20230919224648_DatabaseResetPoint.cs" />
+    <Compile Remove="Migrations\20230919224648_DatabaseResetPoint.Designer.cs" />
+    <Compile Remove="Migrations\20230919225233_DatabaseResetPoint.cs" />
+    <Compile Remove="Migrations\20230919225233_DatabaseResetPoint.Designer.cs" />
+    <Compile Remove="Migrations\20230919225618_DatabaseResetPoint.cs" />
+    <Compile Remove="Migrations\20230919225618_DatabaseResetPoint.Designer.cs" />
   </ItemGroup>
 
 	<ItemGroup>

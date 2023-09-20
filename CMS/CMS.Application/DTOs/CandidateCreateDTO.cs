@@ -25,6 +25,7 @@ namespace CMS.Application.DTOs
         [Required(ErrorMessage = "Experience is required.")]
         public string Experience { get; set; }
         public string LinkedInUrl { get; set; }
+        public int CountryId { get; set; }
         public int CVAttachmentId { get; set; }
         public string FileName { get; set; }
         public long FileSize { get; set; } 

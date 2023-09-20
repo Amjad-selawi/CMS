@@ -19,8 +19,7 @@ namespace CMS.Services.Interfaces
         Task<Result<InterviewsDTO>> Delete(int id);
         Task<Result<InterviewsDTO>> GetById(int id);
         Task<Result<InterviewsDTO>> Update(InterviewsDTO data);
-        Task<Result<List<InterviewViewDTO>>> GetAllWithLabels();
-        Task<Result<InterviewViewDTO>> GetByIdWithLabels(int id);
+
 
     }
 }

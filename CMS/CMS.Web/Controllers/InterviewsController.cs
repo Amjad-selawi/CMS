@@ -26,14 +26,16 @@ namespace CMS.Web.Controllers
         private readonly ICandidateService _candidateService;
         private readonly IPositionService _positionService;
         private readonly IStatusService _StatusService;
+        private readonly IAccountService _accountService;
         private readonly string _attachmentStoragePath;
 
-        public InterviewsController(IInterviewsService interviewsService, ICandidateService candidateService, IPositionService positionService, IStatusService statusService, IWebHostEnvironment env)
+        public InterviewsController(IInterviewsService interviewsService, ICandidateService candidateService, IPositionService positionService, IStatusService statusService, IWebHostEnvironment env, IAccountService accountService)
         {
             _interviewsService = interviewsService;
             _candidateService = candidateService;
             _positionService = positionService;
             _StatusService = statusService;
+            _accountService = accountService;
             _attachmentStoragePath = Path.Combine(env.WebRootPath, "attachments");
 
             if (!Directory.Exists(_attachmentStoragePath))
@@ -79,11 +81,7 @@ namespace CMS.Web.Controllers
         {
             var result = await _interviewsService.GetById(id);
 
-            var positionsDTO = await _positionService.GetAll();
-            ViewBag.positionDTOs = new SelectList(positionsDTO.Value, "Id", "Name");
-
-            var candidateDTOs = await _candidateService.GetAllCandidatesAsync();
-            ViewBag.candidateDTOs = new SelectList(candidateDTOs, "Id", "FullName");
+            await LoadSelectionLists();
 
             if (result.IsSuccess)
             {
@@ -103,46 +101,33 @@ namespace CMS.Web.Controllers
         // GET: InterviewsController/Create
         public async Task<ActionResult> Create()
         {
-            var positionDTOs = await _positionService.GetAll();
-            ViewBag.positionDTOs = new SelectList(positionDTOs.Value, "Id", "Name");
-
-            var candidateDTOs = await _candidateService.GetAllCandidatesAsync();
-            ViewBag.candidateDTOs = new SelectList(candidateDTOs, "Id", "FullName");
-
-            var StatusDTOs = await _StatusService.GetAll();
-            ViewBag.StatusDTOs = new SelectList(StatusDTOs.Value, "Id", "Name");
-
-            var interviewersDTOs = await _interviewsService.GetInterviewers();
-            ViewBag.interviewersDTOs = new SelectList(interviewersDTOs, "Id", "Name");
-
-
-
+            await LoadSelectionLists();
             return View();
         }
-
+        private async Task LoadSelectionLists()
+        {
+            var positions = await _positionService.GetAll();
+            ViewBag.positionList = new SelectList(positions.Value, "Id", "Name");
+            var candidates = await _candidateService.GetAllCandidatesAsync();
+            ViewBag.candidateList = new SelectList(candidates, "Id", "FullName");
+            var interviewers = await _accountService.GetAllInterviewers();
+            ViewBag.interviewersList = new SelectList(interviewers.Value, "Id", "UserName");
+            var statuses = await _StatusService.GetAll();
+            ViewBag.statusList = new SelectList(statuses.Value, "Id", "Name");
+        }
         // POST: InterviewsController/Create
 
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<ActionResult> Create(InterviewsDTO collection)
         {
-            var positionDTOs = await _positionService.GetAll();
-            ViewBag.positionDTOs = new SelectList(positionDTOs.Value, "Id", "Name");
-
-            var candidateDTOs = await _candidateService.GetAllCandidatesAsync();
-            ViewBag.candidateDTOs = new SelectList(candidateDTOs, "Id", "FullName");
-
-            var StatusDTOs = await _StatusService.GetAll();
-            ViewBag.StatusDTOs = new SelectList(StatusDTOs.Value, "Id", "Name");
-
-            var interviewersDTOs = await _interviewsService.GetInterviewers();
-            ViewBag.interviewersDTOs = new SelectList(interviewersDTOs, "Id", "Name");
+         
 
 
             if (ModelState.IsValid)
             {
                 var result = await _interviewsService.Insert(collection);
-
+                await LoadSelectionLists();
 
                 if (result.IsSuccess)
                 {
@@ -174,17 +159,7 @@ namespace CMS.Web.Controllers
             {
                 return NotFound();
             }
-            var positionDTOs = await _positionService.GetAll();
-            ViewBag.positionDTOs = new SelectList(positionDTOs.Value, "Id", "Name");
-
-            var candidateDTOs = await _candidateService.GetAllCandidatesAsync();
-            ViewBag.candidateDTOs = new SelectList(candidateDTOs, "Id", "FullName");
-
-            var StatusDTOs = await _StatusService.GetAll();
-            ViewBag.StatusDTOs = new SelectList(StatusDTOs.Value, "Id", "Name");
-
-            var interviewersDTOs = await _interviewsService.GetInterviewers();
-            ViewBag.interviewersDTOs = new SelectList(interviewersDTOs, "Id", "Name");
+            await LoadSelectionLists();
 
             return View(interviewDTO);
         }
@@ -200,17 +175,7 @@ namespace CMS.Web.Controllers
                 return RedirectToAction("Index");
             }
 
-            var positionDTOs = await _positionService.GetAll();
-            ViewBag.positionDTOs = new SelectList(positionDTOs.Value, "Id", "Name");
-
-            var candidateDTOs = await _candidateService.GetAllCandidatesAsync();
-            ViewBag.candidateDTOs = new SelectList(candidateDTOs, "Id", "FullName");
-
-            var StatusDTOs = await _StatusService.GetAll();
-            ViewBag.StatusDTOs = new SelectList(StatusDTOs.Value, "Id", "Name");
-
-            var interviewersDTOs = await _interviewsService.GetInterviewers();
-            ViewBag.interviewersDTOs = new SelectList(interviewersDTOs, "Id", "Name");
+            await LoadSelectionLists();
 
 
             if (ModelState.IsValid)

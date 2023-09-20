@@ -13,7 +13,7 @@ namespace CMS.Domain.EntityMapper
         {
             builder
                 .HasOne(o => o.Position)
-                .WithMany(p=>p.Offers)
+                .WithMany(p=>p.CarrerOffer)
                 .HasForeignKey(o => o.PositionId);
             builder
                 .HasOne(o => o.Creator)

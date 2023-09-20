@@ -21,34 +21,27 @@ namespace CMS.Services.Services
             _carrerOfferRepository = carrerOfferRepository;
             _positionService = positionService;
         }
-        public async Task<Result<CarrerOfferDTO>> Delete(int id)
+        public async Task<Result<int>> Delete(int id)
         {
 
             try
             {
-                await _carrerOfferRepository.Delete(id);
-                return Result<CarrerOfferDTO>.Success(null);
+                await _carrerOfferRepository.DeleteCarrerOfferAsync(id);
+                return Result<int>.Success(id);
             }
 
             catch (Exception ex)
             {
-                Id = co.Id,
-                PositionId = co.PositionId,
-                YearsOfExperience = co.YearsOfExperience,
-                LongDescription = co.LongDescription,
-                CreatedBy = co.CreatedBy,
-                CreatedDateTime = co.CreatedDateTime
-            });
+                return Result<int>.Failure(-1, $"An error occurred while deleting the career offer{ex.InnerException.Message}");
+            };
         }
-                return Result<CarrerOfferDTO>.Failure(null, $"An error occurred while deleting the career offer{ex.InnerException.Message}");
-            }
-        }
+
 
         public async Task<Result<List<CarrerOfferDTO>>> GetAll()
         {
             try
             {
-                var careerOffers = await _carrerOfferRepository.GetAll();
+                var careerOffers = await _carrerOfferRepository.GetAllCarrerOffersAsync();
                 if (careerOffers == null)
                 {
                     return Result<List<CarrerOfferDTO>>.Failure(null, "No career offers found");
@@ -64,10 +57,10 @@ namespace CMS.Services.Services
                         LongDescription = c.LongDescription,
                         YearsOfExperience = c.YearsOfExperience,
                         PositionId = c.PositionId,
-                        PositionName = c.Positions.Name,
-                        CreatedBy = carrerOffer.CreatedBy,
-                        CreatedDateTime = carrerOffer.CreatedDateTime
-
+                        PositionName = c.Position.Name,
+                        CreatedBy = c.CreatedBy,
+                        CreatedDateTime = c.CreatedDateTime,
+                        
 
                     };
                     carrerOfferDTOs.Add(com);
@@ -92,14 +85,14 @@ namespace CMS.Services.Services
             }
             try
             {
-                var careeroffer = await _carrerOfferRepository.GetById(id);
+                var careeroffer = await _carrerOfferRepository.GetCarrerOfferByIdAsync(id);
                 var careerofferDTO = new CarrerOfferDTO
                 {
                     Id = careeroffer.Id,
                     LongDescription = careeroffer.LongDescription,
                     YearsOfExperience = careeroffer.YearsOfExperience,
                     PositionId = careeroffer.PositionId,
-                    PositionName = careeroffer.Positions.Name
+                    PositionName = careeroffer.Position.Name
 
                 };
                 return Result<CarrerOfferDTO>.Success(careerofferDTO);
@@ -120,41 +113,6 @@ namespace CMS.Services.Services
 
             var careeroffer = new CarrerOffer
             {
-                PositionId=data.PositionId,
-                LongDescription=data.LongDescription,
-                YearsOfExperience=data.YearsOfExperience,
-               
-
-
-            };
-
-            try
-            {
-                await _carrerOfferRepository.Insert(careeroffer);
-
-                return Result<CarrerOfferDTO>.Success(data);
-
-            }
-            catch (Exception ex)
-            {
-                return Result<CarrerOfferDTO>.Failure(data, $"unable to insert a career offer: {ex.InnerException.Message}");
-
-            existingCarrerOffer.PositionId = carrerOfferDTO.PositionId;
-            existingCarrerOffer.YearsOfExperience = carrerOfferDTO.YearsOfExperience;
-            existingCarrerOffer.LongDescription = carrerOfferDTO.LongDescription;
-            existingCarrerOffer.CreatedBy = carrerOfferDTO.CreatedBy;
-
-        }
-
-        public async Task<Result<CarrerOfferDTO>> Update(CarrerOfferDTO data)
-        {
-            if (data == null)
-            {
-                return Result<CarrerOfferDTO>.Failure(data, "can not update a null object");
-            }
-            var careeroffer = new CarrerOffer
-            {
-                Id = data.Id,
                 PositionId = data.PositionId,
                 LongDescription = data.LongDescription,
                 YearsOfExperience = data.YearsOfExperience,
@@ -165,14 +123,44 @@ namespace CMS.Services.Services
 
             try
             {
-                await _carrerOfferRepository.Update(careeroffer);
+                await _carrerOfferRepository.CreateCarrerOfferAsync(careeroffer);
+
                 return Result<CarrerOfferDTO>.Success(data);
+
             }
             catch (Exception ex)
             {
-                return Result<CarrerOfferDTO>.Failure(data, $"error updating the career offer {ex.Message}");
+                return Result<CarrerOfferDTO>.Failure(data, $"unable to insert a career offer: {ex.InnerException.Message}");
+
             }
         }
-        
+
+            public async Task<Result<CarrerOfferDTO>> Update(CarrerOfferDTO data)
+            {
+                if (data == null)
+                {
+                    return Result<CarrerOfferDTO>.Failure(data, "can not update a null object");
+                }
+            var careeroffer = new CarrerOffer
+            {
+                Id = data.Id,
+                PositionId = data.PositionId,
+                LongDescription = data.LongDescription,
+                YearsOfExperience = data.YearsOfExperience,
+                CreatedBy = data.CreatedBy,
+
+
+            };
+            try
+                {
+                    await _carrerOfferRepository.UpdateCarrerOfferAsync(careeroffer);
+                    return Result<CarrerOfferDTO>.Success(data);
+                }
+                catch (Exception ex)
+                {
+                    return Result<CarrerOfferDTO>.Failure(data, $"error updating the career offer {ex.Message}");
+                }
+            }
+
+        }
     }
-}

@@ -34,9 +34,10 @@ namespace CMS.Services.Services
         }
 
 
+
         public async Task<List<Login>> GetAllUsersAsync()
         {
-            var users = _userManager.Users.ToList();
+            var users =  _userManager.Users.ToList();
             List<Login> listuser = new List<Login>();
             for (int i = 0; i < users.Count; i++)
             {
@@ -47,7 +48,7 @@ namespace CMS.Services.Services
                 list.Password = users[i].PasswordHash;
                 listuser.Add(list);
             }
-            return listuser;
+            return  listuser;
         }
 
         public async Task<bool> LoginAsync(Login collection)
@@ -83,9 +84,6 @@ namespace CMS.Services.Services
             }
             return Result<IList<IdentityUser>>.Success(interviewers);
         }
-
-
-
         public async Task<string> GetUserRoleAsync(IdentityUser user)
         {
             var roles = await _userManager.GetRolesAsync(user);
@@ -96,9 +94,6 @@ namespace CMS.Services.Services
         {
             return await _userManager.FindByEmailAsync(email);
         }
-
-
-
         public List<Register> GetAllUsersWithRoles()
         {
             var users = _userRepository.GetAllUsersWithRoles();
@@ -119,8 +114,6 @@ namespace CMS.Services.Services
 
             return usersWithRoles;
         }
-
-
         public Register GetUsersById(string userId)
         {
             var user = _userRepository.GetUserById(userId);
@@ -141,9 +134,5 @@ namespace CMS.Services.Services
 
             return userDetails;
         }
-
-
-
-
     }
 }

@@ -21,7 +21,6 @@ namespace CMS.Services.Services
     public class InterviewsService : IInterviewsService
     {
         private readonly IInterviewsRepository _interviewsRepository;
-        private readonly  IInterviewsRepository _interviewsRepository;
         private readonly ICandidateService _candidateService;
         private readonly IPositionService _positionService;
         private readonly UserManager<IdentityUser> _userManager;
@@ -90,10 +89,13 @@ namespace CMS.Services.Services
                 var interview = await _interviewsRepository.GetById(id);
                 if (interview != null && interview.AttachmentId!=null)
                 {
-                    var attachmentToRemove = (int)interview.AttachmentId;
+                    var attachmentToRemove = interview.AttachmentId;
                     await _interviewsRepository.Delete(id);
-                    await _attachmentService.DeleteAttachmentAsync(attachmentToRemove);
-                  
+                    if(attachmentToRemove != null)
+                    {
+                        await _attachmentService.DeleteAttachmentAsync((int)attachmentToRemove);
+                    }
+                    
                 }
                 else
                 {
@@ -131,13 +133,13 @@ namespace CMS.Services.Services
                        StatusId=c.StatusId,
                        StatusName =c.Status.Name,
                        Date = c.Date,
-                       positionId = c.PositionId,
+                       PositionId = c.PositionId,
                        Name = c.Position.Name,
                        Notes=c.Notes,
                        ParentId=c.ParentId,
                        InterviewerId=c.InterviewerId,
                        InterviewerName= userName,
-                       candidateId = c.CandidateId,
+                       CandidateId = c.CandidateId,
                        FullName = c.Candidate.FullName,
                        AttachmentId = c.AttachmentId,
 
@@ -171,12 +173,12 @@ namespace CMS.Services.Services
                     StatusId = interview.StatusId,
                     StatusName = interview.Status.Name,
                     Date = interview.Date,
-                    positionId = interview.PositionId,
+                    PositionId = interview.PositionId,
                     Name = interview.Position.Name,
                     Notes = interview.Notes,
                     ParentId = interview.ParentId,
                     InterviewerId = interview.InterviewerId,
-                    candidateId = interview.CandidateId,
+                    CandidateId = interview.CandidateId,
                     FullName = interview.Candidate.FullName,
                     AttachmentId=interview.AttachmentId,
                 };
@@ -194,16 +196,13 @@ namespace CMS.Services.Services
             {
                 return Result<InterviewsDTO>.Failure(data, "the interview  DTO is null");
             }
-
-            //int attachmentId = await _attachmentService.CreateAttachmentAsync(data.FileName, (long)data.FileSize, data.FileData);
-            //data.AttachmentId = attachmentId;
             var status = await _statusRepository.GetByCode(StatusCode.Pending);
             var interview = new Interviews
             {
-                PositionId = data.positionId,
-                CandidateId = data.candidateId,
+                PositionId = data.PositionId,
+                CandidateId = data.CandidateId,
                 Score = data.Score,
-                StatusId = status.Id,//data.StatusId,
+                StatusId = status.Id,
                 Date=data.Date,
                 Notes=data.Notes,
                 ParentId=data.ParentId,
@@ -231,8 +230,8 @@ namespace CMS.Services.Services
             var interview = new Interviews
             {
                 InterviewsId = data.InterviewsId,
-                PositionId = data.positionId,
-                CandidateId = data.candidateId,
+                PositionId = data.PositionId,
+                CandidateId = data.CandidateId,
                 Score = data.Score,
                 ParentId = data.ParentId,
                 InterviewerId = data.InterviewerId,
@@ -385,11 +384,11 @@ namespace CMS.Services.Services
                         StatusId=i.StatusId,
                         StatusName=i.Status.Name,
                         Date = i.Date,
-                        positionId = i.PositionId,
+                        PositionId = i.PositionId,
                         Name = i.Position.Name,
                         Notes=i.Notes,
                         ParentId = i.ParentId,
-                        candidateId=i.CandidateId,
+                        CandidateId=i.CandidateId,
                         FullName=i.Candidate.FullName,
                         AttachmentId=i.AttachmentId
                         

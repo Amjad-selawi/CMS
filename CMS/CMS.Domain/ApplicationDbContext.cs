@@ -24,7 +24,6 @@ namespace CMS.Domain
         public DbSet<Notifications> Notifications { get; set; }
         public DbSet<Templates> Templates { get; set; }
         public DbSet<Status> Statuses { get; set; }
-        public DbSet<Interviewer> Interviewers { get; set; }
 
 
 

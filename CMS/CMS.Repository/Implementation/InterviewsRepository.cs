@@ -67,7 +67,25 @@ namespace CMS.Repository.Repositories
                 throw ex;
             }
         }
+        public Task<List<Interviews>> GetCurrentInterviews(string id)
+        {
+            try
+            {
+                return _context.Interviews
+                     .Include(c => c.Position)
+                     .Include(c => c.Candidate)
+                     .Include(c => c.Status)
+                     // .Include(c=>c.Interviewer)
+                     .Where(c => c.InterviewerId == id)
+                     .AsNoTracking().ToListAsync();
 
+
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
         public async Task<int> Insert(Interviews entity)
         {
             try

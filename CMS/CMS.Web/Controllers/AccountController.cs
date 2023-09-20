@@ -29,15 +29,6 @@ namespace CMS.Web.Controllers
             _signInManager = signInManager;
         }
 
-        ////GET
-        //public async Task<ActionResult> ListUsers()
-        //{
-        //    var listuser = await _accountService.GetAllUsersAsync();
-        //    return View(listuser);
-        //}
-
-       
-
         //GET
         public async Task<ActionResult> Login()
         {
@@ -111,42 +102,12 @@ namespace CMS.Web.Controllers
             return RedirectToAction("Login", "Account");
         }
 
-        //public async Task<IActionResult> Register()
-        //{
-        //    return View();
-        //}
-
-
-       
-        ///////////////////////////////////////////////////////////////Register////////////////////////////////////////////////////////
-       
-
         // GET: Register
         public IActionResult Index()
         {
             var usersWithRoles = _accountService.GetAllUsersWithRoles();
             return View(usersWithRoles);
 
-            //var users = Db.Users.ToList();
-
-            //var modelList = new List<Register>();
-
-            //foreach (var user in users)
-            //{
-            //    var roles = _userManager.GetRolesAsync(user).Result;
-
-            //    var model = new Register
-            //    {
-            //        RegisterrId = user.Id,
-            //        Email = user.Email,
-            //        UserName = user.UserName,
-            //        SelectedRole = roles.FirstOrDefault()
-            //    };
-
-            //    modelList.Add(model);
-            //}
-
-            //return View(modelList);
         }
 
 
@@ -154,17 +115,6 @@ namespace CMS.Web.Controllers
         public async Task<IActionResult> Details(string id)
         {
             var userDetails =  _accountService.GetUsersById(id);
-            //var user = await _userManager.FindByIdAsync(id);
-
-            //var roles = await _accountService.GetUserRoleAsync(user);
-
-            //var model = new Register
-            //{
-            //    RegisterrId = user.Id,
-            //    Email = user.Email,
-            //    UserName = user.UserName,
-            //    SelectedRole = roles
-            //};
 
             return View(userDetails);
         }
