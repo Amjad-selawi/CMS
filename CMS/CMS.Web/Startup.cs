@@ -27,7 +27,7 @@ namespace CMS.Web
 {
     public class Startup
     {
-       
+
         public Startup(IConfiguration configuration)
         {
             Configuration = configuration;
@@ -40,10 +40,11 @@ namespace CMS.Web
         {
             services.AddControllersWithViews();
             services.AddHttpContextAccessor();
-            
+
             services.AddScoped<ICarrerOfferService, CarrerOfferService>();
             services.AddDbContext<ApplicationDbContext>(options =>
             {
+                options.UseLazyLoadingProxies();
                 options.UseSqlServer(Configuration.GetConnectionString("Defultconiction"));
             });
 
@@ -79,6 +80,7 @@ namespace CMS.Web
 
             services.AddScoped(typeof(IInterviewsRepository), typeof(InterviewsRepository));
             services.AddTransient<IInterviewsService, InterviewsService>();
+            services.AddTransient<ISearchInterviewsService, SearchInterviewsService>();
 
 
             services.AddScoped(typeof(INotificationsRepository), typeof(NotificationsRepository));
@@ -88,7 +90,7 @@ namespace CMS.Web
             services.AddScoped(typeof(ITemplatesRepository), typeof(TemplatesRepository));
             services.AddTransient<ITemplatesService, TemplatesService>();
 
-
+            services.AddTransient<IReportingService, ReportingService>();
 
             //services.AddDbContext<ApplicationDbContext>(x =>
             //{

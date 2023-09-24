@@ -1,15 +1,32 @@
-﻿@model List<CMS.Application.DTOs.PositionDTO>
+﻿@model IEnumerable<CMS.Application.DTOs.PositionDTO>
 
-<h1>Positions</h1>
-<p><a asp-action="AddPosition">add a new position</a></p>
-<table class="table">
+
+@{
+    ViewData["Title"] = "Positions";
+}
+
+
+
+<div class="row">
+    <div class="col-lg-12">
+        <div class="card">
+            <div class="card-header d-flex align-items-center">
+                <h5 class="card-title mb-0 flex-grow-1">Positions</h5>
+                <div>
+                    <a asp-action="AddPosition" class="btn btn-primary">Create New Record</a>
+                </div>
+            </div>
+
+
+            <div class="card-body">
+                <table class="table table-nowrap dt-responsive table-bordered display" style="width:100%">
     <thead>
         <tr>
             <th>ID</th>
             <th>position Name</th>
 
             <th>Delete position</th>
-
+            <th>Edit position</th>
         </tr>
     </thead>
     <tbody>
@@ -19,17 +36,29 @@
                 <td>@pos.Id</td>
                 <td>@pos.Name</td>
 
-                <td>
-                    <form method="post" asp-action="DeletePosition">
-                        <input type="hidden" name="id" value="@pos.Id" />
-                        <button type="submit" class="btn btn-danger">Delete</button>
-                    </form>
-                </td>
-                <td>
-                    <a asp-action="UpdatePosition" asp-route-id="@pos.Id">Edit</a>
-                </td>
+
+
+              <td>
+                  <form method="post" asp-action="DeletePosition">
+                      <input type="hidden" name="id" value="@pos.Id" />
+                      <button type="submit" class="btn btn-danger">Delete</button>
+                  </form>
+              </td>
+              <td>
+                  <a asp-action="UpdatePosition" asp-route-id="@pos.Id">Edit</a>
+              </td>
+      
+
+
+
             </tr>
         }
 
     </tbody>
 </table>
+</div>
+        </div>
+
+    </div>
+
+</div>

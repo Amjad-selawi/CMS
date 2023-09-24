@@ -16,7 +16,7 @@ namespace CMS.Repository.Repositories
     public class InterviewsRepository : IInterviewsRepository
     {
         private readonly ApplicationDbContext _context;
-       
+
         public InterviewsRepository(ApplicationDbContext context)
         {
             _context = context;
@@ -28,7 +28,8 @@ namespace CMS.Repository.Repositories
         {
             try
             {
-                var interviews = await _context.Interviews.FindAsync(id);
+                var interviews = await _context.Interviews.FindAsync(id)
+;
                 _context.Interviews.Remove(interviews);
                 return await _context.SaveChangesAsync();
 
@@ -38,19 +39,14 @@ namespace CMS.Repository.Repositories
                 throw ex;
             }
         }
-       
 
         public async Task<List<Interviews>> GetAll()
         {
             try
             {
 
-                return await _context.Interviews
-                    .Include(c => c.Position)
-                    .Include(c=>c.Candidate)
-                    .Include(c=>c.Status)
-                    //.Include(c=>c.Interviewer)
-                    .AsNoTracking().ToListAsync();
+                return await _context.Interviews.ToListAsync();
+
 
             }
             catch (Exception ex)
@@ -63,12 +59,7 @@ namespace CMS.Repository.Repositories
         {
             try
             {
-                var interview = await _context.Interviews
-                    .Include(c => c.Position)
-                    .Include(c => c.Candidate)
-                    .Include(c=>c.Status)
-                   // .Include(c=>c.Interviewer)
-                    .AsNoTracking().FirstOrDefaultAsync(c => c.InterviewsId == id);
+                var interview = await _context.Interviews.FirstOrDefaultAsync(c => c.InterviewsId == id);
                 return interview;
             }
             catch (Exception ex)
@@ -76,19 +67,18 @@ namespace CMS.Repository.Repositories
                 throw ex;
             }
         }
-
         public Task<List<Interviews>> GetCurrentInterviews(string id)
         {
             try
             {
-               return  _context.Interviews
-                    .Include(c => c.Position)
-                    .Include(c=>c.Candidate)
-                    .Include(c=>c.Status)
-                   // .Include(c=>c.Interviewer)
-                    .Where(c=>c.InterviewerId == id)
-                    .AsNoTracking() .ToListAsync();
-                    
+                return _context.Interviews
+                     .Include(c => c.Position)
+                     .Include(c => c.Candidate)
+                     .Include(c => c.Status)
+                     // .Include(c=>c.Interviewer)
+                     .Where(c => c.InterviewerId == id)
+                     .AsNoTracking().ToListAsync();
+
 
             }
             catch (Exception ex)
@@ -96,7 +86,6 @@ namespace CMS.Repository.Repositories
                 throw ex;
             }
         }
-
         public async Task<int> Insert(Interviews entity)
         {
             try
@@ -108,7 +97,7 @@ namespace CMS.Repository.Repositories
             }
             catch (Exception ex)
             {
-                throw ex.InnerException;
+                throw ex;
             }
         }
 
@@ -117,7 +106,7 @@ namespace CMS.Repository.Repositories
             try
             {
 
-             
+
                 _context.Update(entity);
 
                 return await _context.SaveChangesAsync();

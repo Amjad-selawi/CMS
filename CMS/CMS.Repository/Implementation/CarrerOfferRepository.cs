@@ -18,13 +18,13 @@ namespace CMS.Repository.Implementation
             _context = dbContext;
         }
 
-        public async Task<int> Delete(int id)
+        public async Task DeleteCarrerOfferAsync(int id)
         {
             try
             {
                 var careerOffer = await _context.CarrerOffers.FindAsync(id);
                 _context.CarrerOffers.Remove(careerOffer);
-                return await _context.SaveChangesAsync();
+                await _context.SaveChangesAsync();
 
             }
             catch (Exception ex)
@@ -33,12 +33,12 @@ namespace CMS.Repository.Implementation
             }
         }
 
-        public async Task<List<CarrerOffer>> GetAll()
+        public async Task<IEnumerable<CarrerOffer>> GetAllCarrerOffersAsync()
         {
             try
             {
 
-                return await _context.CarrerOffers.Include(c => c.Positions).AsNoTracking().ToListAsync();
+                return await _context.CarrerOffers.ToListAsync();
 
 
 
@@ -49,11 +49,11 @@ namespace CMS.Repository.Implementation
             }
         }
 
-        public async Task<CarrerOffer> GetById(int id)
+        public async Task<CarrerOffer> GetCarrerOfferByIdAsync(int id)
         {
             try
             {
-                var carrerOffer = await _context.CarrerOffers.Include(c => c.Positions).AsNoTracking().FirstOrDefaultAsync(c => c.Id == id);
+                var carrerOffer = await _context.CarrerOffers.FirstOrDefaultAsync(c => c.Id == id);
                 return carrerOffer;
             }
             catch (Exception ex)
@@ -62,7 +62,7 @@ namespace CMS.Repository.Implementation
             }
         }
 
-        public async Task<int> Insert(CarrerOffer entity)
+        public async Task<int> CreateCarrerOfferAsync(CarrerOffer entity)
         {
             try
             {
@@ -76,17 +76,18 @@ namespace CMS.Repository.Implementation
                 throw ex;
             }
         }
+        public async Task<int> CountAllAsync()
+        {
+            return await _context.CarrerOffers.CountAsync();
+        }
 
-        public async Task<int> Update(CarrerOffer entity)
+        public async Task UpdateCarrerOfferAsync(CarrerOffer entity)
         {
             try
             {
-
-                // _context.Entry<Company>(entity).State = EntityState.Detached;
-                //  _context.Set<Company>().Update(entity);
                 _context.Update(entity);
 
-                return await _context.SaveChangesAsync();
+                await _context.SaveChangesAsync();
 
             }
             catch (Exception ex)
@@ -94,48 +95,6 @@ namespace CMS.Repository.Implementation
                 throw ex;
             }
         }
-
-        //public async Task<IEnumerable<CarrerOffer>> GetAllCarrerOffersAsync()
-        //{
-        //    return await _dbContext.CarrerOffers.ToListAsync();
-        //}
-        //public async Task<CarrerOffer> GetCarrerOfferByIdAsync(int carrerOfferId)
-        //{
-        //    return await _dbContext.CarrerOffers.FindAsync(carrerOfferId);
-        //}
-
-        //public async Task CreateCarrerOfferAsync(CarrerOffer carrerOffer)
-        //{
-        //    carrerOffer.IsActive = true;
-        //    carrerOffer.ModifiedBy = carrerOffer.ModifiedBy;
-        //    carrerOffer.ModifiedOn = DateTime.Now;
-
-
-        //    _dbContext.CarrerOffers.Add(carrerOffer);
-        //    await _dbContext.SaveChangesAsync();
-        //}
-
-        //public async Task UpdateCarrerOfferAsync(CarrerOffer carrerOffer)
-        //{
-        //    carrerOffer.IsActive = true;
-        //    carrerOffer.ModifiedBy = carrerOffer.ModifiedBy;
-        //    carrerOffer.ModifiedOn = DateTime.Now;
-
-
-        //    _dbContext.Entry(carrerOffer).State = EntityState.Modified;
-        //    await _dbContext.SaveChangesAsync();
-        //}
-
-        //public async Task DeleteCarrerOfferAsync(CarrerOffer carrerOffer)
-        //{
-        //    carrerOffer.IsActive = true;
-        //    carrerOffer.ModifiedBy = carrerOffer.ModifiedBy;
-        //    carrerOffer.ModifiedOn = DateTime.Now;
-
-
-        //    _dbContext.CarrerOffers.Remove(carrerOffer);
-        //    await _dbContext.SaveChangesAsync();
-        //}
 
     }
 }

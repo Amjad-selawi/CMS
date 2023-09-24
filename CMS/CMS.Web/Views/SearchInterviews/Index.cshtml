@@ -1,0 +1,119 @@
+﻿@model IEnumerable<CMS.Application.DTOs.InterviewsDTO>
+
+<h2>Interviews</h2>
+
+
+@using (Html.BeginForm("Index", "SearchInterviews", FormMethod.Get))
+{
+
+    <div class="form-group">
+        <div class="row">
+            <div class="col-md-3">
+                @Html.Label("Filter by Position:")
+                @Html.DropDownList("positionFilter", ViewBag.PositionList as SelectList, "All Positions", new { @class = "form-control" })
+            </div>
+            <div class="col-md-3">
+                @Html.Label("Filter by Score:")
+                @Html.TextBox("scoreFilter", null, new { @class = "form-control" })
+            </div>
+            <div class="col-md-3">
+                @Html.Label("Filter by Status:")
+                @Html.DropDownList("statusFilter", ViewBag.StatusList as SelectList, "All Statuses", new { @class = "form-control" })
+            </div>
+
+            <div class="col-md-3">
+                @Html.Label("Filter by Candidate:")
+                @Html.DropDownList("candidateFilter", ViewBag.CandidateList as SelectList, "All Candidates", new { @class = "form-control" })
+            </div>
+
+            <div class="col-md-3">
+                @Html.Label("Filter by Interviewer:")
+                @Html.DropDownList("interviewerFilter", ViewBag.InterviewerList as SelectList, "All Interviewers", new { @class = "form-control" })
+            </div>
+
+            <div class="col-md-3">
+                <label for="fromDate">From Date:</label>
+                <input type="date" id="fromDate" name="fromDate" class="form-control">
+            </div>
+            <div class="col-md-3">
+                <label for="toDate">To Date:</label>
+                <input type="date" id="toDate" name="toDate" class="form-control">
+            </div>
+
+
+            <div class="col-md-3">
+                <label>&nbsp;</label>
+                <button type="submit" name="export" value="excel" class="btn btn-primary btn-block">Filter</button>
+            </div>
+           
+
+            <input type="hidden" name="export" value="excel" />
+
+            <div class="col-md-3">
+                <label>&nbsp;</label>
+                <button type="submit" class="btn btn-success btn-block">Export to Excel</button>
+            </div>
+            
+
+          
+        </div>
+    </div>
+}
+
+
+
+
+
+
+<div class="card-body">
+    <table id="add-rows" class="table table-nowrap dt-responsive table-bordered display" style="width:100%">
+        <thead>
+            <tr>
+                <th>Candidate Name</th>
+                <th>Position</th>
+                <th>Interviewer</th>
+                <th>Date</th>
+                <th>Status</th>
+                <th hidden>Parent ID</th>
+                <th>Score</th>
+                <th>Notes</th>
+                <th>Evaluation</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            @if (Model != null)
+                @foreach (var item in Model)
+                {
+                    <tr>
+                        <td>@Html.DisplayFor(modelItem => item.FullName)</td>
+                        <td>@Html.DisplayFor(modelItem => item.Name)</td>
+                        <td>@item.InterviewerName</td>
+                        <td>@item.Date</td>
+                        <td>@item.StatusName</td>
+                        <td hidden>@item.ParentId</td>
+                        <td>@item.Score</td>
+                        <td>@item.Notes</td>
+                        @if (item.AttachmentId != null)
+                        {
+                            <td><a asp-controller="Attachments" asp-action="Download" asp-route-id="@item.AttachmentId">Download evaluation</a></td>
+                        }
+                        else
+                        {
+                            <td></td>
+                        }
+                        <td>
+                            <a class="bx bxs-edit-alt" style="font-size:x-large" asp-action="Edit" asp-route-id="@item.InterviewsId"></a> |
+                            <a class="bx bx-detail" style="font-size:x-large" asp-action="Details" asp-route-id="@item.InterviewsId"></a> |
+                            <a class="ri-delete-bin-2-line text-danger" style="font-size:x-large" asp-action="Delete" asp-route-id="@item.InterviewsId"></a>
+                        </td>
+
+                    </tr>
+                }
+        </tbody>
+    </table>
+
+
+</div>
+
+

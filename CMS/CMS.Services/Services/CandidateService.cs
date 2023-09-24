@@ -31,14 +31,16 @@ namespace CMS.Services.Services
                 FullName = c.FullName,
                 Phone = c.Phone,
                 PositionId = c.PositionId,
-                DesiredPosition = c.Position.Name,
+                Name = c.Position.Name,
                 CompanyId = c.CompanyId,
                 CompanyName=c.Company.Name,
                 Email = c.Email,
                 Address = c.Address,
                 Experience = c.Experience,
                 CVAttachmentId = c.CVAttachmentId,
-                LinkedInUrl = c.LinkedInUrl
+                LinkedInUrl = c.LinkedInUrl,
+                CountryId = c.CountryId,
+                CountryName=c.Country.Name
             });
         }
 
@@ -56,14 +58,17 @@ namespace CMS.Services.Services
                 FullName = candidate.FullName,
                 Phone = candidate.Phone,
                 PositionId = candidate.PositionId,
-                DesiredPosition = candidate.Position.Name,
+                Name=candidate.Position.Name,
                 CompanyId=candidate.CompanyId,
                 CompanyName=candidate.Company.Name,
                 Email = candidate.Email,
                 Address = candidate.Address,
                 Experience = candidate.Experience,
                 CVAttachmentId = candidate.CVAttachmentId,
-                LinkedInUrl = candidate.LinkedInUrl
+                LinkedInUrl = candidate.LinkedInUrl,
+                CountryId = candidate.CountryId,
+                CountryName = candidate.Country.Name
+
             };
         }
 
@@ -76,12 +81,13 @@ namespace CMS.Services.Services
                 FullName = candidateDTO.FullName,
                 Phone = candidateDTO.Phone,
                 PositionId = candidateDTO.PositionId,
-                CompanyId=candidateDTO.CompanyId,
+                CompanyId =candidateDTO.CompanyId,
                 Email = candidateDTO.Email,
                 Address = candidateDTO.Address,
                 Experience = candidateDTO.Experience,
                 CVAttachmentId = candidateDTO.CVAttachmentId,
-                LinkedInUrl = candidateDTO.LinkedInUrl
+                LinkedInUrl = candidateDTO.LinkedInUrl,
+                CountryId = candidateDTO.CountryId
             };
             await _candidateRepository.CreateCandidateAsync(candidate);
         }
@@ -101,6 +107,7 @@ namespace CMS.Services.Services
             existingCandidate.Experience = candidateDTO.Experience;
             existingCandidate.CVAttachmentId = candidateDTO.CVAttachmentId;
             existingCandidate.LinkedInUrl = candidateDTO.LinkedInUrl;
+            existingCandidate.CountryId = candidateDTO.CountryId;
 
             await _candidateRepository.UpdateCandidateAsync(existingCandidate);
         }

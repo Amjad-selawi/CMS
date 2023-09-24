@@ -26,6 +26,11 @@ namespace CMS.Web.Utils
                 return memoryStream.ToArray();
             }
         }
+        public static void removeFile(string fileName, string saveLocation)
+        {
+            var filePath = Path.Combine(saveLocation, fileName);
+            File.Delete(filePath);
+        }
     }
     
 }

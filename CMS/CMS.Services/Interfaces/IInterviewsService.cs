@@ -9,26 +9,19 @@ namespace CMS.Services.Interfaces
 {
     public interface IInterviewsService
     {
-        //Task<IEnumerable<InterviewsDTO>> GetAllInterviewsAsync();
-        //Task<InterviewsDTO> GetInterviewByIdAsync(int interviewId);
-        //Task Create(InterviewsDTO entity);
-        //Task Update(int interviewId, InterviewsDTO entity);
-        ////Task Update(InterviewsDTO entity);
-
-        //Task Delete(int interviewId);
-
+        Task UpdateInterviewAttachmentAsync(int id, string fileName, long fileSize, Stream fileStream);
+        Task ConductInterview(InterviewsDTO interviewsDTO);
+        Task<List<UsersDTO>> GetInterviewers();
+        Task<Result<List<InterviewsDTO>>> MyInterviews();
 
         Task<Result<InterviewsDTO>> Insert(InterviewsDTO data);
         Task<Result<List<InterviewsDTO>>> GetAll();
         Task<Result<InterviewsDTO>> Delete(int id);
         Task<Result<InterviewsDTO>> GetById(int id);
         Task<Result<InterviewsDTO>> Update(InterviewsDTO data);
-        Task UpdateInterviewAttachmentAsync(int id, string fileName, long fileSize, Stream fileStream);
-        Task ConductInterview(InterviewsDTO interviewsDTO);
-        Task<List<UsersDTO>> GetInterviewers();
-        Task<Result<List<InterviewsDTO>>> MyInterviews();
 
         Task<string> GetInterviewerName(string id);
+
 
 
     }

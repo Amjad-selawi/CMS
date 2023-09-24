@@ -11,7 +11,6 @@ namespace CMS.Application.DTOs
 
         public string LoginId { get; set; }
         [Required]
-        [DataType(DataType.EmailAddress)]
         public string UserEmail { get; set; }
 
         [Required]

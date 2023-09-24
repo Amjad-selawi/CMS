@@ -1,12 +1,12 @@
 ﻿using CMS.Application.DTOs;
 using CMS.Application.Extensions;
 using CMS.Domain;
+using CMS.Domain.Entities;
 using CMS.Repository.Interfaces;
 using CMS.Services.Interfaces;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
-using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Security.Claims;
@@ -19,20 +19,25 @@ namespace CMS.Services.Services
     {
         private readonly UserManager<IdentityUser> _userManager;
         private readonly SignInManager<IdentityUser> _signInManager;
+        private readonly RoleManager<IdentityRole> _roleManager;
         private readonly IUserRepository _userRepository;
 
         public AccountService(UserManager<IdentityUser> userManager, SignInManager<IdentityUser> signInManager, ApplicationDbContext dbContext,
-            IUserRepository userRepository)
+            IUserRepository userRepository, RoleManager<IdentityRole> roleManager
+
+            )
         {
             _userManager = userManager;
             _signInManager = signInManager;
             _userRepository = userRepository;
+            _roleManager = roleManager;
         }
+
 
 
         public async Task<List<Login>> GetAllUsersAsync()
         {
-            var users = _userManager.Users.ToList();
+            var users =  _userManager.Users.ToList();
             List<Login> listuser = new List<Login>();
             for (int i = 0; i < users.Count; i++)
             {
@@ -43,7 +48,7 @@ namespace CMS.Services.Services
                 list.Password = users[i].PasswordHash;
                 listuser.Add(list);
             }
-            return listuser;
+            return  listuser;
         }
 
         public async Task<bool> LoginAsync(Login collection)
@@ -65,9 +70,20 @@ namespace CMS.Services.Services
         {
             await _signInManager.SignOutAsync();
         }
-
-
-
+        public async Task<Result<IList<IdentityUser>>> GetAllInterviewers()
+        {
+            var interviewerRole = await _roleManager.FindByNameAsync("Interviewer");
+            if (interviewerRole == null)
+            {
+                return Result<IList<IdentityUser>>.Failure(null,"Requested Role Not Found");
+            }
+            var interviewers = await _userManager.GetUsersInRoleAsync(interviewerRole.Name);
+            if (interviewers == null)
+            {
+                return Result<IList<IdentityUser>>.Failure(null, "No Interviewers found");
+            }
+            return Result<IList<IdentityUser>>.Success(interviewers);
+        }
         public async Task<string> GetUserRoleAsync(IdentityUser user)
         {
             var roles = await _userManager.GetRolesAsync(user);
@@ -78,9 +94,6 @@ namespace CMS.Services.Services
         {
             return await _userManager.FindByEmailAsync(email);
         }
-
-
-
         public List<Register> GetAllUsersWithRoles()
         {
             var users = _userRepository.GetAllUsersWithRoles();
@@ -101,8 +114,6 @@ namespace CMS.Services.Services
 
             return usersWithRoles;
         }
-
-
         public Register GetUsersById(string userId)
         {
             var user = _userRepository.GetUserById(userId);
@@ -123,9 +134,5 @@ namespace CMS.Services.Services
 
             return userDetails;
         }
-
-
-
-
     }
 }

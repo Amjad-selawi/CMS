@@ -14,6 +14,8 @@ namespace CMS.Domain.EntityMapper
             builder
                 .HasMany(p => p.Companies)
                 .WithOne(p => p.Country);
+
+          
         }
     }
 }

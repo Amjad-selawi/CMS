@@ -24,7 +24,7 @@
         <label asp-for="PositionId" class="control-label">Position</label>
         @if (ViewBag.positionDTOs != null)
         {
-            <select asp-for="PositionId" asp-items="@(ViewBag.positionDTOs)" class="form-control">
+            <select asp-for="PositionId" asp-items="@(ViewBag.PositionDTOs)" class="form-control">
                 <option value="">Select a position</option>
 
             </select>

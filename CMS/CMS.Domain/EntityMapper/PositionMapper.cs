@@ -13,7 +13,7 @@ namespace CMS.Domain.EntityMapper
         {
             builder.HasMany(p => p.Candidates).WithOne(p => p.Position);
             builder.HasMany(p=>p.Interviews).WithOne(p => p.Position);
-            builder.HasMany(p => p.CarrerOffer).WithOne(p => p.Positions);
+            builder.HasMany(p => p.CarrerOffer).WithOne(p => p.Position);
 
         }
     }

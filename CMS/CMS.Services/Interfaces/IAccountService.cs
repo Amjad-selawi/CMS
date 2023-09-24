@@ -14,11 +14,9 @@ namespace CMS.Services.Interfaces
         Task<bool> LoginAsync(Login collection);
         Task<bool> DeleteAccountAsync(string id);
         Task LogoutAsync();
-
+        Task<Result<IList<IdentityUser>>> GetAllInterviewers();
         Task<string> GetUserRoleAsync(IdentityUser user);
         Task<IdentityUser> GetUserByEmailAsync(string email);
-
-
         List<Register> GetAllUsersWithRoles();
         Register GetUsersById(string userId);
     }

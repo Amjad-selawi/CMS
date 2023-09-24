@@ -26,14 +26,20 @@ namespace CMS.Web.Controllers
         private readonly ICandidateService _candidateService;
         private readonly IPositionService _positionService;
         private readonly IStatusService _StatusService;
+        private readonly IAccountService _accountService;
+        private readonly INotificationsService _notificationsService;
         private readonly string _attachmentStoragePath;
 
-        public InterviewsController(IInterviewsService interviewsService, ICandidateService candidateService, IPositionService positionService, IStatusService statusService, IWebHostEnvironment env)
+        public InterviewsController(IInterviewsService interviewsService, ICandidateService candidateService,
+            IPositionService positionService, IStatusService statusService, IWebHostEnvironment env,
+            IAccountService accountService, INotificationsService notificationsService)
         {
             _interviewsService = interviewsService;
             _candidateService = candidateService;
             _positionService = positionService;
             _StatusService = statusService;
+            _accountService = accountService;
+            _notificationsService = notificationsService;
             _attachmentStoragePath = Path.Combine(env.WebRootPath, "attachments");
 
             if (!Directory.Exists(_attachmentStoragePath))
@@ -79,11 +85,7 @@ namespace CMS.Web.Controllers
         {
             var result = await _interviewsService.GetById(id);
 
-            var positionsDTO = await _positionService.GetAll();
-            ViewBag.positionDTOs = new SelectList(positionsDTO.Value, "Id", "Name");
-
-            var candidateDTOs = await _candidateService.GetAllCandidatesAsync();
-            ViewBag.candidateDTOs = new SelectList(candidateDTOs, "Id", "FullName");
+            await LoadSelectionLists();
 
             if (result.IsSuccess)
             {
@@ -103,50 +105,56 @@ namespace CMS.Web.Controllers
         // GET: InterviewsController/Create
         public async Task<ActionResult> Create()
         {
-            var positionDTOs = await _positionService.GetAll();
-            ViewBag.positionDTOs = new SelectList(positionDTOs.Value, "Id", "Name");
-
-            var candidateDTOs = await _candidateService.GetAllCandidatesAsync();
-            ViewBag.candidateDTOs = new SelectList(candidateDTOs, "Id", "FullName");
-
-            var StatusDTOs = await _StatusService.GetAll();
-            ViewBag.StatusDTOs = new SelectList(StatusDTOs.Value, "Id", "Name");
-
-            var interviewersDTOs = await _interviewsService.GetInterviewers();
-            ViewBag.interviewersDTOs = new SelectList(interviewersDTOs, "Id", "Name");
-
-
-
+            await LoadSelectionLists();
             return View();
         }
-
+        private async Task LoadSelectionLists()
+        {
+            var positions = await _positionService.GetAll();
+            ViewBag.positionList = new SelectList(positions.Value, "Id", "Name");
+            var candidates = await _candidateService.GetAllCandidatesAsync();
+            ViewBag.candidateList = new SelectList(candidates, "Id", "FullName");
+            var interviewers = await _accountService.GetAllInterviewers();
+            ViewBag.interviewersList = new SelectList(interviewers.Value, "Id", "UserName");
+            var statuses = await _StatusService.GetAll();
+            ViewBag.statusList = new SelectList(statuses.Value, "Id", "Name");
+        }
         // POST: InterviewsController/Create
 
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<ActionResult> Create(InterviewsDTO collection)
         {
-            var positionDTOs = await _positionService.GetAll();
-            ViewBag.positionDTOs = new SelectList(positionDTOs.Value, "Id", "Name");
-
-            var candidateDTOs = await _candidateService.GetAllCandidatesAsync();
-            ViewBag.candidateDTOs = new SelectList(candidateDTOs, "Id", "FullName");
-
-            var StatusDTOs = await _StatusService.GetAll();
-            ViewBag.StatusDTOs = new SelectList(StatusDTOs.Value, "Id", "Name");
-
-            var interviewersDTOs = await _interviewsService.GetInterviewers();
-            ViewBag.interviewersDTOs = new SelectList(interviewersDTOs, "Id", "Name");
+         
 
 
             if (ModelState.IsValid)
             {
                 var result = await _interviewsService.Insert(collection);
-
+                await LoadSelectionLists();
 
                 if (result.IsSuccess)
                 {
-                    return RedirectToAction("Index");
+                    if (User.IsInRole("HR Manager"))
+                    {
+                        await _notificationsService.CreateInterviewNotificationForInterviewerAsync(collection.Date);
+                        return RedirectToAction("Index");
+                    }
+                    else if (User.IsInRole("Interviewer"))
+                    {
+                        if (collection.StatusName == "Approved" || collection.StatusName == "Rejected")
+                        {
+                            await _notificationsService.CreateNotificationForGeneralManagerAsync(collection.StatusId.Value, collection.Notes);
+                        }
+
+                        return RedirectToAction("Index");
+                    }
+                    else
+                    {
+                        return RedirectToAction("Index");
+                    }
+
+
                 }
 
                 ModelState.AddModelError("", result.Error);
@@ -174,17 +182,7 @@ namespace CMS.Web.Controllers
             {
                 return NotFound();
             }
-            var positionDTOs = await _positionService.GetAll();
-            ViewBag.positionDTOs = new SelectList(positionDTOs.Value, "Id", "Name");
-
-            var candidateDTOs = await _candidateService.GetAllCandidatesAsync();
-            ViewBag.candidateDTOs = new SelectList(candidateDTOs, "Id", "FullName");
-
-            var StatusDTOs = await _StatusService.GetAll();
-            ViewBag.StatusDTOs = new SelectList(StatusDTOs.Value, "Id", "Name");
-
-            var interviewersDTOs = await _interviewsService.GetInterviewers();
-            ViewBag.interviewersDTOs = new SelectList(interviewersDTOs, "Id", "Name");
+            await LoadSelectionLists();
 
             return View(interviewDTO);
         }
@@ -200,17 +198,7 @@ namespace CMS.Web.Controllers
                 return RedirectToAction("Index");
             }
 
-            var positionDTOs = await _positionService.GetAll();
-            ViewBag.positionDTOs = new SelectList(positionDTOs.Value, "Id", "Name");
-
-            var candidateDTOs = await _candidateService.GetAllCandidatesAsync();
-            ViewBag.candidateDTOs = new SelectList(candidateDTOs, "Id", "FullName");
-
-            var StatusDTOs = await _StatusService.GetAll();
-            ViewBag.StatusDTOs = new SelectList(StatusDTOs.Value, "Id", "Name");
-
-            var interviewersDTOs = await _interviewsService.GetInterviewers();
-            ViewBag.interviewersDTOs = new SelectList(interviewersDTOs, "Id", "Name");
+            await LoadSelectionLists();
 
 
             if (ModelState.IsValid)
@@ -283,8 +271,17 @@ namespace CMS.Web.Controllers
             if (ModelState.IsValid)
             {
                 var stream = await AttachmentHelper.handleUpload(file, _attachmentStoragePath);
-                await _interviewsService.UpdateInterviewAttachmentAsync(id, file.FileName, file.Length, stream);
-                return RedirectToAction(nameof(Index));
+                try
+                {
+                    await _interviewsService.UpdateInterviewAttachmentAsync(id, file.FileName, file.Length, stream);
+                    return RedirectToAction(nameof(Index));
+                }
+                finally
+                {
+                    stream.Close();
+                    AttachmentHelper.removeFile(file.FileName, _attachmentStoragePath);
+                }
+                
             }
             return RedirectToAction(nameof(Index));
         }
@@ -331,12 +328,41 @@ namespace CMS.Web.Controllers
 
             if (ModelState.IsValid)
             {
+
+
+
+
                 await _interviewsService.ConductInterview(interviewsDTO);
 
                 attachmentStream.Close();
-              
-                
-                return RedirectToAction(nameof(MyInterviews));
+
+                if (User.IsInRole("Interviewer"))
+                {
+                    if (interviewsDTO.StatusId == 2 || interviewsDTO.StatusId == 3)
+                    {
+                        await _notificationsService.CreateNotificationForGeneralManagerAsync(interviewsDTO.StatusId.Value, interviewsDTO.Notes);
+                        return RedirectToAction(nameof(MyInterviews));
+                    }
+                }
+
+                else if (User.IsInRole("General Manager"))
+                {
+                    if (interviewsDTO.StatusId == 2 || interviewsDTO.StatusId == 3)
+                    {
+                        await _notificationsService.CreateInterviewNotificationForHRInterview(interviewsDTO.StatusId.Value, interviewsDTO.Notes);
+                        return RedirectToAction(nameof(MyInterviews));
+                    }
+
+                }
+                else
+                {
+                    return RedirectToAction(nameof(MyInterviews));
+                }
+
+
+
+
+
             }
             return View(interviewsDTO);
 

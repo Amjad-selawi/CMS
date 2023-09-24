@@ -55,6 +55,7 @@ namespace CMS.Services.Services
                             Address = com.Address,
                             CountryId = com.CountryId,
                             PhoneNumber = com.PhoneNumber,
+                            CountryName=com.Country.Name
 
                         }).ToList()
                     });

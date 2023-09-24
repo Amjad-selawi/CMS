@@ -38,12 +38,12 @@ namespace CMS.Services.Services
 
         }
 
-        public async Task<Result<List<PositionDTO>>> GetAll()
+        public async Task<Result<IEnumerable<PositionDTO>>> GetAll()
         {
             var positions = await _repository.GetAll();
             if (positions == null)
             {
-                return Result<List<PositionDTO>>.Failure(null, "no positions found");
+                return Result<IEnumerable<PositionDTO>>.Failure(null, "no positions found");
             }
             try
             {
@@ -56,12 +56,12 @@ namespace CMS.Services.Services
                         Name = position.Name,
                     });
                 }
-                return Result<List<PositionDTO>>.Success(positionDTOS);
+                return Result<IEnumerable<PositionDTO>>.Success(positionDTOS);
 
             }
             catch (Exception ex)
             {
-                return Result<List<PositionDTO>>.Failure(null, $"unable to get positions{ex.InnerException.Message}");
+                return Result<IEnumerable<PositionDTO>>.Failure(null, $"unable to get positions{ex.InnerException.Message}");
             }
         }
 
