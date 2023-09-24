@@ -68,7 +68,7 @@ namespace CMS.Services.Services
                             InterviewerId = com.InterviewerId,
                             ParentId = com.ParentId,
                             Score = com.Score,
-                            Status = com.Status.ToString(),
+                            StatusId = com.StatusId,
 
 
                         }).ToList()
@@ -116,7 +116,7 @@ namespace CMS.Services.Services
                         InterviewerId = com.InterviewerId,
                         ParentId = com.ParentId,
                         Score = com.Score,
-                        Status = com.Status.ToString(),
+                        StatusId = com.StatusId,
 
 
                     }).ToList()
@@ -174,6 +174,17 @@ namespace CMS.Services.Services
                 return Result<PositionDTO>.Failure(data, $"unable to update the position: {ex.InnerException.Message}");
             }
         }
+
+
+
+
+
+
+
+
+
+
+
 
         //public async  Task Delete(int id)
         //{

@@ -8,13 +8,14 @@ namespace CMS.Repository.Interfaces
 {
     public interface IStatusRepository
     {
-        Task<int> Insert(Status entity);
+
         Task<List<Status>> GetAll();
 
         Task<Status> GetByCode(string co);
 
         Task<Status> GetById(int id);
 
+        Task<int> Insert(Status entity);
 
     }
 }

@@ -1,7 +1,9 @@
 ﻿using CMS.Application.DTOs;
 using CMS.Application.Extensions;
+using CMS.Domain.Entities;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -15,11 +17,13 @@ namespace CMS.Services.Interfaces
         //Task UpdateCarrerOfferAsync(int carrerOfferId, CarrerOfferDTO carrerOfferDTO);
         //Task DeleteCarrerOfferAsync(int carrerOfferId);
 
-        Task<Result<CarrerOfferDTO>> Insert(CarrerOfferDTO data);
+        Task<Result<CarrerOfferDTO>> Insert(CarrerOfferDTO data, NotificationsDTO entity);
         Task<Result<List<CarrerOfferDTO>>> GetAll();
         Task<Result<CarrerOfferDTO>> Delete(int id);
         Task<Result<CarrerOfferDTO>> GetById(int id);
         Task<Result<CarrerOfferDTO>> Update(CarrerOfferDTO data);
+
+
 
     }
 }

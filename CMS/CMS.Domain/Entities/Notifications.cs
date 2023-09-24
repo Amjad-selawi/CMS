@@ -12,14 +12,21 @@ namespace CMS.Domain.Entities
         public int NotificationsId { get; set; }
 
 
-        public int ReceiverId { get; set; }
+        public string ReceiverId { get; set; }
 
-        public int TemplatesId { get; set; }
-        public Templates Templates { get; set; }
+        //public int TemplatesId { get; set; }
+        //public Templates Templates { get; set; }
 
         public DateTime SendDate { get; set; }
 
         public bool IsReceived { get; set; }
+
+
+        public string Title { get; set; }
+
+        public string BodyDesc { get; set; }
+
+        public bool IsRead { get; set; } 
 
 
         //public string TemplateName { get; set; }

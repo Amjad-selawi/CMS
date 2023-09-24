@@ -19,5 +19,9 @@ namespace CMS.Repository.Interfaces
         Task<int> Delete(int id);
         Task<Interviews> GetById(int id);
         Task<List<Interviews>> GetAll();
+
+        Task<List<Interviews>> GetCurrentInterviews(string id);
+
+
     }
 }

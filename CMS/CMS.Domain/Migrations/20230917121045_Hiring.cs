@@ -3,7 +3,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 
 namespace CMS.Domain.Migrations
 {
-    public partial class InitiateDb : Migration
+    public partial class Hiring : Migration
     {
         protected override void Up(MigrationBuilder migrationBuilder)
         {
@@ -39,7 +39,8 @@ namespace CMS.Domain.Migrations
                     TwoFactorEnabled = table.Column<bool>(nullable: false),
                     LockoutEnd = table.Column<DateTimeOffset>(nullable: true),
                     LockoutEnabled = table.Column<bool>(nullable: false),
-                    AccessFailedCount = table.Column<int>(nullable: false)
+                    AccessFailedCount = table.Column<int>(nullable: false),
+                    Discriminator = table.Column<string>(nullable: false)
                 },
                 constraints: table =>
                 {
@@ -63,23 +64,6 @@ namespace CMS.Domain.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "CarrerOffers",
-                columns: table => new
-                {
-                    Id = table.Column<int>(nullable: false)
-                        .Annotation("SqlServer:Identity", "1, 1"),
-                    Position = table.Column<string>(nullable: false),
-                    YearsOfExperience = table.Column<int>(nullable: false),
-                    LongDescription = table.Column<string>(nullable: false),
-                    CreatedBy = table.Column<string>(nullable: false),
-                    CreatedDateTime = table.Column<DateTime>(nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_CarrerOffers", x => x.Id);
-                });
-
-            migrationBuilder.CreateTable(
                 name: "Countries",
                 columns: table => new
                 {
@@ -93,40 +77,36 @@ namespace CMS.Domain.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "Interviews",
+                name: "Positions",
                 columns: table => new
                 {
-                    InterviewsId = table.Column<int>(nullable: false)
+                    PositionId = table.Column<int>(nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
-                    CreatId = table.Column<string>(maxLength: 20, nullable: true),
-                    CreatDate = table.Column<DateTime>(nullable: false),
-                    EditId = table.Column<string>(maxLength: 20, nullable: true),
-                    EditDate = table.Column<DateTime>(nullable: false),
+                    CreatedBy = table.Column<string>(maxLength: 20, nullable: true),
+                    CreatedOn = table.Column<DateTime>(nullable: false),
+                    ModifiedBy = table.Column<string>(maxLength: 20, nullable: true),
+                    ModifiedOn = table.Column<DateTime>(nullable: false),
                     IsActive = table.Column<bool>(nullable: false),
                     IsDelete = table.Column<bool>(nullable: false),
-                    Score = table.Column<int>(nullable: false),
-                    Date = table.Column<DateTime>(nullable: false),
-                    Status = table.Column<int>(nullable: false),
-                    CandidateId = table.Column<int>(nullable: false),
-                    ParentId = table.Column<int>(nullable: false),
-                    Notes = table.Column<string>(nullable: true)
+                    Name = table.Column<string>(nullable: true)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_Interviews", x => x.InterviewsId);
+                    table.PrimaryKey("PK_Positions", x => x.PositionId);
                 });
 
             migrationBuilder.CreateTable(
-                name: "Positions",
+                name: "Statuses",
                 columns: table => new
                 {
                     Id = table.Column<int>(nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
-                    Name = table.Column<string>(nullable: false)
+                    Name = table.Column<string>(nullable: false),
+                    Code = table.Column<string>(nullable: false)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_Positions", x => x.Id);
+                    table.PrimaryKey("PK_Statuses", x => x.Id);
                 });
 
             migrationBuilder.CreateTable(
@@ -135,10 +115,10 @@ namespace CMS.Domain.Migrations
                 {
                     TemplatesId = table.Column<int>(nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
-                    CreatId = table.Column<string>(maxLength: 20, nullable: true),
-                    CreatDate = table.Column<DateTime>(nullable: false),
-                    EditId = table.Column<string>(maxLength: 20, nullable: true),
-                    EditDate = table.Column<DateTime>(nullable: false),
+                    CreatedBy = table.Column<string>(maxLength: 20, nullable: true),
+                    CreatedOn = table.Column<DateTime>(nullable: false),
+                    ModifiedBy = table.Column<string>(maxLength: 20, nullable: true),
+                    ModifiedOn = table.Column<DateTime>(nullable: false),
                     IsActive = table.Column<bool>(nullable: false),
                     IsDelete = table.Column<bool>(nullable: false),
                     Name = table.Column<int>(nullable: false),
@@ -260,26 +240,33 @@ namespace CMS.Domain.Migrations
                 name: "Candidates",
                 columns: table => new
                 {
-                    Id = table.Column<int>(nullable: false)
+                    CandidateId = table.Column<int>(nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
-                    FullName = table.Column<string>(nullable: false),
+                    CreatedBy = table.Column<string>(maxLength: 20, nullable: true),
+                    CreatedOn = table.Column<DateTime>(nullable: false),
+                    ModifiedBy = table.Column<string>(maxLength: 20, nullable: true),
+                    ModifiedOn = table.Column<DateTime>(nullable: false),
+                    IsActive = table.Column<bool>(nullable: false),
+                    IsDelete = table.Column<bool>(nullable: false),
+                    FullName = table.Column<string>(nullable: true),
                     Phone = table.Column<int>(nullable: false),
-                    DesiredPosition = table.Column<string>(nullable: false),
-                    Email = table.Column<string>(nullable: false),
-                    Address = table.Column<string>(nullable: false),
-                    Experience = table.Column<string>(nullable: false),
+                    DesiredPosition = table.Column<string>(nullable: true),
+                    Email = table.Column<string>(nullable: true),
+                    Address = table.Column<string>(nullable: true),
+                    Experience = table.Column<string>(nullable: true),
                     CVAttachmentId = table.Column<int>(nullable: false),
-                    LinkedInUrl = table.Column<string>(nullable: true)
+                    LinkedInUrl = table.Column<string>(nullable: true),
+                    CVId = table.Column<int>(nullable: true)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_Candidates", x => x.Id);
+                    table.PrimaryKey("PK_Candidates", x => x.CandidateId);
                     table.ForeignKey(
-                        name: "FK_Candidates_Attachments_CVAttachmentId",
-                        column: x => x.CVAttachmentId,
+                        name: "FK_Candidates_Attachments_CVId",
+                        column: x => x.CVId,
                         principalTable: "Attachments",
                         principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
+                        onDelete: ReferentialAction.Restrict);
                 });
 
             migrationBuilder.CreateTable(
@@ -306,22 +293,51 @@ namespace CMS.Domain.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "CarrerOffers",
+                columns: table => new
+                {
+                    Id = table.Column<int>(nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    CreatedBy = table.Column<string>(maxLength: 20, nullable: true),
+                    CreatedOn = table.Column<DateTime>(nullable: false),
+                    ModifiedBy = table.Column<string>(maxLength: 20, nullable: true),
+                    ModifiedOn = table.Column<DateTime>(nullable: false),
+                    IsActive = table.Column<bool>(nullable: false),
+                    IsDelete = table.Column<bool>(nullable: false),
+                    PositionId = table.Column<int>(nullable: false),
+                    YearsOfExperience = table.Column<int>(nullable: false),
+                    LongDescription = table.Column<string>(nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_CarrerOffers", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_CarrerOffers_Positions_PositionId",
+                        column: x => x.PositionId,
+                        principalTable: "Positions",
+                        principalColumn: "PositionId",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "Notifications",
                 columns: table => new
                 {
                     NotificationsId = table.Column<int>(nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
-                    CreatId = table.Column<string>(maxLength: 20, nullable: true),
-                    CreatDate = table.Column<DateTime>(nullable: false),
-                    EditId = table.Column<string>(maxLength: 20, nullable: true),
-                    EditDate = table.Column<DateTime>(nullable: false),
+                    CreatedBy = table.Column<string>(maxLength: 20, nullable: true),
+                    CreatedOn = table.Column<DateTime>(nullable: false),
+                    ModifiedBy = table.Column<string>(maxLength: 20, nullable: true),
+                    ModifiedOn = table.Column<DateTime>(nullable: false),
                     IsActive = table.Column<bool>(nullable: false),
                     IsDelete = table.Column<bool>(nullable: false),
-                    Type = table.Column<int>(nullable: false),
-                    ReceiverId = table.Column<int>(nullable: false),
-                    TemplatesId = table.Column<int>(nullable: false),
+                    ReceiverId = table.Column<string>(nullable: true),
                     SendDate = table.Column<DateTime>(nullable: false),
-                    IsReceived = table.Column<bool>(nullable: false)
+                    IsReceived = table.Column<bool>(nullable: false),
+                    Title = table.Column<string>(nullable: true),
+                    BodyDesc = table.Column<string>(nullable: true),
+                    IsRead = table.Column<bool>(nullable: false),
+                    TemplatesId = table.Column<int>(nullable: true)
                 },
                 constraints: table =>
                 {
@@ -331,6 +347,63 @@ namespace CMS.Domain.Migrations
                         column: x => x.TemplatesId,
                         principalTable: "Templates",
                         principalColumn: "TemplatesId",
+                        onDelete: ReferentialAction.Restrict);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "Interviews",
+                columns: table => new
+                {
+                    InterviewsId = table.Column<int>(nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    CreatedBy = table.Column<string>(maxLength: 20, nullable: true),
+                    CreatedOn = table.Column<DateTime>(nullable: false),
+                    ModifiedBy = table.Column<string>(maxLength: 20, nullable: true),
+                    ModifiedOn = table.Column<DateTime>(nullable: false),
+                    IsActive = table.Column<bool>(nullable: false),
+                    IsDelete = table.Column<bool>(nullable: false),
+                    Score = table.Column<int>(nullable: true),
+                    Date = table.Column<DateTime>(nullable: false),
+                    StatusId = table.Column<int>(nullable: false),
+                    CandidateId = table.Column<int>(nullable: false),
+                    PositionId = table.Column<int>(nullable: false),
+                    InterviewerId = table.Column<string>(nullable: false),
+                    AttachmentId = table.Column<int>(nullable: true),
+                    ParentId = table.Column<int>(nullable: true),
+                    Notes = table.Column<string>(nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Interviews", x => x.InterviewsId);
+                    table.ForeignKey(
+                        name: "FK_Interviews_Attachments_AttachmentId",
+                        column: x => x.AttachmentId,
+                        principalTable: "Attachments",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Restrict);
+                    table.ForeignKey(
+                        name: "FK_Interviews_Candidates_CandidateId",
+                        column: x => x.CandidateId,
+                        principalTable: "Candidates",
+                        principalColumn: "CandidateId",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_Interviews_AspNetUsers_InterviewerId",
+                        column: x => x.InterviewerId,
+                        principalTable: "AspNetUsers",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_Interviews_Positions_PositionId",
+                        column: x => x.PositionId,
+                        principalTable: "Positions",
+                        principalColumn: "PositionId",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_Interviews_Statuses_StatusId",
+                        column: x => x.StatusId,
+                        principalTable: "Statuses",
+                        principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                 });
 
@@ -374,14 +447,44 @@ namespace CMS.Domain.Migrations
                 filter: "[NormalizedUserName] IS NOT NULL");
 
             migrationBuilder.CreateIndex(
-                name: "IX_Candidates_CVAttachmentId",
+                name: "IX_Candidates_CVId",
                 table: "Candidates",
-                column: "CVAttachmentId");
+                column: "CVId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_CarrerOffers_PositionId",
+                table: "CarrerOffers",
+                column: "PositionId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_Companies_CountryId",
                 table: "Companies",
                 column: "CountryId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Interviews_AttachmentId",
+                table: "Interviews",
+                column: "AttachmentId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Interviews_CandidateId",
+                table: "Interviews",
+                column: "CandidateId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Interviews_InterviewerId",
+                table: "Interviews",
+                column: "InterviewerId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Interviews_PositionId",
+                table: "Interviews",
+                column: "PositionId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Interviews_StatusId",
+                table: "Interviews",
+                column: "StatusId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_Notifications_TemplatesId",
@@ -407,9 +510,6 @@ namespace CMS.Domain.Migrations
                 name: "AspNetUserTokens");
 
             migrationBuilder.DropTable(
-                name: "Candidates");
-
-            migrationBuilder.DropTable(
                 name: "CarrerOffers");
 
             migrationBuilder.DropTable(
@@ -422,22 +522,28 @@ namespace CMS.Domain.Migrations
                 name: "Notifications");
 
             migrationBuilder.DropTable(
-                name: "Positions");
-
-            migrationBuilder.DropTable(
                 name: "AspNetRoles");
-
-            migrationBuilder.DropTable(
-                name: "AspNetUsers");
-
-            migrationBuilder.DropTable(
-                name: "Attachments");
 
             migrationBuilder.DropTable(
                 name: "Countries");
 
             migrationBuilder.DropTable(
+                name: "Candidates");
+
+            migrationBuilder.DropTable(
+                name: "AspNetUsers");
+
+            migrationBuilder.DropTable(
+                name: "Positions");
+
+            migrationBuilder.DropTable(
+                name: "Statuses");
+
+            migrationBuilder.DropTable(
                 name: "Templates");
+
+            migrationBuilder.DropTable(
+                name: "Attachments");
         }
     }
 }

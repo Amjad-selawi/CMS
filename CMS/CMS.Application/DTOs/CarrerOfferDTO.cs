@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
+using System.IO;
 using System.Text;
 
 namespace CMS.Application.DTOs
@@ -19,6 +20,7 @@ namespace CMS.Application.DTOs
 
         public int PositionId { set; get; }
         public string PositionName { set; get; }
+
 
     }
 }

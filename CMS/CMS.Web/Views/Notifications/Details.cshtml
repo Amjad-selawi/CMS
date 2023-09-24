@@ -6,15 +6,20 @@
     <dt class="col-sm-2">Receiver ID:</dt>
     <dd class="col-sm-10">@Model.ReceiverId</dd>
 
-    <dt class="col-sm-2">Send Date:</dt>
+    <dt class="col-sm-2">Sent Date:</dt>
     <dd class="col-sm-10">@Model.SendDate</dd>
 
    @*  <dt class="col-sm-2">Is Received:</dt>
     <dd class="col-sm-10">@Model.IsReceived</dd>
- *@
+
+    <dt class="col-sm-2">Is Read:</dt>
+    <dd class="col-sm-10">@Model.IsRead</dd> *@
+
     <dt class="col-sm-2">Title:</dt>
     <dd class="col-sm-10">@Model.Title</dd>
 
+    <dt class="col-sm-2">Body Description:</dt>
+    <dd class="col-sm-10">@Model.BodyDesc</dd>
 
    @*  <dt class="col-sm-2">Template Name:</dt>
     <dd class="col-sm-10">@Model.TemplateName</dd> *@
@@ -22,7 +27,21 @@
 </dl>
 
 <div class="form-group">
-    <a class="btn btn-secondary" asp-action="Index">Back to List</a>
-    <a asp-action="Edit" asp-route-id="@Model.NotificationsId" class="btn btn-primary">Edit</a>
+    @if (User.IsInRole("HR"))
+    {
+        <a class="btn btn-secondary" asp-action="IndexHRnotification">Back to List</a>
+    }
+    else if (User.IsInRole("Interviewer"))
+    {
+        <a class="btn btn-secondary" asp-action="IndexInterviewernotification">Back to List</a>
+    }
+    else if (User.IsInRole("General Manger"))
+    {
+        <a class="btn btn-secondary" asp-action="IndexGMnotification">Back to List</a>
+    }
+    else{}
+
+    @* <a class="btn btn-secondary" asp-action="Index">Back to List</a> *@
+    @* <a asp-action="Edit" asp-route-id="@Model.NotificationsId" class="btn btn-primary">Edit</a> *@
   
 </div>

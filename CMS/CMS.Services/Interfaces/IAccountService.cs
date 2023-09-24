@@ -21,5 +21,9 @@ namespace CMS.Services.Interfaces
 
         List<Register> GetAllUsersWithRoles();
         Register GetUsersById(string userId);
+
+
+        Task<List<IdentityUser>> GetUsersInRole(string roleName);
+
     }
 }

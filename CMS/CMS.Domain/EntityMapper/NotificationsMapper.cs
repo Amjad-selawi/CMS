@@ -11,10 +11,10 @@ namespace CMS.Domain.EntityMapper
     {
         public void Configure(EntityTypeBuilder<Notifications> builder)
         {
-            builder
-                .HasOne(p => p.Templates)
-                .WithMany(p => p.Notifications)
-                .HasForeignKey(p => p.TemplatesId);
+            //builder
+            //    .HasOne(p => p.Templates)
+            //    .WithMany(p => p.Notifications)
+            //    .HasForeignKey(p => p.TemplatesId);
         }
     }
 }

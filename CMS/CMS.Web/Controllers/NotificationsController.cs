@@ -5,11 +5,14 @@ using CMS.Services.Interfaces;
 using CMS.Services.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
+using Microsoft.AspNetCore.SignalR;
 using System;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
+using System.Security.Claims;
 using System.Threading.Tasks;
 
 namespace CMS.Web.Controllers
@@ -18,12 +21,21 @@ namespace CMS.Web.Controllers
     {
         private readonly INotificationsService _notificationsService;
         private readonly ITemplatesService _templatesService;
+        private readonly UserManager<IdentityUser> _userManager;
 
-        public NotificationsController(INotificationsService notificationsService, ITemplatesService templatesService)
+        public NotificationsController
+            (
+            INotificationsService notificationsService,
+            ITemplatesService templatesService,
+            UserManager<IdentityUser> userManager
+            )
         {
             _notificationsService = notificationsService;
             _templatesService = templatesService;
+            _userManager = userManager;
         }
+
+
 
         // GET: NotificationsController
         public async Task<ActionResult> Index()
@@ -32,16 +44,43 @@ namespace CMS.Web.Controllers
             return View(notifications);
         }
 
+        public async Task<ActionResult> IndexGMnotification()
+        {
+            var notifications = await _notificationsService.GetNotificationsForGeneralManager();
+            return View(notifications);
+        }
+
+        public async Task<ActionResult> IndexInterviewernotification()
+        {
+            var notifications = await _notificationsService.GetNotificationsForInterviewers();
+            return View(notifications);
+        }
+
+        public async Task<ActionResult> IndexHRnotification()
+        {
+            var notifications = await _notificationsService.GetNotificationsForHRAsync();
+            return View(notifications);
+        }
+
         // GET: NotificationsController/Details/5
         public async Task<ActionResult> Details(int id)
         {
-            var notifications = await _notificationsService.GetNotificationByIdAsync(id);
+            var notifications = await _notificationsService.GetNotificationByIdforDetails(id);
 
             var templets = await _templatesService.GetAllTemplatesAsync();
             ViewBag.templetList = new SelectList(templets, "TemplatesId", "Title", notifications.NotificationsId);
 
+            if (notifications != null)
+            {
+                notifications.IsRead = true;
 
-            return View(notifications);
+                await _notificationsService.Update(id, notifications);
+                return View(notifications);
+            }
+            else
+            {
+                return NotFound();
+            }
         }
 
         // GET: NotificationsController/Create
@@ -177,6 +216,29 @@ namespace CMS.Web.Controllers
                 return View();
             }
         }
+
+
+
+            
+        public async Task<IActionResult> GetNotificationsForHR()
+        {
+            var notifications = await _notificationsService.GetNotificationsForHRAsync();
+            return Json(notifications);
+        }
+
+        public async Task<IActionResult> GetNotificationsForInterviewers()
+        {
+            var notifications = await _notificationsService.GetNotificationsForInterviewers();
+            return Json(notifications);
+        }
+
+        public async Task<IActionResult> GetNotificationsForGeneralManager()
+        {
+            var notifications = await _notificationsService.GetNotificationsForGeneralManager();
+            return Json(notifications);
+        }
+
+
 
 
     }
