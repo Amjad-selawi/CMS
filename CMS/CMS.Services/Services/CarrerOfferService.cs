@@ -21,26 +21,27 @@ namespace CMS.Services.Services
             _carrerOfferRepository = carrerOfferRepository;
             _positionService = positionService;
         }
-        public async Task<Result<CarrerOfferDTO>> Delete(int id)
+        public async Task<Result<int>> Delete(int id)
         {
 
             try
             {
-                await _carrerOfferRepository.Delete(id);
-                return Result<CarrerOfferDTO>.Success(null);
+                await _carrerOfferRepository.DeleteCarrerOfferAsync(id);
+                return Result<int>.Success(id);
             }
 
             catch (Exception ex)
             {
-                return Result<CarrerOfferDTO>.Failure(null, $"An error occurred while deleting the career offer{ex.InnerException.Message}");
-            }
+                return Result<int>.Failure(-1, $"An error occurred while deleting the career offer{ex.InnerException.Message}");
+            };
         }
+
 
         public async Task<Result<List<CarrerOfferDTO>>> GetAll()
         {
             try
             {
-                var careerOffers = await _carrerOfferRepository.GetAll();
+                var careerOffers = await _carrerOfferRepository.GetAllCarrerOffersAsync();
                 if (careerOffers == null)
                 {
                     return Result<List<CarrerOfferDTO>>.Failure(null, "No career offers found");
@@ -56,8 +57,10 @@ namespace CMS.Services.Services
                         LongDescription = c.LongDescription,
                         YearsOfExperience = c.YearsOfExperience,
                         PositionId = c.PositionId,
-                        PositionName = c.Positions.Name
-                       
+                        PositionName = c.Position.Name,
+                        CreatedBy = c.CreatedBy,
+                        CreatedDateTime = c.CreatedDateTime,
+                        
 
                     };
                     carrerOfferDTOs.Add(com);
@@ -82,14 +85,14 @@ namespace CMS.Services.Services
             }
             try
             {
-                var careeroffer = await _carrerOfferRepository.GetById(id);
+                var careeroffer = await _carrerOfferRepository.GetCarrerOfferByIdAsync(id);
                 var careerofferDTO = new CarrerOfferDTO
                 {
                     Id = careeroffer.Id,
                     LongDescription = careeroffer.LongDescription,
                     YearsOfExperience = careeroffer.YearsOfExperience,
                     PositionId = careeroffer.PositionId,
-                    PositionName = careeroffer.Positions.Name
+                    PositionName = careeroffer.Position.Name
 
                 };
                 return Result<CarrerOfferDTO>.Success(careerofferDTO);
@@ -110,38 +113,6 @@ namespace CMS.Services.Services
 
             var careeroffer = new CarrerOffer
             {
-                PositionId=data.PositionId,
-                LongDescription=data.LongDescription,
-                YearsOfExperience=data.YearsOfExperience,
-               
-
-
-            };
-
-            try
-            {
-                await _carrerOfferRepository.Insert(careeroffer);
-
-                return Result<CarrerOfferDTO>.Success(data);
-
-            }
-            catch (Exception ex)
-            {
-                return Result<CarrerOfferDTO>.Failure(data, $"unable to insert a career offer: {ex.InnerException.Message}");
-
-            }
-
-        }
-
-        public async Task<Result<CarrerOfferDTO>> Update(CarrerOfferDTO data)
-        {
-            if (data == null)
-            {
-                return Result<CarrerOfferDTO>.Failure(data, "can not update a null object");
-            }
-            var careeroffer = new CarrerOffer
-            {
-                Id = data.Id,
                 PositionId = data.PositionId,
                 LongDescription = data.LongDescription,
                 YearsOfExperience = data.YearsOfExperience,
@@ -152,84 +123,44 @@ namespace CMS.Services.Services
 
             try
             {
-                await _carrerOfferRepository.Update(careeroffer);
+                await _carrerOfferRepository.CreateCarrerOfferAsync(careeroffer);
+
                 return Result<CarrerOfferDTO>.Success(data);
+
             }
             catch (Exception ex)
             {
-                return Result<CarrerOfferDTO>.Failure(data, $"error updating the career offer {ex.Message}");
+                return Result<CarrerOfferDTO>.Failure(data, $"unable to insert a career offer: {ex.InnerException.Message}");
+
             }
         }
-        //public async Task<IEnumerable<CarrerOfferDTO>> GetAllCarrerOffersAsync()
-        //{
-        //    var carrerOffers = await _carrerOfferRepository.GetAllCarrerOffersAsync();
-        //    return carrerOffers.Select(co => new CarrerOfferDTO
-        //    {
-        //        Id = co.Id,
-        //        YearsOfExperience = co.YearsOfExperience,
-        //        LongDescription = co.LongDescription,
-        //        positionDTO = new PositionDTO
-        //        {
-        //            PositionId = co.PositionId,
-        //            Name = _positionService.GetById(co.PositionId).Result?.Name
-        //        }
-        //    });
-        //}
 
-        //public async Task<CarrerOfferDTO> GetCarrerOfferByIdAsync(int carrerOfferId)
-        //{
-        //    var carrerOffer = await _carrerOfferRepository.GetCarrerOfferByIdAsync(carrerOfferId);
-        //    if (carrerOffer == null)
-        //        return null;
+            public async Task<Result<CarrerOfferDTO>> Update(CarrerOfferDTO data)
+            {
+                if (data == null)
+                {
+                    return Result<CarrerOfferDTO>.Failure(data, "can not update a null object");
+                }
+            var careeroffer = new CarrerOffer
+            {
+                Id = data.Id,
+                PositionId = data.PositionId,
+                LongDescription = data.LongDescription,
+                YearsOfExperience = data.YearsOfExperience,
+                CreatedBy = data.CreatedBy,
 
 
-        //    var positionDTO = new PositionDTO
-        //    {
-        //        PositionId = carrerOffer.PositionId,
-        //        Name = _positionService.GetById(carrerOffer.PositionId).Result?.Name,
+            };
+            try
+                {
+                    await _carrerOfferRepository.UpdateCarrerOfferAsync(careeroffer);
+                    return Result<CarrerOfferDTO>.Success(data);
+                }
+                catch (Exception ex)
+                {
+                    return Result<CarrerOfferDTO>.Failure(data, $"error updating the career offer {ex.Message}");
+                }
+            }
 
-        //    };
-
-        //    return new CarrerOfferDTO
-        //    {
-        //        Id = carrerOffer.Id,
-        //        YearsOfExperience = carrerOffer.YearsOfExperience,
-        //        LongDescription = carrerOffer.LongDescription,
-
-        //        Name = positionDTO.Name,
-        //    };
-        //}
-
-        //public async Task CreateCarrerOfferAsync(CarrerOfferDTO carrerOfferDTO)
-        //{
-        //    var carrerOffer = new CarrerOffer
-        //    {
-        //        YearsOfExperience = carrerOfferDTO.YearsOfExperience,
-        //        LongDescription = carrerOfferDTO.LongDescription,
-        //        PositionId = carrerOfferDTO.positionDTO.PositionId,
-
-        //    };
-        //    await _carrerOfferRepository.CreateCarrerOfferAsync(carrerOffer);
-        //}
-
-        //public async Task UpdateCarrerOfferAsync(int carrerOfferId, CarrerOfferDTO carrerOfferDTO)
-        //{
-        //    var existingCarrerOffer = await _carrerOfferRepository.GetCarrerOfferByIdAsync(carrerOfferId);
-        //    if (existingCarrerOffer == null)
-        //        throw new Exception("Carrer offer not found");
-
-        //    existingCarrerOffer.YearsOfExperience = carrerOfferDTO.YearsOfExperience;
-        //    existingCarrerOffer.LongDescription = carrerOfferDTO.LongDescription;
-        //    existingCarrerOffer.PositionId = carrerOfferDTO.positionDTO.PositionId;
-
-        //    await _carrerOfferRepository.UpdateCarrerOfferAsync(existingCarrerOffer);
-        //}
-
-        //public async Task DeleteCarrerOfferAsync(int carrerOfferId)
-        //{
-        //    var carrerOffer = await _carrerOfferRepository.GetCarrerOfferByIdAsync(carrerOfferId);
-        //    if (carrerOffer != null)
-        //        await _carrerOfferRepository.DeleteCarrerOfferAsync(carrerOffer);
-        //}
+        }
     }
-}

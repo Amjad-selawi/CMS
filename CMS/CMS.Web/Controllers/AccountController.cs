@@ -14,32 +14,33 @@ namespace CMS.Web.Controllers
 {
     public class AccountController : Controller
     {
+        SignInManager<IdentityUser> _signInManager;
         private readonly IAccountService _accountService;
         private readonly UserManager<IdentityUser> _userManager;
         private readonly ApplicationDbContext Db;
         private readonly RoleManager<IdentityRole> _roleManager;
 
-        public AccountController(IAccountService accountService, UserManager<IdentityUser> userManager, ApplicationDbContext _db, RoleManager<IdentityRole> roleManager)
+        public AccountController(IAccountService accountService, UserManager<IdentityUser> userManager, ApplicationDbContext _db, RoleManager<IdentityRole> roleManager, SignInManager<IdentityUser> signInManager)
         {
             _accountService = accountService;
             _userManager = userManager;
             Db = _db;
             _roleManager = roleManager;
+            _signInManager = signInManager;
         }
 
-        ////GET
-        //public async Task<ActionResult> ListUsers()
-        //{
-        //    var listuser = await _accountService.GetAllUsersAsync();
-        //    return View(listuser);
-        //}
-
-       
-
         //GET
-        public /*async*/ ActionResult Login(/*int id*/)
+        public async Task<ActionResult> Login()
         {
-            return View();
+            if (_signInManager.IsSignedIn(User))
+            {
+                return RedirectToAction("Index", "Home");
+                
+            }
+            else
+            {
+                return View();
+            }
         }
 
         //POST
@@ -59,19 +60,6 @@ namespace CMS.Web.Controllers
                 var result = await _accountService.LoginAsync(collection);
                 if (result)
                 {
-
-                    var user = await _accountService.GetUserByEmailAsync(collection.UserEmail);
-
-                    var userRole = await _accountService.GetUserRoleAsync(user);
-
-                    //HttpContext.Session.SetString("UserId", user.Id);
-                    //HttpContext.Session.SetString("UserRole", userRole);
-
-
-                    //ViewData["UserId"] = user.Id;
-                    //ViewData["UserRole"] = userRole;
-
-
                     return RedirectToAction("Index", "Home");
                 }
                 else
@@ -108,21 +96,11 @@ namespace CMS.Web.Controllers
         }
 
         //GET
-        public async Task<ActionResult> Logout(int id)
+        public async Task<ActionResult> Logout()
         {
             await _accountService.LogoutAsync();
             return RedirectToAction("Login", "Account");
         }
-
-        //public async Task<IActionResult> Register()
-        //{
-        //    return View();
-        //}
-
-
-       
-        ///////////////////////////////////////////////////////////////Register////////////////////////////////////////////////////////
-       
 
         // GET: Register
         public IActionResult Index()
@@ -130,26 +108,6 @@ namespace CMS.Web.Controllers
             var usersWithRoles = _accountService.GetAllUsersWithRoles();
             return View(usersWithRoles);
 
-            //var users = Db.Users.ToList();
-
-            //var modelList = new List<Register>();
-
-            //foreach (var user in users)
-            //{
-            //    var roles = _userManager.GetRolesAsync(user).Result;
-
-            //    var model = new Register
-            //    {
-            //        RegisterrId = user.Id,
-            //        Email = user.Email,
-            //        UserName = user.UserName,
-            //        SelectedRole = roles.FirstOrDefault()
-            //    };
-
-            //    modelList.Add(model);
-            //}
-
-            //return View(modelList);
         }
 
 
@@ -157,17 +115,6 @@ namespace CMS.Web.Controllers
         public async Task<IActionResult> Details(string id)
         {
             var userDetails =  _accountService.GetUsersById(id);
-            //var user = await _userManager.FindByIdAsync(id);
-
-            //var roles = await _accountService.GetUserRoleAsync(user);
-
-            //var model = new Register
-            //{
-            //    RegisterrId = user.Id,
-            //    Email = user.Email,
-            //    UserName = user.UserName,
-            //    SelectedRole = roles
-            //};
 
             return View(userDetails);
         }

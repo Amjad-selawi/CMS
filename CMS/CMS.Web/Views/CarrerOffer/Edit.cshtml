@@ -1,35 +1,11 @@
 ﻿@model CMS.Application.DTOs.CarrerOfferDTO
 <h2>Edit</h2>
 
-<form asp-action="Edit" >
-    <div asp-validation-summary="ModelOnly" class="text-danger"></div>
-    <div class="form-group"><input type="hidden" asp-for="Id" /></div>
-
-@* 
-      <div class="form-group">
-        <label asp-for="positionDTO.PositionId" class="control-label">Position</label>
-        @Html.DropDownListFor(model => model.positionDTO.PositionId, (SelectList)ViewBag.positionList, "Select a Position", new { @class = "form-control" })
-        <span asp-validation-for="positionDTO.PositionId" class="text-danger"></span>
-    </div> *@
-
+<form asp-action="Edit" asp-route-id="@Model.Id">
     <div class="form-group">
-        <label asp-for="PositionId" class="control-label">Position</label>
-        @if (ViewBag.positionDTOs != null)
-        {
-            <select asp-for="PositionId" class="form-control">
-                <option value="">Select a position</option>
-                @foreach (var position in ViewBag.positionDTOs)
-                {
-                    <option value="@position.Value" selected="@(position.Value == Model.PositionId.ToString())">@position.Text</option>
-                }
-            </select>
-        }
-        else
-        {
-            <p>No positions available.</p>
-        }
+        <label asp-for="PositionId" class="control-label"></label>
+        <input asp-for="PositionId" class="form-control" />
         <span asp-validation-for="PositionId" class="text-danger"></span>
-
     </div>
 
     <div class="form-group">

@@ -1,19 +1,39 @@
 ﻿@model CMS.Application.DTOs.CountryDTO
-<h3>List of companies</h3>
-<table class="table">
-    <thead>
-      <tr>
-          <th>Name</th>
-        </tr>
-    </thead>
-    <tbody>
-        @foreach(var com in Model.companyDTOs)
-        {
-            <tr><td>@com.Name</td></tr>
-        }
-    </tbody>
+@{
+    ViewData["Title"] = "Companies in This Country";
+}
 
-</table>
-<p>
-    <a asp-action="GetCountries"> back to list</a>
-</p>
+
+<div class="row">
+    <div class="col-lg-12">
+        <div class="card">
+            <div class="card-header d-flex align-items-center">
+              
+                <h5 class="card-title mx-1 mb-0 flex-grow-1">Companies</h5>
+            </div>
+            <div class="card-body">
+
+                <table id="add-rows" class="table table-nowrap dt-responsive table-bordered display" style="width:100%">
+                    <thead>
+                        <tr>
+                            <th>Name</th>
+                        </tr>
+
+                    </thead>
+                    <tbody>
+                        @foreach (var com in Model.companyDTOs)
+                        {
+                            <tr><td>@com.Name</td></tr>
+                        }
+                    </tbody>
+
+                </table>
+                <div class="form-group text-end" >
+                    <a asp-action="GetCountries" class="btn btn-secondary"> back to list</a>
+                    <a asp-action="UpdateCountry" asp-route-id="@Model.Id" class="btn btn-primary">Edit</a>
+                </div>
+            </div>
+        </div>
+    </div><!--end col-->
+</div><!--end row-->
+

@@ -1,85 +1,65 @@
 ﻿@model IEnumerable<CMS.Application.DTOs.InterviewsDTO>
+@{
+    ViewData["Title"] = "My Interviews";
+}
 
-    <h2>My Interviews</h2>
 
-<table class="datatable">
-    <thead>
-        <tr>
+<div class="row">
+    <div class="col-lg-12">
+        <div class="card">
+            <div class="card-header d-flex align-items-center">
+                <h5 class="card-title mb-0 flex-grow-1">My Interviews</h5>
 
-            <th>Candidate Name</th>
-            <th>Position</th>
-            <th>Interviewer</th>
-            <th>
-                Date
-            </th>
-            <th hidden>
-                Parent ID
-            </th>
+            </div>
+            <div class="card-body">
 
-            <th>
-                Score
-            </th>
-            <th>
-                Status
-            </th>
-            <th>Notes</th>
-            <th>Evaluation</th>
-            <th>Actions</th>
-            <th></th>
-        </tr>
-    </thead>
-    <tbody>
-      
-        @foreach (var item in Model)
-        {
-            <tr>
-
-                <td>
-                    @Html.DisplayFor(modelItem => item.FullName)
-                </td>
-                <td>
-                    @Html.DisplayFor(modelItem => item.Name)
-                </td>
-
-                <td>@item.InterviewerName</td>
-                <td>
-                    @item.Date
-                </td>
-                <td hidden>
-                    @item.ParentId
-                </td>
-
-                <td>
-                    @item.Score
-                </td>
-                <td>
-                    @item.StatusName
-                </td>
-
-                <td>@item.Notes</td>
-                @if (item.AttachmentId != null)
-                {
-                    <td><a asp-controller="Attachments" asp-action="Download" asp-route-id="@item.AttachmentId">Download evaluation</a></td>
-                }
-                else
-                {
-                    <td> </td>
-                }
-
-              
-
-                <td>
-                    <a class="bx bx-detail" style="font-size:x-large" asp-action="Details" asp-route-id="@item.InterviewsId"></a> |
-
-                   
-                    
-                   <a asp-action="UpdateAfterInterview" asp-route-id="@item.InterviewsId" asp-route-idd="@item.InterviewerId"> Add the interview Result</a>
-                 
-                </td>
-            </tr>
-        }
-    </tbody>
-</table>
+                <table id="add-rows" class="table table-nowrap dt-responsive table-bordered display" style="width:100%">
+                    <thead>
+                        <tr>
+                            <th>Candidate Name</th>
+                            <th>Position</th>
+                            <th>Interviewer</th>
+                            <th>Date</th>
+                            <th hidden>Parent ID</th>
+                            <th>Score</th>
+                            <th>Status</th>
+                            <th>Notes</th>
+                            <th>Evaluation</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var item in Model)
+                        {
+                            <tr>
+                                <td>@Html.DisplayFor(modelItem => item.FullName)</td>
+                                <td>@Html.DisplayFor(modelItem => item.Name)</td>
+                                <td>@item.InterviewerName</td>
+                                <td>@item.Date</td>
+                                <td hidden>@item.ParentId</td>
+                                <td>@item.Score</td>
+                                <td>@item.StatusName</td>
+                                <td>@item.Notes</td>
+                                @if (item.AttachmentId != null)
+                                {
+                                    <td><a asp-controller="Attachments" asp-action="Download" asp-route-id="@item.AttachmentId">Download evaluation</a></td>
+                                }
+                                else
+                                {
+                                    <td> </td>
+                                }
+                                <td>
+                                    <a class="bx bx-detail" style="font-size:x-large" asp-action="Details" asp-route-id="@item.InterviewsId"></a> |
+                                    <a asp-action="UpdateAfterInterview" asp-route-id="@item.InterviewsId" asp-route-idd="@item.InterviewerId"> Add the interview Result</a>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div><!--end col-->
+</div><!--end row-->
 
 
 

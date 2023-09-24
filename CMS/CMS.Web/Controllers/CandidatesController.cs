@@ -1,4 +1,5 @@
-﻿using CMS.Application.DTOs;
+﻿using Castle.DynamicProxy.Generators.Emitters.SimpleAST;
+using CMS.Application.DTOs;
 using CMS.Services.Interfaces;
 using CMS.Web.Utils;
 using Microsoft.AspNetCore.Authorization;
@@ -9,6 +10,7 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 using System;
 using System.Diagnostics;
 using System.IO;
+using System.Reflection.Metadata;
 using System.Threading.Tasks;
 
 namespace CMS.Web.Controllers
@@ -20,11 +22,12 @@ namespace CMS.Web.Controllers
         private readonly string _attachmentStoragePath;
         private readonly IPositionService _positionService;
         private readonly ICompanyService _companyService;
+        private readonly ICountryService _countryService;
 
         public CandidatesController(ICandidateService candidateService,
             IWebHostEnvironment env,
             IPositionService positionService,
-            ICompanyService companyService)
+            ICompanyService companyService, ICountryService countryService)
         {
             _candidateService = candidateService;
             _attachmentStoragePath = Path.Combine(env.WebRootPath, "attachments");
@@ -35,6 +38,7 @@ namespace CMS.Web.Controllers
             }
             _positionService = positionService;
             _companyService = companyService;
+            _countryService = countryService;
         }
 
         public async Task<IActionResult> Index()
@@ -44,6 +48,10 @@ namespace CMS.Web.Controllers
         }
         public async Task<IActionResult> Details(int id)
         {
+            var Country = await _countryService.GetAll();
+            ViewBag.CountryDTOs = new SelectList(Country.Value, "Id", "Name");
+
+
             var candidate = await _candidateService.GetCandidateByIdAsync(id);
 
             if (candidate == null)
@@ -61,6 +69,9 @@ namespace CMS.Web.Controllers
             var CompaniesDTOs=await _companyService.GetAll();
             ViewBag.CompaniesDTOs = new SelectList(CompaniesDTOs.Value, "Id", "Name");
 
+            var Country = await _countryService.GetAll();
+            ViewBag.CountryDTOs = new SelectList(Country.Value, "Id", "Name");
+
             return View();
         }
 
@@ -68,29 +79,46 @@ namespace CMS.Web.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create(CandidateCreateDTO candidateDTO, IFormFile file)
         {
-            var positions = await _positionService.GetAll();
-            ViewBag.positions = new SelectList(positions.Value, "Id", "Name");
-            var CompaniesDTOs = await _companyService.GetAll();
-            ViewBag.CompaniesDTOs = new SelectList(CompaniesDTOs.Value, "Id", "Name");
+            
+                var positions = await _positionService.GetAll();
+                ViewBag.positions = new SelectList(positions.Value, "Id", "Name");
+                var CompaniesDTOs = await _companyService.GetAll();
+                ViewBag.CompaniesDTOs = new SelectList(CompaniesDTOs.Value, "Id", "Name");
+
+            var Country = await _countryService.GetAll();
+            ViewBag.CountryDTOs = new SelectList(Country.Value, "Id", "Name");
 
             if (file == null || file.Length == 0)
-            {
-                ModelState.AddModelError("File", "Please choose a file to upload.");
-                return View();
-            }
+                {
+                    ModelState.AddModelError("File", "Please choose a file to upload.");
+                    return View();
+                }
 
-            FileStream attachmentStream = await AttachmentHelper.handleUpload(file, _attachmentStoragePath);
-            candidateDTO.FileName = file.FileName;
-            candidateDTO.FileSize = file.Length;
-            candidateDTO.FileData = attachmentStream;
-            if (ModelState.IsValid)
+                FileStream attachmentStream = await AttachmentHelper.handleUpload(file, _attachmentStoragePath);
+            try
             {
-                await _candidateService.CreateCandidateAsync(candidateDTO);
+                candidateDTO.FileName = file.FileName;
+                candidateDTO.FileSize = file.Length;
+                candidateDTO.FileData = attachmentStream;
+                if (ModelState.IsValid)
+                {
+                    await _candidateService.CreateCandidateAsync(candidateDTO);
+                    
+                    return RedirectToAction(nameof(Index));
+                }
+                Console.WriteLine(ModelState.ValidationState);
+                return View(candidateDTO);
+            } catch(Exception ex) {
+                throw ex;
+            
+            } finally
+            {
                 attachmentStream.Close();
-                return RedirectToAction(nameof(Index));
+                AttachmentHelper.removeFile(file.FileName, _attachmentStoragePath);
+
+
             }
-            Console.WriteLine(ModelState.ValidationState);
-            return View(candidateDTO);
+            
         }
 
         public async Task<IActionResult> Edit(int id)
@@ -104,6 +132,9 @@ namespace CMS.Web.Controllers
             ViewBag.positions = new SelectList(positions.Value, "Id", "Name");
             var CompaniesDTOs = await _companyService.GetAll();
             ViewBag.CompaniesDTOs = new SelectList(CompaniesDTOs.Value, "Id", "Name");
+
+            var Country = await _countryService.GetAll();
+            ViewBag.CountryDTOs = new SelectList(Country.Value, "Id", "Name");
 
             return View(candidate);
         }
@@ -121,6 +152,10 @@ namespace CMS.Web.Controllers
 
             var CompaniesDTOs = await _companyService.GetAll();
             ViewBag.CompaniesDTOs = new SelectList(CompaniesDTOs.Value, "Id", "Name");
+
+            var Country = await _countryService.GetAll();
+            ViewBag.CountryDTOs = new SelectList(Country.Value, "Id", "Name");
+
             if (ModelState.IsValid)
             {
                 await _candidateService.UpdateCandidateAsync(id, candidateDTO);
@@ -140,8 +175,17 @@ namespace CMS.Web.Controllers
             if (ModelState.IsValid)
             {
                 var stream = await AttachmentHelper.handleUpload(file, _attachmentStoragePath);
-                await _candidateService.UpdateCandidateCVAsync(id, file.FileName, file.Length, stream);
-                return RedirectToAction(nameof(Index));
+                try
+                {
+                    await _candidateService.UpdateCandidateCVAsync(id, file.FileName, file.Length, stream);
+                    return RedirectToAction(nameof(Index));
+                }
+                finally
+                {
+                    stream.Close();
+                    AttachmentHelper.removeFile(file.FileName, _attachmentStoragePath);
+                }
+                
             }
             return RedirectToAction(nameof(Edit), new { id = id });
         }

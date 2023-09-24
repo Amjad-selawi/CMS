@@ -22,11 +22,18 @@
         </dd>
 
         <dt>
-            @Html.DisplayNameFor(model => model.DesiredPosition)
+            @Html.DisplayNameFor(model => model.PositionId)
         </dt>
 
         <dd>
-            @Html.DisplayFor(model => model.DesiredPosition)
+            @Html.DisplayFor(model => model.PositionId)
+        </dd>
+        <dt>
+            @Html.DisplayNameFor(model => model.CountryName)
+        </dt>
+
+        <dd>
+            @Html.DisplayFor(model => model.CountryName)
         </dd>
         <dt>
             @Html.DisplayNameFor(model => model.Email)
@@ -59,9 +66,9 @@
 
     @using (Html.BeginForm())
     {
-        <div class="form-actions no-color">
-            <input type="submit" value="Delete" class="btn btn-danger" /> |
-            <a asp-action="Index">Back to List</a>
+        <div class="form-actions no-color text-end" >
+            <a class="btn btn-secondary" asp-action="Index">Back to List</a>
+            <input type="submit" value="Delete" class="btn btn-danger" /> 
         </div>
     }
 </div>

@@ -1,43 +1,53 @@
 ﻿@model List<CMS.Application.DTOs.CompanyDTO>
+@{
+    ViewData["Title"] = "Companies";
+}
 
-<h1>Companies</h1>
-<p><a asp-action="AddCompany">add a new company</a></p>
 
-<table class="table">
-    <thead>
-        <tr>
-            <th>ID</th>
-            <th>Company Name</th>
-            <th>Address</th>
-            <th>Email</th>
-            <th>Phone number</th>
-            <th>Country</th>
-            <th>Delete company</th>
-            
-        </tr>
-    </thead>
-    <tbody>
-        @foreach(var company in Model)
-        {
-            <tr>
-               <td>@company.Id</td>
-                <td>@company.Name</td>
-                <td>@company.Address</td>
-                <td>@company.Email</td>
-                <td>@company.PhoneNumber</td>
-                <td>@company.CountryName</td>
-             
-                <td>
-                     <form method="post" asp-action="DeleteCompany">
-                        <input type="hidden" name="id" value="@company.Id"/>
-                        <button type="submit" class="btn btn-danger">Delete</button>
-                     </form>
-                </td>
-                <td>
-                    <a asp-action="UpdateCompany" asp-route-id="@company.Id">Edit</a>
-                </td>
-            </tr>
-        }
+<div class="row">
+    <div class="col-lg-12">
+        <div class="card">
+            <div class="card-header d-flex align-items-center">
+                <h5 class="card-title mb-0 flex-grow-1">Companies</h5>
+                <div>
+                    <a asp-action="AddCompany" class="btn btn-primary">Add New Company</a>
+                </div>
+            </div>
+            <div class="card-body">
 
-    </tbody>
-</table>
+                <table id="add-rows" class="table table-nowrap dt-responsive table-bordered display" style="width:100%">
+                    <thead>
+                        <tr>
+                            <th>Company Name</th>
+                            <th>Address</th>
+                            <th>Email</th>
+                            <th>Phone number</th>
+                            <th>Country</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var company in Model)
+                        {
+                            <tr>
+                                <td>@company.Name</td>
+                                <td>@company.Address</td>
+                                <td>@company.Email</td>
+                                <td>@company.PhoneNumber</td>
+                                <td>@company.CountryName</td>
+                                <td>
+                                    <a class="bx bxs-edit-alt" style="font-size:x-large" asp-action="UpdateCompany" asp-route-id="@company.Id"></a>|
+                                    <form method="post" asp-action="DeleteCompany">
+                                        <input type="hidden" name="id" value="@company.Id" />
+                                        <button type="submit" class="btn btn-danger">Delete</button>
+                                    </form>
+                                   
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div><!--end col-->
+</div><!--end row-->

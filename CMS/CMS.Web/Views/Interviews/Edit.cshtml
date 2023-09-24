@@ -9,63 +9,21 @@
 
     <div class="form-group">  <input type="hidden" asp-for="StatusId" /> </div>
     <div class="form-group">
-        <label asp-for="candidateId" class="control-label">Candidate Name</label>
-        @if (ViewBag.candidateDTOs != null)
-        {
-            <select asp-for="candidateId" class="form-control">
-                <option value="">Select a Candidate Name</option>
-                @foreach (var position in ViewBag.candidateDTOs)
-                {
-                    <option value="@position.Value" selected="@(position.Value == Model.candidateId.ToString())">@position.Text</option>
-                }
-            </select>
-        }
-        else
-        {
-            <p>No Candidate available.</p>
-        }
-        <span asp-validation-for="candidateId" class="text-danger"></span>
-
-    </div>
-
-     <div class="form-group">
-        <label asp-for="positionId" class="control-label">Position</label>
-        @if (ViewBag.positionDTOs != null)
-        {
-            <select asp-for="positionId" class="form-control">
-                <option value="">Select a position</option>
-                @foreach (var position in ViewBag.positionDTOs)
-                {
-                    <option value="@position.Value" selected="@(position.Value == Model.positionId.ToString())">@position.Text</option>
-                }
-            </select>
-        }
-        else
-        {
-            <p>No positions available.</p>
-        }
-        <span asp-validation-for="positionId" class="text-danger"></span>
-
+        <label asp-for="CandidateId" class="control-label">Candidate Name</label>
+        @Html.DropDownListFor(model => model.CandidateId, (SelectList)ViewBag.candidateList, "Select a Name", new { @class = "form-control" })
+        <span asp-validation-for="CandidateId" class="text-danger"></span>
     </div>
 
     <div class="form-group">
-        <label asp-for="InterviewerId" class="control-label">interviewer Name</label>
-        @if (ViewBag.interviewersDTOs != null)
-        {
-            <select asp-for="InterviewerId" class="form-control">
-                <option value="">Select an interviewer Name</option>
-                @foreach (var i in ViewBag.interviewersDTOs)
-                {
-                    <option value="@i.Value" selected="@(i.Value == Model.InterviewerId.ToString())">@i.Text</option>
-                }
-            </select>
-        }
-        else
-        {
-            <p>No interviewers available.</p>
-        }
-        <span asp-validation-for="InterviewerId" class="text-danger"></span>
+        <label asp-for="PositionId" class="control-label">Position</label>
+        @Html.DropDownListFor(model => model.PositionId, (SelectList)ViewBag.positionList, "Select a Position", new { @class = "form-control" })
+        <span asp-validation-for="PositionId" class="text-danger"></span>
+    </div>
 
+    <div class="form-group">
+        <label asp-for="InterviewerId" class="control-label"></label>
+        @Html.DropDownListFor(model => model.InterviewerId, (SelectList)ViewBag.interviewersList, "Select an Interviewer", new { @class = "form-control" })
+        <span asp-validation-for="InterviewerId" class="text-danger"></span>
     </div>
 
 
@@ -75,38 +33,27 @@
         <input asp-for="Date" class="form-control" />
         <span asp-validation-for="Date" class="text-danger"></span>
     </div>
-    <div class="form-group" hidden>
+    @*<div class="form-group" hidden>
         <label asp-for="ParentId" class="control-label"></label>
         <input asp-for="ParentId" class="form-control" />
         <span asp-validation-for="ParentId" class="text-danger"></span>
-    </div>
-@*    <div class="form-group">
-        <label asp-for="StatusId" class="control-label">Status</label>
-        @if (ViewBag.StatusDTOs != null)
-        {
-            <select asp-for="StatusId" class="form-control">
-                <option value="">Select a Status</option>
-                @foreach (var status in ViewBag.StatusDTOs)
-                {
-                    <option value="@status.Value" selected="@(status.Value == Model.StatusId.ToString())">@status.Text</option>
-                }
-            </select>
-        }
-        else
-        {
-            <p>No statuses available.</p>
-        }
-        <span asp-validation-for="StatusId" class="text-danger"></span>
-
     </div>*@
 
-  
- @*   <div class="form-group">
+    <div class="form-group">
         <label asp-for="Score" class="control-label"></label>
         <input asp-for="Score" class="form-control" />
         <span asp-validation-for="Score" class="text-danger"></span>
     </div>
-*@
+    <div class="form-group">
+        <label asp-for="StatusId" class="control-label"></label>
+        @Html.DropDownListFor(model => model.StatusId, (SelectList)ViewBag.statusList, "Select an Interviewer", new { @class = "form-control" })
+        <span asp-validation-for="StatusId" class="text-danger"></span>
+    </div>
+    <div class="form-group">
+        <label asp-for="Notes" class="control-label"></label>
+        <input asp-for="Notes" class="form-control" />
+        <span asp-validation-for="Notes" class="text-danger"></span>
+    </div>
 
     <div class="form-group">
        

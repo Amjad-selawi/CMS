@@ -12,5 +12,8 @@ namespace CMS.Domain.Entities
         public string Name { get; set; }
 
         public virtual ICollection<Company> Companies { get; set; }
+
+      
+
     }
 }

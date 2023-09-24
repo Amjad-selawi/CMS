@@ -1,4 +1,5 @@
 ﻿using CMS.Domain.Enums;
+using Microsoft.AspNetCore.Identity;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
@@ -8,13 +9,12 @@ namespace CMS.Domain.Entities
 {
     public class Interviews : BaseEntity
     {
-      
+
         public int InterviewsId { get; set; }
 
         public int? Score { get; set; }
         [Required]
         public DateTime Date { get; set; }
- 
         [Required]
         public int StatusId { set; get; }
         public virtual Status Status { get; set; }
@@ -26,20 +26,14 @@ namespace CMS.Domain.Entities
         [Required]
         public int PositionId { get; set; }
         public virtual Position Position { get; set; }
-
+        public int? AttachmentId { get; set; }
+        public virtual Attachment Attachment { get; set; }
         [Required]
         public string InterviewerId { get; set; }
-
-        public virtual AplicationUser Interviewer { get; set; }
-
-        public int? AttachmentId { set;get; }
-
-        public virtual Attachment Attachment { get; set; }
-        
+        public virtual IdentityUser Interviewer { get; set; }
         public int? ParentId { get; set; }
-
-        public string Notes { get; set; }
-
+        #nullable enable
+        public string? Notes { get; set; }
 
     }
 }
