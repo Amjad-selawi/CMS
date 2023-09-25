@@ -28,17 +28,23 @@ namespace CMS.Domain.Entities
         public virtual Company Company { set; get; }
 
         [Required(ErrorMessage = "Email is required.")]
+        [EmailAddress(ErrorMessage = "Invalid email address")]
         public string Email { get; set; }
 
         [Required(ErrorMessage = "Address is required.")]
         public string Address { get; set; }
 
         [Required(ErrorMessage = "Experience is required.")]
+        [RegularExpression(@"^[0-9]+$", ErrorMessage = "Experience must contain only numeric values.")]
         public string Experience { get; set; }
 
         [Required(ErrorMessage = "CVAttachmentId is required.")]
+
         public int CVAttachmentId { get; set; }
         public virtual Attachment CV { get; set; }
+
+        [Required]
+        [Url(ErrorMessage = "Invalid LinkedIn URL.")]
         public string LinkedInUrl { get; set; }
         public int CountryId { get; set; }
         public virtual Country Country { get; set; }
