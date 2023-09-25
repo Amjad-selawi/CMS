@@ -21,7 +21,7 @@
     </div>
 
     <div class="form-group">
-        <label asp-for="InterviewerId" class="control-label"></label>
+        <label asp-for="InterviewerId" class="control-label">Interviewer</label>
         @Html.DropDownListFor(model => model.InterviewerId, (SelectList)ViewBag.interviewersList, "Select an Interviewer", new { @class = "form-control" })
         <span asp-validation-for="InterviewerId" class="text-danger"></span>
     </div>
@@ -33,11 +33,7 @@
         <input asp-for="Date" class="form-control" />
         <span asp-validation-for="Date" class="text-danger"></span>
     </div>
-    @*<div class="form-group" hidden>
-        <label asp-for="ParentId" class="control-label"></label>
-        <input asp-for="ParentId" class="form-control" />
-        <span asp-validation-for="ParentId" class="text-danger"></span>
-    </div>*@
+ 
 
     <div class="form-group">
         <label asp-for="Score" class="control-label"></label>
@@ -45,7 +41,7 @@
         <span asp-validation-for="Score" class="text-danger"></span>
     </div>
     <div class="form-group">
-        <label asp-for="StatusId" class="control-label"></label>
+        <label asp-for="StatusId" class="control-label">Status</label>
         @Html.DropDownListFor(model => model.StatusId, (SelectList)ViewBag.statusList, "Select an Interviewer", new { @class = "form-control" })
         <span asp-validation-for="StatusId" class="text-danger"></span>
     </div>
@@ -55,13 +51,11 @@
         <span asp-validation-for="Notes" class="text-danger"></span>
     </div>
 
-    <div class="form-group">
-       
-        <input type="submit" value="Save" class="btn btn-outline-primary" />
+    <div class="form-group text-end " style="margin-top:10px;">
+        <a class="btn btn-secondary" asp-action="Index">Back to List</a>
+        <input type="submit" value="Save" class="btn btn-primary" />
     </div>
 
 </form>
-<p>
-<a class="btn btn-secondary" asp-action="Index">Back to List</a>
-</p>
+
 <p>@Html.ValidationSummary()</p>

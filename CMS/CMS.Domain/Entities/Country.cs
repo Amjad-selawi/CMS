@@ -13,7 +13,6 @@ namespace CMS.Domain.Entities
 
         public virtual ICollection<Company> Companies { get; set; }
 
-      
 
     }
 }
