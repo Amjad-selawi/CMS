@@ -38,7 +38,7 @@
 
     <div class="form-group">
         <label asp-for="SelectedRole" class="control-label">Role:</label>
-        @Html.DropDownListFor(model => model.SelectedRole, (SelectList)ViewBag.Roles, "Select a Role", new { @class = "form-control" })
+        @Html.DropDownListFor(model => model.SelectedRole, (SelectList)ViewBag.Roles, new { @class = "form-control" })
         <span asp-validation-for="SelectedRole" class="text-danger"></span>
     </div>
 

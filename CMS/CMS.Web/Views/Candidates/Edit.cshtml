@@ -16,7 +16,7 @@
     </div>
     <div class="form-group">
 
-        <label asp-for="PositionId" class="control-label"></label>
+        <label asp-for="PositionId" class="control-label">Position Name</label>
         @if (ViewBag.positions != null)
         {
             <select asp-for="PositionId"  class="form-control">
@@ -33,7 +33,7 @@
 
     <div class="form-group">
 
-        <label asp-for="CompanyId" class="control-label"></label>
+        <label asp-for="CompanyId" class="control-label">Company Name</label>
         @if (ViewBag.CompaniesDTOs != null)
         {
             <select asp-for="CompanyId" class="form-control">
@@ -86,21 +86,23 @@
     </div>
     <!-- Add other fields similarly -->
    
+    <div class="form-group text-end" style="margin-top:10px;">
+        <a class="btn btn-secondary" asp-action="Index">Back to List</a>
+        <input type="submit" value="Save" class="btn btn-primary" />
+    </div>
 </form>
 <form asp-action="UpdateAttachment" asp-route-id="@Model.Id" enctype="multipart/form-data">
     <div class="form-group">
         <label for="file">Upload CV:</label>
-        <input type="file" id="file" name="file" class="form-control-file" />
+        <input type="file" id="file" name="file" class="form-control-file" required/>
     </div>
     <!-- Add other fields similarly -->
     <div class="form-group">
         <input type="submit" value="upload" class="btn btn-primary" />
     </div>
 
-    <div class="form-group text-end" style="margin-top: 10px;">
-        <a class="btn btn-secondary" asp-action="Index">Back to List</a>
-        <input type="submit" value="Save" class="btn btn-primary" />
-    </div>
 </form>
+
+
 
 

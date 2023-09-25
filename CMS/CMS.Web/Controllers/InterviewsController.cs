@@ -95,8 +95,11 @@ namespace CMS.Web.Controllers
             if (result.IsSuccess)
             {
                 var interviewsDTO = result.Value;
-                 return View(interviewsDTO);
-                
+
+                interviewsDTO.InterviewerName = await _interviewsService.GetInterviewerName(interviewsDTO.InterviewerId);
+
+
+                return View(interviewsDTO);
             }
 
 
@@ -131,13 +134,13 @@ namespace CMS.Web.Controllers
         [ValidateAntiForgeryToken]
         public async Task<ActionResult> Create(InterviewsDTO collection)
         {
-         
 
+            await LoadSelectionLists();
 
             if (ModelState.IsValid)
             {
                 var result = await _interviewsService.Insert(collection);
-                await LoadSelectionLists();
+               
 
                 if (result.IsSuccess)
                 {
@@ -146,19 +149,12 @@ namespace CMS.Web.Controllers
                         await _notificationsService.CreateInterviewNotificationForInterviewerAsync(collection.Date);
                         return RedirectToAction("Index");
                     }
-                    else if (User.IsInRole("Interviewer"))
-                    {
-                        if (collection.StatusName == "Approved" || collection.StatusName == "Rejected")
-                        {
-                            await _notificationsService.CreateNotificationForGeneralManagerAsync(collection.StatusId.Value, collection.Notes);
-                        }
-
+                   
+                  
+                else
+                {
                         return RedirectToAction("Index");
-                    }
-                    else
-                    {
-                        return RedirectToAction("Index");
-                    }
+                }
 
 
                 }
@@ -234,6 +230,11 @@ namespace CMS.Web.Controllers
             if (result.IsSuccess)
             {
                 var interviewDTO = result.Value;
+
+                interviewDTO.InterviewerName = await _interviewsService.GetInterviewerName(interviewDTO.InterviewerId);
+
+
+               
                 return View(interviewDTO);
             }
 

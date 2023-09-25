@@ -12,17 +12,20 @@ namespace CMS.Application.DTOs
         public int InterviewsId { get; set; }
 
         public int? Score { get; set; }
-        [Required]
+        [Required(ErrorMessage = "Please select a Date.")]
         public DateTime Date { get; set; }
         public int? ParentId { get; set; }
+        [Required(ErrorMessage = "Please select a Position.")]
         public int PositionId { get; set; }
 
         public string modifiedBy { set; get; }
         public string PositionName { get; set; }
+        [Required(ErrorMessage = "Please select a Candidate.")]
         public int CandidateId { get; set; }
         public string CandidateName { get; set; }
         public int? StatusId { get; set; }
         public string StatusName { get; set; }
+        [Required(ErrorMessage = "Please select a Interviewer.")]
         public string InterviewerId { get; set; }
         public string InterviewerName { get; set; }
         public string FullName{ get; set; }

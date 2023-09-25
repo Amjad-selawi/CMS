@@ -144,7 +144,7 @@ namespace CMS.Services.Services
             if (existingNotification == null)
                 throw new Exception("Notifications not found");
 
-            existingNotification.SendDate = DateTime.Now;
+            existingNotification.SendDate = entity.SendDate;
             existingNotification.ReceiverId = entity.ReceiverId;
             existingNotification.IsReceived = entity.IsReceived;
             existingNotification.Title = entity.Title;

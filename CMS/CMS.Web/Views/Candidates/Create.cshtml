@@ -76,14 +76,11 @@
         <span asp-validation-for="CountryId" class="text-danger"></span>
     </div>
 
-   @* <div class="form-group">
-        <label asp-for="CVAttachmentId" class="control-label"></label>
-        <input asp-for="CVAttachmentId" class="form-control" />
-        <span asp-validation-for="CVAttachmentId" class="text-danger"></span>
-    </div>*@
     <div class="form-group">
         <label for="file">Upload CV:</label>
-        <input type="file" id="file" name="file" class="form-control-file" />
+        <input type="file" id="file" name="file" class="form-control-file" required/>
+        <span asp-validation-for="FileData" class="text-danger"></span>
+
     </div>
    
     <div class="form-group text-end" style="margin-top: 10px;">

@@ -144,7 +144,7 @@ namespace CMS.Web.Controllers
 
             var model = new Register
             {
-                SelectedRole = roles.FirstOrDefault()
+                SelectedRole = roles.ToString()
             };
 
             ViewBag.Roles = new SelectList(roles);
@@ -198,12 +198,14 @@ namespace CMS.Web.Controllers
 
             var roles = _roleManager.Roles.Select(r => r.Name).ToList();
 
+            var userRole = await _userManager.GetRolesAsync(user);
+
             var model = new Register
             {
                 RegisterrId=user.Id,
                 Email = user.Email,
                 UserName = user.UserName,
-                SelectedRole = roles.FirstOrDefault(),
+                SelectedRole = userRole.FirstOrDefault(),
             };
 
             ViewBag.Roles = new SelectList(roles);
