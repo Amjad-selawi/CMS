@@ -16,6 +16,7 @@ using Microsoft.AspNetCore.Hosting;
 using System.IO;
 using CMS.Web.Utils;
 using System.Collections.ObjectModel;
+using System.Collections.Generic;
 
 namespace CMS.Web.Controllers
 {
@@ -50,6 +51,7 @@ namespace CMS.Web.Controllers
 
         public async Task<ActionResult> MyInterviews()
         {
+            
             var result = await _interviewsService.MyInterviews();
             if (result.IsSuccess)
             {
@@ -67,10 +69,12 @@ namespace CMS.Web.Controllers
         // GET: InterviewsController
         public async Task<ActionResult> Index()
         {
+            
             var result = await _interviewsService.GetAll();
             if (result.IsSuccess)
             {
                 var interviewsDTOs = result.Value;
+               
                 return View(interviewsDTOs);
             }
             else
@@ -81,8 +85,9 @@ namespace CMS.Web.Controllers
         }
 
         // GET: InterviewsController/Details/5
-        public async Task<ActionResult> Details(int id)
+        public async Task<ActionResult> Details(int id , string previousAction)
         {
+            ViewBag.PreviousAction = previousAction;
             var result = await _interviewsService.GetById(id);
 
             await LoadSelectionLists();
@@ -90,7 +95,8 @@ namespace CMS.Web.Controllers
             if (result.IsSuccess)
             {
                 var interviewsDTO = result.Value;
-                return View(interviewsDTO);
+                 return View(interviewsDTO);
+                
             }
 
 
@@ -301,25 +307,39 @@ namespace CMS.Web.Controllers
             var StatusDTOs = await _StatusService.GetAll();
             ViewBag.StatusDTOs = new SelectList(StatusDTOs.Value, "Id", "Name");
 
+            var validationErrors = new List<string>();
+
             if (file == null || file.Length == 0)
             {
-                ModelState.AddModelError("File", "Please choose a file to upload.");
-                return View();
+                //ModelState.AddModelError("", "Please choose a file to upload.");
+                //return View();
+                validationErrors.Add("Please choose a file to upload.");
             }
             if (interviewsDTO.Notes == null)
             {
-                ModelState.AddModelError("", "Please Add Notes.");
-                return View();
+                //ModelState.AddModelError("", "Please Add Notes.");
+                //return View();
+                validationErrors.Add("Please Add Notes.");
             }
             if (interviewsDTO.Score == null)
             {
-                ModelState.AddModelError("", "Please Add Score.");
-                return View();
+                //ModelState.AddModelError("", "Please Add Score.");
+                //return View();
+                validationErrors.Add("Please Add Score.");
             }
             if (interviewsDTO.StatusId == null)
             {
-                ModelState.AddModelError("", "Please Add Status.");
-                return View();
+                //ModelState.AddModelError("", "Please Add Status.");
+                //return View();
+                validationErrors.Add("Please select a Status.");
+            }
+            if (validationErrors.Count() > 0)
+            {
+                foreach (var validation in validationErrors)
+                {
+                    ModelState.AddModelError("", validation);
+                }
+                return View(interviewsDTO);
             }
             FileStream attachmentStream = await AttachmentHelper.handleUpload(file, _attachmentStoragePath);
             interviewsDTO.FileName = file.FileName;

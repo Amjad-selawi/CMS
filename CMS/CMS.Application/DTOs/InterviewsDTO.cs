@@ -16,6 +16,8 @@ namespace CMS.Application.DTOs
         public DateTime Date { get; set; }
         public int? ParentId { get; set; }
         public int PositionId { get; set; }
+
+        public string modifiedBy { set; get; }
         public string PositionName { get; set; }
         public int CandidateId { get; set; }
         public string CandidateName { get; set; }
