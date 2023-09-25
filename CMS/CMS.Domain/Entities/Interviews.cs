@@ -13,22 +13,22 @@ namespace CMS.Domain.Entities
         public int InterviewsId { get; set; }
 
         public int? Score { get; set; }
-        [Required]
+        [Required(ErrorMessage = "Please select a Date.")]
         public DateTime Date { get; set; }
         [Required]
         public int StatusId { set; get; }
         public virtual Status Status { get; set; }
 
-        [Required]
+        [Required(ErrorMessage = "Please select a Candidate.")]
         public int CandidateId { get; set; }
         public virtual Candidate Candidate { get; set; }
 
-        [Required]
+        [Required(ErrorMessage = "Please select a Position.")]
         public int PositionId { get; set; }
         public virtual Position Position { get; set; }
         public int? AttachmentId { get; set; }
         public virtual Attachment Attachment { get; set; }
-        [Required]
+        [Required(ErrorMessage = "Please select a Interviewer.")]
         public string InterviewerId { get; set; }
         public virtual IdentityUser Interviewer { get; set; }
         public int? ParentId { get; set; }

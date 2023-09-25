@@ -23,11 +23,12 @@ namespace CMS.Web.Controllers
         private readonly IPositionService _positionService;
         private readonly ICompanyService _companyService;
         private readonly ICountryService _countryService;
+        private readonly IAttachmentService _attachmentService;
 
         public CandidatesController(ICandidateService candidateService,
             IWebHostEnvironment env,
             IPositionService positionService,
-            ICompanyService companyService, ICountryService countryService)
+            ICompanyService companyService, ICountryService countryService,IAttachmentService attachmentService)
         {
             _candidateService = candidateService;
             _attachmentStoragePath = Path.Combine(env.WebRootPath, "attachments");
@@ -39,6 +40,7 @@ namespace CMS.Web.Controllers
             _positionService = positionService;
             _companyService = companyService;
             _countryService = countryService;
+            _attachmentService = attachmentService;
         }
 
         public async Task<IActionResult> Index()
@@ -128,6 +130,9 @@ namespace CMS.Web.Controllers
             {
                 return NotFound();
             }
+
+          
+
             var positions = await _positionService.GetAll();
             ViewBag.positions = new SelectList(positions.Value, "Id", "Name");
             var CompaniesDTOs = await _companyService.GetAll();

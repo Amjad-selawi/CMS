@@ -313,6 +313,9 @@ namespace CMS.Web.Controllers
             if (result.IsSuccess)
             {
                 var interviewDTO = result.Value;
+
+                interviewDTO.InterviewerName = await _searchInterviewsService.GetInterviewerName(interviewDTO.InterviewerId);
+
                 return View(interviewDTO);
             }
 

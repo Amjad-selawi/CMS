@@ -1,6 +1,8 @@
 ﻿@model IEnumerable<CMS.Application.DTOs.InterviewsDTO>
 
-<h2>Interviews</h2>
+@{
+    ViewData["Title"] = "Interviews Filter";
+}
 
 
 @using (Html.BeginForm("Index", "SearchInterviews", FormMethod.Get))
@@ -41,7 +43,7 @@
             </div>
 
 
-            <div class="col-md-3">
+            <div class="col-md-3" style="margin-top:27px;">
                 <label>&nbsp;</label>
                 <button type="submit" name="export" value="excel" class="btn btn-primary btn-block">Filter</button>
             </div>
@@ -49,7 +51,7 @@
 
             <input type="hidden" name="export" value="excel" />
 
-            <div class="col-md-3">
+            <div class="col-md-3" style="margin-top:10px;margin-bottom: 8px;">
                 <label>&nbsp;</label>
                 <button type="submit" class="btn btn-success btn-block">Export to Excel</button>
             </div>

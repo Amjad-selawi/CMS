@@ -42,7 +42,6 @@ namespace CMS.Web.Controllers
                 ModelState.AddModelError("", "error validating the model");
             }
 
-            //return View("Index", positionDTO);
             return View(positionDTO);
         }
         [HttpGet]
