@@ -1,10 +1,12 @@
 ﻿using CMS.Application.DTOs;
 using CMS.Domain;
+using CMS.Domain.Entities;
 using CMS.Services.Interfaces;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
+using System;
 using System.Collections.Generic;
 using System.Diagnostics.Eventing.Reader;
 using System.Linq;
@@ -50,21 +52,35 @@ namespace CMS.Web.Controllers
         {
             try
             {
-               
-                if (!ModelState.IsValid)
+
+                //if (!ModelState.IsValid)
+                //{
+                //    ModelState.AddModelError("", "Email or Password not correct..!");
+                //    return View();
+                //}
+                if (ModelState.IsValid)
                 {
-                    ModelState.AddModelError("", "Email or Password not correct..!");
-                    return View();
-                }
-               
-                var result = await _accountService.LoginAsync(collection);
-                if (result)
-                {
-                    return RedirectToAction("Index", "Home");
+                    var result = await _accountService.LoginAsync(collection);
+                    if (result)
+                    {
+                        return RedirectToAction("Index", "Home");
+                    }
+                    else
+                    {
+                        var user = await _accountService.GetUserByEmailAsync(collection.UserEmail);
+                        if (user == null)
+                        {
+                            ModelState.AddModelError("", "Invalid email address.");
+                        }
+                        else
+                        {
+                            ModelState.AddModelError("", $"Wrong password");
+                        }
+                        return View();
+                    }
                 }
                 else
                 {
-                    ModelState.AddModelError("", $"error logging in..!");
                     return View();
                 }
             }
@@ -186,6 +202,7 @@ namespace CMS.Web.Controllers
 
             var model = new Register
             {
+                RegisterrId=user.Id,
                 Email = user.Email,
                 UserName = user.UserName,
                 SelectedRole = userRole.FirstOrDefault(),
@@ -197,18 +214,18 @@ namespace CMS.Web.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(Register collection, string id)
+        public async Task<IActionResult> Edit(Register collection/*, string id*/)
         {
             if (ModelState.IsValid)
             {
-                var user = await _userManager.FindByIdAsync(id);
-
+                var user = await _userManager.FindByIdAsync(collection.RegisterrId);
+               
                 user.Email = collection.Email;
                 user.UserName = collection.UserName;
+                
 
-
-                var result = await _userManager.UpdateAsync(user);
-
+                    var result = await _userManager.UpdateAsync(user);
+              
                 if (result.Succeeded)
                 {
                     if (!string.IsNullOrEmpty(collection.SelectedRole))

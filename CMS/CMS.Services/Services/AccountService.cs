@@ -55,6 +55,10 @@ namespace CMS.Services.Services
         
         {
             var signedUser = await _userManager.FindByEmailAsync(collection.UserEmail);
+            if (signedUser == null)
+            {
+                return false;
+            }
 
             var result = await _signInManager.PasswordSignInAsync(signedUser.UserName, collection.Password, collection.RememberMe, false);
             

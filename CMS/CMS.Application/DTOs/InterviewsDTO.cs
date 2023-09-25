@@ -17,6 +17,8 @@ namespace CMS.Application.DTOs
         public int? ParentId { get; set; }
         [Required(ErrorMessage = "Please select a Position.")]
         public int PositionId { get; set; }
+
+        public string modifiedBy { set; get; }
         public string PositionName { get; set; }
         [Required(ErrorMessage = "Please select a Candidate.")]
         public int CandidateId { get; set; }

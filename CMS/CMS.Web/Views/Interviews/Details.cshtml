@@ -57,8 +57,15 @@
 
     </dl>
 </div>
-<div class="form-group text-end">
-    <a class="btn btn-secondary" asp-action="Index">Back to List</a>
-    <a asp-action="Edit" asp-route-id="@Model.InterviewsId" class="btn btn-primary">Edit</a>
+<div class="form-group">
+    @{
+        string returnAction = "Index";
+        if (ViewBag.PreviousAction== "MyInterviews")
+        {
+            returnAction = "MyInterviews";
+        }
+    }
+    <a class="btn btn-secondary"  asp-action="@returnAction">Back to List</a>
+   @* <a asp-action="Edit" asp-route-id="@Model.InterviewsId" class="btn btn-primary">Edit</a>*@
     
 </div>

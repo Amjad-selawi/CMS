@@ -26,7 +26,7 @@
                             <th>Status</th>
                             <th>Notes</th>
                             <th>Evaluation</th>
-                            <th>Details</th>
+                            <th>Actions</th>
                             <th>Add Result</th>
                         </tr>
                     </thead>
@@ -51,11 +51,19 @@
                                     <td> </td>
                                 }
                                 <td>
-                                    <a class="bx bx-detail" style="font-size:x-large" asp-action="Details" asp-route-id="@item.InterviewsId"></a> 
+                                    <a class="bx bx-detail" style="font-size:x-large" asp-action="Details" asp-route-id="@item.InterviewsId" asp-route-previousAction="MyInterviews"></a> 
+                                   
                                 </td>
-                                <td >
-                                    <a asp-action="UpdateAfterInterview" asp-route-id="@item.InterviewsId" asp-route-idd="@item.InterviewerId" style="color:#007bff;text-decoration: none;background-color: #f0f0f0;padding: 5px 10px;border-radius: 4px;"> Add Result</a>
-                                </td>
+                                @if(item.modifiedBy==null){
+                                <td>
+                                    <a class="bx bx-plus" style="font-size:x-large" asp-action="UpdateAfterInterview" asp-route-id="@item.InterviewsId" asp-route-idd="@item.InterviewerId"> </a>
+                                    </td>
+                                }
+                                else
+                                {
+                                    <td>ADDED</td>
+                                }
+
                             </tr>
                         }
                     </tbody>

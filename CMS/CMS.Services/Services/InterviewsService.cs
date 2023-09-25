@@ -166,7 +166,9 @@ namespace CMS.Services.Services
             }
             try
             {
+               
                 var interview = await _interviewsRepository.GetById(id);
+                string userName = await GetInterviewerName(interview.InterviewerId);
                 var interviewDTO = new InterviewsDTO
                 {
                     InterviewsId=interview.InterviewsId,
@@ -179,6 +181,7 @@ namespace CMS.Services.Services
                     Notes = interview.Notes,
                     ParentId = interview.ParentId,
                     InterviewerId = interview.InterviewerId,
+                    InterviewerName=userName,
                     CandidateId = interview.CandidateId,
                     FullName = interview.Candidate.FullName,
                     AttachmentId=interview.AttachmentId,
@@ -198,6 +201,7 @@ namespace CMS.Services.Services
                 return Result<InterviewsDTO>.Failure(data, "the interview  DTO is null");
             }
             var status = await _statusRepository.GetByCode(StatusCode.Pending);
+            var currentUser = await _userManager.GetUserAsync(_httpContextAccessor.HttpContext.User);
             var interview = new Interviews
             {
                 PositionId = data.PositionId,
@@ -209,6 +213,7 @@ namespace CMS.Services.Services
                 ParentId=data.ParentId,
                 InterviewerId=data.InterviewerId,
                 AttachmentId =data.AttachmentId,
+                //CreatedBy=currentUser.Id,
 
             };
                 await _interviewsRepository.Insert(interview);
@@ -263,6 +268,7 @@ namespace CMS.Services.Services
         {
             try
             {
+                var currentUser = await _userManager.GetUserAsync(_httpContextAccessor.HttpContext.User);
 
                 var interview = await _interviewsRepository.GetById(completedDTO.InterviewsId);
                 int attachmentId = await _attachmentService.CreateAttachmentAsync(completedDTO.FileName, (long)completedDTO.FileSize, completedDTO.FileData);
@@ -273,6 +279,7 @@ namespace CMS.Services.Services
                 interview.Score = completedDTO.Score;
                 interview.Notes = completedDTO.Notes;
                 interview.AttachmentId = attachmentId;
+                interview.ModifiedBy = currentUser.UserName;
                 await _interviewsRepository.Update(interview);
                 // Step 2: Create Next Interview if Needed.
                 var Completedstatus = await _statusRepository.GetById((int)completedDTO.StatusId);
@@ -344,7 +351,8 @@ namespace CMS.Services.Services
                         ParentId = i.ParentId,
                         CandidateId=i.CandidateId,
                         FullName=i.Candidate.FullName,
-                        AttachmentId=i.AttachmentId
+                        AttachmentId=i.AttachmentId,
+                        modifiedBy=i.ModifiedBy,
                         
                     });
 
