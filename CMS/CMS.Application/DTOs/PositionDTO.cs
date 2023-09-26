@@ -14,5 +14,7 @@ namespace CMS.Application.DTOs
         public List<CarrerOfferDTO> CarrerOfferDTO { get; set; }
 
         public List<InterviewsDTO> InterviewsDTO { get; set; }
+
+        public List<CandidateDTO> Candidates { get; set; }
     }
 }
