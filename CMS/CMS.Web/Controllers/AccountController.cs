@@ -14,6 +14,7 @@ using System.Threading.Tasks;
 
 namespace CMS.Web.Controllers
 {
+    //Test
     public class AccountController : Controller
     {
         SignInManager<IdentityUser> _signInManager;
