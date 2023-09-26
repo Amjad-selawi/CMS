@@ -19,11 +19,11 @@ namespace CMS.Domain.EntityMapper
                 .HasOne(candidate => candidate.Position)
                 .WithMany(position=>position.Candidates)
                 .HasForeignKey(candidate => candidate.PositionId);
-            builder
-                .HasOne(candidate => candidate.Country)
-                .WithMany()
-                .HasForeignKey(candidate => candidate.CountryId)
-                .OnDelete(DeleteBehavior.Restrict);
+            //builder
+            //    .HasOne(candidate => candidate.Country)
+            //    .WithMany()
+            //    .HasForeignKey(candidate => candidate.CountryId)
+            //    .OnDelete(DeleteBehavior.Restrict);
             builder
                 .HasMany(candidate => candidate.Interviews)
                 .WithOne(interview => interview.Candidate);
