@@ -126,8 +126,12 @@ namespace CMS.Web.Controllers
                 }
                 if (fromDate.HasValue && toDate.HasValue)
                 {
+                    toDate = toDate.Value.AddDays(1);
+
+
                     interviews = interviews
                         .Where(i => i.Date >= fromDate.Value && i.Date <= toDate.Value)
+                        .OrderBy(i => i.Date)
                         .ToList(); // Materialize the filtered interviews
                 }
 
