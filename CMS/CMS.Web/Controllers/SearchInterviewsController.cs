@@ -48,7 +48,7 @@ namespace CMS.Web.Controllers
 
 
 
-        public async Task<ActionResult> Index(string positionFilter, int? scoreFilter, int? statusFilter, int? candidateFilter, string interviewerFilter, DateTime? fromDate, DateTime? toDate)
+        public async Task<ActionResult> Index(string positionFilter, int? scoreFilter, int? statusFilter, string candidateFilter, string interviewerFilter, DateTime? fromDate, DateTime? toDate)
         {
             var positionsDTO = await _positionService.GetAll();
             ViewBag.PositionList = new SelectList(positionsDTO.Value, "Id", "Name");
@@ -83,7 +83,7 @@ namespace CMS.Web.Controllers
 
                 int positionId = Convert.ToInt32(positionFilter);
                 int statusId = Convert.ToInt32(statusFilter);
-                int candidateId = Convert.ToInt32(candidateFilter);
+                
 
                 // If a position filter is selected, filter the interviews
                 if (!string.IsNullOrEmpty(positionFilter) && positionFilter != "All Positions")
@@ -110,10 +110,10 @@ namespace CMS.Web.Controllers
                 }
 
                 // Filter by candidate if the candidateFilter parameter is provided
-                if (candidateFilter.HasValue && candidateFilter.Value > 0)
+                if (!string.IsNullOrEmpty(candidateFilter))
                 {
                     interviews = interviews
-                        .Where(i => i.CandidateId == candidateFilter.Value)
+                        .Where(i => i.FullName.Contains(candidateFilter, StringComparison.OrdinalIgnoreCase))
                         .ToList(); // Materialize the filtered interviews
                 }
 
