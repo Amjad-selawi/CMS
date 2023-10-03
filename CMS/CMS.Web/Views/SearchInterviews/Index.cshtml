@@ -25,7 +25,7 @@
 
             <div class="col-md-3">
                 @Html.Label("Filter by Candidate:")
-                @Html.DropDownList("candidateFilter", ViewBag.CandidateList as SelectList, "All Candidates", new { @class = "form-control" })
+                <input type="text" id="candidateFilter" name="candidateFilter" class="form-control" placeholder="Search by Candidate Name">
             </div>
 
             <div class="col-md-3">
