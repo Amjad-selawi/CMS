@@ -73,5 +73,33 @@ namespace CMS.Services.Services
                 return Result<StatusDTO>.Failure(data, $"unable to insert a status: {ex.InnerException.Message}");
             }
         }
+
+
+
+        public async Task<int> GetStatusIdByName(string statusName)
+        {
+            try
+            {
+                var status = await _repository.GetStatusByNameAsync(statusName);
+
+                if (status != null)
+                {
+                    return status.Id;
+                }
+                else
+                {
+                    return 0; 
+                }
+            }
+            catch (Exception ex)
+            {
+                throw new Exception($"Error getting status ID by name: {ex.Message}", ex);
+            }
+        }
+
+
+
+
+
     }
 }

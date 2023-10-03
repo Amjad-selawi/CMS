@@ -17,6 +17,14 @@ using System.IO;
 using CMS.Web.Utils;
 using System.Collections.ObjectModel;
 using System.Collections.Generic;
+using Microsoft.EntityFrameworkCore;
+using CMS.Domain;
+using System.Net.Mail;
+using System.Net;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Identity.UI.Services;
+using Habanero.Util;
+using CMS.Repository.Interfaces;
 
 namespace CMS.Web.Controllers
 {
@@ -29,11 +37,12 @@ namespace CMS.Web.Controllers
         private readonly IStatusService _StatusService;
         private readonly IAccountService _accountService;
         private readonly INotificationsService _notificationsService;
+        private readonly IInterviewsRepository _interviewsRepository;
         private readonly string _attachmentStoragePath;
 
         public InterviewsController(IInterviewsService interviewsService, ICandidateService candidateService,
             IPositionService positionService, IStatusService statusService, IWebHostEnvironment env,
-            IAccountService accountService, INotificationsService notificationsService)
+            IAccountService accountService, INotificationsService notificationsService, IInterviewsRepository interviewsRepository)
         {
             _interviewsService = interviewsService;
             _candidateService = candidateService;
@@ -41,6 +50,7 @@ namespace CMS.Web.Controllers
             _StatusService = statusService;
             _accountService = accountService;
             _notificationsService = notificationsService;
+            _interviewsRepository = interviewsRepository;
             _attachmentStoragePath = Path.Combine(env.WebRootPath, "attachments");
 
             if (!Directory.Exists(_attachmentStoragePath))
@@ -49,32 +59,74 @@ namespace CMS.Web.Controllers
             }
         }
 
-        public async Task<ActionResult> MyInterviews()
+        public async Task<ActionResult> MyInterviews(int? statusFilter)
         {
-            
-            var result = await _interviewsService.MyInterviews();
-            if (result.IsSuccess)
+            // Get all statuses
+            var statusesResult = await _StatusService.GetAll();
+            if (!statusesResult.IsSuccess)
             {
-                var interviewsDTOs = result.Value;
-                return View(interviewsDTOs);
+                ModelState.AddModelError("", statusesResult.Error);
+                return View(new List<InterviewsDTO>()); // Return an empty list if there was an error
             }
-            else
+
+            var statuses = statusesResult.Value;
+            ViewBag.StatusList = new SelectList(statuses, "Id", "Name");
+
+            // Default to "Pending" status if no filter is specified
+            if (!statusFilter.HasValue)
+            {
+                statusFilter = await _StatusService.GetStatusIdByName("Pending"); // Replace with your actual method to get status by name
+            }
+
+            var result = await _interviewsService.MyInterviews();
+            if (!result.IsSuccess)
             {
                 ModelState.AddModelError("", result.Error);
                 return View();
             }
 
+            var interviewsDTOs = result.Value;
+
+            // Filter interviews based on the selected status if a filter is applied
+            if (statusFilter.HasValue && statusFilter.Value > 0)
+            {
+                interviewsDTOs = interviewsDTOs
+                    .Where(i => i.StatusId == statusFilter.Value)
+                    .ToList();
+            }
+
+            return View(interviewsDTOs);
         }
+
+
+
+
+        //public async Task<ActionResult> MyInterviews()
+        //{
+
+        //    var result = await _interviewsService.MyInterviews();
+        //    if (result.IsSuccess)
+        //    {
+        //        var interviewsDTOs = result.Value;
+        //        return View(interviewsDTOs);
+        //    }
+        //    else
+        //    {
+        //        ModelState.AddModelError("", result.Error);
+        //        return View();
+        //    }
+
+        //}
 
         // GET: InterviewsController
         public async Task<ActionResult> Index()
         {
-            
+
             var result = await _interviewsService.GetAll();
             if (result.IsSuccess)
             {
                 var interviewsDTOs = result.Value;
-               
+
                 return View(interviewsDTOs);
             }
             else
@@ -85,7 +137,7 @@ namespace CMS.Web.Controllers
         }
 
         // GET: InterviewsController/Details/5
-        public async Task<ActionResult> Details(int id , string previousAction)
+        public async Task<ActionResult> Details(int id, string previousAction)
         {
             ViewBag.PreviousAction = previousAction;
             var result = await _interviewsService.GetById(id);
@@ -140,21 +192,36 @@ namespace CMS.Web.Controllers
             if (ModelState.IsValid)
             {
                 var result = await _interviewsService.Insert(collection);
-               
+
 
                 if (result.IsSuccess)
                 {
                     if (User.IsInRole("HR Manager"))
                     {
                         await _notificationsService.CreateInterviewNotificationForInterviewerAsync(collection.Date);
+
+                      
+
+                        var interviewerEmail = await GetInterviewerEmail(collection.InterviewerId);
+                        EmailDTOs emailModel = new EmailDTOs
+                        {
+                            EmailTo = new List<string> { interviewerEmail },
+                            EmailBody = $"You have an interview scheduled on {collection.Date}. Please be prepared.",
+                            Subject = "Interview Invitation"
+                        };
+                        if (!string.IsNullOrEmpty(interviewerEmail))
+                        {
+                            await SendEmailToInterviewer(interviewerEmail, collection, emailModel);
+                        }
+
                         return RedirectToAction("Index");
                     }
-                   
-                  
-                else
-                {
+
+
+                    else
+                    {
                         return RedirectToAction("Index");
-                }
+                    }
 
 
                 }
@@ -234,7 +301,7 @@ namespace CMS.Web.Controllers
                 interviewDTO.InterviewerName = await _interviewsService.GetInterviewerName(interviewDTO.InterviewerId);
 
 
-               
+
                 return View(interviewDTO);
             }
 
@@ -288,7 +355,7 @@ namespace CMS.Web.Controllers
                     stream.Close();
                     AttachmentHelper.removeFile(file.FileName, _attachmentStoragePath);
                 }
-                
+
             }
             return RedirectToAction(nameof(Index));
         }
@@ -299,7 +366,7 @@ namespace CMS.Web.Controllers
 
             var result = await _interviewsService.GetById(id);
             var InterviewsDTO = result.Value;
-           
+
             return View(InterviewsDTO);
         }
         [HttpPost]
@@ -362,7 +429,25 @@ namespace CMS.Web.Controllers
                     if (interviewsDTO.StatusId == 2 || interviewsDTO.StatusId == 3)
                     {
                         await _notificationsService.CreateNotificationForGeneralManagerAsync(interviewsDTO.StatusId.Value, interviewsDTO.Notes);
+
+                        //var GMEmail = await GetGMEmail();
+                        //EmailDTOs emailModel = new EmailDTOs
+                        //{
+                        //    EmailTo = new List<string> { GMEmail },
+                        //    EmailBody = $"You have a second interview. Please be prepared.",
+                        //    Subject = "Interview Invitation"
+                        //};
+                        //if (!string.IsNullOrEmpty(GMEmail))
+                        //{
+                        //    await SendEmailToInterviewer(GMEmail, interviewsDTO, emailModel);
+                        //}
+
                         return RedirectToAction(nameof(MyInterviews));
+                    }
+                    else
+                    {
+                        return RedirectToAction(nameof(MyInterviews));
+
                     }
                 }
 
@@ -371,6 +456,7 @@ namespace CMS.Web.Controllers
                     if (interviewsDTO.StatusId == 2 || interviewsDTO.StatusId == 3)
                     {
                         await _notificationsService.CreateInterviewNotificationForHRInterview(interviewsDTO.StatusId.Value, interviewsDTO.Notes);
+                     
                         return RedirectToAction(nameof(MyInterviews));
                     }
 
@@ -390,6 +476,99 @@ namespace CMS.Web.Controllers
 
         }
 
+
+
+
+
+
+        public async Task SendEmailToInterviewer(string interviewerEmail, InterviewsDTO interview,EmailDTOs emailmodel)
+        {
+            try
+            {
+                SmtpClient smtp = new SmtpClient();
+                smtp.Host = "mail.sssprocess.com";
+                smtp.Port = 587;
+                smtp.DeliveryMethod = SmtpDeliveryMethod.Network;
+                smtp.EnableSsl = true;
+                smtp.UseDefaultCredentials = true;
+                string UserName = "notifications";
+                string Password = "P@ssw0rd";
+                smtp.Credentials = new NetworkCredential(UserName, Password);
+
+                using (var message = new MailMessage())
+                {
+                    message.From = new MailAddress("notifications@techprocess.net");
+
+                    if (emailmodel.EmailTo != null && emailmodel.EmailTo.Any())
+                    {
+                        foreach (var to in emailmodel.EmailTo)
+                        {
+                            message.To.Add(to);
+                        }
+                    }
+
+
+                    message.Body = emailmodel.EmailBody;
+                    message.Subject = emailmodel.Subject;
+                    message.IsBodyHtml = true;
+
+                    smtp.Send(message);
+                }
+            }
+            catch (Exception ex)
+            {
+                ModelState.AddModelError("", "Failed to send email: " + ex.Message);
+            }
+
+        }
+
+
+
+        public async Task<string> GetInterviewerEmail(string interviewerId)
+        {
+
+            var email = await _interviewsRepository.GetInterviewerEmail(interviewerId);
+
+            if (email != null)
+            {
+                return email;
+            }
+            else
+            {
+                return null;
+            }
+         
+        }
+
+
+        public async Task<string> GetHREmail()
+        {
+            var email = await _interviewsRepository.GetHREmail();
+
+            if (email != null)
+            {
+                return email;
+            }
+            else
+            {
+                return null;
+            }
+        }
+
+
+        public async Task<string> GetGMEmail()
+        {
+            var email = await _interviewsRepository.GetGeneralManagerEmail();
+
+            if (email != null)
+            {
+                return email;
+            }
+            else
+            {
+                return null;
+            }
+        }
 
 
 

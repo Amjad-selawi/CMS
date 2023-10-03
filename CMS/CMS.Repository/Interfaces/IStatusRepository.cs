@@ -13,5 +13,8 @@ namespace CMS.Repository.Interfaces
 
         Task<Status> GetByCode(string co);
         Task<Status> GetById(int id);
+
+        Task<Status> GetStatusByNameAsync(string statusName);
+
     }
 }

@@ -11,5 +11,8 @@ namespace CMS.Services.Interfaces
     {
         Task<Result<StatusDTO>> Insert(StatusDTO data);
         Task<Result<List<StatusDTO>>> GetAll();
+
+        Task<int> GetStatusIdByName(string statusName);
+
     }
 }

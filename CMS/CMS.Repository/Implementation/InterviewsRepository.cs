@@ -118,5 +118,97 @@ namespace CMS.Repository.Repositories
             }
         }
 
+
+        public async Task<string> GetInterviewerEmail(string interviewerId)
+        {
+            try
+            {
+                var interviewer = await _context.Users.FindAsync(interviewerId);
+
+                if (interviewer != null)
+                {
+                    return interviewer.Email;
+                }
+                else
+                {
+                    return null;
+                }
+            }
+            catch (Exception ex)
+            {
+                // Handle exceptions here if needed
+                return null;
+            }
+        }
+
+
+        public async Task<string> GetGeneralManagerEmail()
+        {
+            try
+            {
+                var generalManagerRoleId = await _context.Roles
+                    .Where(r => r.Name == "General Manager")
+                    .Select(r => r.Id).FirstOrDefaultAsync();
+
+                if(generalManagerRoleId != null)
+                {
+                    var generalManagerEmail = await _context.UserRoles
+                        .Where(ur => ur.RoleId == generalManagerRoleId)
+                        .Join(_context.Users, ur => ur.UserId,user => user.Id,(ur, user) => user.Email)
+                        .FirstOrDefaultAsync(); 
+                    
+                    return generalManagerEmail;
+                }
+                else
+                {
+                    return null; 
+                }
+            }
+            catch (Exception ex)
+            {
+                return null;
+
+            }
+        }
+
+
+        //Get HrManager Email
+        public async Task<string> GetHREmail()
+        {
+            try
+            {
+                var hrRoleId = await _context.Roles
+                    .Where(r => r.Name == "HR Manager")
+                    .Select(r => r.Id)
+                    .FirstOrDefaultAsync();
+
+                if (hrRoleId != null)
+                {
+                    var hrManagerEmail = await _context.UserRoles
+                        .Where(ur => ur.RoleId == hrRoleId)
+                        .Join(_context.Users,
+                            ur => ur.UserId,
+                            user => user.Id,
+                            (ur, user) => user.Email)
+                        .FirstOrDefaultAsync();
+
+                    return hrManagerEmail;
+                }
+                else
+                {
+                    return null; 
+                }
+            }
+            catch (Exception ex)
+            {
+                return null;
+            }
+        }
+
+
+
+
+
+
     }
 }
