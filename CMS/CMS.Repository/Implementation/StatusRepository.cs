@@ -53,5 +53,26 @@ namespace CMS.Repository.Implementation
                 throw ex;
             }
         }
+
+
+
+
+        public async Task<Status> GetStatusByNameAsync(string statusName)
+        {
+            try
+            {
+                return await _context.Statuses
+                    .AsNoTracking()
+                    .FirstOrDefaultAsync(s => s.Name == statusName);
+            }
+            catch (Exception ex)
+            {
+                throw new Exception($"Error getting status by name: {ex.Message}", ex);
+            }
+        }
+
+
+
+
     }
 }

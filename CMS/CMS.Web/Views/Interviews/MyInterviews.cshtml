@@ -3,6 +3,19 @@
     ViewData["Title"] = "My Interviews";
 }
 
+@using (Html.BeginForm("MyInterviews", "Interviews", FormMethod.Get))
+{
+    <div class="form-group">
+        <div class="col-md-3">
+            @Html.Label("Filter by Status:")
+            @Html.DropDownList("statusFilter", ViewBag.StatusList as SelectList, null, new { @class = "form-control" })
+        </div>
+        <div class="col-md-3" style="margin-top: 11px;margin-bottom: 13px;">
+            <label>&nbsp;</label>
+            <button type="submit" class="btn btn-primary btn-block">Filter</button>
+        </div>
+    </div>
+}
 
 
 <div class="row">
@@ -13,7 +26,7 @@
 
             </div>
             <div class="card-body">
-
+             
                 <table id="add-rows" class="table table-nowrap dt-responsive table-bordered display" style="width:100%">
                     <thead>
                         <tr>
@@ -72,6 +85,5 @@
         </div>
     </div><!--end col-->
 </div><!--end row-->
-
 
 
