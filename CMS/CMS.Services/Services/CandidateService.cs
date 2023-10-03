@@ -74,8 +74,12 @@ namespace CMS.Services.Services
 
         public async Task CreateCandidateAsync(CandidateCreateDTO candidateDTO)
         {
-            int attachmentId = await _attachmentService.CreateAttachmentAsync(candidateDTO.FileName, candidateDTO.FileSize, candidateDTO.FileData);
-            candidateDTO.CVAttachmentId = attachmentId;
+            if (candidateDTO.FileData != null)
+            {
+                int attachmentId = await _attachmentService.CreateAttachmentAsync(candidateDTO.FileName, candidateDTO.FileSize, candidateDTO.FileData);
+                candidateDTO.CVAttachmentId = attachmentId;
+            }
+           
             var candidate = new Candidate
             {
                 FullName = candidateDTO.FullName,
@@ -118,7 +122,7 @@ namespace CMS.Services.Services
 
             if (candidate != null)
             {
-                int attachmentToRemove = candidate.CVAttachmentId;
+                int attachmentToRemove = (int)candidate.CVAttachmentId;
                 await _candidateRepository.DeleteCandidateAsync(candidate);
                 await _attachmentService.DeleteAttachmentAsync(attachmentToRemove);
             }
@@ -129,10 +133,22 @@ namespace CMS.Services.Services
         {
             var candidate = await _candidateRepository.GetCandidateByIdAsync(id);
             int attachmentId = await _attachmentService.CreateAttachmentAsync(fileName, fileSize, fileStream);
-            int attachmentToRemove = candidate.CVAttachmentId;
+            
+            int attachmentToRemove=0;
+            if (candidate.CVAttachmentId != null)
+            {
+                attachmentToRemove = (int)candidate.CVAttachmentId;
+                
+                
+            }
+           
             candidate.CVAttachmentId = attachmentId;
             await _candidateRepository.UpdateCandidateAsync(candidate);
-            await _attachmentService.DeleteAttachmentAsync(attachmentToRemove);
+            if (attachmentToRemove!=0)
+            {
+                await _attachmentService.DeleteAttachmentAsync(attachmentToRemove);
+            }
+            
         }
     }
 }

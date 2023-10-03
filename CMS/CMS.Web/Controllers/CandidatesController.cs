@@ -90,18 +90,26 @@ namespace CMS.Web.Controllers
             var Country = await _countryService.GetAll();
             ViewBag.CountryDTOs = new SelectList(Country.Value, "Id", "Name");
 
-            if (file == null || file.Length == 0)
-                {
-                    ModelState.AddModelError("File", "Please choose a file to upload.");
-                    return View();
-                }
-
-                FileStream attachmentStream = await AttachmentHelper.handleUpload(file, _attachmentStoragePath);
-            try
+            //if (file == null || file.Length == 0)
+            //    {
+            //        ModelState.AddModelError("File", "Please choose a file to upload.");
+            //        return View();
+            //    }
+            FileStream attachmentStream=null;
+            if (file!=null && file.Length != 0)
             {
+                attachmentStream = await AttachmentHelper.handleUpload(file, _attachmentStoragePath);
                 candidateDTO.FileName = file.FileName;
                 candidateDTO.FileSize = file.Length;
                 candidateDTO.FileData = attachmentStream;
+            }
+
+               // FileStream attachmentStream = await AttachmentHelper.handleUpload(file, _attachmentStoragePath);
+            try
+            {
+                //candidateDTO.FileName = file.FileName;
+                //candidateDTO.FileSize = file.Length;
+                //candidateDTO.FileData = attachmentStream;
                 if (ModelState.IsValid)
                 {
                     await _candidateService.CreateCandidateAsync(candidateDTO);
@@ -115,8 +123,12 @@ namespace CMS.Web.Controllers
             
             } finally
             {
-                attachmentStream.Close();
-                AttachmentHelper.removeFile(file.FileName, _attachmentStoragePath);
+                if (attachmentStream != null)
+                {
+                    attachmentStream.Close();
+                    AttachmentHelper.removeFile(file.FileName, _attachmentStoragePath);
+                }
+              
 
 
             }

@@ -39,8 +39,15 @@
                 <td>@Html.DisplayFor(modelItem => candidate.Address)</td>
                 <td>@Html.DisplayFor(modelItem => candidate.Experience)</td>
                 <td>@Html.DisplayFor(modelItem => candidate.CountryName)</td>
-                <td><a asp-controller="Attachments" asp-action="Download" asp-route-id="@candidate.CVAttachmentId">Download CV</a></td>
-                <td>
+                                @if (candidate.CVAttachmentId != null)
+                                {
+                                    <td><a asp-controller="Attachments" asp-action="Download" asp-route-id="@candidate.CVAttachmentId">Download CV</a></td>
+                                }
+                                else{
+
+                                    <td> </td>
+                                    }
+                                    <td>
                     <a class="bx bxs-edit-alt" style="font-size:x-large" asp-action="Edit" asp-route-id="@candidate.Id"></a> |
                     <a class="bx bx-detail" style="font-size:x-large" asp-action="Details" asp-route-id="@candidate.Id"></a> |
                     <a class="ri-delete-bin-2-line text-danger" style="font-size:x-large" asp-action="Delete" asp-route-id="@candidate.Id"></a>
