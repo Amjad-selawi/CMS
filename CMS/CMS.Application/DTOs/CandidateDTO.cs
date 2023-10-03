@@ -32,9 +32,8 @@ namespace CMS.Application.DTOs
         [RegularExpression(@"^[0-9]+$", ErrorMessage = "Experience must contain only numeric values.")]
         public string Experience { get; set; }
 
-        [Required(ErrorMessage = "CVAttachment is required.")]
-        public int CVAttachmentId { get; set; }
-        [Required]
+        public int? CVAttachmentId { get; set; }
+       
         [Url(ErrorMessage = "Invalid LinkedIn URL.")]
         public string LinkedInUrl { get; set; }
         public int CountryId { get; set; }

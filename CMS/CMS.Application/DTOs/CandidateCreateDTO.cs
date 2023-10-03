@@ -37,11 +37,11 @@ namespace CMS.Application.DTOs
         public string Experience { get; set; }
 
         [Url(ErrorMessage = "Invalid LinkedIn URL.")]
-        [Required]
+      
         public string LinkedInUrl { get; set; }
         public int CountryId { get; set; }
         public string CountryName { get; set; }
-        public int CVAttachmentId { get; set; }
+        public int? CVAttachmentId { get; set; }
         public string FileName { get; set; }
         public long FileSize { get; set; }
         //[Required(ErrorMessage = "CVAttachment is required.")]
