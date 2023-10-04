@@ -37,8 +37,20 @@ namespace CMS.Web.Controllers
         {
             if (_signInManager.IsSignedIn(User))
             {
-                return RedirectToAction("Index", "Home");
-                
+
+                if (User.IsInRole("HR Manager") || User.IsInRole("Admin") || User.IsInRole("General Manager"))
+                {
+                    return RedirectToAction("Index", "Dashboard");
+                }
+                else if (User.IsInRole("Interviewer"))
+                {
+                    return RedirectToAction("MyInterviews", "Interviews");
+                }
+                else
+                {
+                    return RedirectToAction("Index", "Home");
+                }
+
             }
             else
             {
@@ -64,7 +76,25 @@ namespace CMS.Web.Controllers
                     var result = await _accountService.LoginAsync(collection);
                     if (result)
                     {
-                        return RedirectToAction("Index", "Home");
+                        if (_signInManager.IsSignedIn(User))
+                        {
+                            if (User.IsInRole("HR Manager") || User.IsInRole("Admin") || User.IsInRole("General Manager"))
+                            {
+                                return RedirectToAction("Index", "Dashboard");
+                            }
+                            else if (User.IsInRole("Interviewer"))
+                            {
+                                return RedirectToAction("MyInterviews", "Interviews");
+                            }
+                            else
+                            {
+                                return RedirectToAction("Index", "Home");
+                            }
+                        }
+                        else
+                        {
+                            return RedirectToAction("Index", "Home");
+                        }
                     }
                     else
                     {

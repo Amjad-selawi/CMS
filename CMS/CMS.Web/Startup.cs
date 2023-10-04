@@ -137,7 +137,6 @@ namespace CMS.Web
 
             app.UseRouting();
 
-            app.UseAuthentication();
             app.UseAuthorization();
             app.UseAuthentication();
 
