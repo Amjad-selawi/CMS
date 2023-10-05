@@ -57,23 +57,32 @@ namespace CMS.Repository.Repositories
             catch (Exception ex)
             {
                 throw ex;
-            }
+            }   
         }
 
         public async Task<Interviews> GetById(int id)
         {
-            try
+             try
             {
-                var interview = await _context.Interviews
-                     .Include(c => c.Position)
-                     .Include(c => c.Candidate)
-                     .Include(c => c.Status).AsNoTracking().FirstOrDefaultAsync(c => c.InterviewsId == id);
+                var interview = await _context.Interviews.FirstOrDefaultAsync(c => c.InterviewsId == id);
                 return interview;
             }
             catch (Exception ex)
             {
                 throw ex;
             }
+            //try
+            //{
+            //    var interview = await _context.Interviews
+            //         .Include(c => c.Position)
+            //         .Include(c => c.Candidate)
+            //         .Include(c => c.Status).AsNoTracking().FirstOrDefaultAsync(c => c.InterviewsId == id);
+            //    return interview;
+            //}
+            //catch (Exception ex)
+            //{
+            //    throw ex;
+            //}
         }
         public Task<List<Interviews>> GetCurrentInterviews(string id)
         {
