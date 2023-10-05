@@ -3,6 +3,8 @@ using CMS.Application.Extensions;
 using CMS.Domain.Entities;
 using CMS.Repository.Interfaces;
 using CMS.Services.Interfaces;
+using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.FileProviders;
 using System;
 using System.Collections.Generic;
@@ -15,10 +17,15 @@ namespace CMS.Services.Services
     public class CompanyService: ICompanyService
     {
         ICompanyRepository _repository;
-     
-        public CompanyService(ICompanyRepository repository)
+        private readonly IHttpContextAccessor _httpContextAccessor;
+        private readonly UserManager<IdentityUser> _userManager;
+
+        public CompanyService(ICompanyRepository repository,
+            IHttpContextAccessor httpContextAccessor,UserManager<IdentityUser> userManager)
         {
            _repository = repository;
+            _httpContextAccessor = httpContextAccessor;
+            _userManager = userManager;
          
         }
 
@@ -111,6 +118,7 @@ namespace CMS.Services.Services
             {
                  return Result<CompanyDTO>.Failure(data, "the company DTO is null");
             }
+            var currentUser = await _userManager.GetUserAsync(_httpContextAccessor.HttpContext.User);
 
             var company = new Company {
                 Name = data.Name,
@@ -118,6 +126,8 @@ namespace CMS.Services.Services
                 Address = data.Address,
                 PhoneNumber = data.PhoneNumber,
                 CountryId= data.CountryId,
+                CreatedBy= currentUser.Id,
+                CreatedOn=DateTime.Now,
                
             };
 
@@ -142,6 +152,8 @@ namespace CMS.Services.Services
             {
                 return Result<CompanyDTO>.Failure(data, "can not update a null object");
             }
+            var currentUser = await _userManager.GetUserAsync(_httpContextAccessor.HttpContext.User);
+            var previousCompany = await _repository.GetById(data.Id);
             var company = new Company
             {
                 Id = data.Id,
@@ -150,6 +162,10 @@ namespace CMS.Services.Services
                 Email = data.Email,
                 PhoneNumber= data.PhoneNumber,
                 CountryId= data.CountryId,
+                ModifiedOn= DateTime.Now,
+                ModifiedBy = currentUser.Id,
+                CreatedOn =previousCompany.CreatedOn,
+                CreatedBy=previousCompany.CreatedBy
                
             };
           

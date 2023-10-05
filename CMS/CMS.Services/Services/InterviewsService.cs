@@ -213,7 +213,8 @@ namespace CMS.Services.Services
                 ParentId=data.ParentId,
                 InterviewerId=data.InterviewerId,
                 AttachmentId =data.AttachmentId,
-                //CreatedBy=currentUser.Id,
+                CreatedBy=currentUser.Id,
+                CreatedOn=DateTime.Now,
 
             };
                 await _interviewsRepository.Insert(interview);
@@ -231,8 +232,10 @@ namespace CMS.Services.Services
             {
                 return Result<InterviewsDTO>.Failure(data, "can not update a null object");
             }
+            var currentUser = await _userManager.GetUserAsync(_httpContextAccessor.HttpContext.User);
             //if (Enum.TryParse(data.Status, out InterviewStatus status))
             // {
+            var previouseInterview = await _interviewsRepository.GetById(data.InterviewsId);
             var interview = new Interviews
             {
                 InterviewsId = data.InterviewsId,
@@ -245,6 +248,10 @@ namespace CMS.Services.Services
                 Notes = data.Notes,
                 StatusId= (int)data.StatusId,
                 AttachmentId=data.AttachmentId,
+                ModifiedOn=DateTime.Now,
+                ModifiedBy=currentUser.Id,
+                CreatedBy=previouseInterview.CreatedBy,
+                CreatedOn=previouseInterview.CreatedOn,
                 
                 };
                 await _interviewsRepository.Update(interview);
@@ -279,7 +286,9 @@ namespace CMS.Services.Services
                 interview.Score = completedDTO.Score;
                 interview.Notes = completedDTO.Notes;
                 interview.AttachmentId = attachmentId;
-                interview.ModifiedBy = currentUser.UserName;
+                interview.ModifiedBy = currentUser.Id;
+                interview.ModifiedOn = DateTime.Now;
+                interview.IsUpdated = true;
                 await _interviewsRepository.Update(interview);
                 // Step 2: Create Next Interview if Needed.
                 var Completedstatus = await _statusRepository.GetById((int)completedDTO.StatusId);
@@ -295,7 +304,9 @@ namespace CMS.Services.Services
                         Date = interview.Date,
                         CandidateId = interview.CandidateId,
                         PositionId = interview.PositionId,
-                        ParentId = completedDTO.InterviewsId
+                        ParentId = completedDTO.InterviewsId,
+                        CreatedOn = DateTime.Now,
+                        CreatedBy=currentUser.Id,
                     };
                     if (isFirstMeeting) // Second Interview Needed which done by General Manager
                     {
@@ -353,6 +364,7 @@ namespace CMS.Services.Services
                         FullName=i.Candidate.FullName,
                         AttachmentId=i.AttachmentId,
                         modifiedBy=i.ModifiedBy,
+                        isUpdated=i.IsUpdated,
                         
                     });
 

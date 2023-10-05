@@ -35,5 +35,7 @@ namespace CMS.Domain.Entities
         #nullable enable
         public string? Notes { get; set; }
 
+        public bool IsUpdated { get; set; }
+
     }
 }

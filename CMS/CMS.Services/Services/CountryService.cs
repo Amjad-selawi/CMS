@@ -3,6 +3,8 @@ using CMS.Application.Extensions;
 using CMS.Domain.Entities;
 using CMS.Repository.Interfaces;
 using CMS.Services.Interfaces;
+using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Identity;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -13,9 +15,14 @@ namespace CMS.Services.Services
     public class CountryService:ICountryService
     {
         ICountryRepository _repository;
-        public CountryService(ICountryRepository repository)
+        private readonly UserManager<IdentityUser> _userManager;
+        private readonly IHttpContextAccessor _httpContextAccessor;
+        public CountryService(ICountryRepository repository,
+            IHttpContextAccessor httpContextAccessor,UserManager<IdentityUser> userManager)
         {
             _repository = repository;
+            _userManager = userManager;
+            _httpContextAccessor = httpContextAccessor;
         }
 
         public async Task<Result<CountryDTO>> Delete(int id)
@@ -109,9 +116,12 @@ namespace CMS.Services.Services
             {
                 return Result<CountryDTO>.Failure(data,"the country dto is null");
             }
+            var currentUser = await _userManager.GetUserAsync(_httpContextAccessor.HttpContext.User);
             var country = new Country
             {
                 Name = data.Name,
+                CreatedBy= currentUser.Id,
+                CreatedOn=DateTime.Now,
             };
             try
             {
@@ -131,17 +141,15 @@ namespace CMS.Services.Services
             {
                 return Result<CountryDTO>.Failure(null, "can not update a null object");
             }
+            var currentUser = await _userManager.GetUserAsync(_httpContextAccessor.HttpContext.User);
+            var previousCountry=await _repository.GetById(data.Id);
             var country=new Country { 
                 Name = data.Name,
                 Id=data.Id,
-                //Companies = data.companyDTOs.Select(c=>new Company{
-                //    Id=c.Id,
-                //    Name=c.Name,
-                //    Email=c.Email,
-                //    Address=c.Address,
-                //    PhoneNumber=c.PhoneNumber,
-                //    CountryId=c.CountryId,
-                //}).ToList()
+                ModifiedBy= currentUser.Id,
+                ModifiedOn=DateTime.Now,
+                CreatedBy=previousCountry.CreatedBy,
+                CreatedOn=previousCountry.CreatedOn,
             
             };
             try

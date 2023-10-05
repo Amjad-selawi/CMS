@@ -7,7 +7,7 @@ using System.Text;
 
 namespace CMS.Domain.Entities
 {
-    public class Candidate
+    public class Candidate:BaseEntity
     {
 
         public int Id { get; set; }

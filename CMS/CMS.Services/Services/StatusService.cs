@@ -3,6 +3,8 @@ using CMS.Application.Extensions;
 using CMS.Domain.Entities;
 using CMS.Repository.Interfaces;
 using CMS.Services.Interfaces;
+using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Identity;
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -13,9 +15,16 @@ namespace CMS.Services.Services
     public class StatusService : IStatusService
     {
         IStatusRepository _repository;
-        public StatusService(IStatusRepository repository)
+        private readonly UserManager<IdentityUser> _userManager;
+        private readonly IHttpContextAccessor _httpContextAccessor;
+        public StatusService(IStatusRepository repository
+            ,IHttpContextAccessor httpContextAccessor,
+            UserManager<IdentityUser> userManager)
         {
             _repository = repository;
+            _userManager = userManager;
+            _httpContextAccessor = httpContextAccessor;
+
         }
 
         public async Task<Result<List<StatusDTO>>> GetAll()
@@ -57,10 +66,13 @@ namespace CMS.Services.Services
             {
                 return Result<StatusDTO>.Failure(data, "the status dto is null");
             }
+            var currentUser = await _userManager.GetUserAsync(_httpContextAccessor.HttpContext.User);
             var status = new Status
             {
                 Name = data.Name,
                 Code = data.Code,
+                CreatedOn = DateTime.Now,
+                CreatedBy = currentUser.Id,
             };
             try
             {

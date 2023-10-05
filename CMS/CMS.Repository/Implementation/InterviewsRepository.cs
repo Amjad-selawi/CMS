@@ -45,7 +45,12 @@ namespace CMS.Repository.Repositories
             try
             {
 
-                return await _context.Interviews.ToListAsync();
+                return await _context.Interviews.
+                      Include(c => c.Position)
+                     .Include(c => c.Candidate)
+                     .Include(c => c.Status)
+                     .AsNoTracking()
+                     .ToListAsync();
 
 
             }
@@ -59,7 +64,10 @@ namespace CMS.Repository.Repositories
         {
             try
             {
-                var interview = await _context.Interviews.FirstOrDefaultAsync(c => c.InterviewsId == id);
+                var interview = await _context.Interviews
+                     .Include(c => c.Position)
+                     .Include(c => c.Candidate)
+                     .Include(c => c.Status).AsNoTracking().FirstOrDefaultAsync(c => c.InterviewsId == id);
                 return interview;
             }
             catch (Exception ex)
