@@ -64,22 +64,75 @@ namespace CMS.Web.Controllers
                 return View();
             }
         }
+
+
+        [HttpGet]
+        public async Task<IActionResult> ConfirmDelete(int id)
+        {
+            if (id <= 0)
+            {
+                return NotFound();
+            }
+
+            var result = await _countryService.GetById(id);
+            var countryDTO = result.Value;
+
+            if (countryDTO == null)
+            {
+                return NotFound();
+            }
+
+            return View(countryDTO);
+        }
+
+
+        [HttpGet]
         [HttpPost]
         public async Task<IActionResult> DeleteCountry(int id)
         {
             if (id <= 0)
             {
-                return BadRequest("invalid country id");
+                return BadRequest("Invalid country id");
             }
-            var result = await _countryService.Delete(id);
-            if (result.IsSuccess)
+
+            if (HttpContext.Request.Method == "POST")
             {
-                return RedirectToAction("GetCountries");
+                // Handle the actual deletion
+                var result = await _countryService.Delete(id);
+
+                if (result.IsSuccess)
+                {
+                    return RedirectToAction("GetCountries");
+                }
+
+                ModelState.AddModelError("", result.Error);
             }
-            ModelState.AddModelError("", result.Error);
-            // return RedirectToAction("GetCountries");
+            else
+            {
+                // For GET requests, show the confirmation page
+                return RedirectToAction("ConfirmDelete", new { id });
+            }
+
             return View();
         }
+
+
+        //[HttpPost]
+        //public async Task<IActionResult> DeleteCountry(int id)
+        //{
+        //    if (id <= 0)
+        //    {
+        //        return BadRequest("invalid country id");
+        //    }
+        //    var result = await _countryService.Delete(id);
+        //    if (result.IsSuccess)
+        //    {
+        //        return RedirectToAction("GetCountries");
+        //    }
+        //    ModelState.AddModelError("", result.Error);
+        //    // return RedirectToAction("GetCountries");
+        //    return View();
+        //}
 
         [HttpGet]
         public async Task<IActionResult> UpdateCountry(int id)

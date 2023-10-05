@@ -16,15 +16,23 @@
                 <table id="add-rows" class="table table-nowrap dt-responsive table-bordered display" style="width:100%">
                     <thead>
                         <tr>
-                            <th>Name</th>
+                            <th>Country Name</th>
+                            <th>Company Name</th>
                         </tr>
 
                     </thead>
                     <tbody>
+                        <tr>
+                    <td>@Model.Name</td>
+                        
                         @foreach (var com in Model.companyDTOs)
                         {
-                            <tr><td>@com.Name</td></tr>
+                          
+                                
+                                <td>@com.Name</td>
+                               
                         }
+                        </tr>
                     </tbody>
 
                 </table>

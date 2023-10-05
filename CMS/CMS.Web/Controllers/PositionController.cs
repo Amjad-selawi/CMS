@@ -59,20 +59,43 @@ namespace CMS.Web.Controllers
                 return View();
             }
         }
-        [HttpPost]
-        public async Task<IActionResult> DeletePosition(int id)
+
+        [HttpGet]
+        public async Task<IActionResult> GetDeleteConfirmation(int id)
         {
             if (id <= 0)
             {
+                return NotFound();
+            }
+
+            var result = await _positionService.GetById(id);
+            var positionDTO = result.Value;
+
+            if (positionDTO == null)
+            {
+                return NotFound();
+            }
+
+            return View(positionDTO);
+        }
+
+
+
+        [HttpPost]
+        public async Task<IActionResult> DeletePosition(PositionDTO positionDTO)
+        {
+            if (positionDTO == null || positionDTO.Id <= 0)
+            {
                 return BadRequest("invalid position id");
             }
-            var result = await _positionService.Delete(id);
+            var result = await _positionService.Delete(positionDTO.Id);
             if (result.IsSuccess)
             {
                 return RedirectToAction("GetPositions");
             }
+
             ModelState.AddModelError("", result.Error);
-            return RedirectToAction("GetPositions");
+            return View("DeleteConfirmation", positionDTO);
         }
 
         [HttpGet]

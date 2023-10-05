@@ -36,10 +36,10 @@
                                 <td>@company.CountryName</td>
                                 <td>
                                     <a class="bx bxs-edit-alt" style="font-size:x-large" asp-action="UpdateCompany" asp-route-id="@company.Id"></a>|
-                                    <form method="post" asp-action="DeleteCompany">
-                                        <input type="hidden" name="id" value="@company.Id" />
-                                        <button type="submit" class="btn btn-danger">Delete</button>
-                                    </form>
+                                    <a class="bx bx-detail" style="font-size:x-large" asp-action="Details" asp-route-id="@company.Id"></a> |
+                                    <a class ="ri-delete-bin-2-line text-danger" style="font-size:x-large" href="@Url.Action("ConfirmDelete", new { id = company.Id })"></a>
+
+
                                    
                                 </td>
                             </tr>
@@ -50,3 +50,13 @@
         </div>
     </div><!--end col-->
 </div><!--end row-->
+
+<script>
+    // JavaScript function to handle the actual deletion
+    function confirmDelete(id) {
+        if (confirm("Are you sure you want to delete this company?")) {
+            // If the user confirms, navigate to the DeleteCompany action with the id
+            window.location.href = "@Url.Action("DeleteCompany")/" + id;
+        }
+    }
+</script>
