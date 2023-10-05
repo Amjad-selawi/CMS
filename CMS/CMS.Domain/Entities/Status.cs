@@ -5,7 +5,7 @@ using System.Text;
 
 namespace CMS.Domain.Entities
 {
-    public class Status
+    public class Status:BaseEntity
     {
         public int Id { set; get; }
         [Required]

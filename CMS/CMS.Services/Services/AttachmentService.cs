@@ -1,6 +1,8 @@
 ﻿using CMS.Application.DTOs;
 using CMS.Repository.Interfaces;
 using CMS.Services.Interfaces;
+using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Identity;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -15,10 +17,13 @@ namespace CMS.Services.Services
     public class AttachmentService : IAttachmentService
     {
         private readonly IAttachmentRepository _attachmentRepository;
-
-        public AttachmentService(IAttachmentRepository attachmentRepository)
+        private readonly UserManager<IdentityUser> _userManager;
+        private readonly IHttpContextAccessor _httpContextAccessor;
+        public AttachmentService(IAttachmentRepository attachmentRepository, UserManager<IdentityUser> userManager, IHttpContextAccessor httpContextAccessor)
         {
             _attachmentRepository = attachmentRepository;
+            _userManager = userManager;
+            _httpContextAccessor = httpContextAccessor;
         }
 
         public async Task<IEnumerable<AttachmentDTO>> GetAllAttachmentsAsync()
@@ -52,12 +57,15 @@ namespace CMS.Services.Services
 
         public async Task<int> CreateAttachmentAsync(string fileName, long fileSize, Stream fileStream)
         {
+            var currentUser = await _userManager.GetUserAsync(_httpContextAccessor.HttpContext.User);
             var attachment = new CMS.Domain.Entities.Attachment
             {
                 FileName = fileName,
                 FileSize = fileSize,
                 FileData = ReadStream(fileStream),
-                CreatedOn = DateTime.Now
+                CreatedOn = DateTime.Now,
+                CreatedBy = currentUser.Id
+                
             };
 
             return await _attachmentRepository.CreateAttachmentAsync(attachment);

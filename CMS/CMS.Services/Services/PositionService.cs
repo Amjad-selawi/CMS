@@ -4,6 +4,8 @@ using CMS.Domain.Entities;
 using CMS.Repository.Implementation;
 using CMS.Repository.Interfaces;
 using CMS.Services.Interfaces;
+using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Identity;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -16,9 +18,15 @@ namespace CMS.Services.Services
     public class PositionService : IPositionService
     {
         IPositionRepository _repository;
-        public PositionService(IPositionRepository repository)
+        private readonly UserManager<IdentityUser> _userManager;
+        private readonly IHttpContextAccessor _httpContextAccessor;
+        public PositionService(IPositionRepository repository,
+            IHttpContextAccessor httpContextAccessor,
+            UserManager<IdentityUser> userManager)
         {
             _repository = repository;
+            _userManager = userManager;
+            _httpContextAccessor = httpContextAccessor;
         }
 
         public async Task<Result<PositionDTO>> Delete(int id)
@@ -93,11 +101,14 @@ namespace CMS.Services.Services
             {
                 return Result<PositionDTO>.Failure(data, "the position DTO is null");
             }
+            var currentUser = await _userManager.GetUserAsync(_httpContextAccessor.HttpContext.User);
             try
             {
                 var position = new Position
                 {
                     Name = data.Name,
+                    CreatedBy = currentUser.Id,
+                    CreatedOn=DateTime.Now,
                 };
                 await _repository.Insert(position);
                 return Result<PositionDTO>.Success(data);
@@ -114,12 +125,18 @@ namespace CMS.Services.Services
             {
                 return Result<PositionDTO>.Failure(null, "can not update a null object");
             }
+            var currentUser = await _userManager.GetUserAsync(_httpContextAccessor.HttpContext.User);
+            var previouePos = await _repository.GetById(data.Id);
             try
             {
                 var position = new Position
                 {
                     Id = data.Id,
                     Name = data.Name,
+                    ModifiedBy = currentUser.Id,
+                    ModifiedOn = DateTime.Now,
+                    CreatedBy = previouePos.CreatedBy,
+                    CreatedOn=previouePos.CreatedOn,
                 };
                 await _repository.Update(position);
                 return Result<PositionDTO>.Success(data);

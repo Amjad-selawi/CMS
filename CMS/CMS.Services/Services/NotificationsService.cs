@@ -122,7 +122,7 @@ namespace CMS.Services.Services
         {
 
 
-
+            var currentUser = await _userManager.GetUserAsync(_httpContextAccessor.HttpContext.User);
             var notification = new Notifications
             {
                 SendDate = DateTime.Now,
@@ -130,6 +130,8 @@ namespace CMS.Services.Services
                 IsReceived = entity.IsReceived,
                 Title = entity.Title,
                 BodyDesc = entity.BodyDesc,
+                CreatedOn = DateTime.Now,
+                CreatedBy=currentUser.Id,
             
 
             };
@@ -143,13 +145,15 @@ namespace CMS.Services.Services
             var existingNotification = await _notificationsRepository.GetNotificationsById(notificationId);
             if (existingNotification == null)
                 throw new Exception("Notifications not found");
-
+            var currentUser = await _userManager.GetUserAsync(_httpContextAccessor.HttpContext.User);
             existingNotification.SendDate = entity.SendDate;
             existingNotification.ReceiverId = entity.ReceiverId;
             existingNotification.IsReceived = entity.IsReceived;
             existingNotification.Title = entity.Title;
             existingNotification.BodyDesc = entity.BodyDesc;
             existingNotification.IsRead = entity.IsRead;
+            existingNotification.ModifiedOn = DateTime.Now;
+            existingNotification.ModifiedBy=currentUser.Id;
         
 
             await _notificationsRepository.Update(existingNotification);
@@ -294,7 +298,7 @@ namespace CMS.Services.Services
 
 
             string userName = GetLoggedInUserName();
-
+            var currentUser = await _userManager.GetUserAsync(_httpContextAccessor.HttpContext.User);
 
             // Create the notification.
             var notification = new Notifications
@@ -304,7 +308,9 @@ namespace CMS.Services.Services
                 IsReceived = true,
                 IsRead = false,
                 Title = status == 2 ? $"You have a Second Interview" : $"The First Interview Rejected by {userName}",
-                BodyDesc = notes
+                BodyDesc = notes,
+                CreatedBy=currentUser.Id,
+                CreatedOn=DateTime.Now
             };
 
             await _notificationsRepository.Create(notification);
@@ -322,6 +328,7 @@ namespace CMS.Services.Services
             var interviewer = await _roleManager.FindByNameAsync("Interviewer");
 
             interviewerId = (await _userManager.GetUsersInRoleAsync(interviewer.Name)).FirstOrDefault().Id;
+            var currentUser = await _userManager.GetUserAsync(_httpContextAccessor.HttpContext.User);
 
             var notification = new Notifications
             {
@@ -330,7 +337,9 @@ namespace CMS.Services.Services
                 IsReceived = true,
                 IsRead = false,
                 Title = "New interview",
-                BodyDesc = $"You have an interview on {interviewDate}"
+                BodyDesc = $"You have an interview on {interviewDate}",
+                CreatedBy=currentUser.Id,
+                CreatedOn=DateTime.Now
             };
 
             await _notificationsRepository.Create(notification);
@@ -349,6 +358,7 @@ namespace CMS.Services.Services
             HrId = (await _userManager.GetUsersInRoleAsync(Hr.Name)).FirstOrDefault().Id;
 
             string userName = GetLoggedInUserName();
+            var currentUser = await _userManager.GetUserAsync(_httpContextAccessor.HttpContext.User);
 
             var notification = new Notifications
             {
@@ -357,7 +367,9 @@ namespace CMS.Services.Services
                 IsReceived = true,
                 IsRead = false,
                 Title = status == 2 ? $"You have a Thierd Interview" : $"The Second Interview Rejected by {userName}",
-                BodyDesc = notes
+                BodyDesc = notes,
+                CreatedOn = DateTime.Now,
+                CreatedBy =currentUser.Id,
             };
 
             await _notificationsRepository.Create(notification);

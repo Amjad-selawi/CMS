@@ -5,6 +5,8 @@ using CMS.Domain.Enums;
 using CMS.Repository.Implementation;
 using CMS.Repository.Interfaces;
 using CMS.Services.Interfaces;
+using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Identity;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -16,6 +18,8 @@ namespace CMS.Services.Services
     public class TemplatesService : ITemplatesService
     {
         private readonly ITemplatesRepository _templatesRepository;
+        private readonly UserManager<IdentityUser> _userManager;
+        private readonly IHttpContextAccessor _httpContextAccessor;
 
         public TemplatesService(ITemplatesRepository templatesRepository)
         {
@@ -53,13 +57,16 @@ namespace CMS.Services.Services
 
         public async Task Create(TemplatesDTO entity)
         {
+            var currentUser = await _userManager.GetUserAsync(_httpContextAccessor.HttpContext.User);
             if (Enum.TryParse(entity.Name, out TemplatesName name)) 
             { 
                 var template = new Templates
                 {
                     Title = entity.Title,
                     BodyDesc = entity.BodyDesc,
-                    Name=name
+                    Name=name,
+                    CreatedBy=currentUser.Id,
+                    CreatedOn=DateTime.Now,
                 };
             await _templatesRepository.Create(template);
         }
@@ -67,6 +74,7 @@ namespace CMS.Services.Services
 
         public async Task Update(int templatesId, TemplatesDTO entity)
         {
+            var currentUser = await _userManager.GetUserAsync(_httpContextAccessor.HttpContext.User);
             if (Enum.TryParse(entity.Name, out TemplatesName name))
             {
                 var existingTemplate = await _templatesRepository.GetTemplateById(templatesId);
@@ -76,6 +84,8 @@ namespace CMS.Services.Services
                 existingTemplate.Title = entity.Title;
                 existingTemplate.BodyDesc = entity.BodyDesc;
                 existingTemplate.Name = name;
+                existingTemplate.ModifiedOn= DateTime.Now;
+                existingTemplate.ModifiedBy=currentUser.Id;
 
                 await _templatesRepository.Update(existingTemplate);
             }

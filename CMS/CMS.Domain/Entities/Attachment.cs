@@ -5,7 +5,7 @@ using System.Text;
 
 namespace CMS.Domain.Entities
 {
-    public class Attachment
+    public class Attachment:BaseEntity
     {
         public int Id { get; set; }
 

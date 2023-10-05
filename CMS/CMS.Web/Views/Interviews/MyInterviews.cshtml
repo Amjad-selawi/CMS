@@ -1,4 +1,6 @@
-﻿@model IEnumerable<CMS.Application.DTOs.InterviewsDTO>
+﻿
+@model IEnumerable<CMS.Application.DTOs.InterviewsDTO>
+
 @{
     ViewData["Title"] = "My Interviews";
 }
@@ -67,7 +69,7 @@
                                     <a class="bx bx-detail" style="font-size:x-large" asp-action="Details" asp-route-id="@item.InterviewsId" asp-route-previousAction="MyInterviews"></a> 
                                    
                                 </td>
-                                @if(item.modifiedBy==null){
+                                @if(item.isUpdated==false){
                                 <td>
                                     <a class="bx bx-plus" style="font-size:x-large" asp-action="UpdateAfterInterview" asp-route-id="@item.InterviewsId" asp-route-idd="@item.InterviewerId"> </a>
                                     </td>

@@ -2,6 +2,8 @@
 using CMS.Domain.Entities;
 using CMS.Repository.Interfaces;
 using CMS.Services.Interfaces;
+using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Identity;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -15,11 +17,18 @@ namespace CMS.Services.Services
     {
         private readonly ICandidateRepository _candidateRepository;
         private readonly IAttachmentService _attachmentService;
+        private readonly IHttpContextAccessor _httpContextAccessor;
+        private readonly UserManager<IdentityUser> _userManager;
 
-        public CandidateService(ICandidateRepository candidateRepository, IAttachmentService attachmentService)
+        public CandidateService(ICandidateRepository candidateRepository,
+            IAttachmentService attachmentService,
+            UserManager<IdentityUser> userManager, IHttpContextAccessor httpContextAccessor
+            )
         {
             _candidateRepository = candidateRepository;
             _attachmentService = attachmentService;
+            _httpContextAccessor = httpContextAccessor;
+            _userManager = userManager;
         }
 
         public async Task<IEnumerable<CandidateDTO>> GetAllCandidatesAsync()
@@ -79,7 +88,8 @@ namespace CMS.Services.Services
                 int attachmentId = await _attachmentService.CreateAttachmentAsync(candidateDTO.FileName, candidateDTO.FileSize, candidateDTO.FileData);
                 candidateDTO.CVAttachmentId = attachmentId;
             }
-           
+            var currentUser = await _userManager.GetUserAsync(_httpContextAccessor.HttpContext.User);
+
             var candidate = new Candidate
             {
                 FullName = candidateDTO.FullName,
@@ -91,7 +101,9 @@ namespace CMS.Services.Services
                 Experience = candidateDTO.Experience,
                 CVAttachmentId = candidateDTO.CVAttachmentId,
                 LinkedInUrl = candidateDTO.LinkedInUrl,
-                CountryId = candidateDTO.CountryId
+                CountryId = candidateDTO.CountryId,
+                CreatedBy=currentUser.Id,
+                CreatedOn=DateTime.Now
             };
             await _candidateRepository.CreateCandidateAsync(candidate);
         }
@@ -101,6 +113,7 @@ namespace CMS.Services.Services
             var existingCandidate = await _candidateRepository.GetCandidateByIdAsync(id);
             if (existingCandidate == null)
                 throw new Exception("Candidate not found");
+            var currentUser = await _userManager.GetUserAsync(_httpContextAccessor.HttpContext.User);
 
             existingCandidate.FullName = candidateDTO.FullName;
             existingCandidate.Phone = candidateDTO.Phone;
@@ -112,6 +125,8 @@ namespace CMS.Services.Services
             existingCandidate.CVAttachmentId = candidateDTO.CVAttachmentId;
             existingCandidate.LinkedInUrl = candidateDTO.LinkedInUrl;
             existingCandidate.CountryId = candidateDTO.CountryId;
+            existingCandidate.ModifiedOn = DateTime.Now;
+            existingCandidate.ModifiedBy = currentUser.Id;
 
             await _candidateRepository.UpdateCandidateAsync(existingCandidate);
         }

@@ -7,11 +7,10 @@ namespace CMS.Domain.Entities
 {
     public class BaseEntity
     {
-        [StringLength(20)]
+       
         public string CreatedBy { get; set; }
         public DateTime CreatedOn { get; set; }
 
-        [StringLength(20)]
         public string ModifiedBy { get; set; }
         public DateTime ModifiedOn { get; set; }
 
