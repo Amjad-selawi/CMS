@@ -19,43 +19,38 @@
 
             <div class="card-body">
                 <table class="table table-nowrap dt-responsive table-bordered display" style="width:100%">
-    <thead>
-        <tr>
-            <th>ID</th>
-            <th>position Name</th>
+                    <thead>
+                        <tr>
+                            
+                            <th>position Name</th>
 
-            <th>Delete position</th>
-            <th>Edit position</th>
-        </tr>
-    </thead>
-    <tbody>
-        @foreach (var pos in Model)
-        {
-            <tr>
-               <td>@pos.Id</td>
-                <td>@pos.Name</td>
-
-
-
-              <td>
-                  <form method="post" asp-action="DeletePosition">
-                      <input type="hidden" name="id" value="@pos.Id" />
-                      <button type="submit" class="btn btn-danger">Delete</button>
-                  </form>
-              </td>
-              <td>
-                  <a asp-action="UpdatePosition" asp-route-id="@pos.Id">Edit</a>
-              </td>
-      
+                          
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var pos in Model)
+                        {
+                            <tr>
+                               
+                                <td>@pos.Name</td>
 
 
 
-            </tr>
-        }
+                                <td>
+                                    <a class="bx bxs-edit-alt" style="font-size:x-large" asp-action="UpdatePosition" asp-route-id="@pos.Id"></a>
+                                    <a class="ri-delete-bin-2-line text-danger" style="font-size:x-large" asp-action="GetDeleteConfirmation" asp-route-id="@pos.Id" class="btn btn-danger"></a>
+                                </td>
 
-    </tbody>
-</table>
-</div>
+
+
+
+                            </tr>
+                        }
+
+                    </tbody>
+                </table>
+            </div>
         </div>
 
     </div>
