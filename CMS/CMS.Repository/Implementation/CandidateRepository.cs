@@ -93,16 +93,22 @@ namespace CMS.Repository.Implementation
         public async Task<int> CountAcceptedAsync()
         {
             int candidateCounts = await _dbContext.Candidates
-            .Where(candidate => !candidate.Interviews.Any(interview => interview.Status.Code == StatusCode.Rejected) && candidate.Interviews.Any(interview => interview.Status.Code == StatusCode.Approved))
-            .CountAsync();
+             .Include(a => a.Interviews)
+             .ThenInclude(a => a.Status)
+             .Where(a => a.Interviews.Count == 3 && a.Interviews.All(a => a.Status.Code == StatusCode.Approved))
+             .CountAsync();
+
             return candidateCounts;
         }
         public async Task<int> CountRejectedAsync()
         {
-            int candidateCounts = await _dbContext.Candidates
-            .Where(candidate => candidate.Interviews.Any(interview => interview.Status.Code == StatusCode.Rejected))
-            .CountAsync();
-            return candidateCounts;
+            int rejectedCount = await _dbContext.Candidates
+              .Include(a => a.Interviews)
+              .ThenInclude(a => a.Status)
+              .Where(a => a.Interviews.Count > 0 && a.Interviews.Any(a => a.Status.Code == StatusCode.Rejected))
+              .CountAsync();
+
+            return rejectedCount;
         }
         public async Task<Dictionary<string, int>> CountCandidatesPerCountry()
         {
