@@ -86,7 +86,7 @@ namespace CMS.Web.Controllers
         }
 
 
-        [HttpGet]
+        
         [HttpPost]
         public async Task<IActionResult> DeleteCountry(int id)
         {

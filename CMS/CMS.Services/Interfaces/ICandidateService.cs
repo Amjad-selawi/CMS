@@ -15,6 +15,7 @@ namespace CMS.Services.Interfaces
         Task CreateCandidateAsync(CandidateCreateDTO candidateDTO);
         Task UpdateCandidateAsync(int id, CandidateDTO candidateDTO);
         Task UpdateCandidateCVAsync(int id, string fileName, long fileSize, Stream fileStream);
+        //Task<Result<CandidateDTO>> DeleteCandidateAsync(int id);
         Task DeleteCandidateAsync(int id);
 
 
