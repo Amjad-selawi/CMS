@@ -1,4 +1,5 @@
 ﻿using CMS.Application.DTOs;
+using CMS.Application.Extensions;
 using CMS.Domain.Entities;
 using CMS.Repository.Interfaces;
 using CMS.Services.Interfaces;
@@ -130,6 +131,23 @@ namespace CMS.Services.Services
 
             await _candidateRepository.UpdateCandidateAsync(existingCandidate);
         }
+
+
+        //public async Task<Result<CandidateDTO>> DeleteCandidateAsync(int id)
+        //{
+
+        //    try
+        //    {
+        //        await _candidateRepository.DeleteCandidateAsync(id);
+        //        return Result<CandidateDTO>.Success(null);
+        //    }
+
+        //    catch (Exception ex)
+        //    {
+        //        return Result<CandidateDTO>.Failure(null, $"An error occurred while deleting the candidate{ex.InnerException.Message}");
+        //    }
+        //}
+
 
         public async Task DeleteCandidateAsync(int id)
         {

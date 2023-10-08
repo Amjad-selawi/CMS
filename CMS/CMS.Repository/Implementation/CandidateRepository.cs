@@ -9,6 +9,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using static Microsoft.EntityFrameworkCore.DbLoggerCategory.Database;
 
 namespace CMS.Repository.Implementation
 {
@@ -50,8 +51,37 @@ namespace CMS.Repository.Implementation
             await _dbContext.SaveChangesAsync();
         }
 
+        //public async Task<int> DeleteCandidateAsync(int id) {
+        //    try
+        //    {
+
+        //        var candidates = await _dbContext.Candidates.Include(c => c.Interviews)
+        //    .FirstOrDefaultAsync(c => c.Id == id);
+
+        //        if (candidates.Interviews != null && candidates.Interviews.Any())
+        //        {
+        //            foreach (var c in candidates.Interviews.ToList())
+        //            {
+        //                _dbContext.Interviews.Remove(c);
+        //            }
+        //        }
+
+        //        _dbContext.Candidates.Remove(candidates);
+        //        return await _dbContext.SaveChangesAsync();
+
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        throw ex;
+        //    }
+        //}
+
+
+
         public async Task DeleteCandidateAsync(Candidate candidate)
         {
+
+
             _dbContext.Candidates.Remove(candidate);
             await _dbContext.SaveChangesAsync();
 
