@@ -290,10 +290,15 @@ namespace CMS.Services.Services
         public async Task CreateNotificationForGeneralManagerAsync(int status, string notes)
         {
             var managerId = "";
+            var HrId = "";
 
             var manager = await _roleManager.FindByNameAsync("General Manager");
 
             managerId = (await _userManager.GetUsersInRoleAsync(manager.Name)).FirstOrDefault().Id;
+
+
+            var Hr = await _roleManager.FindByNameAsync("HR Manager");
+            HrId = (await _userManager.GetUsersInRoleAsync(Hr.Name)).FirstOrDefault().Id;
 
 
 
@@ -304,7 +309,7 @@ namespace CMS.Services.Services
             var notification = new Notifications
             {
                 SendDate = DateTime.Now,
-                ReceiverId = managerId,
+                //ReceiverId = managerId,
                 IsReceived = true,
                 IsRead = false,
                 Title = "",
@@ -316,10 +321,12 @@ namespace CMS.Services.Services
             if (status == 2)
             {
                 notification.Title = "You have a Second Interview";
+                notification.ReceiverId = managerId;
             }
             else
             {
                 notification.Title = $"The First Interview Rejected by {userName}";
+                notification.ReceiverId = HrId;
             }
 
 
