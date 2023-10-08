@@ -307,11 +307,21 @@ namespace CMS.Services.Services
                 ReceiverId = managerId,
                 IsReceived = true,
                 IsRead = false,
-                Title = status == 2 ? $"You have a Second Interview" : $"The First Interview Rejected by {userName}",
+                Title = "",
                 BodyDesc = notes,
                 CreatedBy=currentUser.Id,
                 CreatedOn=DateTime.Now
             };
+
+            if (status == 2)
+            {
+                notification.Title = "You have a Second Interview";
+            }
+            else
+            {
+                notification.Title = $"The First Interview Rejected by {userName}";
+            }
+
 
             await _notificationsRepository.Create(notification);
         }
@@ -366,11 +376,20 @@ namespace CMS.Services.Services
                 SendDate = DateTime.Now,
                 IsReceived = true,
                 IsRead = false,
-                Title = status == 2 ? $"You have a Thierd Interview" : $"The Second Interview Rejected by {userName}",
+                Title = "",
                 BodyDesc = notes,
                 CreatedOn = DateTime.Now,
                 CreatedBy =currentUser.Id,
             };
+
+            if (status == 2)
+            {
+                notification.Title = "You have a Thierd Interview";
+            }
+            else
+            {
+                notification.Title = $"The Second Interview Rejected by {userName}";
+            }
 
             await _notificationsRepository.Create(notification);
         }
