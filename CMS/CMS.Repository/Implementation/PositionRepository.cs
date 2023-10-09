@@ -47,7 +47,7 @@ namespace CMS.Repository.Implementation
             try
             {
 
-                return await _context.Positions.Include(c => c.CarrerOffer).Include(c=>c.Interviews).Include(c=>c.Candidates).AsNoTracking().ToListAsync();
+                return await _context.Positions.Include(c => c.CarrerOffer).Include(c => c.Interviews).Include(c => c.Candidates).AsNoTracking().ToListAsync();
 
             }
             catch (Exception ex)

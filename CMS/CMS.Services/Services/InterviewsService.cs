@@ -82,6 +82,20 @@ namespace CMS.Services.Services
 
             return "User not found";
         }
+        public async Task<string> GetInterviewerRole(string id)
+        {
+            var user = await _userManager.FindByIdAsync(id);
+            if (user != null)
+            {
+                var roles = await _userManager.GetRolesAsync(user);
+               if(roles.Any())
+                {
+                    return roles[0];
+                }
+            }
+
+            return "User not found";
+        }
 
         public async Task<Result<InterviewsDTO>> Delete(int id)
         {
@@ -126,6 +140,7 @@ namespace CMS.Services.Services
                 foreach (var c in interviews)
                 {
                     string userName = await GetInterviewerName(c.InterviewerId);
+                    string interviewerRole = await GetInterviewerRole(c.InterviewerId);
                     var com = new InterviewsDTO
                     {
                     
@@ -143,6 +158,7 @@ namespace CMS.Services.Services
                        CandidateId = c.CandidateId,
                        FullName = c.Candidate.FullName,
                        AttachmentId = c.AttachmentId,
+                       InterviewerRole=interviewerRole
 
                     };
                     interviewsDTO.Add(com);
@@ -169,6 +185,7 @@ namespace CMS.Services.Services
                
                 var interview = await _interviewsRepository.GetById(id);
                 string userName = await GetInterviewerName(interview.InterviewerId);
+                string interviewerRole = await GetInterviewerRole(interview.InterviewerId);
                 var interviewDTO = new InterviewsDTO
                 {
                     InterviewsId=interview.InterviewsId,
@@ -185,6 +202,7 @@ namespace CMS.Services.Services
                     CandidateId = interview.CandidateId,
                     FullName = interview.Candidate.FullName,
                     AttachmentId=interview.AttachmentId,
+                    InterviewerRole=interviewerRole
                 };
                 return Result<InterviewsDTO>.Success(interviewDTO);
             }

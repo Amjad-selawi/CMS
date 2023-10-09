@@ -37,5 +37,7 @@ namespace CMS.Application.DTOs
         public bool isUpdated { set; get; } = false;
         #nullable enable
         public string? Notes { get; set; }
+
+        public string? InterviewerRole { set; get; }
     }
 }
