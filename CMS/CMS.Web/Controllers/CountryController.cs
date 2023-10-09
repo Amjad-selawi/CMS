@@ -32,6 +32,13 @@ namespace CMS.Web.Controllers
         {
             if (ModelState.IsValid)
             {
+
+                if (_countryService.DoesCountryNameExist(countryDTO.Name))
+                {
+                    ModelState.AddModelError("Name", "A country with the same name already exists.");
+                    return View(countryDTO);
+                }
+
                 var result = await _countryService.Insert(countryDTO);
 
                 if (result.IsSuccess)
@@ -51,17 +58,24 @@ namespace CMS.Web.Controllers
         [HttpGet]
         public async Task<IActionResult> GetCountries()
         {
-            var result = await _countryService.GetAll();
-            if (result.IsSuccess)
+            if (User.IsInRole("Admin") || User.IsInRole("HR Manager"))
             {
-                var CountriesDTOs = result.Value;
-              
-                return View(CountriesDTOs);
+                var result = await _countryService.GetAll();
+                if (result.IsSuccess)
+                {
+                    var CountriesDTOs = result.Value;
+
+                    return View(CountriesDTOs);
+                }
+                else
+                {
+                    ModelState.AddModelError("", result.Error);
+                    return View();
+                }
             }
             else
             {
-                ModelState.AddModelError("", result.Error);
-                return View();
+                return View("AccessDenied");
             }
         }
 
@@ -190,5 +204,17 @@ namespace CMS.Web.Controllers
                 return View();
             }
         }
+
+
+
+        [HttpPost]
+        public IActionResult CheckCountryName([FromBody] string name)
+        {
+            bool exists = _countryService.DoesCountryNameExist(name);
+            return Ok(new { exists });
+        }
+
+
+
     }
 }

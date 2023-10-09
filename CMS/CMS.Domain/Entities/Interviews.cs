@@ -12,7 +12,8 @@ namespace CMS.Domain.Entities
 
         public int InterviewsId { get; set; }
 
-        public int? Score { get; set; }
+        [Range(0, 5, ErrorMessage = "Score must be between 0 and 5.")]
+        public double? Score { get; set; }
         [Required(ErrorMessage = "Please select a Date.")]
         public DateTime Date { get; set; }
         [Required]

@@ -41,6 +41,14 @@ namespace CMS.Web.Controllers
             ViewBag.CountriesDTOs = new SelectList(CountriesDTOs.Value, "Id", "Name");
             if (ModelState.IsValid)
             {
+
+                if (_companyService.DoesCompanyNameExist(companyDTO.Name))
+                {
+                    ModelState.AddModelError("Name", "A company with the same name already exists.");
+                    return View(companyDTO);
+                }
+
+
                 var result = await _companyService.Insert(companyDTO);
 
                 if (result.IsSuccess)
@@ -60,16 +68,23 @@ namespace CMS.Web.Controllers
         [HttpGet]
         public async Task<IActionResult> GetCompanies()
         {
-            var result = await _companyService.GetAll();
-            if (result.IsSuccess)
+            if (User.IsInRole("Admin") || User.IsInRole("HR Manager"))
             {
-                var companiesDTOs = result.Value;
-                return View(companiesDTOs);
+                var result = await _companyService.GetAll();
+                if (result.IsSuccess)
+                {
+                    var companiesDTOs = result.Value;
+                    return View(companiesDTOs);
+                }
+                else
+                {
+                    ModelState.AddModelError("", result.Error);
+                    return View();
+                }
             }
             else
             {
-                ModelState.AddModelError("", result.Error);
-                return View();
+                return View("AccessDenied");
             }
         }
 
@@ -219,7 +234,12 @@ namespace CMS.Web.Controllers
 
 
 
-
+        [HttpPost]
+        public IActionResult CheckCompanyName([FromBody] string name)
+        {
+            bool exists = _companyService.DoesCompanyNameExist(name);
+            return Ok(new { exists });
+        }
 
     }
 }

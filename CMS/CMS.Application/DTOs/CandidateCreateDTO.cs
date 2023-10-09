@@ -25,11 +25,9 @@ namespace CMS.Application.DTOs
 
         public string CompanyName { set; get; }
 
-        [Required(ErrorMessage = "Email is required.")]
         [DataType(DataType.EmailAddress, ErrorMessage = "E-mail is not valid")]
         public string Email { get; set; }
 
-        [Required(ErrorMessage = "Address is required.")]
         public string Address { get; set; }
 
         [Required(ErrorMessage = "Experience is required.")]

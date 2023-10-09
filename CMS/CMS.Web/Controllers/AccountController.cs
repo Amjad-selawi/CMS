@@ -2,6 +2,7 @@
 using CMS.Domain;
 using CMS.Domain.Entities;
 using CMS.Services.Interfaces;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
@@ -149,13 +150,20 @@ namespace CMS.Web.Controllers
             return RedirectToAction("Login", "Account");
         }
 
-        // GET: Register
         public IActionResult Index()
         {
-            var usersWithRoles = _accountService.GetAllUsersWithRoles();
-            return View(usersWithRoles);
-
+            if (User.IsInRole("Admin"))
+            {
+                // User is in the Admin role
+                var usersWithRoles = _accountService.GetAllUsersWithRoles();
+                return View(usersWithRoles);
+            }
+            else
+            {
+                return View("AccessDenied");
+            }
         }
+
 
 
 
@@ -348,6 +356,10 @@ namespace CMS.Web.Controllers
 
 
 
+        public IActionResult AccessDenied()
+        {
+            return View();
+        }
 
 
 

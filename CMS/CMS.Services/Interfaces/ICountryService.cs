@@ -15,5 +15,8 @@ namespace CMS.Services.Interfaces
         Task<Result<CountryDTO>> GetById(int id);
         Task<Result<CountryDTO>> Update(CountryDTO data);
 
+
+        bool DoesCountryNameExist(string name);
+
     }
 }

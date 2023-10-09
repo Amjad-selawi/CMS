@@ -103,7 +103,7 @@ namespace CMS.Services.Services
                 CVAttachmentId = candidateDTO.CVAttachmentId,
                 LinkedInUrl = candidateDTO.LinkedInUrl,
                 CountryId = candidateDTO.CountryId,
-                CreatedBy=currentUser.Id,
+                CreatedBy =currentUser.Id,
                 CreatedOn=DateTime.Now
             };
             await _candidateRepository.CreateCandidateAsync(candidate);

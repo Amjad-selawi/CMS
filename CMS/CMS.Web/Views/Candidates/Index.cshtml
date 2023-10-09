@@ -3,6 +3,30 @@
     ViewData["Title"] = "Candidates";
 }
 
+
+@using (Html.BeginForm("Index", "Candidates", FormMethod.Get))
+{
+    <div class="form-group" style="margin-bottom: 23px;">
+        <div class="row">
+            <div class="col-md-3">
+                @Html.Label("Filter by Name:")
+                @Html.TextBox("FullName", null, new { @class = "form-control" })
+            </div>
+            <div class="col-md-3">
+                @Html.Label("Filter by Phone Number:")
+                @Html.TextBox("Phone", null, new { @class = "form-control" })
+            </div>
+            <div class="col-md-3" style="margin-top:27px;">
+                <label>&nbsp;</label>
+                <button type="submit"   class="btn btn-primary btn-block">Filter</button>
+            </div>
+        </div>
+    </div>
+}
+
+
+
+
 <div class="row">
     <div class="col-lg-12">
         <div class="card">
@@ -13,16 +37,17 @@
             </div>
             <div class="card-body">
                 <table class="table table-nowrap dt-responsive table-bordered display" style="width:100%">
+                    
     <thead>
         <tr>
             <th>Full Name</th>
             <th>Phone Number</th>
-            <th>Position</th>
+            @* <th>Position</th> *@
             <th>Company</th>
-            <th>Email</th>
-            <th>Address</th>
+@*             <th>Email</th>
+ *@            <th>Address</th>
             <th>Experience</th>
-            <th>Country</th>
+            @* <th>Country</th> *@
             <th>CV</th>
             <th>Actions</th>
         </tr>
@@ -33,12 +58,12 @@
             <tr>
                 <td>@Html.DisplayFor(modelItem => candidate.FullName)</td>
                 <td>@Html.DisplayFor(modelItem => candidate.Phone)</td>
-                <td>@Html.DisplayFor(modelItem => candidate.Name)</td>
+                @* <td>@Html.DisplayFor(modelItem => candidate.Name)</td> *@
                 <td>@Html.DisplayFor(modelItem => candidate.CompanyName)</td>
-                <td>@Html.DisplayFor(modelItem => candidate.Email)</td>
-                <td>@Html.DisplayFor(modelItem => candidate.Address)</td>
+@*                 <td>@Html.DisplayFor(modelItem => candidate.Email)</td>
+ *@                <td>@Html.DisplayFor(modelItem => candidate.Address)</td>
                 <td>@Html.DisplayFor(modelItem => candidate.Experience)</td>
-                <td>@Html.DisplayFor(modelItem => candidate.CountryName)</td>
+                @* <td>@Html.DisplayFor(modelItem => candidate.CountryName)</td> *@
                                 @if (candidate.CVAttachmentId != null)
                                 {
                                     <td><a asp-controller="Attachments" asp-action="Download" asp-route-id="@candidate.CVAttachmentId">Download CV</a></td>
@@ -55,8 +80,16 @@
             </tr>
         }
                     </tbody>
+          
                 </table>
+            
             </div>
         </div>
     </div><!--end col-->
 </div><!--end row-->
+
+
+
+
+
+

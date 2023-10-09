@@ -16,5 +16,7 @@ namespace CMS.Repository.Interfaces
         Task<Company> GetById(int id);
         Task<List<Company>> GetAll();
 
+        bool DoesCompanyNameExist(string name);
+
     }
 }

@@ -102,6 +102,16 @@ namespace CMS.Repository.Implementation
                 throw ex;
             }
         }
+
+
+        public bool DoesPositionNameExist(string name)
+        {
+            return _context.Positions.Any(x => x.Name == name);
+        }
+
+
+
+
         //public async  Task Delete(Position entity)
         //{
         //    entity.IsDelete = true;
@@ -199,5 +209,5 @@ namespace CMS.Repository.Implementation
         //    //    throw ex;
         //    //}
     }
-    }
+}
 

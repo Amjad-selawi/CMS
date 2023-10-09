@@ -10,17 +10,17 @@
     <input type="hidden" asp-for="isUpdated"/>
 
     <div class="form-group">
-        <label asp-for="Score">Score:</label>
+        <label asp-for="Score">Score out of 5:</label>
         <input asp-for="Score" class="form-control" />
         <span asp-validation-for="Score" class="text-danger"></span>
     </div>
 
-    <div class="form-group">
+    <div class="form-group" style="margin-top: 15px;">
         <label asp-for="Notes">Notes:</label>
         <textarea asp-for="Notes" class="form-control"></textarea>
         <span asp-validation-for="Notes" class="text-danger"></span>
     </div>
-    <div class="form-group">
+    <div class="form-group" style="margin-top: 15px;">
 
         <label asp-for="StatusId" class="control-label">Status</label>
         @if (ViewBag.StatusDTOs != null)
@@ -49,7 +49,7 @@
         <span asp-validation-for="StatusId" class="text-danger"></span>
 
     </div>
-    <div class="form-group">
+    <div class="form-group" style="margin-top: 15px;">
         <label for="file">Upload An evaluation:</label>
         <input type="file" id="file" name="file" class="form-control-file" />
     </div>
@@ -66,7 +66,7 @@
 
 
 @*<p>@Html.ValidationSummary()</p>*@
-<script>
+@* <script>
     document.getElementById("updateForm").onsubmit = function () {
         return confirmCreate();
     };
@@ -79,4 +79,4 @@
             return false;
         }
     }
-</script>
+</script> *@
