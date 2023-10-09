@@ -21,6 +21,7 @@ namespace CMS.Services.Interfaces
         Task<Result<InterviewsDTO>> Update(InterviewsDTO data);
 
         Task<string> GetInterviewerName(string id);
+        Task<string> GetInterviewerRole(string id);
 
 
 
