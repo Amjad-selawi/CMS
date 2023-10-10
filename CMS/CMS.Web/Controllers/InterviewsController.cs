@@ -400,23 +400,32 @@ namespace CMS.Web.Controllers
                 //return View();
                 validationErrors.Add("Please choose a file to upload.");
             }
-            if (interviewsDTO.Notes == null)
+            //if (interviewsDTO.Notes == null)
+            //{
+            //    //ModelState.AddModelError("", "Please Add Notes.");
+            //    //return View();
+            //    ModelState.AddModelError("Notes", "Please add notes.");
+            //}
+
+            if(interviewsDTO.StatusId == 3 && interviewsDTO.Notes == null)
             {
-                //ModelState.AddModelError("", "Please Add Notes.");
-                //return View();
-                validationErrors.Add("Please Add Notes.");
+                 ModelState.AddModelError("Notes", "Please add note why it was rejected.");
             }
             if (interviewsDTO.Score == null)
             {
                 //ModelState.AddModelError("", "Please Add Score.");
                 //return View();
-                validationErrors.Add("Please Add Score.");
+                ModelState.AddModelError("Score", "Please add score.");
+
+                //validationErrors.Add("Please Add Score.");
             }
             if (interviewsDTO.StatusId == null)
             {
                 //ModelState.AddModelError("", "Please Add Status.");
                 //return View();
-                validationErrors.Add("Please select a Status.");
+                ModelState.AddModelError("StatusId", "Please select a status.");
+
+                //validationErrors.Add("Please select a Status.");
             }
             if (validationErrors.Count() > 0)
             {

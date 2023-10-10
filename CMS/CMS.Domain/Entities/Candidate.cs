@@ -20,7 +20,7 @@ namespace CMS.Domain.Entities
 
         //[Required(ErrorMessage = "PositionId is required.")]
 
-        public int? PositionId { get; set; }
+        public int PositionId { get; set; }
 
         public virtual Position Position { get; set; }
         [Required(ErrorMessage = "Company is required.")]

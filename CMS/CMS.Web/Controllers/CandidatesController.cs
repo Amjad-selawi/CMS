@@ -45,19 +45,17 @@ namespace CMS.Web.Controllers
             _attachmentService = attachmentService;
         }
 
-        public async Task<IActionResult> Index(string FullName ,int? Phone)
+        public async Task<IActionResult> Index(string FullName, string Phone)
         {
             if (User.IsInRole("Admin") || User.IsInRole("HR Manager"))
             {
                 var candidates = await _candidateService.GetAllCandidatesAsync();
 
-                int PhoneId = Convert.ToInt32(Phone);
-
-
-                if (Phone.HasValue)
+                if (!string.IsNullOrEmpty(Phone))
                 {
+                    // Filter by phone number containing the provided input
                     candidates = candidates
-                        .Where(i => i.Phone == Phone.Value)
+                        .Where(i => i.Phone.ToString().Contains(Phone))
                         .ToList();
                 }
 
@@ -67,7 +65,6 @@ namespace CMS.Web.Controllers
                         .Where(i => i.FullName.Contains(FullName, StringComparison.OrdinalIgnoreCase))
                         .ToList();
                 }
-
 
                 return View(candidates);
             }
