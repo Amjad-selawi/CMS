@@ -47,7 +47,7 @@ namespace CMS.Repository.Implementation
             try
             {
 
-                return await _context.Positions.Include(c => c.CarrerOffer).Include(c => c.Interviews).Include(c => c.Candidates).AsNoTracking().ToListAsync();
+                return await _context.Positions.Include(c => c.CarrerOffer).Include(c=>c.Interviews).Include(c=>c.Candidates).AsNoTracking().ToListAsync();
 
             }
             catch (Exception ex)
@@ -102,6 +102,16 @@ namespace CMS.Repository.Implementation
                 throw ex;
             }
         }
+
+
+        public bool DoesPositionNameExist(string name)
+        {
+            return _context.Positions.Any(x => x.Name == name);
+        }
+
+
+
+
         //public async  Task Delete(Position entity)
         //{
         //    entity.IsDelete = true;
@@ -199,5 +209,5 @@ namespace CMS.Repository.Implementation
         //    //    throw ex;
         //    //}
     }
-    }
+}
 

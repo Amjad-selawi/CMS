@@ -16,5 +16,8 @@ namespace CMS.Services.Interfaces
         Task<Result<PositionDTO>> GetById(int id);
         Task<Result<PositionDTO>> Update(PositionDTO data);
 
+        bool DoesPositionNameExist(string name);
+
+
     }
 }

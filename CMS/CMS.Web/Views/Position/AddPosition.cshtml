@@ -3,9 +3,10 @@
 <form asp-action="AddPosition">
     <div asp-validation-summary="ModelOnly" class="text-danger"></div>
         <div class="form-group">
-        <label asp-for="Name" class="control-label"></label>
+        <label asp-for="Name" class="control-label"><span class="text-danger">*</span> Name</label>
         <input asp-for="Name" class="form-control" />
         <span asp-validation-for="Name" class="text-danger"></span>
+        <span id="errorMessage" class="text-danger"></span>
     </div>
  
    
@@ -15,3 +16,32 @@
     </div>
 
 </form>
+
+
+
+<script>
+    $(document).ready(function () {
+        $("#Name").on("input", function () {
+            var name = $(this).val();
+
+
+            $.ajax({
+                url: '@Url.Action("CheckPositionName", "Position")',
+                data: { name: name },
+                type: "POST",
+                success: function (response) {
+                    if (response.exists) {
+                        $("#errorMessage").text("A position with the same name already exists.");
+                        //$("#addBookButton").prop("disabled", true);
+                    } else {
+                        // $("#addBookButton").prop("disabled", false);
+                        $("#errorMessage").hide();
+                    }
+                },
+                error: function () {
+                    $("#errorMessage").text("Error checking book name.");
+                }
+            });
+        });
+    });
+</script>

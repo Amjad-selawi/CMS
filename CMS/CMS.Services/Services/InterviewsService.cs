@@ -36,7 +36,7 @@ namespace CMS.Services.Services
             ICandidateService candidateService,
             IPositionService positionService,
             IAttachmentService attachmentService,
-            UserManager <IdentityUser>userManager,
+            UserManager<IdentityUser> userManager,
             RoleManager<IdentityRole> roleManager,
             IHttpContextAccessor httpContextAccessor,
             IStatusRepository statusRepository
@@ -56,7 +56,7 @@ namespace CMS.Services.Services
         public async Task<List<UsersDTO>> GetInterviewers()
         {
             var interviewerRole = await _roleManager.FindByNameAsync("Interviewer");
-            if(interviewerRole == null)
+            if (interviewerRole == null)
             {
                 return new List<UsersDTO>();
             }
@@ -69,12 +69,12 @@ namespace CMS.Services.Services
                 Email = user.Email,
             }).ToList();
             return interviewers;
-            
+
         }
 
-        public async Task <string> GetInterviewerName(string  id)
+        public async Task<string> GetInterviewerName(string id)
         {
-            var user=await _userManager.FindByIdAsync(id);
+            var user = await _userManager.FindByIdAsync(id);
             if (user != null)
             {
                 return user.UserName;
@@ -88,7 +88,7 @@ namespace CMS.Services.Services
             if (user != null)
             {
                 var roles = await _userManager.GetRolesAsync(user);
-               if(roles.Any())
+                if (roles.Any())
                 {
                     return roles[0];
                 }
@@ -102,21 +102,21 @@ namespace CMS.Services.Services
             try
             {
                 var interview = await _interviewsRepository.GetById(id);
-                if (interview != null && interview.AttachmentId!=null)
+                if (interview != null && interview.AttachmentId != null)
                 {
                     var attachmentToRemove = interview.AttachmentId;
                     await _interviewsRepository.Delete(id);
-                    if(attachmentToRemove != null)
+                    if (attachmentToRemove != null)
                     {
                         await _attachmentService.DeleteAttachmentAsync((int)attachmentToRemove);
                     }
-                    
+
                 }
                 else
                 {
                     await _interviewsRepository.Delete(id);
                 }
-               
+
                 return Result<InterviewsDTO>.Success(null);
             }
 
@@ -143,22 +143,22 @@ namespace CMS.Services.Services
                     string interviewerRole = await GetInterviewerRole(c.InterviewerId);
                     var com = new InterviewsDTO
                     {
-                    
-                       InterviewsId = c.InterviewsId,
-                       Score = c.Score,
-                       StatusId=c.StatusId,
-                       StatusName =c.Status.Name,
-                       Date = c.Date,
-                       PositionId = c.PositionId,
-                       Name = c.Position.Name,
-                       Notes=c.Notes,
-                       ParentId=c.ParentId,
-                       InterviewerId=c.InterviewerId,
-                       InterviewerName= userName,
-                       CandidateId = c.CandidateId,
-                       FullName = c.Candidate.FullName,
-                       AttachmentId = c.AttachmentId,
-                       InterviewerRole=interviewerRole
+
+                        InterviewsId = c.InterviewsId,
+                        Score = c.Score,
+                        StatusId = c.StatusId,
+                        StatusName = c.Status.Name,
+                        Date = c.Date,
+                        PositionId = c.PositionId,
+                        Name = c.Position.Name,
+                        Notes = c.Notes,
+                        ParentId = c.ParentId,
+                        InterviewerId = c.InterviewerId,
+                        InterviewerName = userName,
+                        CandidateId = c.CandidateId,
+                        FullName = c.Candidate.FullName,
+                        AttachmentId = c.AttachmentId,
+                        InterviewerRole = interviewerRole
 
                     };
                     interviewsDTO.Add(com);
@@ -182,13 +182,13 @@ namespace CMS.Services.Services
             }
             try
             {
-               
+
                 var interview = await _interviewsRepository.GetById(id);
                 string userName = await GetInterviewerName(interview.InterviewerId);
                 string interviewerRole = await GetInterviewerRole(interview.InterviewerId);
                 var interviewDTO = new InterviewsDTO
                 {
-                    InterviewsId=interview.InterviewsId,
+                    InterviewsId = interview.InterviewsId,
                     Score = interview.Score,
                     StatusId = interview.StatusId,
                     StatusName = interview.Status.Name,
@@ -198,11 +198,11 @@ namespace CMS.Services.Services
                     Notes = interview.Notes,
                     ParentId = interview.ParentId,
                     InterviewerId = interview.InterviewerId,
-                    InterviewerName=userName,
+                    InterviewerName = userName,
                     CandidateId = interview.CandidateId,
                     FullName = interview.Candidate.FullName,
-                    AttachmentId=interview.AttachmentId,
-                    InterviewerRole=interviewerRole
+                    AttachmentId = interview.AttachmentId,
+                    InterviewerRole = interviewerRole
                 };
                 return Result<InterviewsDTO>.Success(interviewDTO);
             }
@@ -211,7 +211,7 @@ namespace CMS.Services.Services
                 return Result<InterviewsDTO>.Failure(null, $"unable to retrieve the Interview from the repository{ex.InnerException.Message}");
             }
         }
-     
+
         public async Task<Result<InterviewsDTO>> Insert(InterviewsDTO data)
         {
             if (data == null)
@@ -226,21 +226,21 @@ namespace CMS.Services.Services
                 CandidateId = data.CandidateId,
                 Score = data.Score,
                 StatusId = status.Id,
-                Date=data.Date,
-                Notes=data.Notes,
-                ParentId=data.ParentId,
-                InterviewerId=data.InterviewerId,
-                AttachmentId =data.AttachmentId,
-                CreatedBy=currentUser.Id,
-                CreatedOn=DateTime.Now,
+                Date = data.Date,
+                Notes = data.Notes,
+                ParentId = data.ParentId,
+                InterviewerId = data.InterviewerId,
+                AttachmentId = data.AttachmentId,
+                CreatedBy = currentUser.Id,
+                CreatedOn = DateTime.Now,
 
             };
-                await _interviewsRepository.Insert(interview);
-        
+            await _interviewsRepository.Insert(interview);
 
-                return Result<InterviewsDTO>.Success(data);
 
-            
+            return Result<InterviewsDTO>.Success(data);
+
+
         }
 
         public async Task<Result<InterviewsDTO>> Update(InterviewsDTO data)
@@ -253,7 +253,7 @@ namespace CMS.Services.Services
             var currentUser = await _userManager.GetUserAsync(_httpContextAccessor.HttpContext.User);
             //if (Enum.TryParse(data.Status, out InterviewStatus status))
             // {
-            var previouseInterview = await _interviewsRepository.GetById(data.InterviewsId);
+            var previouseInterview = await _interviewsRepository.GetByIdForEdit(data.InterviewsId);
             var interview = new Interviews
             {
                 InterviewsId = data.InterviewsId,
@@ -264,18 +264,18 @@ namespace CMS.Services.Services
                 InterviewerId = data.InterviewerId,
                 Date = data.Date,
                 Notes = data.Notes,
-                StatusId= (int)data.StatusId,
-                AttachmentId=data.AttachmentId,
-                ModifiedOn=DateTime.Now,
-                ModifiedBy=currentUser.Id,
-                CreatedBy=previouseInterview.CreatedBy,
-                CreatedOn=previouseInterview.CreatedOn,
-                
-                };
-                await _interviewsRepository.Update(interview);
-           // }
-                return Result<InterviewsDTO>.Success(data);
-          
+                StatusId = (int)data.StatusId,
+                AttachmentId = data.AttachmentId,
+                ModifiedOn = DateTime.Now,
+                ModifiedBy = currentUser.Id,
+                CreatedBy = previouseInterview.CreatedBy,
+                CreatedOn = previouseInterview.CreatedOn,
+
+            };
+            await _interviewsRepository.Update(interview);
+            // }
+            return Result<InterviewsDTO>.Success(data);
+
         }
 
         public async Task UpdateInterviewAttachmentAsync(int id, string fileName, long fileSize, Stream fileStream)
@@ -312,7 +312,7 @@ namespace CMS.Services.Services
                 var Completedstatus = await _statusRepository.GetById((int)completedDTO.StatusId);
                 bool isApproved = Completedstatus.Code == StatusCode.Approved;
                 bool isLastInterviewerAnHR = await _userManager.IsInRoleAsync(interview.Interviewer, "HR Manager");
-                if(isApproved && !isLastInterviewerAnHR) // There is a next interview
+                if (isApproved && !isLastInterviewerAnHR) // There is a next interview
                 {
                     bool isFirstMeeting = interview.ParentId == null;
                     var PendeingStatus = await _statusRepository.GetByCode(StatusCode.Pending);
@@ -324,7 +324,7 @@ namespace CMS.Services.Services
                         PositionId = interview.PositionId,
                         ParentId = completedDTO.InterviewsId,
                         CreatedOn = DateTime.Now,
-                        CreatedBy=currentUser.Id,
+                        CreatedBy = currentUser.Id,
                     };
                     if (isFirstMeeting) // Second Interview Needed which done by General Manager
                     {
@@ -353,8 +353,9 @@ namespace CMS.Services.Services
             {
                 var user = await _userManager.GetUserAsync(_httpContextAccessor.HttpContext.User);
 
-                if(user == null) {
-                     return Result<List<InterviewsDTO>>.Failure(null, "User not found.");
+                if (user == null)
+                {
+                    return Result<List<InterviewsDTO>>.Failure(null, "User not found.");
                 }
 
                 var interviews = await _interviewsRepository.GetCurrentInterviews(user.Id);
@@ -362,8 +363,9 @@ namespace CMS.Services.Services
                 {
                     return Result<List<InterviewsDTO>>.Failure(null, "no available interviews.");
                 }
-                var interviewsDTOs= new List<InterviewsDTO>();
-                foreach (var i in interviews) {
+                var interviewsDTOs = new List<InterviewsDTO>();
+                foreach (var i in interviews)
+                {
                     string userName = await GetInterviewerName(i.InterviewerId);
                     interviewsDTOs.Add(new InterviewsDTO
                     {
@@ -371,19 +373,19 @@ namespace CMS.Services.Services
                         InterviewerId = i.InterviewerId,
                         InterviewerName = userName,
                         Score = i.Score,
-                        StatusId=i.StatusId,
-                        StatusName=i.Status.Name,
+                        StatusId = i.StatusId,
+                        StatusName = i.Status.Name,
                         Date = i.Date,
                         PositionId = i.PositionId,
                         Name = i.Position.Name,
-                        Notes=i.Notes,
+                        Notes = i.Notes,
                         ParentId = i.ParentId,
-                        CandidateId=i.CandidateId,
-                        FullName=i.Candidate.FullName,
-                        AttachmentId=i.AttachmentId,
-                        modifiedBy=i.ModifiedBy,
-                        isUpdated=i.IsUpdated,
-                        
+                        CandidateId = i.CandidateId,
+                        FullName = i.Candidate.FullName,
+                        AttachmentId = i.AttachmentId,
+                        modifiedBy = i.ModifiedBy,
+                        isUpdated = i.IsUpdated,
+
                     });
 
 
@@ -391,7 +393,7 @@ namespace CMS.Services.Services
                 return Result<List<InterviewsDTO>>.Success(interviewsDTOs);
 
 
-            }   
+            }
             catch (Exception ex)
             {
                 return Result<List<InterviewsDTO>>.Failure(null, $"Unable to get interviews: {ex.InnerException.Message}");

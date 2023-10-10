@@ -40,8 +40,15 @@ namespace CMS.Web.Controllers
         // GET: NotificationsController
         public async Task<ActionResult> Index()
         {
-            var notifications = await _notificationsService.GetAllNotificationsAsync();
-            return View(notifications);
+            if (User.IsInRole("Admin") || User.IsInRole("HR Manager"))
+            {
+                var notifications = await _notificationsService.GetAllNotificationsAsync();
+                return View(notifications);
+            }
+            else
+            {
+                return View("AccessDenied");
+            }
         }
 
         public async Task<ActionResult> IndexGMnotification()

@@ -17,19 +17,17 @@ namespace CMS.Application.DTOs
 
         public int Phone { get; set; }
 
-        [Required(ErrorMessage = "DesiredPosition is required.")]
-        public int PositionId { get; set; }
+        //[Required(ErrorMessage = "DesiredPosition is required.")]
+        public int? PositionId { get; set; }
 
         [Required(ErrorMessage = "company is required.")]
         public int CompanyId { set; get; }
 
         public string CompanyName { set; get; }
 
-        [Required(ErrorMessage = "Email is required.")]
         [DataType(DataType.EmailAddress, ErrorMessage = "E-mail is not valid")]
         public string Email { get; set; }
 
-        [Required(ErrorMessage = "Address is required.")]
         public string Address { get; set; }
 
         [Required(ErrorMessage = "Experience is required.")]

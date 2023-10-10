@@ -4,6 +4,7 @@ using CMS.Repository.Interfaces;
 using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -97,5 +98,12 @@ namespace CMS.Repository.Implementation
                 throw ex;
             }
         }
+
+
+        public bool DoesCountryNameExist(string name)
+        {
+            return _context.Countries.Any(x => x.Name == name);
+        }
+
     }
 }

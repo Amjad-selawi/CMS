@@ -115,7 +115,7 @@ namespace CMS.Domain.Migrations
                     b.Property<int>("Phone")
                         .HasColumnType("int");
 
-                    b.Property<int>("PositionId")
+                    b.Property<int?>("PositionId")
                         .HasColumnType("int");
 
                     b.HasKey("Id");
@@ -312,8 +312,8 @@ namespace CMS.Domain.Migrations
                     b.Property<int>("PositionId")
                         .HasColumnType("int");
 
-                    b.Property<int?>("Score")
-                        .HasColumnType("int");
+                    b.Property<double?>("Score")
+                        .HasColumnType("float");
 
                     b.Property<int>("StatusId")
                         .HasColumnType("int");
@@ -559,28 +559,28 @@ namespace CMS.Domain.Migrations
                         new
                         {
                             Id = "b024cbbe-f64e-4d1b-9c6e-05ac0f0e3ebb",
-                            ConcurrencyStamp = "26766c75-473c-4220-9a35-49f103ce39cc",
+                            ConcurrencyStamp = "a007c8da-5149-4823-9d8c-23d585892f5c",
                             Name = "Admin",
                             NormalizedName = "ADMIN"
                         },
                         new
                         {
                             Id = "1eecb40c-c701-4445-89d4-d1aa7d70460d",
-                            ConcurrencyStamp = "5e29bd78-b596-4d0f-a286-3470397cc290",
+                            ConcurrencyStamp = "68199012-fc57-441e-9c6e-233178770405",
                             Name = "General Manager",
                             NormalizedName = "GENERAL MANAGER"
                         },
                         new
                         {
                             Id = "226cca69-f046-4d15-8b81-9b9ba34f2214",
-                            ConcurrencyStamp = "c2122c5f-2478-4ca3-b804-7eaf93002c8a",
+                            ConcurrencyStamp = "d42d1eb5-804e-4831-8914-b98f2427e59b",
                             Name = "HR Manager",
                             NormalizedName = "HR MANAGER"
                         },
                         new
                         {
                             Id = "91c3461a-7da3-4033-b907-b104b903d793",
-                            ConcurrencyStamp = "101c6ddd-4695-4f5b-9a9e-f3e9665c951a",
+                            ConcurrencyStamp = "6c58e49c-f61a-49be-9194-a4d0b6ee2484",
                             Name = "Interviewer",
                             NormalizedName = "INTERVIEWER"
                         });
@@ -679,15 +679,15 @@ namespace CMS.Domain.Migrations
                         {
                             Id = "c6585ab9-8b5f-4332-a174-92429db8add2",
                             AccessFailedCount = 0,
-                            ConcurrencyStamp = "8f3874ee-0d01-4898-8f43-736be7ad1eb8",
+                            ConcurrencyStamp = "f159d946-9218-45d8-8a46-17d17195d1c2",
                             Email = "admin@admin.com",
                             EmailConfirmed = true,
                             LockoutEnabled = false,
                             NormalizedEmail = "ADMIN@ADMIN.COM",
                             NormalizedUserName = "ADMIN",
-                            PasswordHash = "AQAAAAEAACcQAAAAEGDbFEgCkKB3jFbca4cZExkB56ilDd+Ze64lzW8OpG/U3Kx2A7p8t6PFb0V2FWSWxA==",
+                            PasswordHash = "AQAAAAEAACcQAAAAEGOBB9jbUxVjNFbX9F9aKaFaRZRccTIdGqARlh+X3vX1+d0k06aHaO4RAeE69gK34Q==",
                             PhoneNumberConfirmed = false,
-                            SecurityStamp = "4cca6342-38f8-429d-b548-7da5412e4113",
+                            SecurityStamp = "ea9352fb-8ef0-46a7-a066-17cb3a8dfe06",
                             TwoFactorEnabled = false,
                             UserName = "admin"
                         });
@@ -804,9 +804,7 @@ namespace CMS.Domain.Migrations
 
                     b.HasOne("CMS.Domain.Entities.Position", "Position")
                         .WithMany("Candidates")
-                        .HasForeignKey("PositionId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .HasForeignKey("PositionId");
                 });
 
             modelBuilder.Entity("CMS.Domain.Entities.CarrerOffer", b =>

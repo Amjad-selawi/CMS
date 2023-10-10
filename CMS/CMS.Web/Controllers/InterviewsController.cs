@@ -63,8 +63,10 @@ namespace CMS.Web.Controllers
 
         public async Task<ActionResult> MyInterviews(int? statusFilter)
         {
-            // Get all statuses
-            var statusesResult = await _StatusService.GetAll();
+            if (User.IsInRole("Interviewer") || User.IsInRole("General Manager") || User.IsInRole("HR Manager"))
+            { 
+                // Get all statuses
+                var statusesResult = await _StatusService.GetAll();
             if (!statusesResult.IsSuccess)
             {
                 ModelState.AddModelError("", statusesResult.Error);
@@ -98,6 +100,11 @@ namespace CMS.Web.Controllers
             }
 
             return View(interviewsDTOs);
+            }
+            else
+            {
+                return View("AccessDenied");
+            }
         }
 
 
@@ -124,17 +131,25 @@ namespace CMS.Web.Controllers
         public async Task<ActionResult> Index()
         {
 
-            var result = await _interviewsService.GetAll();
-            if (result.IsSuccess)
+            if (User.IsInRole("Admin") || User.IsInRole("HR Manager"))
             {
-                var interviewsDTOs = result.Value;
 
-                return View(interviewsDTOs);
+                var result = await _interviewsService.GetAll();
+                if (result.IsSuccess)
+                {
+                    var interviewsDTOs = result.Value;
+
+                    return View(interviewsDTOs);
+                }
+                else
+                {
+                    ModelState.AddModelError("", result.Error);
+                    return View();
+                }
             }
             else
             {
-                ModelState.AddModelError("", result.Error);
-                return View();
+                return View("AccessDenied");
             }
         }
 

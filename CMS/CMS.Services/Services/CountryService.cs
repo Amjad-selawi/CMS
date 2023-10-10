@@ -162,5 +162,13 @@ namespace CMS.Services.Services
                 return Result<CountryDTO>.Failure(data, $"unable to update the country: {ex.InnerException.Message}");
             }
         }
+
+        public bool DoesCountryNameExist(string name)
+        {
+            return _repository.DoesCountryNameExist(name);
+        }
+
+
+
     }
 }

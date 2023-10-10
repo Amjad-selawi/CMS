@@ -24,24 +24,32 @@ namespace CMS.Web.Controllers
         }
         public async Task<IActionResult> Index()
         {
-            var report = (await _reportingService.GetBusinessPerformanceReport()).Value;
-            double percentageFloat = ((double)report.NumberOfAccepted / report.NumberOfCandidates) * 100;
-            int acceptedPercentage = (int) percentageFloat;
-            ViewBag.AcceptedPercentage = acceptedPercentage;
-            double rejectedFloat = ((double)report.NumberOfRejected / report.NumberOfCandidates) * 100;
-            int rejectedPercentage = (int)rejectedFloat;
-            ViewBag.RejectedPercentage = rejectedPercentage;
-            ViewBag.CountriesList = ArrayToString(report.CandidatesPerCountry.Keys.ToArray());
+            if (User.IsInRole("Admin") || User.IsInRole("General Manager") || User.IsInRole("HR Manager"))
+            {
+                var report = (await _reportingService.GetBusinessPerformanceReport()).Value;
+                double percentageFloat = ((double)report.NumberOfAccepted / report.NumberOfCandidates) * 100;
+                int acceptedPercentage = (int)percentageFloat;
+                ViewBag.AcceptedPercentage = acceptedPercentage;
+                double rejectedFloat = ((double)report.NumberOfRejected / report.NumberOfCandidates) * 100;
+                int rejectedPercentage = (int)rejectedFloat;
+                ViewBag.RejectedPercentage = rejectedPercentage;
+                ViewBag.CountriesList = ArrayToString(report.CandidatesPerCountry.Keys.ToArray());
 
 
 
-            var treeData = GetDataFromDatabase();
+                var treeData = GetDataFromDatabase();
 
-            ViewBag.TreeData = treeData;
+                ViewBag.TreeData = treeData;
 
 
 
-            return View(report);
+                return View(report);
+            }
+            else
+            {
+                // User is not in the Admin role, handle accordingly (redirect or show an error message)
+                return View("AccessDenied");
+            }
         }
         private static string ArrayToString(string[] array)
         {
@@ -109,6 +117,13 @@ namespace CMS.Web.Controllers
             }
 
             return result;
+        }
+
+
+
+        public IActionResult AccessDenied()
+        {
+            return View();
         }
 
 

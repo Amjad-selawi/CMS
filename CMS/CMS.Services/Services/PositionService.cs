@@ -146,5 +146,17 @@ namespace CMS.Services.Services
                 return Result<PositionDTO>.Failure(data, $"error updating the position {ex.InnerException.Message}");
             }
         }
+
+
+
+        public bool DoesPositionNameExist(string name)
+        {
+            return _repository.DoesPositionNameExist(name);
+        }
+
+
+
+
+
     }
 }

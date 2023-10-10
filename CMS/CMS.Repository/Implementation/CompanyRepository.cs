@@ -109,5 +109,14 @@ namespace CMS.Repository.Implementation
                 throw ex;
             }
         }
+
+
+        public bool DoesCompanyNameExist(string name)
+        {
+            return _context.Companies.Any(x => x.Name == name);
+        }
+
+
+
     }
 }

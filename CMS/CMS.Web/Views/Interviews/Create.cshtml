@@ -9,7 +9,7 @@
 
     <div class="form-group">
 
-        <label asp-for="CandidateId" class="control-label">Candidate</label>
+        <label asp-for="CandidateId" class="control-label"><span class="text-danger">*</span> Candidate</label>
         @if (ViewBag.candidateList != null)
         {
             <select asp-for="CandidateId" asp-items="@(ViewBag.candidateList)" class="form-control">
@@ -27,9 +27,9 @@
     </div> *@
 
 
-    <div class="form-group">
+    <div class="form-group" style="margin-top: 15px;">
 
-        <label asp-for="PositionId" class="control-label">Position</label>
+        <label asp-for="PositionId" class="control-label"><span class="text-danger">*</span> Position</label>
         @if (ViewBag.positionList != null)
         {
             <select asp-for="PositionId" asp-items="@(ViewBag.positionList)" class="form-control">
@@ -47,9 +47,9 @@
     </div> *@
 
 
-    <div class="form-group">
+    <div class="form-group" style="margin-top: 15px;">
 
-        <label asp-for="InterviewerId" class="control-label">Interviewer</label>
+        <label asp-for="InterviewerId" class="control-label"><span class="text-danger">*</span> Interviewer</label>
         @if (ViewBag.interviewersList != null)
         {
             <select asp-for="InterviewerId" asp-items="@(ViewBag.interviewersList)" class="form-control">
@@ -67,12 +67,12 @@
         <span asp-validation-for="InterviewerId" class="text-danger"></span>
 
     </div> *@
-    <div class="form-group">
-        <label asp-for="Date" class="control-label"></label>
+    <div class="form-group" style="margin-top: 15px;">
+        <label asp-for="Date" class="control-label"><span class="text-danger">*</span> Date</label>
         <input asp-for="Date" class="form-control" />
         <span asp-validation-for="Date" class="text-danger"></span>
     </div>
-    <div class="form-group" hidden>
+    <div class="form-group"  hidden>
         <label asp-for="ParentId" class="control-label"></label>
         <input asp-for="ParentId" class="form-control" />
         <span asp-validation-for="ParentId" class="text-danger"></span>
@@ -88,7 +88,7 @@
 
 </form>
 @* <p>@Html.ValidationSummary()</p> *@
-<script>
+@* <script>
     document.getElementById("createForm").onsubmit=function(){
         return confirmCreate();
     };
@@ -100,4 +100,4 @@
             return false;
         }
     }
-</script>
+</script> *@

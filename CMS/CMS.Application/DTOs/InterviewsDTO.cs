@@ -11,7 +11,8 @@ namespace CMS.Application.DTOs
         
         public int InterviewsId { get; set; }
 
-        public int? Score { get; set; }
+        [Range(0, 5, ErrorMessage = "Score must be between 0 and 5.")]
+        public double? Score { get; set; }
         [Required(ErrorMessage = "Please select a Date.")]
         public DateTime Date { get; set; }
         public int? ParentId { get; set; }
@@ -38,6 +39,6 @@ namespace CMS.Application.DTOs
         #nullable enable
         public string? Notes { get; set; }
 
-        public string? InterviewerRole { set; get; }
+        public string? InterviewerRole { get; set; }
     }
 }

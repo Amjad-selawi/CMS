@@ -15,5 +15,7 @@ namespace CMS.Repository.Interfaces
         Task<Position> GetById(int id);
         Task<List<Position>> GetAll();
 
+        bool DoesPositionNameExist(string name);
+
     }
 }

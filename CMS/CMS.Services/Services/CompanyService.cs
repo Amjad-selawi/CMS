@@ -179,5 +179,14 @@ namespace CMS.Services.Services
                 return Result<CompanyDTO>.Failure(data, $"error updating the company {ex.Message}");
             }
         }
+
+
+
+        public bool DoesCompanyNameExist(string name)
+        {
+            return _repository.DoesCompanyNameExist(name);
+        }
+
+
     }
 }

@@ -28,6 +28,14 @@ namespace CMS.Web.Controllers
         {
             if (ModelState.IsValid)
             {
+
+                if (_positionService.DoesPositionNameExist(positionDTO.Name))
+                {
+                    ModelState.AddModelError("Name", "A position with the same name already exists.");
+                    return View(positionDTO);
+                }
+
+
                 var result = await _positionService.Insert(positionDTO);
 
                 if (result.IsSuccess)
@@ -47,16 +55,23 @@ namespace CMS.Web.Controllers
         [HttpGet]
         public async Task<IActionResult> GetPositions()
         {
-            var result = await _positionService.GetAll();
-            if (result.IsSuccess)
+            if (User.IsInRole("Admin") || User.IsInRole("HR Manager"))
             {
-                var positionsDTOs = result.Value;
-                return View(positionsDTOs);
+                var result = await _positionService.GetAll();
+                if (result.IsSuccess)
+                {
+                    var positionsDTOs = result.Value;
+                    return View(positionsDTOs);
+                }
+                else
+                {
+                    ModelState.AddModelError("", result.Error);
+                    return View();
+                }
             }
             else
             {
-                ModelState.AddModelError("", result.Error);
-                return View();
+                return View("AccessDenied");
             }
         }
 
@@ -135,6 +150,15 @@ namespace CMS.Web.Controllers
             }
             return View(positionDTO);
 
+        }
+
+
+
+        [HttpPost]
+        public IActionResult CheckPositionName([FromBody] string name)
+        {
+            bool exists = _positionService.DoesPositionNameExist(name);
+            return Ok(new { exists });
         }
     }
 }

@@ -13,5 +13,7 @@ namespace CMS.Repository.Interfaces
         Task<int> Delete(int id);
         Task<Country> GetById(int id);
         Task<List<Country>> GetAll();
+
+        bool DoesCountryNameExist(string name);
     }
 }
