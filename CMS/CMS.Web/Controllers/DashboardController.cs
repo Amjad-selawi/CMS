@@ -34,8 +34,8 @@ namespace CMS.Web.Controllers
                 int rejectedPercentage = (int)rejectedFloat;
                 ViewBag.RejectedPercentage = rejectedPercentage;
                 ViewBag.CountriesList = ArrayToString(report.CandidatesPerCountry.Keys.ToArray());
-
-
+                //ViewBag.CandidatesPerCompanyList = DictionaryToString(report.candidatesPerCompany);
+                ViewBag.PendingCount = report.NumberOfPending; // Add the pending count to the ViewBag
 
                 var treeData = GetDataFromDatabase();
 
@@ -70,7 +70,25 @@ namespace CMS.Web.Controllers
             return sb.ToString();
         }
 
+        //private static string DictionaryToString(Dictionary<string, int> dictionary)
+        //{
+        //    StringBuilder sb = new StringBuilder();
+        //    sb.Append("{");
+        //    int count = 0;
 
+        //    foreach (var kvp in dictionary)
+        //    {
+        //        sb.Append($"'{kvp.Key}': {kvp.Value}");
+
+        //        if (++count < dictionary.Count)
+        //        {
+        //            sb.Append(",");
+        //        }
+        //    }
+
+        //    sb.Append("}");
+        //    return sb.ToString();
+        //}
 
 
         public IActionResult IndexForTree()
