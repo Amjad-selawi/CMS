@@ -19,6 +19,8 @@
     <Compile Remove="Migrations\20231009095455_makeCountryIdNulableInCandidates.Designer.cs" />
     <Compile Remove="Migrations\20231009141131_changedDatabaseServerToOld.cs" />
     <Compile Remove="Migrations\20231009141131_changedDatabaseServerToOld.Designer.cs" />
+    <Compile Remove="Migrations\20231009185620_makePositionIdNullable.cs" />
+    <Compile Remove="Migrations\20231009185620_makePositionIdNullable.Designer.cs" />
   </ItemGroup>
 
 	<ItemGroup>

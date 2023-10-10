@@ -40,8 +40,8 @@ namespace CMS.Services.Services
                 Id = c.Id,
                 FullName = c.FullName,
                 Phone = c.Phone,
-                PositionId = c.PositionId,
-                Name = c.Position.Name,
+                //PositionId = c.PositionId,
+                //Name = c.Position.Name,
                 CompanyId = c.CompanyId,
                 CompanyName=c.Company.Name,
                 Email = c.Email,
@@ -67,9 +67,9 @@ namespace CMS.Services.Services
                 Id = candidate.Id,
                 FullName = candidate.FullName,
                 Phone = candidate.Phone,
-                PositionId = candidate.PositionId,
-                Name=candidate.Position.Name,
-                CompanyId=candidate.CompanyId,
+                //PositionId = candidate.PositionId,
+                //Name = candidate.Position.Name,
+                CompanyId =candidate.CompanyId,
                 CompanyName=candidate.Company.Name,
                 Email = candidate.Email,
                 Address = candidate.Address,
@@ -95,7 +95,7 @@ namespace CMS.Services.Services
             {
                 FullName = candidateDTO.FullName,
                 Phone = candidateDTO.Phone,
-                PositionId = candidateDTO.PositionId,
+                //PositionId = candidateDTO.PositionId,
                 CompanyId =candidateDTO.CompanyId,
                 Email = candidateDTO.Email,
                 Address = candidateDTO.Address,
@@ -118,7 +118,7 @@ namespace CMS.Services.Services
 
             existingCandidate.FullName = candidateDTO.FullName;
             existingCandidate.Phone = candidateDTO.Phone;
-            existingCandidate.PositionId = candidateDTO.PositionId;
+            //existingCandidate.PositionId = candidateDTO.PositionId;
             existingCandidate.CompanyId= candidateDTO.CompanyId;
             existingCandidate.Email = candidateDTO.Email;
             existingCandidate.Address = candidateDTO.Address;

@@ -10,7 +10,7 @@ namespace CMS.Application.DTOs
     {
 
         public string LoginId { get; set; }
-        [Required]
+        [Required(ErrorMessage = "User Email is required.")]
         public string UserEmail { get; set; }
 
         [Required]
