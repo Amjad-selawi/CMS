@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
+using System.IO;
 using System.Text;
 
 namespace CMS.Application.DTOs
@@ -11,6 +12,13 @@ namespace CMS.Application.DTOs
         public int Id { set; get; }
         [Required]
         public string Name { set; get; }
+
+        
+        public int? EvaluationId { set; get; }
+
+        public string FileName { get; set; }
+        public long? FileSize { get; set; }
+        public Stream FileData { get; set; }
         public List<CarrerOfferDTO> CarrerOfferDTO { get; set; }
 
         public List<InterviewsDTO> InterviewsDTO { get; set; }

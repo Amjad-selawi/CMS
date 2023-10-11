@@ -14,6 +14,7 @@ namespace CMS.Domain.EntityMapper
             builder.HasMany(p => p.Candidates).WithOne(p => p.Position);
             builder.HasMany(p=>p.Interviews).WithOne(p => p.Position);
             builder.HasMany(p => p.CarrerOffer).WithOne(p => p.Position);
+            builder.HasOne(p => p.Evaluation).WithMany().HasForeignKey(p => p.EvaluationId);
 
         }
     }
