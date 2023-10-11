@@ -64,8 +64,6 @@ namespace CMS.Web.Controllers
                 }
 
                 var statuses = statusesResult.Value;
-                //statuses.Insert(0, new StatusDTO { Id = 0, Name = "All Statuses" });
-
                 ViewBag.StatusList = new SelectList(statuses, "Id", "Name");
 
                 // Get all candidates
@@ -83,14 +81,32 @@ namespace CMS.Web.Controllers
                 {
                     var interviews = interviewsResult.Value;
 
+
+
+                    foreach (var interview in interviews)
+                    {
+                        var candidate = await _candidateService.GetCandidateByIdAsync(interview.CandidateId);
+
+                        if (candidate != null && candidate.CVAttachmentId != null)
+                        {
+                            interview.CandidateCVAttachmentId = candidate.CVAttachmentId.Value;
+                        }
+                    }
+
+
+
                     int positionId = Convert.ToInt32(positionFilter);
                     int statusId = Convert.ToInt32(statusFilter);
 
+                    var latestInterviews = interviews
+                .GroupBy(i => i.CandidateId)
+                .Select(group => group.OrderByDescending(i => i.InterviewsId).FirstOrDefault())
+                .ToList();
 
                     // If a position filter is selected, filter the interviews
                     if (!string.IsNullOrEmpty(positionFilter) && positionFilter != "All Positions")
                     {
-                        interviews = interviews
+                        latestInterviews = latestInterviews
                             .Where(i => i.PositionId == positionId)
                             .ToList(); // Materialize the filtered interviews
                     }
@@ -98,7 +114,7 @@ namespace CMS.Web.Controllers
                     // Filter by score if the scoreFilter parameter is provided
                     if (scoreFilter.HasValue)
                     {
-                        interviews = interviews
+                        latestInterviews = latestInterviews
                             .Where(i => i.Score == scoreFilter.Value)
                             .ToList(); // Materialize the filtered interviews
                     }
@@ -106,7 +122,7 @@ namespace CMS.Web.Controllers
                     // Filter by status if the statusFilter parameter is provided
                     if (statusFilter.HasValue && statusFilter.Value > 0)
                     {
-                        interviews = interviews
+                        latestInterviews = latestInterviews
                             .Where(i => i.StatusId == statusFilter.Value)
                             .ToList(); // Materialize the filtered interviews
                     }
@@ -114,24 +130,32 @@ namespace CMS.Web.Controllers
                     // Filter by candidate if the candidateFilter parameter is provided
                     if (!string.IsNullOrEmpty(candidateFilter))
                     {
-                        interviews = interviews
-                            .Where(i => i.FullName.Contains(candidateFilter, StringComparison.OrdinalIgnoreCase))
-                            .ToList(); // Materialize the filtered interviews
+                        latestInterviews = latestInterviews
+                   .Where(i => i.FullName.Contains(candidateFilter, StringComparison.OrdinalIgnoreCase))
+                   .ToList();
+                        //latestInterviews = latestInterviews
+                        //   .GroupBy(i => i.CandidateId)
+                        //   .Select(group => group.OrderByDescending(i => i.InterviewsId).FirstOrDefault())
+                        //   .Where(i => i.FullName.Contains(candidateFilter, StringComparison.OrdinalIgnoreCase))
+                        //   .ToList();
+
+
                     }
 
                     // Filter by interviewer if the interviewerFilter parameter is provided
                     if (!string.IsNullOrEmpty(interviewerFilter) && interviewerFilter != "All Interviewers")
                     {
-                        interviews = interviews
+                        latestInterviews = latestInterviews
                             .Where(i => i.InterviewerId == interviewerFilter)
                             .ToList(); // Materialize the filtered interviews
                     }
+
+                    // Apply date filtering
                     if (fromDate.HasValue && toDate.HasValue)
                     {
                         toDate = toDate.Value.AddDays(1);
 
-
-                        interviews = interviews
+                        latestInterviews = latestInterviews
                             .Where(i => i.Date >= fromDate.Value && i.Date <= toDate.Value)
                             .OrderBy(i => i.Date)
                             .ToList(); // Materialize the filtered interviews
@@ -139,14 +163,13 @@ namespace CMS.Web.Controllers
 
                     if (Request.Query["export"].ToString() == "excel")
                     {
-                        // Export data to Excel
-                        var filteredData = interviews; // Use the filtered data
-                        var excelData = GenerateExcelFile(filteredData);
+                        // Export data to Excel using the filtered data
+                        var excelData = GenerateExcelFile(latestInterviews);
 
                         return File(excelData, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", "Interviews.xlsx");
                     }
 
-                    return View(interviews);
+                    return View(latestInterviews);
                 }
                 else
                 {

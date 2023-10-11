@@ -32,6 +32,10 @@ namespace CMS.Application.DTOs
         public string FullName{ get; set; }
         public string Name { get; set; }
         public int? AttachmentId { set; get; }
+
+        public int? CandidateCVAttachmentId { set; get; }
+        public string CandidateCVFileName { get; set; }
+
         public string FileName { get; set; }
         public long? FileSize { get; set; }
         public Stream FileData { get; set; }

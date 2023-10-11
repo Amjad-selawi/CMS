@@ -66,10 +66,6 @@ namespace CMS.Domain.Migrations
                         .HasColumnType("int")
                         .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
 
-                    b.Property<string>("Address")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
                     b.Property<int?>("CVAttachmentId")
                         .HasColumnType("int");
 
@@ -85,10 +81,6 @@ namespace CMS.Domain.Migrations
                     b.Property<DateTime>("CreatedOn")
                         .HasColumnType("datetime2");
 
-                    b.Property<string>("Email")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
                     b.Property<string>("Experience")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
@@ -102,9 +94,6 @@ namespace CMS.Domain.Migrations
 
                     b.Property<bool>("IsDelete")
                         .HasColumnType("bit");
-
-                    b.Property<string>("LinkedInUrl")
-                        .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("ModifiedBy")
                         .HasColumnType("nvarchar(max)");
@@ -186,9 +175,6 @@ namespace CMS.Domain.Migrations
                         .HasColumnType("int")
                         .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
 
-                    b.Property<string>("Address")
-                        .HasColumnType("nvarchar(max)");
-
                     b.Property<int>("CountryId")
                         .HasColumnType("int");
 
@@ -215,6 +201,9 @@ namespace CMS.Domain.Migrations
 
                     b.Property<string>("Name")
                         .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("PersonName")
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("PhoneNumber")
@@ -558,28 +547,28 @@ namespace CMS.Domain.Migrations
                         new
                         {
                             Id = "b024cbbe-f64e-4d1b-9c6e-05ac0f0e3ebb",
-                            ConcurrencyStamp = "c675aeec-88c3-4918-9068-b2a2b0d66d94",
+                            ConcurrencyStamp = "e1a2e464-8213-4749-b174-cea71ded44c2",
                             Name = "Admin",
                             NormalizedName = "ADMIN"
                         },
                         new
                         {
                             Id = "1eecb40c-c701-4445-89d4-d1aa7d70460d",
-                            ConcurrencyStamp = "1bc5775a-6883-4fa7-a5a4-d2b4c9fa8581",
+                            ConcurrencyStamp = "0c10956a-1aaa-425f-ae92-3f8c27e2d9be",
                             Name = "General Manager",
                             NormalizedName = "GENERAL MANAGER"
                         },
                         new
                         {
                             Id = "226cca69-f046-4d15-8b81-9b9ba34f2214",
-                            ConcurrencyStamp = "4b89a250-f62e-462a-beb5-db6e3dd88146",
+                            ConcurrencyStamp = "b8297c47-c467-43a3-89b9-830cd1253a37",
                             Name = "HR Manager",
                             NormalizedName = "HR MANAGER"
                         },
                         new
                         {
                             Id = "91c3461a-7da3-4033-b907-b104b903d793",
-                            ConcurrencyStamp = "a2debd89-97e5-4b3b-b4e3-dfc9c95ae4a3",
+                            ConcurrencyStamp = "decfba96-1c6e-4f58-9682-c61c17bfd1c4",
                             Name = "Interviewer",
                             NormalizedName = "INTERVIEWER"
                         });
@@ -678,15 +667,15 @@ namespace CMS.Domain.Migrations
                         {
                             Id = "c6585ab9-8b5f-4332-a174-92429db8add2",
                             AccessFailedCount = 0,
-                            ConcurrencyStamp = "1761fccb-15c2-4913-9604-6adfc63f5735",
+                            ConcurrencyStamp = "7c2d6ce3-e6ac-497f-941b-8ae7bef85afd",
                             Email = "admin@admin.com",
                             EmailConfirmed = true,
                             LockoutEnabled = false,
                             NormalizedEmail = "ADMIN@ADMIN.COM",
                             NormalizedUserName = "ADMIN",
-                            PasswordHash = "AQAAAAEAACcQAAAAEDZtwZJeiWFE7KkTqVi74Ndv1kdLe8yaPUMEa/Bzsnb6YgYvFjUPgYsxaLXp8qkR+w==",
+                            PasswordHash = "AQAAAAEAACcQAAAAEMEF0/F9QayDnXRfDNHSxVTitqMECe+IaysZI1KA8NqIk1VwzMRY0rxIHjFmJS6SRg==",
                             PhoneNumberConfirmed = false,
-                            SecurityStamp = "483705d3-02fb-4774-b3c9-e63c761133ed",
+                            SecurityStamp = "85dbeb4f-db24-42dc-b60e-f2dc27bceb00",
                             TwoFactorEnabled = false,
                             UserName = "admin"
                         });

@@ -25,18 +25,18 @@ namespace CMS.Application.DTOs
 
         public string CompanyName { set; get; }
 
-        [DataType(DataType.EmailAddress, ErrorMessage = "E-mail is not valid")]
-        public string Email { get; set; }
+        //[DataType(DataType.EmailAddress, ErrorMessage = "E-mail is not valid")]
+        //public string Email { get; set; }
 
-        public string Address { get; set; }
+        //public string Address { get; set; }
 
         [Required(ErrorMessage = "Experience is required.")]
         [RegularExpression(@"^[0-9]+$", ErrorMessage = "Experience must contain only numeric values.")]
         public string Experience { get; set; }
 
-        [Url(ErrorMessage = "Invalid LinkedIn URL.")]
+        //[Url(ErrorMessage = "Invalid LinkedIn URL.")]
       
-        public string LinkedInUrl { get; set; }
+        //public string LinkedInUrl { get; set; }
         public int CountryId { get; set; }
         public string CountryName { get; set; }
         public int? CVAttachmentId { get; set; }

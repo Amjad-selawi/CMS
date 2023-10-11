@@ -10,7 +10,8 @@ namespace CMS.Repository.Interfaces
     {
         Task<int> Insert(Country entity);
         Task<int> Update(Country entity);
-        Task<int> Delete(int id);
+        int Delete(int id);
+        //Task<int> Delete(int id);
         Task<Country> GetById(int id);
         Task<List<Country>> GetAll();
 
