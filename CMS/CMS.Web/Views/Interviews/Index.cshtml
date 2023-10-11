@@ -1,4 +1,8 @@
-﻿@model IEnumerable<CMS.Application.DTOs.InterviewsDTO>
+﻿
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<link href="https://cdn.datatables.net/1.11.5/css/jquery.dataTables.min.css" rel="stylesheet" />
+<script src="https://cdn.datatables.net/1.11.5/js/jquery.dataTables.min.js"></script>
+@model IEnumerable<CMS.Application.DTOs.InterviewsDTO>
 @{
     ViewData["Title"] = "Interviews";
 }
@@ -77,3 +81,10 @@
         </div>
     </div><!--end col-->
 </div><!--end row-->
+<script>
+    $.noConflict();
+    jQuery(document).ready(function ($) {
+        $('#add-rows').DataTable();
+
+    });
+</script>
