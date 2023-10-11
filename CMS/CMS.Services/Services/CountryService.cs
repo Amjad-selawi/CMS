@@ -25,11 +25,13 @@ namespace CMS.Services.Services
             _httpContextAccessor = httpContextAccessor;
         }
 
-        public async Task<Result<CountryDTO>> Delete(int id)
+
+
+        public Result<CountryDTO> Delete(int id)
         {
             try
             {
-                await _repository.Delete(id);
+                _repository.Delete(id);
                 return Result<CountryDTO>.Success(null);
             }
             catch (Exception ex)
@@ -37,6 +39,19 @@ namespace CMS.Services.Services
                 return Result<CountryDTO>.Failure(null, $"An error occurred while deleting the country{ex.InnerException.Message}");
             }
         }
+
+        //public async Task<Result<CountryDTO>> Delete(int id)
+        //{
+        //    try
+        //    {
+        //        await _repository.Delete(id);
+        //        return Result<CountryDTO>.Success(null);
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        return Result<CountryDTO>.Failure(null, $"An error occurred while deleting the country{ex.InnerException.Message}");
+        //    }
+        //}
 
         public async Task<Result<List<CountryDTO>>> GetAll()
         {
@@ -59,7 +74,7 @@ namespace CMS.Services.Services
                             Id = com.Id,
                             Name = com.Name,
                             Email = com.Email,
-                            Address = com.Address,
+                            PersonName = com.PersonName,
                             CountryId = com.CountryId,
                             PhoneNumber = com.PhoneNumber,
                             CountryName=com.Country.Name
@@ -95,7 +110,7 @@ namespace CMS.Services.Services
                         Id = com.Id,
                         Name = com.Name,
                         Email = com.Email,
-                        Address = com.Address,
+                        PersonName = com.PersonName,
                         CountryId = com.CountryId,
                         PhoneNumber = com.PhoneNumber,
 

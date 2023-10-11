@@ -11,7 +11,9 @@ namespace CMS.Services.Interfaces
     {
         Task<Result<CountryDTO>> Insert(CountryDTO data);
         Task<Result<List<CountryDTO>>> GetAll();
-        Task<Result<CountryDTO>> Delete(int id);
+        Result<CountryDTO> Delete(int id);
+
+        //Task<Result<CountryDTO>> Delete(int id);
         Task<Result<CountryDTO>> GetById(int id);
         Task<Result<CountryDTO>> Update(CountryDTO data);
 

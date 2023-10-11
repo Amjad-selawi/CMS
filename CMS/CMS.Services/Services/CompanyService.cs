@@ -62,7 +62,7 @@ namespace CMS.Services.Services
                     {
                         Id = c.Id,
                         Name = c.Name,
-                        Address = c.Address,
+                        PersonName = c.PersonName,
                         Email = c.Email,
                         PhoneNumber = c.PhoneNumber,
                         CountryId = c.CountryId,
@@ -95,7 +95,7 @@ namespace CMS.Services.Services
                 {
                     Id= company.Id,
                     Name = company.Name,
-                    Address = company.Address,
+                    PersonName = company.PersonName,
                     Email = company.Email,
                     PhoneNumber = company.PhoneNumber,
                   //  CountryId = company.CountryId,
@@ -123,7 +123,7 @@ namespace CMS.Services.Services
             var company = new Company {
                 Name = data.Name,
                 Email = data.Email,
-                Address = data.Address,
+                PersonName = data.PersonName,
                 PhoneNumber = data.PhoneNumber,
                 CountryId= data.CountryId,
                 CreatedBy= currentUser.Id,
@@ -158,7 +158,7 @@ namespace CMS.Services.Services
             {
                 Id = data.Id,
                 Name = data.Name,
-                Address = data.Address,
+                PersonName = data.PersonName,
                 Email = data.Email,
                 PhoneNumber= data.PhoneNumber,
                 CountryId= data.CountryId,

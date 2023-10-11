@@ -13,11 +13,10 @@ namespace CMS.Application.DTOs
         public string Name { get; set; }
         [DataType(DataType.EmailAddress)]
         public string? Email { get; set; }
-        public string? Address { get; set; }
+        public string PersonName { get; set; }
 
-        [Required(ErrorMessage ="Phone Number is requierd")]
         public string PhoneNumber { set; get; }
-        [Required]
+        [Required(ErrorMessage ="Please select a country")]
         public int CountryId { set; get; }
         public string CountryName { set; get; }
     }
