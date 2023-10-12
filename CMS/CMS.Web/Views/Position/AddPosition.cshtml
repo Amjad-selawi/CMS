@@ -11,7 +11,9 @@
 
     <div class="form-group" style="margin-top: 15px;">
         <label for="file">Upload An evaluation Form:</label>
-        <input type="file" id="file" name="file" class="form-control-file" />
+        <input type="file" id="file" name="file" class="form-control-file" onchange="validateFileFormat(this)"  />
+        <br />
+        <span id="fileError" class="text-danger"></span>
     </div>
  
    
@@ -49,4 +51,21 @@
             });
         });
     });
+</script>
+<script>
+    function validateFileFormat(input) {
+        const allowedExtensions = [".pdf", ".docx", ".png", ".jpg", ".xlsx"];
+        const file = input.files[0];
+
+        if (file) {
+            const fileExtension = '.' + file.name.split('.').pop().toLowerCase();
+            if (!allowedExtensions.includes(fileExtension)) {
+                document.getElementById("fileError").textContent = "Invalid file format. Allowed formats are PDF, DOCX, xlsx, PNG, and JPG.";
+            } else if (file.size > 4 * 1024 * 1024) { // Check if the file size is greater than 4MB
+                document.getElementById("fileError").textContent = "File size exceeds 4MB.";
+            } else {
+                document.getElementById("fileError").textContent = "";
+            }
+        }
+    }
 </script>

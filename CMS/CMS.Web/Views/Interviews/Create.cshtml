@@ -70,7 +70,7 @@
     <div class="form-group" style="margin-top: 15px;">
         <label asp-for="Date" class="control-label"><span class="text-danger">*</span> Date</label>
         <input asp-for="Date" class="form-control" />
-        <span asp-validation-for="Date" class="text-danger"></span>
+        <span asp-validation-for="Date" class="text-danger" id="dateValidationMessage"></span>
     </div>
     <div class="form-group"  hidden>
         <label asp-for="ParentId" class="control-label"></label>
@@ -88,16 +88,23 @@
 
 </form>
 @* <p>@Html.ValidationSummary()</p> *@
-@* <script>
-    document.getElementById("createForm").onsubmit=function(){
-        return confirmCreate();
+<script>
+    
+    document.getElementById("createForm").onsubmit = function () {
+        return validateDate();
     };
 
-    function confirmCreate(){
-        if(confirm("Are you sure from the info you want to submit? it can not be modified")){
-            return true;
-        }else{
-            return false;
+    function validateDate() {
+        var dateInput = document.getElementById("Date");
+        var date = new Date(dateInput.value);
+        var currentDate = new Date();
+
+        if (date <= currentDate) {
+            var dateValidationMessage = document.getElementById("dateValidationMessage");
+            dateValidationMessage.textContent = "Date must be in the future";
+            return false; 
         }
+
+        return true; 
     }
-</script> *@
+</script>
