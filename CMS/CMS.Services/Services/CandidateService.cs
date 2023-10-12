@@ -138,18 +138,35 @@ namespace CMS.Services.Services
         //}
 
 
+        //public async Task DeleteCandidateAsync(int id)
+        //{
+        //    var candidate = await _candidateRepository.GetCandidateByIdAsync(id);
+
+        //    if (candidate != null)
+        //    {
+        //        int attachmentToRemove = (int)candidate.CVAttachmentId;
+        //        await _candidateRepository.DeleteCandidateAsync(candidate);
+        //        await _attachmentService.DeleteAttachmentAsync(attachmentToRemove);
+        //    }
+
+        //}
+
         public async Task DeleteCandidateAsync(int id)
         {
             var candidate = await _candidateRepository.GetCandidateByIdAsync(id);
 
             if (candidate != null)
             {
-                int attachmentToRemove = (int)candidate.CVAttachmentId;
+                int? attachmentToRemove = (int?)candidate.CVAttachmentId; 
                 await _candidateRepository.DeleteCandidateAsync(candidate);
-                await _attachmentService.DeleteAttachmentAsync(attachmentToRemove);
-            }
 
+                if (attachmentToRemove.HasValue)
+                {
+                    await _attachmentService.DeleteAttachmentAsync(attachmentToRemove.Value);
+                }
+            }
         }
+
 
         public async Task UpdateCandidateCVAsync(int id, string fileName, long fileSize, Stream fileStream)
         {

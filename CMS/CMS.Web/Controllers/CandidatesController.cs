@@ -116,7 +116,7 @@ namespace CMS.Web.Controllers
 
             var Country = await _countryService.GetAll();
             ViewBag.CountryDTOs = new SelectList(Country.Value, "Id", "Name");
-
+            FileStream attachmentStream = null;
             if (file != null && file.Length > 0)
             {
                 // Check file extension and size
@@ -128,44 +128,47 @@ namespace CMS.Web.Controllers
                 {
                     ModelState.AddModelError("File", "Invalid file format. Allowed formats are PDF, DOCX, PNG, and JPG.");
                 }
-              
+
                 else if (file.Length > maxFileSize)
                 {
                     ModelState.AddModelError("File", "File size exceeds the maximum allowed size (4MB).");
                 }
 
-                if (ModelState.IsValid)
+                attachmentStream = await AttachmentHelper.handleUpload(file, _attachmentStoragePath);
+                candidateDTO.FileName = file.FileName;
+                candidateDTO.FileSize = file.Length;
+                candidateDTO.FileData = attachmentStream;
+            }
+
+            if (ModelState.IsValid)
+            {
+
+
+                try
                 {
-                    FileStream attachmentStream = null;
 
-                    try
-                    {
-                        attachmentStream = await AttachmentHelper.handleUpload(file, _attachmentStoragePath);
-                        candidateDTO.FileName = file.FileName;
-                        candidateDTO.FileSize = file.Length;
-                        candidateDTO.FileData = attachmentStream;
 
-                        await _candidateService.CreateCandidateAsync(candidateDTO);
-                        return RedirectToAction(nameof(Index));
-                    }
-                    catch (Exception ex)
+                    await _candidateService.CreateCandidateAsync(candidateDTO);
+                    return RedirectToAction(nameof(Index));
+                }
+                catch (Exception ex)
+                {
+                    throw ex;
+                }
+                finally
+                {
+                    if (attachmentStream != null)
                     {
-                        throw ex;
-                    }
-                    finally
-                    {
-                        if (attachmentStream != null)
-                        {
-                            attachmentStream.Close();
-                            attachmentStream.Dispose(); // Dispose the stream to release the file
-                            AttachmentHelper.removeFile(file.FileName, _attachmentStoragePath);
-                        }
+                        attachmentStream.Close();
+                        attachmentStream.Dispose(); // Dispose the stream to release the file
+                        AttachmentHelper.removeFile(file.FileName, _attachmentStoragePath);
                     }
                 }
             }
+
             else
             {
-                ModelState.AddModelError("File", "Please choose a file to upload.");
+                ModelState.AddModelError("", "");
             }
 
             return View(candidateDTO);

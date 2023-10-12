@@ -58,7 +58,7 @@
     $(document).ready(function () {
         $("#Name").on("input", function () {
             var name = $(this).val();
-            var countryId = $("#CountryId").val(); // Assuming you have an element with id "CountryId" to select the country.
+            var countryId = $("#CountryId").val(); 
 
             $.ajax({
                 url: '@Url.Action("CheckCompanyName", "Company")',
