@@ -8,6 +8,7 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.FileProviders;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using static Microsoft.EntityFrameworkCore.DbLoggerCategory.Database;
@@ -182,10 +183,14 @@ namespace CMS.Services.Services
 
 
 
-        public bool DoesCompanyNameExist(string name)
+        public bool DoesCompanyNameExist(string name , int countryId)
         {
-            return _repository.DoesCompanyNameExist(name);
+            return _repository.DoesCompanyNameExist(name , countryId);
         }
+
+
+     
+
 
 
     }

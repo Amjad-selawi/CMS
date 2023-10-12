@@ -1,7 +1,7 @@
 ﻿@model CMS.Application.DTOs.PositionDTO
 <h1>Add a position</h1>
 <form asp-action="AddPosition" enctype="multipart/form-data">
-    <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+    @* <div asp-validation-summary="ModelOnly" class="text-danger"></div> *@
         <div class="form-group">
         <label asp-for="Name" class="control-label"><span class="text-danger">*</span> Name</label>
         <input asp-for="Name" class="form-control" />
@@ -46,7 +46,7 @@
                     }
                 },
                 error: function () {
-                    $("#errorMessage").text("Error checking book name.");
+                    $("#errorMessage").text("Error checking position name.");
                 }
             });
         });

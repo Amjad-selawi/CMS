@@ -215,7 +215,7 @@ namespace CMS.Web.Controllers
                 {
                     if (User.IsInRole("HR Manager"))
                     {
-                        await _notificationsService.CreateInterviewNotificationForInterviewerAsync(collection.Date);
+                        await _notificationsService.CreateInterviewNotificationForInterviewerAsync(collection.Date,collection.CandidateId,collection.PositionId);
 
                       
 
@@ -469,20 +469,39 @@ namespace CMS.Web.Controllers
                 {
                     if (interviewsDTO.StatusId == 2 || interviewsDTO.StatusId == 3)
                     {
-                        await _notificationsService.CreateNotificationForGeneralManagerAsync(interviewsDTO.StatusId.Value, interviewsDTO.Notes);
+                        await _notificationsService.CreateNotificationForGeneralManagerAsync(interviewsDTO.StatusId.Value, interviewsDTO.Notes,interviewsDTO.CandidateId ,interviewsDTO.PositionId);
 
                         if(interviewsDTO.StatusId == 2)
                         {
+                            string userName = GetLoggedInUserName();
                             var GMEmail = await GetGMEmail();
+                            var HREmail = await GetHREmail();
+
                             EmailDTOs emailModel = new EmailDTOs
                             {
                                 EmailTo = new List<string> { GMEmail },
                                 EmailBody = $"You have a second interview. Please be prepared.",
                                 Subject = "Interview Invitation"
                             };
+
+
+                            EmailDTOs emailModelToHR = new EmailDTOs
+                            {
+                                EmailTo = new List<string> { HREmail },
+                                EmailBody = $"The first interview Approved by {userName}.",
+                                Subject = "Interview Approval"
+                            };
+
+
+
                             if (!string.IsNullOrEmpty(GMEmail))
                             {
                                 await SendEmailToInterviewer(GMEmail, interviewsDTO, emailModel);
+                            }
+
+                            if (!string.IsNullOrEmpty(HREmail))
+                            {
+                                await SendEmailToInterviewer(HREmail, interviewsDTO, emailModelToHR);
                             }
 
                             return RedirectToAction(nameof(MyInterviews));
@@ -525,11 +544,12 @@ namespace CMS.Web.Controllers
                 {
                     if (interviewsDTO.StatusId == 2 || interviewsDTO.StatusId == 3)
                     {
-                        await _notificationsService.CreateInterviewNotificationForHRInterview(interviewsDTO.StatusId.Value, interviewsDTO.Notes);
+                        await _notificationsService.CreateInterviewNotificationForHRInterview(interviewsDTO.StatusId.Value, interviewsDTO.Notes,interviewsDTO.CandidateId,interviewsDTO.PositionId);
 
 
                         if (interviewsDTO.StatusId == 2)
                         {
+                            string userName = GetLoggedInUserName();
                             var HREmail = await GetHREmail();
                             EmailDTOs emailModel = new EmailDTOs
                             {
@@ -537,6 +557,15 @@ namespace CMS.Web.Controllers
                                 EmailBody = $"You have a thierd interview. Please be prepared.",
                                 Subject = "Interview Invitation"
                             };
+
+                            EmailDTOs emailModelApproval = new EmailDTOs
+                            {
+                                EmailTo = new List<string> { HREmail },
+                                EmailBody = $"The Second Interview Approved by {userName}.",
+                                Subject = "Interview Approval"
+                            };
+
+
                             if (!string.IsNullOrEmpty(HREmail))
                             {
                                 await SendEmailToInterviewer(HREmail, interviewsDTO, emailModel);
@@ -552,7 +581,7 @@ namespace CMS.Web.Controllers
                             EmailDTOs emailModel = new EmailDTOs
                             {
                                 EmailTo = new List<string> { HREmail },
-                                EmailBody = $"The first interview was rejected by {userName} .",
+                                EmailBody = $"The second interview was rejected by {userName} .",
                                 Subject = "Interview Rejection"
                             };
                             if (!string.IsNullOrEmpty(HREmail))

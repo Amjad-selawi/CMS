@@ -111,10 +111,11 @@ namespace CMS.Repository.Implementation
         }
 
 
-        public bool DoesCompanyNameExist(string name)
+        public bool DoesCompanyNameExist(string name, int countryId)
         {
-            return _context.Companies.Any(x => x.Name == name);
+            return _context.Companies.Any(x => x.Name == name && x.CountryId == countryId);
         }
+
 
 
 
