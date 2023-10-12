@@ -1,4 +1,4 @@
-﻿@model CMS.Application.DTOs.CandidateCreateDTO
+﻿    @model CMS.Application.DTOs.CandidateCreateDTO
 
 <h2>Create Candidate</h2>
 
@@ -21,7 +21,7 @@
         @if (ViewBag.positions != null)
         {
             <select asp-for="PositionId" asp-items="@(ViewBag.positions)" class="form-control">
-                <option value=""> Position</option>
+                <option value="">-- Select a position --</option>
                 
             </select>
         }
@@ -34,7 +34,7 @@
         @if (ViewBag.CompaniesDTOs != null)
         {
             <select asp-for="CompanyId" asp-items="@(ViewBag.CompaniesDTOs)" class="form-control">
-                <option value=""> company </option>
+                <option value="">-- company --</option>
 
             </select>
         }
@@ -68,7 +68,7 @@
         @if (ViewBag.CompaniesDTOs != null)
         {
             <select asp-for="CountryId" asp-items="@(ViewBag.CountryDTOs)" class="form-control">
-                <option value=""> country </option>
+                <option value="">-- Select a country --</option>
 
             </select>
         }

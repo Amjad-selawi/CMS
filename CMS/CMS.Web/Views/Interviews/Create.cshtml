@@ -4,8 +4,8 @@
 <h2>Create</h2>
 
 <form asp-action="Create" id="createForm">
-    <div asp-validation-summary="ModelOnly" class="text-danger"></div>
-
+@*     <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+ *@
 
     <div class="form-group">
 
@@ -13,7 +13,7 @@
         @if (ViewBag.candidateList != null)
         {
             <select asp-for="CandidateId" asp-items="@(ViewBag.candidateList)" class="form-control">
-                <option value="">Select a Name</option>
+                <option value="">-- Select a Name --</option>
 
             </select>
         }
@@ -33,7 +33,7 @@
         @if (ViewBag.positionList != null)
         {
             <select asp-for="PositionId" asp-items="@(ViewBag.positionList)" class="form-control">
-                <option value="">Select a Position</option>
+                <option value="">-- Select a Position --</option>
 
             </select>
         }
@@ -53,7 +53,7 @@
         @if (ViewBag.interviewersList != null)
         {
             <select asp-for="InterviewerId" asp-items="@(ViewBag.interviewersList)" class="form-control">
-                <option value="">Select an Interviewer</option>
+                <option value="">-- Select an Interviewer --</option>
 
             </select>
         }

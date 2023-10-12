@@ -8,7 +8,7 @@ namespace CMS.Application.DTOs
     public class CandidateDTO
     {
         public int Id { get; set; }
-        [Required(ErrorMessage = "FullName is required.")]
+        [Required(ErrorMessage = "Full Name is required.")]
         public string FullName { get; set; }
         [Required(ErrorMessage = "Phone is required.")]
         public int Phone { get; set; }

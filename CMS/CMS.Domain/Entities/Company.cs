@@ -13,7 +13,7 @@ namespace CMS.Domain.Entities
         public string? Email { get;set; }
         public string PersonName{ get; set; } 
         public string PhoneNumber { set; get; }
-        [Required]
+        [Required(ErrorMessage ="Please select a country")]
         public int CountryId { get; set; }
         public virtual Country Country { get; set; }
 

@@ -30,6 +30,7 @@ namespace CMS.Web.Controllers
 
             var CountriesDTOs = await _countryService.GetAll();
             ViewBag.CountriesDTOs = new SelectList(CountriesDTOs.Value, "Id", "Name");
+
             return View();
         }
 
@@ -42,11 +43,14 @@ namespace CMS.Web.Controllers
             if (ModelState.IsValid)
             {
 
-                if (_companyService.DoesCompanyNameExist(companyDTO.Name))
+                if (_companyService.DoesCompanyNameExist(companyDTO.Name, companyDTO.CountryId))
                 {
-                    ModelState.AddModelError("Name", "A company with the same name already exists.");
+                    ModelState.AddModelError("Name", "A company with the same name already exists in the selected country.");
                     return View(companyDTO);
                 }
+
+
+
 
 
                 var result = await _companyService.Insert(companyDTO);
@@ -60,7 +64,10 @@ namespace CMS.Web.Controllers
             }
             else
             {
+                
+
                 ModelState.AddModelError("", "error validating the model");
+
             }
 
             return View(companyDTO);
@@ -235,11 +242,17 @@ namespace CMS.Web.Controllers
 
 
         [HttpPost]
-        public IActionResult CheckCompanyName([FromBody] string name)
+        public IActionResult CheckCompanyName([FromBody] CompanyDTO companyDTO)
         {
-            bool exists = _companyService.DoesCompanyNameExist(name);
-            return Ok(new { exists });
+            if (companyDTO != null)
+            {
+                bool exists = _companyService.DoesCompanyNameExist(companyDTO.Name, companyDTO.CountryId);
+                return Ok(new { exists });
+            }
+
+            return BadRequest("Invalid data");
         }
+
 
     }
 }
