@@ -17,26 +17,54 @@ namespace CMS.Repository.Implementation
         {
             _context = context; 
         }
-        public async  Task<int> Delete(int id)
+
+        public int Delete(int id)
         {
             try
             {
-               // var country=await _context.Countries.FindAsync(id);
-               var country=await _context.Countries.Include(c=>c.Companies)
-                    .FirstOrDefaultAsync(c=>c.Id==id);
+                var country = _context.Countries
+                    .Include(c => c.Companies)
+                    .FirstOrDefault(c => c.Id == id);
 
-                foreach(var com in country.Companies) {
-                _context.Companies.Remove(com);
+                if (country != null)
+                {
+                    foreach (var com in country.Companies)
+                    {
+                        _context.Companies.Remove(com);
+                    }
+                    _context.Countries.Remove(country);
+                    return _context.SaveChanges();
                 }
-                _context.Countries.Remove(country);
-               return  await _context.SaveChangesAsync();
-                
+
+                return 0; // Return 0 if the country with the given id is not found.
             }
             catch (Exception ex)
             {
                 throw ex;
             }
         }
+
+
+        //public async  Task<int> Delete(int id)
+        //{
+        //    try
+        //    {
+        //       // var country=await _context.Countries.FindAsync(id);
+        //       var country=await _context.Countries.Include(c=>c.Companies)
+        //            .FirstOrDefaultAsync(c=>c.Id==id);
+
+        //        foreach(var com in country.Companies) {
+        //        _context.Companies.Remove(com);
+        //        }
+        //        _context.Countries.Remove(country);
+        //       return  await _context.SaveChangesAsync();
+
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        throw ex;
+        //    }
+        //}
 
         public async Task<List<Country>> GetAll()
         {

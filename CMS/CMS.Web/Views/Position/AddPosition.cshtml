@@ -1,12 +1,19 @@
 ﻿@model CMS.Application.DTOs.PositionDTO
 <h1>Add a position</h1>
-<form asp-action="AddPosition">
-    <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+<form asp-action="AddPosition" enctype="multipart/form-data">
+    @* <div asp-validation-summary="ModelOnly" class="text-danger"></div> *@
         <div class="form-group">
         <label asp-for="Name" class="control-label"><span class="text-danger">*</span> Name</label>
         <input asp-for="Name" class="form-control" />
         <span asp-validation-for="Name" class="text-danger"></span>
         <span id="errorMessage" class="text-danger"></span>
+    </div>
+
+    <div class="form-group" style="margin-top: 15px;">
+        <label for="file">Upload An evaluation Form:</label>
+        <input type="file" id="file" name="file" class="form-control-file" onchange="validateFileFormat(this)"  />
+        <br />
+        <span id="fileError" class="text-danger"></span>
     </div>
  
    
@@ -39,9 +46,26 @@
                     }
                 },
                 error: function () {
-                    $("#errorMessage").text("Error checking book name.");
+                    $("#errorMessage").text("Error checking position name.");
                 }
             });
         });
     });
+</script>
+<script>
+    function validateFileFormat(input) {
+        const allowedExtensions = [".pdf", ".docx", ".png", ".jpg", ".xlsx"];
+        const file = input.files[0];
+
+        if (file) {
+            const fileExtension = '.' + file.name.split('.').pop().toLowerCase();
+            if (!allowedExtensions.includes(fileExtension)) {
+                document.getElementById("fileError").textContent = "Invalid file format. Allowed formats are PDF, DOCX, xlsx, PNG, and JPG.";
+            } else if (file.size > 4 * 1024 * 1024) { // Check if the file size is greater than 4MB
+                document.getElementById("fileError").textContent = "File size exceeds 4MB.";
+            } else {
+                document.getElementById("fileError").textContent = "";
+            }
+        }
+    }
 </script>

@@ -15,7 +15,8 @@ namespace CMS.Services.Interfaces
         Task<Result<CompanyDTO>> GetById(int id);
         Task<Result<CompanyDTO>> Update(CompanyDTO data);
 
-        bool DoesCompanyNameExist(string name);
+        bool DoesCompanyNameExist(string name, int countryId);
+
 
     }
 }
