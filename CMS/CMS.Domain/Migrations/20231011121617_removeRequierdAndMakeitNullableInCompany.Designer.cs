@@ -4,14 +4,16 @@ using CMS.Domain;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 namespace CMS.Domain.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20231011121617_removeRequierdAndMakeitNullableInCompany")]
+    partial class removeRequierdAndMakeitNullableInCompany
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -175,7 +177,7 @@ namespace CMS.Domain.Migrations
                         .HasColumnType("int")
                         .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
 
-                    b.Property<int>("CountryId")
+                    b.Property<int?>("CountryId")
                         .HasColumnType("int");
 
                     b.Property<string>("CreatedBy")
@@ -547,28 +549,28 @@ namespace CMS.Domain.Migrations
                         new
                         {
                             Id = "b024cbbe-f64e-4d1b-9c6e-05ac0f0e3ebb",
-                            ConcurrencyStamp = "76adb77e-83ff-4766-980d-a425d9cebbd9",
+                            ConcurrencyStamp = "edc95623-97e8-489e-b267-49cdbe9e8fdf",
                             Name = "Admin",
                             NormalizedName = "ADMIN"
                         },
                         new
                         {
                             Id = "1eecb40c-c701-4445-89d4-d1aa7d70460d",
-                            ConcurrencyStamp = "8f2b7317-ff3e-4fd8-b905-c116f14a1291",
+                            ConcurrencyStamp = "e5ae0d2d-7218-4b1b-b737-50b68c989e15",
                             Name = "General Manager",
                             NormalizedName = "GENERAL MANAGER"
                         },
                         new
                         {
                             Id = "226cca69-f046-4d15-8b81-9b9ba34f2214",
-                            ConcurrencyStamp = "5157d059-c63b-42cd-ad83-4c224213574d",
+                            ConcurrencyStamp = "49514657-7de3-4034-a8b7-09d6afa58a5a",
                             Name = "HR Manager",
                             NormalizedName = "HR MANAGER"
                         },
                         new
                         {
                             Id = "91c3461a-7da3-4033-b907-b104b903d793",
-                            ConcurrencyStamp = "eaf9b445-2e46-4bd5-b6a2-742f47d70a3a",
+                            ConcurrencyStamp = "1c2b6c0c-fab0-4596-abfa-9b6f8e59b3c5",
                             Name = "Interviewer",
                             NormalizedName = "INTERVIEWER"
                         });
@@ -667,15 +669,15 @@ namespace CMS.Domain.Migrations
                         {
                             Id = "c6585ab9-8b5f-4332-a174-92429db8add2",
                             AccessFailedCount = 0,
-                            ConcurrencyStamp = "2baa7201-542a-4c2c-9407-c2cb27d7f0b4",
+                            ConcurrencyStamp = "fa90a951-c05b-4c06-9a38-36185ce8e2cb",
                             Email = "admin@admin.com",
                             EmailConfirmed = true,
                             LockoutEnabled = false,
                             NormalizedEmail = "ADMIN@ADMIN.COM",
                             NormalizedUserName = "ADMIN",
-                            PasswordHash = "AQAAAAEAACcQAAAAEA4SEaFp4mhuFJ15Ivgo+PNWLppzO8O6J7te80ZhAuKBeDr4Pt360n0GF5uhONYVEQ==",
+                            PasswordHash = "AQAAAAEAACcQAAAAEMnHI04MRwsf9xvTyBoJN7ZtRS7a4vIl+N4FwJwHtZ6JMeL90oIRUdRlrcn/kH86wA==",
                             PhoneNumberConfirmed = false,
-                            SecurityStamp = "9312d9bf-3958-49ac-8594-91ca4bfd63b2",
+                            SecurityStamp = "c2c5c8a8-5fa7-4f0f-9d22-306c514318be",
                             TwoFactorEnabled = false,
                             UserName = "admin"
                         });
@@ -816,9 +818,7 @@ namespace CMS.Domain.Migrations
                 {
                     b.HasOne("CMS.Domain.Entities.Country", "Country")
                         .WithMany("Companies")
-                        .HasForeignKey("CountryId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .HasForeignKey("CountryId");
                 });
 
             modelBuilder.Entity("CMS.Domain.Entities.Interviews", b =>
