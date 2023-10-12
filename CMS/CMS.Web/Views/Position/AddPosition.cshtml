@@ -1,12 +1,17 @@
 ﻿@model CMS.Application.DTOs.PositionDTO
 <h1>Add a position</h1>
-<form asp-action="AddPosition">
-@*     <div asp-validation-summary="ModelOnly" class="text-danger"></div>
- *@        <div class="form-group">
+<form asp-action="AddPosition" enctype="multipart/form-data">
+    <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+        <div class="form-group">
         <label asp-for="Name" class="control-label"><span class="text-danger">*</span> Name</label>
         <input asp-for="Name" class="form-control" />
         <span asp-validation-for="Name" class="text-danger"></span>
         <span id="errorMessage" class="text-danger"></span>
+    </div>
+
+    <div class="form-group" style="margin-top: 15px;">
+        <label for="file">Upload An evaluation Form:</label>
+        <input type="file" id="file" name="file" class="form-control-file" />
     </div>
  
    
