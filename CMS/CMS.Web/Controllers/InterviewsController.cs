@@ -262,6 +262,8 @@ namespace CMS.Web.Controllers
             {
                 return NotFound();
             }
+            var StatusDTOs = await _StatusService.GetAll();
+            ViewBag.StatusDTOs = new SelectList(StatusDTOs.Value, "Id", "Name");
             var result = await _interviewsService.GetById(id);
             var interviewDTO = result.Value;
             if (interviewDTO == null)
@@ -283,8 +285,14 @@ namespace CMS.Web.Controllers
                 ModelState.AddModelError("", $"the interview dto you are trying to update is null ");
                 return RedirectToAction("Index");
             }
+            var StatusDTOs = await _StatusService.GetAll();
+            ViewBag.StatusDTOs = new SelectList(StatusDTOs.Value, "Id", "Name");
 
             await LoadSelectionLists();
+            if (collection.StatusId ==3  && collection.Notes == null)
+            {
+                ModelState.AddModelError("Notes", "Please add note why it was rejected.");
+            }
 
 
             if (ModelState.IsValid)
@@ -301,7 +309,7 @@ namespace CMS.Web.Controllers
             }
             else
             {
-                ModelState.AddModelError("", $"the model state is not valid");
+                ModelState.AddModelError("", $"");
             }
             return View(collection);
         }
@@ -394,11 +402,11 @@ namespace CMS.Web.Controllers
 
             var validationErrors = new List<string>();
 
-            if (file == null || file.Length == 0)
+            if ((file == null || file.Length == 0) && User.IsInRole("Interviewer"))
             {
-                //ModelState.AddModelError("", "Please choose a file to upload.");
+                ModelState.AddModelError("AttachmentId", "Please choose a file to upload.");
                 //return View();
-                validationErrors.Add("Please choose a file to upload.");
+                //validationErrors.Add( "Please choose a file to upload.");
             }
             //if (interviewsDTO.Notes == null)
             //{
@@ -411,7 +419,7 @@ namespace CMS.Web.Controllers
             {
                  ModelState.AddModelError("Notes", "Please add note why it was rejected.");
             }
-            if (interviewsDTO.Score == null)
+            if (interviewsDTO.Score == null && User.IsInRole("Interviewer"))
             {
                 //ModelState.AddModelError("", "Please Add Score.");
                 //return View();
@@ -435,10 +443,14 @@ namespace CMS.Web.Controllers
                 }
                 return View(interviewsDTO);
             }
-            FileStream attachmentStream = await AttachmentHelper.handleUpload(file, _attachmentStoragePath);
-            interviewsDTO.FileName = file.FileName;
-            interviewsDTO.FileSize = file.Length;
-            interviewsDTO.FileData = attachmentStream;
+            FileStream attachmentStream = null;
+            if (file != null && file.Length != 0)
+            {
+                attachmentStream = await AttachmentHelper.handleUpload(file, _attachmentStoragePath);
+                interviewsDTO.FileName = file.FileName;
+                interviewsDTO.FileSize = file.Length;
+                interviewsDTO.FileData = attachmentStream;
+            }
 
             if (ModelState.IsValid)
             {
@@ -447,8 +459,11 @@ namespace CMS.Web.Controllers
 
 
                 await _interviewsService.ConductInterview(interviewsDTO);
-
-                attachmentStream.Close();
+                if (attachmentStream != null)
+                {
+                    attachmentStream.Close();
+                }
+                   
 
                 if (User.IsInRole("Interviewer"))
                 {

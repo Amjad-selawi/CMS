@@ -11,8 +11,54 @@
         <span asp-validation-for="Name" class="text-danger"></span>
     </div>
 
+    <div class="form-group" style="margin-top: 15px;">
+        <input asp-for="EvaluationId" type="hidden" />
+    </div>
+
     <div class="form-group text-end" style="margin-top:4px;">
         <a class="btn btn-secondary" asp-action="GetPositions"> back to list</a>
         <input type="submit" class="btn btn-primary" value="Save" />
     </div>
 </form>
+
+<form asp-action="UpdateAttachment" asp-route-id="@Model.Id" enctype="multipart/form-data">
+    <div class="form-group">
+        <label for="file">Upload Eavluation Form:</label>
+        <input type="file" id="file" name="file" class="form-control-file" onchange="validateFileFormat(this)" required  />
+        <br />
+        <span id="fileError" class="text-danger"></span>
+    </div>
+
+    <div class="form-group" style="margin-top:19px;">
+        <input type="submit" value="Upload" class="btn btn-primary" id="uploadButton" disabled />
+    </div>
+
+</form>
+
+<script>
+    function validateFileFormat() {
+        const allowedExtensions = [".pdf", ".docx", ".png", ".jpg", ".xlsx"];
+        const fileInput = document.getElementById("file");
+        const file = fileInput.files[0];
+
+        if (file) {
+            const fileExtension = '.' + file.name.split('.').pop().toLowerCase();
+            if (!allowedExtensions.includes(fileExtension)) {
+                document.getElementById("fileError").textContent = "Invalid file format. Allowed formats are PDF, DOCX, xlsx, PNG, and JPG.";
+                document.getElementById("uploadButton").disabled = true; // Disable the button
+                return false; // Prevent form submission
+            } else if (file.size > 4 * 1024 * 1024) { // Check if the file size is greater than 4MB
+                document.getElementById("fileError").textContent = "File size exceeds 4MB.";
+                document.getElementById("uploadButton").disabled = true; // Disable the button
+                return false; // Prevent form submission
+            } else {
+                document.getElementById("fileError").textContent = "";
+                document.getElementById("uploadButton").disabled = false; // Enable the button
+                return true; // Allow form submission
+            }
+        } else {
+            // No file selected, show a message or handle it as needed
+            return false; // Prevent form submission
+        }
+    }
+</script>
