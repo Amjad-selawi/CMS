@@ -1,4 +1,5 @@
-﻿using System;
+﻿using CMS.Domain.Enums;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.IO;
@@ -14,6 +15,7 @@ namespace CMS.Application.DTOs
         [Range(0, 5, ErrorMessage = "Score must be between 0 and 5.")]
         public double? Score { get; set; }
         [Required(ErrorMessage = "Please select a Date.")]
+       
         public DateTime Date { get; set; }
         public int? ParentId { get; set; }
         [Required(ErrorMessage = "Please select a Position.")]
@@ -33,6 +35,7 @@ namespace CMS.Application.DTOs
         public string Name { get; set; }
         public int? AttachmentId { set; get; }
 
+        public int? EvalutaionFormId { set; get; }
         public int? CandidateCVAttachmentId { set; get; }
         public string CandidateCVFileName { get; set; }
 
