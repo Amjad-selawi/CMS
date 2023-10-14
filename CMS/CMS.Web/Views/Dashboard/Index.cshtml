@@ -264,6 +264,31 @@
             <div class="card-body" style="z-index:1 ;">
                 <div class="d-flex align-items-center">
                     <div class="flex-grow-1 overflow-hidden">
+                        <p class="text-uppercase fw-medium text-muted text-truncate mb-3"> Pending</p>
+                        <h4 class="fs-22 fw-semibold ff-secondary mb-0"><span class="counter-value" data-target="@Model.NumberOfPending">0</span></h4>
+                    </div>
+                    <!-- Add your chart or visualization for pending candidates here if needed -->
+                </div>
+            </div><!-- end card body -->
+        </div><!-- end card -->
+    </div>
+
+    <div class="col-xl-4 col-md-4">
+        <div class="card card-animate overflow-hidden">
+            <div class="position-absolute start-0" style="z-index: 0;">
+                <svg version="1.2" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 120" width="200" height="120">
+                    <style>
+                        .s0 {
+                            opacity: .05;
+                            fill: var(--vz-success)
+                        }
+                    </style>
+                    <path id="Shape 8" class="s0" d="m189.5-25.8c0 0 20.1 46.2-26.7 71.4 0 0-60 15.4-62.3 65.3-2.2 49.8-50.6 59.3-57.8 61.5-7.2 2.3-60.8 0-60.8 0l-11.9-199.4z"></path>
+                </svg>
+            </div>
+            <div class="card-body" style="z-index:1 ;">
+                <div class="d-flex align-items-center">
+                    <div class="flex-grow-1 overflow-hidden">
                         <p class="text-uppercase fw-medium text-muted text-truncate mb-3"> Rejected</p>
                         <h4 class="fs-22 fw-semibold ff-secondary mb-0"><span class="counter-value" data-target="@Model.NumberOfRejected">0</span></h4>
                     </div>
@@ -314,7 +339,7 @@
 
 
 
-    <div class="card card-height-100">
+   @* <div class="card card-height-100">
         <div class="card">
             <div class="card-header">
                 <h4 class="card-title mb-0">Tree Chart</h4>
@@ -362,7 +387,66 @@
                 </div>
             </div><!-- end card-body -->
         </div><!-- end card -->
-    </div>
+    </div>*@
+
+<div class="card card-height-100">
+    <div class="card">
+        <div class="card-header">
+            <h4 class="card-title mb-0">Tree Chart</h4>
+        </div><!-- end card header -->
+
+        <div class="card-body">
+            <div class="container">
+                <div class="accordion" id="countryAccordion">
+                    @foreach (var country in ViewBag.TreeData)
+                    {
+                        @if (country.Positions != null && country.Positions.Count > 0) // Check if the country has any positions
+                        {
+                            <div class="accordion-item">
+                                <h2 class="accordion-header" id="countryheading-@country.Id">
+                                    <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#countrycollapse-@country.Id">
+                                        @country.Name
+                                    </button>
+                                </h2>
+                                <div id="countrycollapse-@country.Id" class="accordion-collapse collapse">
+                                    <div class="accordion-body">
+                                        <ul class="list-group">
+                                            @foreach (var position in country.Positions)
+                                            {
+                                                <li class="list-group-item">
+                                                    <div class="d-flex justify-content-between align-items-center">
+                                                        <div>
+                                                            <button class="btn btn-link" data-bs-toggle="collapse" data-bs-target="#positioncollapse-@position.Id">
+                                                                @position.Name
+                                                            </button>
+                                                        </div>
+                                                        <div>
+                                                            <span class="badge bg-primary rounded-pill">@position.Candidates.Count</span>
+                                                        </div>
+                                                    </div>
+                                                    <div id="positioncollapse-@position.Id" class="collapse">
+                                                        <ul class="list-group">
+                                                            @for (int i = 0; i < Math.Min(position.Candidates.Count, 15); i++) 
+                                                            {
+                                                                <li class="list-group-item">@position.Candidates[i].FullName</li>
+                                                            }
+                                                        </ul>
+                                                    </div>
+                                                </li>
+                                            }
+                                        </ul>
+                                    </div>
+                                </div>
+                            </div>
+                        }
+                    }
+                </div>
+            </div>
+        </div><!-- end card-body -->
+    </div><!-- end card -->
+</div>
+
+
 
 
 
