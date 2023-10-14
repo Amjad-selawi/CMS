@@ -4,14 +4,16 @@ using CMS.Domain;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 namespace CMS.Domain.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20231011074226_removedAddressFromCompany")]
+    partial class removedAddressFromCompany
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -66,6 +68,10 @@ namespace CMS.Domain.Migrations
                         .HasColumnType("int")
                         .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
 
+                    b.Property<string>("Address")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<int?>("CVAttachmentId")
                         .HasColumnType("int");
 
@@ -81,6 +87,10 @@ namespace CMS.Domain.Migrations
                     b.Property<DateTime>("CreatedOn")
                         .HasColumnType("datetime2");
 
+                    b.Property<string>("Email")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<string>("Experience")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
@@ -94,6 +104,9 @@ namespace CMS.Domain.Migrations
 
                     b.Property<bool>("IsDelete")
                         .HasColumnType("bit");
+
+                    b.Property<string>("LinkedInUrl")
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("ModifiedBy")
                         .HasColumnType("nvarchar(max)");
@@ -387,9 +400,6 @@ namespace CMS.Domain.Migrations
                     b.Property<DateTime>("CreatedOn")
                         .HasColumnType("datetime2");
 
-                    b.Property<int?>("EvaluationId")
-                        .HasColumnType("int");
-
                     b.Property<bool>("IsActive")
                         .HasColumnType("bit");
 
@@ -407,8 +417,6 @@ namespace CMS.Domain.Migrations
                         .HasColumnType("nvarchar(max)");
 
                     b.HasKey("Id");
-
-                    b.HasIndex("EvaluationId");
 
                     b.ToTable("Positions");
                 });
@@ -552,28 +560,28 @@ namespace CMS.Domain.Migrations
                         new
                         {
                             Id = "b024cbbe-f64e-4d1b-9c6e-05ac0f0e3ebb",
-                            ConcurrencyStamp = "136b7866-c13d-412a-b47d-963f65909467",
+                            ConcurrencyStamp = "854dec7f-7fb5-4521-8997-4d964e84632b",
                             Name = "Admin",
                             NormalizedName = "ADMIN"
                         },
                         new
                         {
                             Id = "1eecb40c-c701-4445-89d4-d1aa7d70460d",
-                            ConcurrencyStamp = "3e2414ee-87ca-4dc8-a91d-7cf62a25456d",
+                            ConcurrencyStamp = "259e2d3b-e8de-4912-9316-992c1a8d781e",
                             Name = "General Manager",
                             NormalizedName = "GENERAL MANAGER"
                         },
                         new
                         {
                             Id = "226cca69-f046-4d15-8b81-9b9ba34f2214",
-                            ConcurrencyStamp = "baab0dd7-ea5b-49e3-b462-0f6f26d64264",
+                            ConcurrencyStamp = "28a0606b-0368-40e5-aaf8-c43b4108239f",
                             Name = "HR Manager",
                             NormalizedName = "HR MANAGER"
                         },
                         new
                         {
                             Id = "91c3461a-7da3-4033-b907-b104b903d793",
-                            ConcurrencyStamp = "deef8f94-2f41-4839-aa42-f83ac5c70cde",
+                            ConcurrencyStamp = "3c391f4c-8af9-4dbb-9653-ab8282b029c4",
                             Name = "Interviewer",
                             NormalizedName = "INTERVIEWER"
                         });
@@ -672,15 +680,15 @@ namespace CMS.Domain.Migrations
                         {
                             Id = "c6585ab9-8b5f-4332-a174-92429db8add2",
                             AccessFailedCount = 0,
-                            ConcurrencyStamp = "351cc025-aaf1-4ded-88f5-a2c545b23e75",
+                            ConcurrencyStamp = "12ddd584-c779-4d3e-8cc0-1725c61bf0ff",
                             Email = "admin@admin.com",
                             EmailConfirmed = true,
                             LockoutEnabled = false,
                             NormalizedEmail = "ADMIN@ADMIN.COM",
                             NormalizedUserName = "ADMIN",
-                            PasswordHash = "AQAAAAEAACcQAAAAEBFtFD1dt894+JoaPVFx867DMvvjE347xIaNZDulE2TuLo54NAld7w2SEw6EOFphyA==",
+                            PasswordHash = "AQAAAAEAACcQAAAAEIOWeMDiSOWmVMyctDut67fW2+alXLv3O1tRGu2iWJNW5WbCXKxn7F9t27c8fc6kzQ==",
                             PhoneNumberConfirmed = false,
-                            SecurityStamp = "bc86f88d-0587-4f5d-9c6a-cecb19e1c554",
+                            SecurityStamp = "6b8ff63a-1bab-4e96-95d7-2e31e9b4db3b",
                             TwoFactorEnabled = false,
                             UserName = "admin"
                         });
@@ -863,13 +871,6 @@ namespace CMS.Domain.Migrations
                     b.HasOne("CMS.Domain.Entities.Templates", null)
                         .WithMany("Notifications")
                         .HasForeignKey("TemplatesId");
-                });
-
-            modelBuilder.Entity("CMS.Domain.Entities.Position", b =>
-                {
-                    b.HasOne("CMS.Domain.Entities.Attachment", "Evaluation")
-                        .WithMany()
-                        .HasForeignKey("EvaluationId");
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<string>", b =>

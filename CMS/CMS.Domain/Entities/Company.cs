@@ -11,9 +11,9 @@ namespace CMS.Domain.Entities
         [Required]
         public string Name { get; set; }
         public string? Email { get;set; }
-        public string? Address { get; set; } 
+        public string PersonName{ get; set; } 
         public string PhoneNumber { set; get; }
-        [Required]
+        [Required(ErrorMessage ="Please select a country")]
         public int CountryId { get; set; }
         public virtual Country Country { get; set; }
 

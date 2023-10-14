@@ -151,6 +151,7 @@ namespace CMS.Services.Services
                         Date = c.Date,
                         PositionId = c.PositionId,
                         Name = c.Position.Name,
+                        EvalutaionFormId=c.Position.EvaluationId,
                         Notes = c.Notes,
                         ParentId = c.ParentId,
                         InterviewerId = c.InterviewerId,
@@ -195,6 +196,7 @@ namespace CMS.Services.Services
                     Date = interview.Date,
                     PositionId = interview.PositionId,
                     Name = interview.Position.Name,
+                    EvalutaionFormId=interview.Position.EvaluationId,
                     Notes = interview.Notes,
                     ParentId = interview.ParentId,
                     InterviewerId = interview.InterviewerId,
@@ -296,14 +298,18 @@ namespace CMS.Services.Services
                 var currentUser = await _userManager.GetUserAsync(_httpContextAccessor.HttpContext.User);
 
                 var interview = await _interviewsRepository.GetById(completedDTO.InterviewsId);
-                int attachmentId = await _attachmentService.CreateAttachmentAsync(completedDTO.FileName, (long)completedDTO.FileSize, completedDTO.FileData);
-                completedDTO.AttachmentId = attachmentId;
+                if (completedDTO.FileData != null)
+                {
+                    int attachmentId = await _attachmentService.CreateAttachmentAsync(completedDTO.FileName, (long)completedDTO.FileSize, completedDTO.FileData);
+                    completedDTO.AttachmentId = attachmentId;
+                }
+                
                 Debug.Assert(interview != null, "No Interview Provided for Conduct Interview Method");
                 // Step 1: Update Completed Interview
                 interview.StatusId = (int)completedDTO.StatusId;
                 interview.Score = completedDTO.Score;
                 interview.Notes = completedDTO.Notes;
-                interview.AttachmentId = attachmentId;
+                interview.AttachmentId = completedDTO.AttachmentId;
                 interview.ModifiedBy = currentUser.Id;
                 interview.ModifiedOn = DateTime.Now;
                 interview.IsUpdated = true;
@@ -319,7 +325,7 @@ namespace CMS.Services.Services
                     var newInterview = new Interviews
                     {
                         StatusId = PendeingStatus.Id,
-                        Date = interview.Date,
+                        Date =interview.Date,
                         CandidateId = interview.CandidateId,
                         PositionId = interview.PositionId,
                         ParentId = completedDTO.InterviewsId,

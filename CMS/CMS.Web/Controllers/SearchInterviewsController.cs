@@ -81,6 +81,20 @@ namespace CMS.Web.Controllers
                 {
                     var interviews = interviewsResult.Value;
 
+
+
+                    foreach (var interview in interviews)
+                    {
+                        var candidate = await _candidateService.GetCandidateByIdAsync(interview.CandidateId);
+
+                        if (candidate != null && candidate.CVAttachmentId != null)
+                        {
+                            interview.CandidateCVAttachmentId = candidate.CVAttachmentId.Value;
+                        }
+                    }
+
+
+
                     int positionId = Convert.ToInt32(positionFilter);
                     int statusId = Convert.ToInt32(statusFilter);
 

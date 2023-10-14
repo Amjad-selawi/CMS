@@ -11,6 +11,10 @@ namespace CMS.Domain.Entities
 
         [Required]
         public string Name { get; set; }
+        
+       // [Required(ErrorMessage = "Evaluation form  is required.")]
+        public int? EvaluationId{ set; get; }
+        public virtual Attachment Evaluation { get; set; }
 
         public virtual ICollection<Interviews> Interviews { get; set; }
         public virtual ICollection<Candidate> Candidates { get; set; }

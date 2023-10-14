@@ -44,11 +44,9 @@ namespace CMS.Services.Services
                 Name = c.Position.Name,
                 CompanyId = c.CompanyId,
                 CompanyName=c.Company.Name,
-                Email = c.Email,
-                Address = c.Address,
+             
                 Experience = c.Experience,
                 CVAttachmentId = c.CVAttachmentId,
-                LinkedInUrl = c.LinkedInUrl,
                 CountryId = c.CountryId,
                 CountryName=c.Country.Name
             });
@@ -71,11 +69,8 @@ namespace CMS.Services.Services
                 Name = candidate.Position.Name,
                 CompanyId =candidate.CompanyId,
                 CompanyName=candidate.Company.Name,
-                Email = candidate.Email,
-                Address = candidate.Address,
                 Experience = candidate.Experience,
                 CVAttachmentId = candidate.CVAttachmentId,
-                LinkedInUrl = candidate.LinkedInUrl,
                 CountryId = candidate.CountryId,
                 CountryName = candidate.Country.Name
 
@@ -97,11 +92,8 @@ namespace CMS.Services.Services
                 Phone = candidateDTO.Phone,
                 PositionId = candidateDTO.PositionId,
                 CompanyId =candidateDTO.CompanyId,
-                Email = candidateDTO.Email,
-                Address = candidateDTO.Address,
                 Experience = candidateDTO.Experience,
                 CVAttachmentId = candidateDTO.CVAttachmentId,
-                LinkedInUrl = candidateDTO.LinkedInUrl,
                 CountryId = candidateDTO.CountryId,
                 CreatedBy =currentUser.Id,
                 CreatedOn=DateTime.Now
@@ -120,11 +112,8 @@ namespace CMS.Services.Services
             existingCandidate.Phone = candidateDTO.Phone;
             existingCandidate.PositionId = candidateDTO.PositionId;
             existingCandidate.CompanyId= candidateDTO.CompanyId;
-            existingCandidate.Email = candidateDTO.Email;
-            existingCandidate.Address = candidateDTO.Address;
             existingCandidate.Experience = candidateDTO.Experience;
             existingCandidate.CVAttachmentId = candidateDTO.CVAttachmentId;
-            existingCandidate.LinkedInUrl = candidateDTO.LinkedInUrl;
             existingCandidate.CountryId = candidateDTO.CountryId;
             existingCandidate.ModifiedOn = DateTime.Now;
             existingCandidate.ModifiedBy = currentUser.Id;
@@ -149,18 +138,35 @@ namespace CMS.Services.Services
         //}
 
 
+        //public async Task DeleteCandidateAsync(int id)
+        //{
+        //    var candidate = await _candidateRepository.GetCandidateByIdAsync(id);
+
+        //    if (candidate != null)
+        //    {
+        //        int attachmentToRemove = (int)candidate.CVAttachmentId;
+        //        await _candidateRepository.DeleteCandidateAsync(candidate);
+        //        await _attachmentService.DeleteAttachmentAsync(attachmentToRemove);
+        //    }
+
+        //}
+
         public async Task DeleteCandidateAsync(int id)
         {
             var candidate = await _candidateRepository.GetCandidateByIdAsync(id);
 
             if (candidate != null)
             {
-                int attachmentToRemove = (int)candidate.CVAttachmentId;
+                int? attachmentToRemove = (int?)candidate.CVAttachmentId; 
                 await _candidateRepository.DeleteCandidateAsync(candidate);
-                await _attachmentService.DeleteAttachmentAsync(attachmentToRemove);
-            }
 
+                if (attachmentToRemove.HasValue)
+                {
+                    await _attachmentService.DeleteAttachmentAsync(attachmentToRemove.Value);
+                }
+            }
         }
+
 
         public async Task UpdateCandidateCVAsync(int id, string fileName, long fileSize, Stream fileStream)
         {

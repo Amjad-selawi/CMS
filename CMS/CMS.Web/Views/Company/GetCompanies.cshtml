@@ -18,10 +18,11 @@
                     <thead>
                         <tr>
                             <th>Company Name</th>
-                            <th>Address</th>
+                            <th>Country</th>
+                            <th>Person Name</th>
                             <th>Email</th>
                             <th>Phone number</th>
-                            <th>Country</th>
+                            
                             <th>Actions</th>
                         </tr>
                     </thead>
@@ -30,10 +31,11 @@
                         {
                             <tr>
                                 <td>@company.Name</td>
-                                <td>@company.Address</td>
+                                <td>@company.CountryName</td>
+                                <td>@company.PersonName</td>
                                 <td>@company.Email</td>
                                 <td>@company.PhoneNumber</td>
-                                <td>@company.CountryName</td>
+                                
                                 <td>
                                     <a class="bx bxs-edit-alt" style="font-size:x-large" asp-action="UpdateCompany" asp-route-id="@company.Id"></a>|
                                     <a class="bx bx-detail" style="font-size:x-large" asp-action="Details" asp-route-id="@company.Id"></a> |

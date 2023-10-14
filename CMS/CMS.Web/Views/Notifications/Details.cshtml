@@ -11,10 +11,10 @@
 
 
     <dt class="col-sm-2">Title:</dt>
-    <dd class="col-sm-10">@Model.Title</dd>
+    <dd class="col-sm-10">@Html.Raw(Model.Title)</dd>
 
     <dt class="col-sm-2">Body Description:</dt>
-    <dd class="col-sm-10">@Model.BodyDesc</dd>
+    <dd class="col-sm-10">@Html.Raw(Model.BodyDesc)</dd>
 
 
    
@@ -23,7 +23,10 @@
 <div class="form-group">
     @if (User.IsInRole("HR Manager"))
     {
-        <a class="btn btn-secondary" asp-action="IndexHRnotification">Back to List</a>
+        <div class="text-end">
+        <a class="btn btn-primary" asp-action="Index">Back to main list</a>
+        <a class="btn btn-secondary" asp-action="IndexHRnotification" style="margin-left: 12px;">Back to your Notification list</a>
+        </div>
     }
     else if (User.IsInRole("Interviewer"))
     {
@@ -37,6 +40,7 @@
     {
         <a class="btn btn-secondary" asp-action="Index">Back to List</a>
     }
+
 
 
   

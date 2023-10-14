@@ -71,10 +71,16 @@
             @Html.DisplayFor(model => model.Name)
         </dd>
         <dt class="col-sm-2">
-            @Html.DisplayNameFor(model => model.Address)
+            Country Name
         </dt>
         <dd class="col-sm-10">
-            @Html.DisplayFor(model => model.Address)
+            @Html.DisplayFor(model => model.CountryName)
+        </dd>
+        <dt class="col-sm-2">
+            @Html.DisplayNameFor(model => model.PersonName)
+        </dt>
+        <dd class="col-sm-10">
+            @Html.DisplayFor(model => model.PersonName)
         </dd>
         <dt class="col-sm-2">
             Email
@@ -89,12 +95,7 @@
             @Html.DisplayFor(model => model.PhoneNumber)
         </dd>
 
-        <dt class="col-sm-2">
-            Country Name
-        </dt>
-        <dd class="col-sm-10">
-            @Html.DisplayFor(model => model.CountryName)
-        </dd>
+      
        
     </dl>
 
