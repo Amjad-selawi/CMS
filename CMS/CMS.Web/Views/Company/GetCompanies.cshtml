@@ -1,0 +1,62 @@
+﻿@model List<CMS.Application.DTOs.CompanyDTO>
+@{
+    ViewData["Title"] = "Companies";
+}
+
+
+<div class="row">
+    <div class="col-lg-12">
+        <div class="card">
+            <div class="card-header d-flex align-items-center">
+                <div>
+                    <a asp-action="AddCompany" class="btn btn-primary">Add New Company</a>
+                </div>
+            </div>
+            <div class="card-body">
+
+                <table id="add-rows" class="table table-nowrap dt-responsive table-bordered display" style="width:100%">
+                    <thead>
+                        <tr>
+                            <th>Company Name</th>
+                            <th>Address</th>
+                            <th>Email</th>
+                            <th>Phone number</th>
+                            <th>Country</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var company in Model)
+                        {
+                            <tr>
+                                <td>@company.Name</td>
+                                <td>@company.Address</td>
+                                <td>@company.Email</td>
+                                <td>@company.PhoneNumber</td>
+                                <td>@company.CountryName</td>
+                                <td>
+                                    <a class="bx bxs-edit-alt" style="font-size:x-large" asp-action="UpdateCompany" asp-route-id="@company.Id"></a>|
+                                    <a class="bx bx-detail" style="font-size:x-large" asp-action="Details" asp-route-id="@company.Id"></a> |
+                                    <a class ="ri-delete-bin-2-line text-danger" style="font-size:x-large" href="@Url.Action("ConfirmDelete", new { id = company.Id })"></a>
+
+
+                                   
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div><!--end col-->
+</div><!--end row-->
+
+<script>
+    // JavaScript function to handle the actual deletion
+    function confirmDelete(id) {
+        if (confirm("Are you sure you want to delete this company?")) {
+            // If the user confirms, navigate to the DeleteCompany action with the id
+            window.location.href = "@Url.Action("DeleteCompany")/" + id;
+        }
+    }
+</script>

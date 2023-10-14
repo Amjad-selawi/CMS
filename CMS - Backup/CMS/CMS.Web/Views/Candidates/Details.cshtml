@@ -1,0 +1,41 @@
+﻿@model CMS.Application.DTOs.CandidateDTO
+<h2>Candidate Details</h2>
+
+<dl class="row">
+    <dt class="col-sm-2">Full Name:</dt>
+    <dd class="col-sm-10">@Html.DisplayFor(model => model.FullName)</dd>
+
+    
+    <dt class="col-sm-2">Phone:</dt>
+    <dd class="col-sm-10">@Html.DisplayFor(model => model.Phone)</dd>
+
+   @*  <dt class="col-sm-2">PositionId:</dt>
+    <dd class="col-sm-10">@Html.DisplayFor(model => model.Name)</dd>
+ *@
+    <dt class="col-sm-2">Company:</dt>
+    <dd class="col-sm-10">@Html.DisplayFor(model => model.CompanyName)</dd>
+
+
+    <dt class="col-sm-2">Experience:</dt>
+    <dd class="col-sm-10">@Html.DisplayFor(model => model.Experience)</dd>
+
+    
+
+    <dt class="col-sm-2">CVAttachmentId:</dt>
+    <dd class="col-sm-10">@Html.DisplayFor(model => model.CVAttachmentId)</dd>
+    @* <dt class="col-sm-2">Country Name:</dt>
+    <dd class="col-sm-10">@Html.DisplayFor(model => model.CountryName)</dd> *@
+
+    <!-- Add more details here as needed -->
+</dl>
+
+@* <p>
+    @Html.ActionLink("Edit", "Edit", new { id = Model.Id }) |
+    @Html.ActionLink("Back to List", "Index")
+</p>
+ *@
+<div class="form-group text-end" style="margin-top: 10px;">
+    <a class="btn btn-secondary" asp-action="Index">Back to List</a>
+    <a asp-action="Edit" asp-route-id="@Model.Id" class="btn btn-primary">Edit</a>
+
+</div>
