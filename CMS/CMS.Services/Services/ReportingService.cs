@@ -25,12 +25,16 @@ namespace CMS.Services.Services
             int acceptedCount = await _candidateRepository.CountAcceptedAsync();
             Dictionary<string,int> candidatesPerCountry = await _candidateRepository.CountCandidatesPerCountry();
             int rejectedCount = await _candidateRepository.CountRejectedAsync();
+            int pendingCount = await _candidateRepository.CountPendingAsync(); // New line to count pending candidates
+            //Dictionary<string, int> candidatesPerCompany = await _candidateRepository.CountCandidatesPerCompanyAsync();
+
             PerformanceReportDTO report = new PerformanceReportDTO
             {
                 CandidatesPerCountry = candidatesPerCountry,
                 NumberOfAccepted = acceptedCount,
                 NumberOfCandidates = candidatesCount,
                 NumberOfRejected = rejectedCount,
+                NumberOfPending = pendingCount, // Add the pending count to the report
             };
             return Result<PerformanceReportDTO>.Success(report);
         }
