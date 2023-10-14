@@ -1,0 +1,82 @@
+﻿@model CMS.Application.DTOs.CompanyDTO
+<h1>Add a company</h1>
+<form asp-action="AddCompany">
+    <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+        <div class="form-group">
+        <label asp-for="Name" class="control-label"><span class="text-danger">*</span> Name</label>
+        <input asp-for="Name" class="form-control" />
+        <span asp-validation-for="Name" class="text-danger"></span>
+        <span id="errorMessage" class="text-danger"></span>
+    </div>
+ 
+    <div class="form-group" style="margin-top: 15px;">
+        <label asp-for="Email" class="control-label">Email</label>
+        <input asp-for="Email" class="form-control" />
+        <span asp-validation-for="Email" class="text-danger"></span>
+    </div>
+    <div class="form-group" style="margin-top: 15px;">
+        <label asp-for="Address" class="control-label"></label>
+        <input asp-for="Address" class="form-control" />
+        <span asp-validation-for="Address" class="text-danger"></span>
+    </div>
+    <div class="form-group" style="margin-top: 15px;">
+        <label asp-for="PhoneNumber" class="control-label"><span class="text-danger">*</span> Phone Number</label>
+        <input asp-for="PhoneNumber" class="form-control" />
+        <span asp-validation-for="PhoneNumber" class="text-danger"></span>
+    </div>
+    <div class="form-group" style="margin-top: 15px;">
+
+        <label asp-for="CountryId" class="control-label"><span class="text-danger">*</span> Country</label>
+        @if (ViewBag.CountriesDTOs != null)
+        {
+            <select asp-for="CountryId" asp-items="@(ViewBag.CountriesDTOs)" class="form-control">
+                <option value="">Select a country</option>
+
+        </select>
+        }
+        else
+        {
+            <p>No countries available.</p>
+        }
+        <span asp-validation-for="CountryId" class="text-danger"></span>
+       
+    </div>
+
+    <div class="form-group text-end" style="margin-top: 10px;">
+        <a class="btn btn-secondary" asp-action="GetCompanies"> back to list</a>
+        <button type="submit" class="btn btn-primary">Add</button>
+    </div>
+
+</form>
+
+
+
+
+
+
+<script>
+    $(document).ready(function () {
+        $("#Name").on("input", function () {
+            var name = $(this).val();
+
+
+            $.ajax({
+                url: '@Url.Action("CheckCompanyName", "Company")',
+                data: { name: name },
+                type: "POST",
+                success: function (response) {
+                    if (response.exists) {
+                        $("#errorMessage").text("A company with the same name already exists.");
+                        //$("#addBookButton").prop("disabled", true);
+                    } else {
+                        // $("#addBookButton").prop("disabled", false);
+                        $("#errorMessage").hide();
+                    }
+                },
+                error: function () {
+                    $("#errorMessage").text("Error checking book name.");
+                }
+            });
+        });
+    });
+</script>
