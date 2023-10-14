@@ -1,0 +1,25 @@
+﻿@model CMS.Application.DTOs.PositionDTO
+<h2>Confirm Deletion</h2>
+
+<p>Are you sure you want to delete the following position?</p>
+
+<div>
+
+    <dl class="row">
+        <dt class="col-sm-2">
+            Position Name
+        </dt>
+        <dd class="col-sm-10">
+            @Html.DisplayFor(model => model.Name)
+        </dd>
+    
+
+    </dl>
+
+
+<form asp-controller="Position" asp-action="DeletePosition" method="post" class="text-end">
+    <input type="hidden" asp-for="Id" />
+    <a asp-action="GetPositions" class="btn btn-secondary">Back To List</a>
+    <button type="submit" class="btn btn-danger">Delete</button>
+</form>
+</div>

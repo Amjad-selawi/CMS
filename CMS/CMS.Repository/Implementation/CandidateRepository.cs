@@ -114,26 +114,5 @@ namespace CMS.Repository.Implementation
 
             return result;
         }
-        public async Task<int> CountPendingAsync()
-        {
-            int candidateCounts = await _dbContext.Candidates
-                .Where(candidate =>
-                    candidate.Interviews.All(interview => interview.Status.Code != StatusCode.Rejected) &&
-                    candidate.Interviews.All(interview => interview.Status.Code != StatusCode.Approved))
-                .CountAsync();
-
-            return candidateCounts;
-        }
-        //public async Task<Dictionary<string, int>> CountCandidatesPerCompanyAsync()
-        //{
-        //    var candidateCounts = await _dbContext.Candidates
-        //        .GroupBy(c => c.Company.Name)
-        //        .Select(g => new { CompanyName = g.Key, Count = g.Count() })
-        //        .ToListAsync();
-
-        //    var result = candidateCounts.ToDictionary(x => x.CompanyName, x => x.Count);
-
-        //    return result;
-        //}
     }
 }

@@ -1,8 +1,4 @@
-﻿
-<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-<link href="https://cdn.datatables.net/1.11.5/css/jquery.dataTables.min.css" rel="stylesheet" />
-<script src="https://cdn.datatables.net/1.11.5/js/jquery.dataTables.min.js"></script>
-@model List<CMS.Application.DTOs.CompanyDTO>
+﻿@model List<CMS.Application.DTOs.CompanyDTO>
 @{
     ViewData["Title"] = "Companies";
 }
@@ -18,7 +14,7 @@
             </div>
             <div class="card-body">
 
-                <table id="add-rows1" class="table table-nowrap dt-responsive table-bordered display" style="width:100%">
+                <table id="add-rows" class="table table-nowrap dt-responsive table-bordered display" style="width:100%">
                     <thead>
                         <tr>
                             <th>Company Name</th>
@@ -65,11 +61,4 @@
             window.location.href = "@Url.Action("DeleteCompany")/" + id;
         }
     }
-</script>
-<script>
-    $.noConflict();
-    jQuery(document).ready(function ($) {
-        $('#add-rows1').DataTable();
-
-    });
 </script>

@@ -1,0 +1,34 @@
+﻿@model IEnumerable<CMS.Application.DTOs.AttachmentDTO>
+
+<h2>Attachments</h2>
+
+<p>
+    <a asp-action="Create">Upload New Attachment</a>
+</p>
+
+<table class="table">
+    <thead>
+        <tr>
+            <th>Id</th>
+            <th>File Name</th>
+            <th>File Size</th>
+            <th>Created On</th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var attachment in Model)
+        {
+            <tr>
+                <td>@attachment.Id</td>
+                <td>@attachment.FileName</td>
+                <td>@attachment.FileSize</td>
+                <td>@attachment.CreatedOn</td>
+                <td>
+                    
+                    <a asp-action="Delete" asp-route-id="@attachment.Id">Delete</a>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
