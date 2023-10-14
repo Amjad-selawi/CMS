@@ -1,9 +1,7 @@
-﻿@using CMS.Domain.Enums;
-<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+﻿<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <link href="https://cdn.datatables.net/1.11.5/css/jquery.dataTables.min.css" rel="stylesheet" />
 <script src="https://cdn.datatables.net/1.11.5/js/jquery.dataTables.min.js"></script>
 @model IEnumerable<CMS.Application.DTOs.InterviewsDTO>
-
 @{
     ViewData["Title"] = "Interviews Filter";
 }
@@ -72,7 +70,7 @@
 
 
 <div class="card-body">
-    <table id="add-rows" class="table table-nowrap dt-responsive table-bordered display" style="width:100%">
+    <table id="add-rows3" class="table table-nowrap dt-responsive table-bordered display" style="width:100%">
         <thead>
             <tr>
                 <th>Candidate Name</th>
@@ -82,9 +80,8 @@
                 <th>Status</th>
                 <th hidden>Parent ID</th>
                 <th>Score</th>
-                <th hidden>Notes</th>
+                <th>Notes</th>
                 <th>Evaluation</th>
-                <th>CV</th>
                 <th>Actions</th>
             </tr>
         </thead>
@@ -100,7 +97,7 @@
                         <td>@item.StatusName</td>
                         <td hidden>@item.ParentId</td>
                         <td>@item.Score</td>
-                        <td hidden>@item.Notes</td>
+                        <td>@item.Notes</td>
                         @if (item.AttachmentId != null)
                         {
                             <td><a asp-controller="Attachments" asp-action="Download" asp-route-id="@item.AttachmentId">Download evaluation</a></td>
@@ -109,21 +106,8 @@
                         {
                             <td></td>
                         }
-                        @if (item.CandidateCVAttachmentId != null)
-                        {
-                            <td><a asp-controller="Attachments" asp-action="Download" asp-route-id="@item.CandidateCVAttachmentId">Download CV</a></td>
-                        }
-                        else
-                        {
-
-                            <td> </td>
-                        }
                         <td>
-                            @if (item.InterviewerRole == "Interviewer" && item.StatusName == StatusCode.GetName("PND"))
-                            {
-                                <a class="bx bxs-edit-alt" style="font-size:x-large" asp-controller="Interviews" asp-action="Edit" asp-route-id="@item.InterviewsId"> </a>
-                            }
-                          
+                            <a class="bx bxs-edit-alt" style="font-size:x-large" asp-action="Edit" asp-route-id="@item.InterviewsId"></a> |
                             <a class="bx bx-detail" style="font-size:x-large" asp-action="Details" asp-route-id="@item.InterviewsId"></a> |
                             <a class="ri-delete-bin-2-line text-danger" style="font-size:x-large" asp-action="Delete" asp-route-id="@item.InterviewsId"></a>
                         </td>
@@ -136,4 +120,10 @@
 
 </div>
 
-
+<script>
+    $(document).ready(function () {
+        $('#add-rows3').DataTable({
+            searching: false 
+        });
+    });
+</script>

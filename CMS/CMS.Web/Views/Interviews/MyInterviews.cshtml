@@ -1,5 +1,4 @@
-﻿@using CMS.Domain.Enums;
-
+﻿
 @model IEnumerable<CMS.Application.DTOs.InterviewsDTO>
 
 @{
@@ -35,20 +34,13 @@
                         <tr>
                             <th>Candidate Name</th>
                             <th>Position</th>
-                            <th hidden>Interviewer</th>
+                            <th>Interviewer</th>
                             <th>Date</th>
                             <th hidden>Parent ID</th>
-                            @if (User.IsInRole("Interviewer"))
-                            {
-                                <th>Score</th>
-                            }
-                          
+                            <th>Score</th>
                             <th>Status</th>
-                            <th hidden>Notes</th>
-                             @if (User.IsInRole("Interviewer"))
-                            {
-                                <th>Evaluation</th>
-                            }
+                            <th>Notes</th>
+                            <th>Evaluation</th>
                             <th>Details</th>
                             <th>Add Result</th>
                         </tr>
@@ -59,47 +51,32 @@
                             <tr>
                                 <td>@Html.DisplayFor(modelItem => item.FullName)</td>
                                 <td>@Html.DisplayFor(modelItem => item.Name)</td>
-                                <td hidden>@item.InterviewerName</td>
+                                <td>@item.InterviewerName</td>
                                 <td>@item.Date</td>
                                 <td hidden>@item.ParentId</td>
-                                @if (User.IsInRole("Interviewer"))
-                                {
-                                    <td>@item.Score</td>
-                                }
+                                <td>@item.Score</td>
                                 <td>@item.StatusName</td>
-                                <td hidden>@item.Notes</td>
-                                @if (User.IsInRole("Interviewer"))
+                                <td>@item.Notes</td>
+                                @if (item.AttachmentId != null)
                                 {
-                                    @if (item.AttachmentId != null)
-                                    {
-                                        <td><a asp-controller="Attachments" asp-action="Download" asp-route-id="@item.AttachmentId">Download evaluation</a></td>
-                                    }
-                                    else
-                                    {
-                                        <td> </td>
-                                    }
+                                    <td><a asp-controller="Attachments" asp-action="Download" asp-route-id="@item.AttachmentId">Download evaluation</a></td>
                                 }
-                                
+                                else
+                                {
+                                    <td> </td>
+                                }
                                 <td>
                                     <a class="bx bx-detail" style="font-size:x-large" asp-action="Details" asp-route-id="@item.InterviewsId" asp-route-previousAction="MyInterviews"></a> 
                                    
                                 </td>
-                                @if (item.isUpdated == false && item.StatusName == StatusCode.GetName("REJ"))
-                                {
-                                    <td>Not available</td>
-                                }
-                                else{
-                                    
-                                    if (item.isUpdated == false || User.IsInRole("HR Manager"))
-                                    {
+                                @if(item.isUpdated==false){
                                 <td>
-                                        <a class="bx bx-plus" style="font-size:x-large" asp-action="UpdateAfterInterview" asp-route-id="@item.InterviewsId" asp-route-idd="@item.InterviewerId" asp-route-iddd="@item.EvalutaionFormId"> </a>
+                                    <a class="bx bx-plus" style="font-size:x-large" asp-action="UpdateAfterInterview" asp-route-id="@item.InterviewsId" asp-route-idd="@item.InterviewerId"> </a>
                                     </td>
                                 }
                                 else
                                 {
                                     <td>ADDED</td>
-                                }
                                 }
 
                             </tr>

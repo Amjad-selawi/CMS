@@ -215,7 +215,7 @@ namespace CMS.Web.Controllers
                 {
                     if (User.IsInRole("HR Manager"))
                     {
-                        await _notificationsService.CreateInterviewNotificationForInterviewerAsync(collection.Date,collection.CandidateId,collection.PositionId);
+                        await _notificationsService.CreateInterviewNotificationForInterviewerAsync(collection.Date);
 
                       
 
@@ -262,8 +262,6 @@ namespace CMS.Web.Controllers
             {
                 return NotFound();
             }
-            var StatusDTOs = await _StatusService.GetAll();
-            ViewBag.StatusDTOs = new SelectList(StatusDTOs.Value, "Id", "Name");
             var result = await _interviewsService.GetById(id);
             var interviewDTO = result.Value;
             if (interviewDTO == null)
@@ -285,14 +283,8 @@ namespace CMS.Web.Controllers
                 ModelState.AddModelError("", $"the interview dto you are trying to update is null ");
                 return RedirectToAction("Index");
             }
-            var StatusDTOs = await _StatusService.GetAll();
-            ViewBag.StatusDTOs = new SelectList(StatusDTOs.Value, "Id", "Name");
 
             await LoadSelectionLists();
-            if (collection.StatusId ==3  && collection.Notes == null)
-            {
-                ModelState.AddModelError("Notes", "Please add note why it was rejected.");
-            }
 
 
             if (ModelState.IsValid)
@@ -309,7 +301,7 @@ namespace CMS.Web.Controllers
             }
             else
             {
-                ModelState.AddModelError("", $"");
+                ModelState.AddModelError("", $"the model state is not valid");
             }
             return View(collection);
         }
@@ -402,11 +394,11 @@ namespace CMS.Web.Controllers
 
             var validationErrors = new List<string>();
 
-            if ((file == null || file.Length == 0) && User.IsInRole("Interviewer"))
+            if (file == null || file.Length == 0)
             {
-                ModelState.AddModelError("AttachmentId", "Please choose a file to upload.");
+                //ModelState.AddModelError("", "Please choose a file to upload.");
                 //return View();
-                //validationErrors.Add( "Please choose a file to upload.");
+                validationErrors.Add("Please choose a file to upload.");
             }
             //if (interviewsDTO.Notes == null)
             //{
@@ -419,7 +411,7 @@ namespace CMS.Web.Controllers
             {
                  ModelState.AddModelError("Notes", "Please add note why it was rejected.");
             }
-            if (interviewsDTO.Score == null && User.IsInRole("Interviewer"))
+            if (interviewsDTO.Score == null)
             {
                 //ModelState.AddModelError("", "Please Add Score.");
                 //return View();
@@ -443,14 +435,10 @@ namespace CMS.Web.Controllers
                 }
                 return View(interviewsDTO);
             }
-            FileStream attachmentStream = null;
-            if (file != null && file.Length != 0)
-            {
-                attachmentStream = await AttachmentHelper.handleUpload(file, _attachmentStoragePath);
-                interviewsDTO.FileName = file.FileName;
-                interviewsDTO.FileSize = file.Length;
-                interviewsDTO.FileData = attachmentStream;
-            }
+            FileStream attachmentStream = await AttachmentHelper.handleUpload(file, _attachmentStoragePath);
+            interviewsDTO.FileName = file.FileName;
+            interviewsDTO.FileSize = file.Length;
+            interviewsDTO.FileData = attachmentStream;
 
             if (ModelState.IsValid)
             {
@@ -459,49 +447,27 @@ namespace CMS.Web.Controllers
 
 
                 await _interviewsService.ConductInterview(interviewsDTO);
-                if (attachmentStream != null)
-                {
-                    attachmentStream.Close();
-                }
-                   
+
+                attachmentStream.Close();
 
                 if (User.IsInRole("Interviewer"))
                 {
                     if (interviewsDTO.StatusId == 2 || interviewsDTO.StatusId == 3)
                     {
-                        await _notificationsService.CreateNotificationForGeneralManagerAsync(interviewsDTO.StatusId.Value, interviewsDTO.Notes,interviewsDTO.CandidateId ,interviewsDTO.PositionId);
+                        await _notificationsService.CreateNotificationForGeneralManagerAsync(interviewsDTO.StatusId.Value, interviewsDTO.Notes);
 
                         if(interviewsDTO.StatusId == 2)
                         {
-                            string userName = GetLoggedInUserName();
                             var GMEmail = await GetGMEmail();
-                            var HREmail = await GetHREmail();
-
                             EmailDTOs emailModel = new EmailDTOs
                             {
                                 EmailTo = new List<string> { GMEmail },
                                 EmailBody = $"You have a second interview. Please be prepared.",
                                 Subject = "Interview Invitation"
                             };
-
-
-                            EmailDTOs emailModelToHR = new EmailDTOs
-                            {
-                                EmailTo = new List<string> { HREmail },
-                                EmailBody = $"The first interview Approved by {userName}.",
-                                Subject = "Interview Approval"
-                            };
-
-
-
                             if (!string.IsNullOrEmpty(GMEmail))
                             {
                                 await SendEmailToInterviewer(GMEmail, interviewsDTO, emailModel);
-                            }
-
-                            if (!string.IsNullOrEmpty(HREmail))
-                            {
-                                await SendEmailToInterviewer(HREmail, interviewsDTO, emailModelToHR);
                             }
 
                             return RedirectToAction(nameof(MyInterviews));
@@ -544,12 +510,11 @@ namespace CMS.Web.Controllers
                 {
                     if (interviewsDTO.StatusId == 2 || interviewsDTO.StatusId == 3)
                     {
-                        await _notificationsService.CreateInterviewNotificationForHRInterview(interviewsDTO.StatusId.Value, interviewsDTO.Notes,interviewsDTO.CandidateId,interviewsDTO.PositionId);
+                        await _notificationsService.CreateInterviewNotificationForHRInterview(interviewsDTO.StatusId.Value, interviewsDTO.Notes);
 
 
                         if (interviewsDTO.StatusId == 2)
                         {
-                            string userName = GetLoggedInUserName();
                             var HREmail = await GetHREmail();
                             EmailDTOs emailModel = new EmailDTOs
                             {
@@ -557,15 +522,6 @@ namespace CMS.Web.Controllers
                                 EmailBody = $"You have a thierd interview. Please be prepared.",
                                 Subject = "Interview Invitation"
                             };
-
-                            EmailDTOs emailModelApproval = new EmailDTOs
-                            {
-                                EmailTo = new List<string> { HREmail },
-                                EmailBody = $"The Second Interview Approved by {userName}.",
-                                Subject = "Interview Approval"
-                            };
-
-
                             if (!string.IsNullOrEmpty(HREmail))
                             {
                                 await SendEmailToInterviewer(HREmail, interviewsDTO, emailModel);
@@ -581,7 +537,7 @@ namespace CMS.Web.Controllers
                             EmailDTOs emailModel = new EmailDTOs
                             {
                                 EmailTo = new List<string> { HREmail },
-                                EmailBody = $"The second interview was rejected by {userName} .",
+                                EmailBody = $"The first interview was rejected by {userName} .",
                                 Subject = "Interview Rejection"
                             };
                             if (!string.IsNullOrEmpty(HREmail))

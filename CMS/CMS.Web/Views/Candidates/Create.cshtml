@@ -1,4 +1,4 @@
-﻿    @model CMS.Application.DTOs.CandidateCreateDTO
+﻿@model CMS.Application.DTOs.CandidateCreateDTO
 
 <h2>Create Candidate</h2>
 
@@ -15,26 +15,26 @@
         <span asp-validation-for="Phone" class="text-danger"></span>
     </div>
 
-    <div class="form-group" style="margin-top: 15px;">
+  @*  <div class="form-group" style="margin-top: 15px;">
 
         <label asp-for="PositionId" class="control-label">Position</label>
         @if (ViewBag.positions != null)
         {
             <select asp-for="PositionId" asp-items="@(ViewBag.positions)" class="form-control">
-                <option value="">-- Select a position --</option>
+                <option value=""> Position</option>
                 
             </select>
         }
 
         <span asp-validation-for="PositionId" class="text-danger"></span>
-    </div>
+    </div>*@
     <div class="form-group" style="margin-top: 15px;">
 
         <label asp-for="CompanyId" class="control-label">Company Name</label>
         @if (ViewBag.CompaniesDTOs != null)
         {
             <select asp-for="CompanyId" asp-items="@(ViewBag.CompaniesDTOs)" class="form-control">
-                <option value="">-- company --</option>
+                <option value=""> company </option>
 
             </select>
         }
@@ -42,7 +42,7 @@
         <span asp-validation-for="CompanyId" class="text-danger"></span>
     </div>
 
-@*     <div class="form-group" style="margin-top: 15px;">
+    <div class="form-group" style="margin-top: 15px;">
         <label asp-for="Email" class="control-label">Email</label>
         <input asp-for="Email" class="form-control" autocomplete="off" />
         <span asp-validation-for="Email" class="text-danger"></span>
@@ -51,30 +51,30 @@
         <label asp-for="Address" class="control-label">Address</label>
         <input asp-for="Address" class="form-control" autocomplete="off" />
         <span asp-validation-for="Address" class="text-danger"></span>
-    </div> *@
+    </div>
     <div class="form-group" style="margin-top: 15px;">
         <label asp-for="Experience" class="control-label"><span class="text-danger">*</span> Experience</label>
         <input asp-for="Experience" class="form-control" autocomplete="off" />
         <span asp-validation-for="Experience" class="text-danger"></span>
     </div>
- @*    <div class="form-group" style="margin-top: 15px;">
+    <div class="form-group" style="margin-top: 15px;">
         <label asp-for="LinkedInUrl" class="control-label">LinkedIn Url</label>
         <input asp-for="LinkedInUrl" class="form-control" autocomplete="off" />
         <span asp-validation-for="LinkedInUrl" class="text-danger"></span>
-    </div> *@
-    <div class="form-group" style="margin-top: 15px;">
+    </div>
+@*    <div class="form-group" style="margin-top: 15px;">
 
         <label asp-for="CountryId" class="control-label"><span class="text-danger">*</span> Country Name</label>
         @if (ViewBag.CompaniesDTOs != null)
         {
             <select asp-for="CountryId" asp-items="@(ViewBag.CountryDTOs)" class="form-control">
-                <option value="">-- Select a country --</option>
+                <option value=""> country </option>
 
             </select>
         }
 
         <span asp-validation-for="CountryId" class="text-danger"></span>
-    </div>
+    </div>*@
 
     <div class="form-group" style="margin-top: 15px;">
         <label for="file">Upload CV:</label>

@@ -1,10 +1,13 @@
 ﻿using CMS.Application.DTOs;
 using CMS.Application.Extensions;
+using CMS.Domain;
 using CMS.Domain.Entities;
+using CMS.Repository.Implementation;
 using CMS.Repository.Interfaces;
 using CMS.Services.Interfaces;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -24,14 +27,21 @@ namespace CMS.Services.Services
             _userManager = userManager;
             _httpContextAccessor = httpContextAccessor;
         }
+        public async Task<IEnumerable<Country>> GetAllCountriesAsync()
+        {
+            return await _repository.GetAllCountriesAsync();
+        }
 
+        public async Task<Country> GetCountryByNameAsync(string countryName)
+        {
+            return await _repository.GetCountryByNameAsync(countryName);
+        }
 
-
-        public Result<CountryDTO> Delete(int id)
+        public async Task<Result<CountryDTO>> Delete(int id)
         {
             try
             {
-                _repository.Delete(id);
+                await _repository.Delete(id);
                 return Result<CountryDTO>.Success(null);
             }
             catch (Exception ex)
@@ -39,19 +49,6 @@ namespace CMS.Services.Services
                 return Result<CountryDTO>.Failure(null, $"An error occurred while deleting the country{ex.InnerException.Message}");
             }
         }
-
-        //public async Task<Result<CountryDTO>> Delete(int id)
-        //{
-        //    try
-        //    {
-        //        await _repository.Delete(id);
-        //        return Result<CountryDTO>.Success(null);
-        //    }
-        //    catch (Exception ex)
-        //    {
-        //        return Result<CountryDTO>.Failure(null, $"An error occurred while deleting the country{ex.InnerException.Message}");
-        //    }
-        //}
 
         public async Task<Result<List<CountryDTO>>> GetAll()
         {
@@ -74,7 +71,7 @@ namespace CMS.Services.Services
                             Id = com.Id,
                             Name = com.Name,
                             Email = com.Email,
-                            PersonName = com.PersonName,
+                            Address = com.Address,
                             CountryId = com.CountryId,
                             PhoneNumber = com.PhoneNumber,
                             CountryName=com.Country.Name
@@ -110,7 +107,7 @@ namespace CMS.Services.Services
                         Id = com.Id,
                         Name = com.Name,
                         Email = com.Email,
-                        PersonName = com.PersonName,
+                        Address = com.Address,
                         CountryId = com.CountryId,
                         PhoneNumber = com.PhoneNumber,
 
@@ -177,7 +174,32 @@ namespace CMS.Services.Services
                 return Result<CountryDTO>.Failure(data, $"unable to update the country: {ex.InnerException.Message}");
             }
         }
+        public async Task<Result<CountryDTO>> GetCountryByName(string countryName)
+        {
+            try
+            {
+                var country = await _repository.GetCountryByNameAsync(countryName);
 
+                if (country == null)
+                {
+                    return Result<CountryDTO>.Failure(null, "Country not found");
+                }
+
+                // Map the retrieved country to a DTO as needed
+                var countryDTO = new CountryDTO
+                {
+                    Id = country.Id,
+                    Name = country.Name,
+                    // ...
+                };
+
+                return Result<CountryDTO>.Success(countryDTO);
+            }
+            catch (Exception ex)
+            {
+                return Result<CountryDTO>.Failure(null, $"An error occurred while getting the country by name: {ex.InnerException.Message}");
+            }
+        }
         public bool DoesCountryNameExist(string name)
         {
             return _repository.DoesCountryNameExist(name);

@@ -4,8 +4,8 @@
 <h2>Create</h2>
 
 <form asp-action="Create" id="createForm">
-@*     <div asp-validation-summary="ModelOnly" class="text-danger"></div>
- *@
+    <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+
 
     <div class="form-group">
 
@@ -13,7 +13,7 @@
         @if (ViewBag.candidateList != null)
         {
             <select asp-for="CandidateId" asp-items="@(ViewBag.candidateList)" class="form-control">
-                <option value="">-- Select a Name --</option>
+                <option value="">Select a Name</option>
 
             </select>
         }
@@ -33,7 +33,7 @@
         @if (ViewBag.positionList != null)
         {
             <select asp-for="PositionId" asp-items="@(ViewBag.positionList)" class="form-control">
-                <option value="">-- Select a Position --</option>
+                <option value="">Select a Position</option>
 
             </select>
         }
@@ -53,7 +53,7 @@
         @if (ViewBag.interviewersList != null)
         {
             <select asp-for="InterviewerId" asp-items="@(ViewBag.interviewersList)" class="form-control">
-                <option value="">-- Select an Interviewer --</option>
+                <option value="">Select an Interviewer</option>
 
             </select>
         }
@@ -70,7 +70,7 @@
     <div class="form-group" style="margin-top: 15px;">
         <label asp-for="Date" class="control-label"><span class="text-danger">*</span> Date</label>
         <input asp-for="Date" class="form-control" />
-        <span asp-validation-for="Date" class="text-danger" id="dateValidationMessage"></span>
+        <span asp-validation-for="Date" class="text-danger"></span>
     </div>
     <div class="form-group"  hidden>
         <label asp-for="ParentId" class="control-label"></label>
@@ -88,23 +88,16 @@
 
 </form>
 @* <p>@Html.ValidationSummary()</p> *@
-<script>
-    
-    document.getElementById("createForm").onsubmit = function () {
-        return validateDate();
+@* <script>
+    document.getElementById("createForm").onsubmit=function(){
+        return confirmCreate();
     };
 
-    function validateDate() {
-        var dateInput = document.getElementById("Date");
-        var date = new Date(dateInput.value);
-        var currentDate = new Date();
-
-        if (date <= currentDate) {
-            var dateValidationMessage = document.getElementById("dateValidationMessage");
-            dateValidationMessage.textContent = "Date must be in the future";
-            return false; 
+    function confirmCreate(){
+        if(confirm("Are you sure from the info you want to submit? it can not be modified")){
+            return true;
+        }else{
+            return false;
         }
-
-        return true; 
     }
-</script>
+</script> *@

@@ -7,7 +7,7 @@
     <div asp-validation-summary="ModelOnly" class="text-danger"></div>
     <div class="form-group">  <input type="hidden" asp-for="InterviewsId" /> </div>
 
-  @*  <div class="form-group">  <input type="hidden" asp-for="StatusId" /> </div>*@
+    <div class="form-group">  <input type="hidden" asp-for="StatusId" /> </div>
     <div class="form-group">
         <label asp-for="CandidateId" class="control-label">Candidate Name</label>
         @Html.DropDownListFor(model => model.CandidateId, (SelectList)ViewBag.candidateList, "Select a Name", new { @class = "form-control" })
@@ -32,42 +32,6 @@
         <label asp-for="Date" class="control-label"></label>
         <input asp-for="Date" class="form-control" />
         <span asp-validation-for="Date" class="text-danger"></span>
-    </div>
-
-    <div class="form-group" style="margin-top: 15px;">
-        <label asp-for="Notes">Notes:</label>
-        <textarea asp-for="Notes" class="form-control"></textarea>
-        <span asp-validation-for="Notes" class="text-danger"></span>
-    </div>
-
-    <div class="form-group" style="margin-top: 15px;">
-
-        <label asp-for="StatusId" class="control-label">Status</label>
-        @if (ViewBag.StatusDTOs != null)
-        {
-            @*  <select asp-for="StatusId" asp-items="@(ViewBag.StatusDTOs)" class="form-control">
-        <option value="">Select a Status</option>
-
-        </select>*@
-
-            <select asp-for="StatusId" class="form-control">
-                <option value="">Select a Status</option>
-                @foreach (var sta in ViewBag.StatusDTOs)
-                {
-                    if (sta.Text != StatusCode.GetName("APR"))
-                    {
-                        <option value="@sta.Value" selected="@(sta.Value == Model.StatusId.ToString())">@sta.Text</option>
-                    }
-                }
-
-            </select>
-        }
-        else
-        {
-            <p>No statuses available.</p>
-        }
-        <span asp-validation-for="StatusId" class="text-danger"></span>
-
     </div>
 
 
@@ -119,7 +83,7 @@
     </div>
 
 </form>
-@*<p>@Html.ValidationSummary()</p>*@
+<p>@Html.ValidationSummary()</p>
 @*
 <form asp-action="UpdateAttachment" asp-route-id="@Model.InterviewsId" enctype="multipart/form-data">
     <div class="form-group">

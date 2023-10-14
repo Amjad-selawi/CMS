@@ -17,54 +17,26 @@ namespace CMS.Repository.Implementation
         {
             _context = context; 
         }
-
-        public int Delete(int id)
+        public async  Task<int> Delete(int id)
         {
             try
             {
-                var country = _context.Countries
-                    .Include(c => c.Companies)
-                    .FirstOrDefault(c => c.Id == id);
+               // var country=await _context.Countries.FindAsync(id);
+               var country=await _context.Countries.Include(c=>c.Companies)
+                    .FirstOrDefaultAsync(c=>c.Id==id);
 
-                if (country != null)
-                {
-                    foreach (var com in country.Companies)
-                    {
-                        _context.Companies.Remove(com);
-                    }
-                    _context.Countries.Remove(country);
-                    return _context.SaveChanges();
+                foreach(var com in country.Companies) {
+                _context.Companies.Remove(com);
                 }
-
-                return 0; // Return 0 if the country with the given id is not found.
+                _context.Countries.Remove(country);
+               return  await _context.SaveChangesAsync();
+                
             }
             catch (Exception ex)
             {
                 throw ex;
             }
         }
-
-
-        //public async  Task<int> Delete(int id)
-        //{
-        //    try
-        //    {
-        //       // var country=await _context.Countries.FindAsync(id);
-        //       var country=await _context.Countries.Include(c=>c.Companies)
-        //            .FirstOrDefaultAsync(c=>c.Id==id);
-
-        //        foreach(var com in country.Companies) {
-        //        _context.Companies.Remove(com);
-        //        }
-        //        _context.Countries.Remove(country);
-        //       return  await _context.SaveChangesAsync();
-
-        //    }
-        //    catch (Exception ex)
-        //    {
-        //        throw ex;
-        //    }
-        //}
 
         public async Task<List<Country>> GetAll()
         {
@@ -126,7 +98,15 @@ namespace CMS.Repository.Implementation
                 throw ex;
             }
         }
-
+        public async Task<Country> GetCountryByNameAsync(string countryName)
+        {
+            return await _context.Countries
+                .FirstOrDefaultAsync(c => c.Name == countryName);
+        }
+        public async Task<IEnumerable<Country>> GetAllCountriesAsync()
+        {
+            return await _context.Countries.ToListAsync();
+        }
 
         public bool DoesCountryNameExist(string name)
         {

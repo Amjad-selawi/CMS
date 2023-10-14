@@ -763,8 +763,4 @@
 		<ProjectReference Include="..\CMS.Services\CMS.Services.csproj" />
 	</ItemGroup>
 
-	<ItemGroup>
-	  <Folder Include="wwwroot\attachments\" />
-	</ItemGroup>
-
 </Project>

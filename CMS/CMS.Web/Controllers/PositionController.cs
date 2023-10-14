@@ -1,11 +1,7 @@
 ﻿using CMS.Application.DTOs;
 using CMS.Services.Interfaces;
 using CMS.Services.Services;
-using CMS.Web.Utils;
-using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using System.IO;
 using System.Threading.Tasks;
 
 namespace CMS.Web.Controllers
@@ -13,16 +9,9 @@ namespace CMS.Web.Controllers
     public class PositionController : Controller
     {
         private readonly IPositionService _positionService;
-        private readonly string _attachmentStoragePath;
-        public PositionController(IPositionService positionService, IWebHostEnvironment env)
+        public PositionController(IPositionService positionService)
         {
             _positionService = positionService;
-            _attachmentStoragePath = Path.Combine(env.WebRootPath, "attachments");
-
-            if (!Directory.Exists(_attachmentStoragePath))
-            {
-                Directory.CreateDirectory(_attachmentStoragePath);
-            }
         }
 
         public IActionResult Index()
@@ -35,7 +24,7 @@ namespace CMS.Web.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> AddPosition(PositionDTO positionDTO, IFormFile file)
+        public async Task<IActionResult> AddPosition(PositionDTO positionDTO)
         {
             if (ModelState.IsValid)
             {
@@ -45,22 +34,9 @@ namespace CMS.Web.Controllers
                     ModelState.AddModelError("Name", "A position with the same name already exists.");
                     return View(positionDTO);
                 }
-                FileStream attachmentStream = null;
-                if (file!=null && file.Length != 0)
-                {
-                    attachmentStream = await AttachmentHelper.handleUpload(file, _attachmentStoragePath);
-                    positionDTO.FileName = file.FileName;
-                    positionDTO.FileSize = file.Length;
-                    positionDTO.FileData = attachmentStream;
-                }
-              
+
 
                 var result = await _positionService.Insert(positionDTO);
-                if (attachmentStream != null)
-                {
-                    attachmentStream.Close();
-                }
-               
 
                 if (result.IsSuccess)
                 {
@@ -174,32 +150,6 @@ namespace CMS.Web.Controllers
             }
             return View(positionDTO);
 
-        }
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> UpdateAttachment(int id, IFormFile file)
-        {
-            if (file == null || file.Length == 0)
-            {
-                ModelState.AddModelError("File", "Please choose a file to upload.");
-                return View();
-            }
-            if (ModelState.IsValid)
-            {
-                var stream = await AttachmentHelper.handleUpload(file, _attachmentStoragePath);
-                try
-                {
-                    await _positionService.UpdatePositionEvaluationAsync(id, file.FileName, file.Length, stream);
-                    return RedirectToAction(nameof(GetPositions));
-                }
-                finally
-                {
-                    stream.Close();
-                    AttachmentHelper.removeFile(file.FileName, _attachmentStoragePath);
-                }
-
-            }
-            return RedirectToAction(nameof(UpdatePosition), new { id = id });
         }
 
 

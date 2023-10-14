@@ -100,9 +100,9 @@ namespace CMS.Web.Controllers
         }
 
 
-
+        
         [HttpPost]
-        public IActionResult DeleteCountry(int id)
+        public async Task<IActionResult> DeleteCountry(int id)
         {
             if (id <= 0)
             {
@@ -112,7 +112,7 @@ namespace CMS.Web.Controllers
             if (HttpContext.Request.Method == "POST")
             {
                 // Handle the actual deletion
-                var result = _countryService.Delete(id);
+                var result = await _countryService.Delete(id);
 
                 if (result.IsSuccess)
                 {
@@ -129,35 +129,6 @@ namespace CMS.Web.Controllers
 
             return View();
         }
-
-        //[HttpPost]
-        //public async Task<IActionResult> DeleteCountry(int id)
-        //{
-        //    if (id <= 0)
-        //    {
-        //        return BadRequest("Invalid country id");
-        //    }
-
-        //    if (HttpContext.Request.Method == "POST")
-        //    {
-        //        // Handle the actual deletion
-        //        var result = await _countryService.Delete(id);
-
-        //        if (result.IsSuccess)
-        //        {
-        //            return RedirectToAction("GetCountries");
-        //        }
-
-        //        ModelState.AddModelError("", result.Error);
-        //    }
-        //    else
-        //    {
-        //        // For GET requests, show the confirmation page
-        //        return RedirectToAction("ConfirmDelete", new { id });
-        //    }
-
-        //    return View();
-        //}
 
 
         //[HttpPost]

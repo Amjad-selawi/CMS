@@ -26,8 +26,6 @@ namespace CMS.Services.Services
         private readonly RoleManager<IdentityRole> _roleManager;
         private readonly UserManager<IdentityUser> _userManager;
         private readonly ICarrerOfferRepository _carrerOfferRepository;
-        private readonly ICandidateService _candidateService;
-        private readonly IPositionService _positionService;
 
         public NotificationsService
             (
@@ -37,9 +35,7 @@ namespace CMS.Services.Services
             IHttpContextAccessor httpContextAccessor,
             RoleManager<IdentityRole> roleManager,
              UserManager<IdentityUser> userManager,
-            ICarrerOfferRepository carrerOfferRepository,
-            ICandidateService candidateService,
-            IPositionService positionService
+            ICarrerOfferRepository carrerOfferRepository
             )
         {
             _notificationsRepository = notificationsRepository;
@@ -49,8 +45,6 @@ namespace CMS.Services.Services
             _roleManager = roleManager;
             _userManager = userManager;
             _carrerOfferRepository = carrerOfferRepository;
-            _candidateService = candidateService;
-            _positionService = positionService;
         }
 
         public async Task<IEnumerable<NotificationsDTO>> GetAllNotificationsAsync()
@@ -293,7 +287,7 @@ namespace CMS.Services.Services
 
 
 
-        public async Task CreateNotificationForGeneralManagerAsync(int status, string notes, int CandidateId , int positionId)
+        public async Task CreateNotificationForGeneralManagerAsync(int status, string notes)
         {
             var managerId = "";
             var HrId = "";
@@ -311,9 +305,6 @@ namespace CMS.Services.Services
             string userName = GetLoggedInUserName();
             var currentUser = await _userManager.GetUserAsync(_httpContextAccessor.HttpContext.User);
 
-            var candidateName = await GetCandidateName(CandidateId);
-            var positionName = await GetPositionName(positionId);
-
             // Create the notification.
             var notification = new Notifications
             {
@@ -329,27 +320,12 @@ namespace CMS.Services.Services
 
             if (status == 2)
             {
-                notification.Title = $"You have a Second Interview with <span style=\"color: red;\">{candidateName}</span> for the <span style=\"color: red;\">{positionName}</span> position. Get ready to shine! 💼🚀";
+                notification.Title = "You have a Second Interview";
                 notification.ReceiverId = managerId;
             }
-
-            //if (status == 2)
-            //{
-            //    notification.ReceiverId = $"{managerId},{HrId}";
-
-            //    if (notification.ReceiverId.Contains(HrId))
-            //    {
-            //        notification.Title = $"{candidateName} Approved by {userName} for position {positionName}";
-            //    }
-            //    else if (notification.ReceiverId.Contains(managerId))
-            //    {
-            //        notification.Title = $"You have a Second Interview with <span style=\"color: red;\">{candidateName}</span> for the <span style=\"color: red;\">{positionName}</span> position. Get ready to shine! 💼🚀";
-            //    }
-            //}
-
             else
             {
-                notification.Title = $"{candidateName} Rejected by {userName} for position {positionName}";
+                notification.Title = $"The First Interview Rejected by {userName}";
                 notification.ReceiverId = HrId;
             }
 
@@ -361,7 +337,7 @@ namespace CMS.Services.Services
 
 
 
-        public async Task CreateInterviewNotificationForInterviewerAsync(DateTime interviewDate , int CandidateId ,int positionId)
+        public async Task CreateInterviewNotificationForInterviewerAsync(DateTime interviewDate)
         {
 
             var interviewerId = "";
@@ -371,17 +347,14 @@ namespace CMS.Services.Services
             interviewerId = (await _userManager.GetUsersInRoleAsync(interviewer.Name)).FirstOrDefault().Id;
             var currentUser = await _userManager.GetUserAsync(_httpContextAccessor.HttpContext.User);
 
-            var candidateName = await GetCandidateName(CandidateId);
-            var positionName = await GetPositionName(positionId);
-
             var notification = new Notifications
             {
                 ReceiverId = interviewerId,
                 SendDate = DateTime.Now,
                 IsReceived = true,
                 IsRead = false,
-                Title = $"New interview invitation",
-                BodyDesc = $"You've been selected for a First Interview with <span style=\"color: red;\">{candidateName}</span> for the <span style=\"color: red;\">{positionName}</span> position on <span style=\"color: red;\">{interviewDate}</span>. Get ready to shine! 💼🚀",
+                Title = "New interview",
+                BodyDesc = $"You have an interview on {interviewDate}",
                 CreatedBy=currentUser.Id,
                 CreatedOn=DateTime.Now
             };
@@ -392,7 +365,7 @@ namespace CMS.Services.Services
 
 
 
-        public async Task CreateInterviewNotificationForHRInterview(int status, string notes, int CandidateId , int positionId)
+        public async Task CreateInterviewNotificationForHRInterview(int status, string notes)
         {
 
             var HrId = "";
@@ -403,9 +376,6 @@ namespace CMS.Services.Services
 
             string userName = GetLoggedInUserName();
             var currentUser = await _userManager.GetUserAsync(_httpContextAccessor.HttpContext.User);
-
-            var candidateName = await GetCandidateName(CandidateId);
-            var positionName = await GetPositionName(positionId);
 
             var notification = new Notifications
             {
@@ -421,11 +391,11 @@ namespace CMS.Services.Services
 
             if (status == 2)
             {
-                notification.Title = $"You have a Third Interview with <span style=\"color: red;\">{candidateName}</span> for the <span style=\"color: red;\">{positionName}</span> position. Get ready to shine! 💼🚀 ";
+                notification.Title = "You have a Thierd Interview";
             }
             else
             {
-                notification.Title = $"{candidateName} Rejected by {userName} for position {positionName}";
+                notification.Title = $"The Second Interview Rejected by {userName}";
             }
 
             await _notificationsRepository.Create(notification);
@@ -437,37 +407,6 @@ namespace CMS.Services.Services
         {
             return _httpContextAccessor.HttpContext.User.Identity.Name;
         }
-
-
-
-        public async Task<string> GetCandidateName(int candidateId)
-        {
-            var candidate = await _candidateService.GetCandidateByIdAsync(candidateId);
-
-            if (candidate != null)
-            {
-                return candidate.FullName;
-            }
-
-            return "Candidate Not Found";
-        }
-
-
-
-        public async Task<string> GetPositionName(int positionId)
-        {
-            var result = await _positionService.GetById(positionId);
-
-            if (result.IsSuccess)
-            {
-                var position = result.Value;
-                return position.Name;
-            }
-
-            return "Position Not Found";
-        }
-
-
 
 
 

@@ -10,11 +10,11 @@ namespace CMS.Repository.Interfaces
     {
         Task<int> Insert(Country entity);
         Task<int> Update(Country entity);
-        int Delete(int id);
-        //Task<int> Delete(int id);
+        Task<int> Delete(int id);
         Task<Country> GetById(int id);
         Task<List<Country>> GetAll();
-
+        Task<Country> GetCountryByNameAsync(string countryName);
+        Task<IEnumerable<Country>> GetAllCountriesAsync();
         bool DoesCountryNameExist(string name);
     }
 }

@@ -8,7 +8,6 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.FileProviders;
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using static Microsoft.EntityFrameworkCore.DbLoggerCategory.Database;
@@ -63,7 +62,7 @@ namespace CMS.Services.Services
                     {
                         Id = c.Id,
                         Name = c.Name,
-                        PersonName = c.PersonName,
+                        Address = c.Address,
                         Email = c.Email,
                         PhoneNumber = c.PhoneNumber,
                         CountryId = c.CountryId,
@@ -96,7 +95,7 @@ namespace CMS.Services.Services
                 {
                     Id= company.Id,
                     Name = company.Name,
-                    PersonName = company.PersonName,
+                    Address = company.Address,
                     Email = company.Email,
                     PhoneNumber = company.PhoneNumber,
                   //  CountryId = company.CountryId,
@@ -124,7 +123,7 @@ namespace CMS.Services.Services
             var company = new Company {
                 Name = data.Name,
                 Email = data.Email,
-                PersonName = data.PersonName,
+                Address = data.Address,
                 PhoneNumber = data.PhoneNumber,
                 CountryId= data.CountryId,
                 CreatedBy= currentUser.Id,
@@ -159,7 +158,7 @@ namespace CMS.Services.Services
             {
                 Id = data.Id,
                 Name = data.Name,
-                PersonName = data.PersonName,
+                Address = data.Address,
                 Email = data.Email,
                 PhoneNumber= data.PhoneNumber,
                 CountryId= data.CountryId,
@@ -183,14 +182,10 @@ namespace CMS.Services.Services
 
 
 
-        public bool DoesCompanyNameExist(string name , int countryId)
+        public bool DoesCompanyNameExist(string name)
         {
-            return _repository.DoesCompanyNameExist(name , countryId);
+            return _repository.DoesCompanyNameExist(name);
         }
-
-
-     
-
 
 
     }
