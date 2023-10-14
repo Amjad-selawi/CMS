@@ -12,7 +12,6 @@ namespace CMS.Application.DTOs
         public string FullName { get; set; }
         [Required(ErrorMessage = "Phone is required.")]
         public int Phone { get; set; }
-        //[Required(ErrorMessage = "DesiredPosition is required.")]
         public int PositionId { get; set; }
 
         public string Name { get; set; }
@@ -22,19 +21,12 @@ namespace CMS.Application.DTOs
         public int CompanyId { set; get; }
         public string CompanyName { set; get; }
 
-        //[Required(ErrorMessage = "Email is required.")]
-
-        //public string Email { get; set; }
-        //public string Address { get; set; }
 
         [Required(ErrorMessage = "Experience is required.")]
         [RegularExpression(@"^[0-9]+$", ErrorMessage = "Experience must contain only numeric values.")]
         public string Experience { get; set; }
 
         public int? CVAttachmentId { get; set; }
-       
-        //[Url(ErrorMessage = "Invalid LinkedIn URL.")]
-        //public string LinkedInUrl { get; set; }
         public int CountryId { get; set; }
         public string CountryName { get; set; }
         public List<InterviewsDTO> InterviewsDTO { get; set; }

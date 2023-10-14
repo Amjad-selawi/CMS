@@ -6,7 +6,7 @@ using System.Text;
 namespace CMS.Application.DTOs
 {
     public class TemplatesDTO
-    {
+    {//Updated class
         public int TemplatesId { get; set; }
 
         public string Name { get; set; }

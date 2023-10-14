@@ -7,7 +7,7 @@ using System.Text;
 namespace CMS.Application.DTOs
 {
     public class CarrerOfferDTO
-    {
+    {//Updated class
         public int Id { get; set; }
         [Required(ErrorMessage = "Position is required.")]
         public int PositionId { get; set; }
