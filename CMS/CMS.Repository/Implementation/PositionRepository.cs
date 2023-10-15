@@ -23,12 +23,12 @@ namespace CMS.Repository.Implementation
             {
                 //var position=await _context.Positions.FindAsync(id);
 
-                var position =await _context.Positions.Include(c => c.Candidates)
+                var position =await _context.Positions.Include(c => c.Interviews)
                     .FirstOrDefaultAsync(c => c.Id == id);
-                if (position.Candidates != null && position.Candidates.Any()) {
-                    foreach (var c in position.Candidates.ToList())
+                if (position.Interviews != null && position.Interviews.Any()) {
+                    foreach (var c in position.Interviews.ToList())
                     {
-                        _context.Candidates.Remove(c);
+                        _context.Interviews.Remove(c);
                     }
                 }
            
