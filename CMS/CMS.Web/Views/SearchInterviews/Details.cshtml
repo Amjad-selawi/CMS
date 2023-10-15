@@ -8,25 +8,25 @@
     <dl class="row">
 
         <dt class="col-sm-2">
-            Candidate Name
+            Candidate Name:
         </dt>
         <dd class="col-sm-10">
             @Model.FullName
         </dd>
         <dt class="col-sm-2">
-            Position
+            Position:
         </dt>
         <dd class="col-sm-10">
             @Model.Name
         </dd>
         <dt class="col-sm-2">
-            Interviewer Name
+            Interviewer Name:
         </dt>
         <dd class="col-sm-10">
             @Model.InterviewerName
         </dd>
         <dt class="col-sm-2">
-            Date
+            Date:
         </dt>
         <dd class="col-sm-10">
             @Model.Date
@@ -39,30 +39,42 @@
         </dd>
 
         <dt class="col-sm-2">
-            Score
+            Score:
         </dt>
         <dd class="col-sm-10">
             @Model.Score
         </dd>
         <dt class="col-sm-2">
-            Status
+            Status:
         </dt>
         <dd class="col-sm-10">
             @Model.StatusName
         </dd>
         <dt class="col-sm-2">
-            Notes
+            Notes:
         </dt>
         <dd class="col-sm-10">
             @Model.Notes
         </dd>
 
-        <dt class="col-sm-2">
-            AttachmentId:
-        </dt>
-        <dd class="col-sm-10">
-            @Model.AttachmentId
-        </dd>
+        @if (Model.AttachmentId != null)
+        {
+            <dt class="col-sm-2">
+                Evaluation:
+            </dt>
+            <dd class="col-sm-10">
+                <a asp-controller="Attachments" asp-action="Download" asp-route-id="@Model.AttachmentId">Download evaluation</a>
+            </dd>
+        }
+        else
+        {
+            <dt class="col-sm-2">
+                Evaluation:
+            </dt>
+            <dd class="col-sm-10">
+                There is no Evaluation for this interview
+            </dd>
+        }
 
 
 
