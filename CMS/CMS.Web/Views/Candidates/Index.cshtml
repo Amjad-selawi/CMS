@@ -56,11 +56,9 @@
         <tr>
             <th>Full Name</th>
             <th>Phone Number</th>
-            <th>Position</th>
             <th>Company</th>
 
             <th>Experience</th>
-            <th>Country</th>
             <th>CV</th>
             <th>Actions</th>
         </tr>
@@ -71,10 +69,8 @@
             <tr>
                 <td>@Html.DisplayFor(modelItem => candidate.FullName)</td>
                 <td>@Html.DisplayFor(modelItem => candidate.Phone)</td>
-                <td>@Html.DisplayFor(modelItem => candidate.Name)</td>
                 <td>@Html.DisplayFor(modelItem => candidate.CompanyName)</td>
                 <td>@Html.DisplayFor(modelItem => candidate.Experience)</td>
-                <td>@Html.DisplayFor(modelItem => candidate.CountryName)</td>
                                 @if (candidate.CVAttachmentId != null)
                                 {
                                     <td><a asp-controller="Attachments" asp-action="Download" asp-route-id="@candidate.CVAttachmentId">Download CV</a></td>

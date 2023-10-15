@@ -1,5 +1,6 @@
 ﻿using CMS.Application.DTOs;
 using CMS.Application.Extensions;
+using CMS.Domain.Entities;
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -19,6 +20,6 @@ namespace CMS.Services.Interfaces
 
 
         bool DoesCountryNameExist(string name);
-
+        Task<IEnumerable<Country>> GetAllCountriesAsync();
     }
 }

@@ -40,15 +40,15 @@ namespace CMS.Services.Services
                 Id = c.Id,
                 FullName = c.FullName,
                 Phone = c.Phone,
-                PositionId = c.PositionId,
-                Name = c.Position.Name,
+                //PositionId = c.PositionId,
+                //Name = c.Position.Name,
                 CompanyId = c.CompanyId,
                 CompanyName=c.Company.Name,
              
                 Experience = c.Experience,
                 CVAttachmentId = c.CVAttachmentId,
-                CountryId = c.CountryId,
-                CountryName=c.Country.Name
+                //CountryId = c.CountryId,
+                //CountryName=c.Country.Name
             });
         }
 
@@ -65,14 +65,14 @@ namespace CMS.Services.Services
                 Id = candidate.Id,
                 FullName = candidate.FullName,
                 Phone = candidate.Phone,
-                PositionId = candidate.PositionId,
-                Name = candidate.Position.Name,
+                //PositionId = candidate.PositionId,
+                //Name = candidate.Position.Name,
                 CompanyId =candidate.CompanyId,
                 CompanyName=candidate.Company.Name,
                 Experience = candidate.Experience,
                 CVAttachmentId = candidate.CVAttachmentId,
-                CountryId = candidate.CountryId,
-                CountryName = candidate.Country.Name
+                //CountryId = candidate.CountryId,
+                //CountryName = candidate.Country.Name
 
             };
         }
@@ -90,11 +90,11 @@ namespace CMS.Services.Services
             {
                 FullName = candidateDTO.FullName,
                 Phone = candidateDTO.Phone,
-                PositionId = candidateDTO.PositionId,
+                //PositionId = candidateDTO.PositionId,
                 CompanyId =candidateDTO.CompanyId,
                 Experience = candidateDTO.Experience,
                 CVAttachmentId = candidateDTO.CVAttachmentId,
-                CountryId = candidateDTO.CountryId,
+                //CountryId = candidateDTO.CountryId,
                 CreatedBy =currentUser.Id,
                 CreatedOn=DateTime.Now
             };
@@ -110,11 +110,11 @@ namespace CMS.Services.Services
 
             existingCandidate.FullName = candidateDTO.FullName;
             existingCandidate.Phone = candidateDTO.Phone;
-            existingCandidate.PositionId = candidateDTO.PositionId;
+            //existingCandidate.PositionId = candidateDTO.PositionId;
             existingCandidate.CompanyId= candidateDTO.CompanyId;
             existingCandidate.Experience = candidateDTO.Experience;
             existingCandidate.CVAttachmentId = candidateDTO.CVAttachmentId;
-            existingCandidate.CountryId = candidateDTO.CountryId;
+            //existingCandidate.CountryId = candidateDTO.CountryId;
             existingCandidate.ModifiedOn = DateTime.Now;
             existingCandidate.ModifiedBy = currentUser.Id;
 

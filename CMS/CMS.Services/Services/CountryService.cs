@@ -183,7 +183,10 @@ namespace CMS.Services.Services
             return _repository.DoesCountryNameExist(name);
         }
 
-
+        public async Task<IEnumerable<Country>> GetAllCountriesAsync()
+        {
+            return await _repository.GetAllCountriesAsync();
+        }
 
     }
 }

@@ -33,11 +33,47 @@ namespace CMS.Services.Services
             _attachmentService = attachmentService;
         }
 
+        //public async Task<Result<PositionDTO>> Delete(int id)
+        //{
+        //    try
+        //    {
+        //        await _repository.Delete(id);
+        //        return Result<PositionDTO>.Success(null);
+
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        return Result<PositionDTO>.Failure(null, $"An error occurred while deleting the position {ex.InnerException.Message}");
+        //    }
+
+
+
+        //}
         public async Task<Result<PositionDTO>> Delete(int id)
         {
             try
             {
-                await _repository.Delete(id);
+                var pos = await _repository.GetById(id)
+;
+
+                if (pos != null)
+                {
+                    var attachmentToRemove = 0;
+                    if (pos.EvaluationId != null)
+                    {
+                        attachmentToRemove = (int)pos.EvaluationId;
+                    }
+
+                    await _repository.Delete(id)
+;
+                    if (attachmentToRemove != 0)
+                    {
+                        await _attachmentService.DeleteAttachmentAsync(attachmentToRemove);
+                    }
+
+                }
+
+
                 return Result<PositionDTO>.Success(null);
 
             }
