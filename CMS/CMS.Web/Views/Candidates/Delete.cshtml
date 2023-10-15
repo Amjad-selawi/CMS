@@ -14,7 +14,7 @@
             @Html.DisplayFor(model => model.FullName)
         </dd>
         <dt>
-            @Html.DisplayNameFor(model => model.Phone)
+            Phone Number
         </dt>
 
         <dd>
@@ -35,14 +35,33 @@
         <dd>
             @Html.DisplayFor(model => model.CountryName)
         </dd> *@
-      
- 
+
+        <dt>
+            Company Name
+        </dt>
+        <dd>
+            @Html.DisplayFor(model => model.CompanyName)
+        </dd>
         <dt>
             @Html.DisplayNameFor(model => model.Experience)
         </dt>
         <dd>
             @Html.DisplayFor(model => model.Experience)
         </dd>
+        @if (Model.CVAttachmentId != null)
+            {
+        <dt class="col-sm-2">CV Attachment:</dt>
+        <dd class="col-sm-10">
+            
+                <a asp-controller="Attachments" asp-action="Download" asp-route-id="@Model.CVAttachmentId">Download CV</a>
+           
+        </dd>
+        }
+        else
+        {
+            <dt class="col-sm-2">CV Attachment:</dt>
+            <dd class="col-sm-10">There is no CV for this candidate</dd>
+        }
       
     </dl>
 

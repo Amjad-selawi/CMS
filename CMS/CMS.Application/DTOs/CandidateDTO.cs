@@ -12,7 +12,8 @@ namespace CMS.Application.DTOs
         public string FullName { get; set; }
         [Required(ErrorMessage = "Phone is required.")]
         public int Phone { get; set; }
-        public int PositionId { get; set; }
+        //[Required(ErrorMessage = "DesiredPosition is required.")]
+        public int? PositionId { get; set; }
 
         public string Name { get; set; }
 
@@ -27,9 +28,23 @@ namespace CMS.Application.DTOs
         public string Experience { get; set; }
 
         public int? CVAttachmentId { get; set; }
-        public int CountryId { get; set; }
+       
+        //[Url(ErrorMessage = "Invalid LinkedIn URL.")]
+        //public string LinkedInUrl { get; set; }
+        public int? CountryId { get; set; }
         public string CountryName { get; set; }
         public List<InterviewsDTO> InterviewsDTO { get; set; }
+
+
+
+
+        public int? PositionName { get; set; }
+        public InterviewsDTO LastInterview { get; set; }
+        public string Status { get; set; }
+        public double? Score { get; set; }
+
+
+
 
 
 

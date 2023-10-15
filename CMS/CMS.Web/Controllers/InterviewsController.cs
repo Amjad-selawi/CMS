@@ -217,7 +217,7 @@ namespace CMS.Web.Controllers
                     {
                         await _notificationsService.CreateInterviewNotificationForInterviewerAsync(collection.Date,collection.CandidateId,collection.PositionId);
 
-                      
+
 
                         var interviewerEmail = await GetInterviewerEmail(collection.InterviewerId);
                         EmailDTOs emailModel = new EmailDTOs
@@ -226,10 +226,10 @@ namespace CMS.Web.Controllers
                             EmailBody = $"You have an interview scheduled on {collection.Date}. Please be prepared.",
                             Subject = "Interview Invitation"
                         };
-                        if (!string.IsNullOrEmpty(interviewerEmail))
-                        {
-                            await SendEmailToInterviewer(interviewerEmail, collection, emailModel);
-                        }
+                        //if (!string.IsNullOrEmpty(interviewerEmail))
+                        //{
+                        //    await SendEmailToInterviewer(interviewerEmail, collection, emailModel);
+                        //}
 
                         return RedirectToAction("Index");
                     }
@@ -405,15 +405,9 @@ namespace CMS.Web.Controllers
             if ((file == null || file.Length == 0) && User.IsInRole("Interviewer"))
             {
                 ModelState.AddModelError("AttachmentId", "Please choose a file to upload.");
-                //return View();
-                //validationErrors.Add( "Please choose a file to upload.");
+            
             }
-            //if (interviewsDTO.Notes == null)
-            //{
-            //    //ModelState.AddModelError("", "Please Add Notes.");
-            //    //return View();
-            //    ModelState.AddModelError("Notes", "Please add notes.");
-            //}
+         
 
             if(interviewsDTO.StatusId == 3 && interviewsDTO.Notes == null)
             {
@@ -421,19 +415,15 @@ namespace CMS.Web.Controllers
             }
             if (interviewsDTO.Score == null && User.IsInRole("Interviewer"))
             {
-                //ModelState.AddModelError("", "Please Add Score.");
-                //return View();
+               
                 ModelState.AddModelError("Score", "Please add score.");
 
-                //validationErrors.Add("Please Add Score.");
             }
             if (interviewsDTO.StatusId == null)
             {
-                //ModelState.AddModelError("", "Please Add Status.");
-                //return View();
+               
                 ModelState.AddModelError("StatusId", "Please select a status.");
 
-                //validationErrors.Add("Please select a Status.");
             }
             if (validationErrors.Count() > 0)
             {
@@ -462,6 +452,8 @@ namespace CMS.Web.Controllers
                 if (attachmentStream != null)
                 {
                     attachmentStream.Close();
+                    attachmentStream.Dispose(); // Dispose the stream to release the file
+                    AttachmentHelper.removeFile(file.FileName, _attachmentStoragePath);
                 }
                    
 
@@ -494,15 +486,15 @@ namespace CMS.Web.Controllers
 
 
 
-                            if (!string.IsNullOrEmpty(GMEmail))
-                            {
-                                await SendEmailToInterviewer(GMEmail, interviewsDTO, emailModel);
-                            }
+                            //if (!string.IsNullOrEmpty(GMEmail))
+                            //{
+                            //    await SendEmailToInterviewer(GMEmail, interviewsDTO, emailModel);
+                            //}
 
-                            if (!string.IsNullOrEmpty(HREmail))
-                            {
-                                await SendEmailToInterviewer(HREmail, interviewsDTO, emailModelToHR);
-                            }
+                            //if (!string.IsNullOrEmpty(HREmail))
+                            //{
+                            //    await SendEmailToInterviewer(HREmail, interviewsDTO, emailModelToHR);
+                            //}
 
                             return RedirectToAction(nameof(MyInterviews));
                         }
@@ -517,10 +509,10 @@ namespace CMS.Web.Controllers
                                 EmailBody = $"The first interview was rejected by {userName} .",
                                 Subject = "Interview Rejection"
                             };
-                            if (!string.IsNullOrEmpty(HREmail))
-                            {
-                                await SendEmailToInterviewer(HREmail, interviewsDTO, emailModel);
-                            }
+                            //if (!string.IsNullOrEmpty(HREmail))
+                            //{
+                            //    await SendEmailToInterviewer(HREmail, interviewsDTO, emailModel);
+                            //}
 
                             return RedirectToAction(nameof(MyInterviews));
                         }
@@ -566,10 +558,10 @@ namespace CMS.Web.Controllers
                             };
 
 
-                            if (!string.IsNullOrEmpty(HREmail))
-                            {
-                                await SendEmailToInterviewer(HREmail, interviewsDTO, emailModel);
-                            }
+                            //if (!string.IsNullOrEmpty(HREmail))
+                            //{
+                            //    await SendEmailToInterviewer(HREmail, interviewsDTO, emailModel);
+                            //}
 
                             return RedirectToAction(nameof(MyInterviews));
                         }
@@ -584,10 +576,10 @@ namespace CMS.Web.Controllers
                                 EmailBody = $"The second interview was rejected by {userName} .",
                                 Subject = "Interview Rejection"
                             };
-                            if (!string.IsNullOrEmpty(HREmail))
-                            {
-                                await SendEmailToInterviewer(HREmail, interviewsDTO, emailModel);
-                            }
+                            //if (!string.IsNullOrEmpty(HREmail))
+                            //{
+                            //    await SendEmailToInterviewer(HREmail, interviewsDTO, emailModel);
+                            //}
 
                             return RedirectToAction(nameof(MyInterviews));
                         }

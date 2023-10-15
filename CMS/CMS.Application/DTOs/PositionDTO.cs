@@ -24,5 +24,16 @@ namespace CMS.Application.DTOs
         public List<InterviewsDTO> InterviewsDTO { get; set; }
 
         public List<CandidateDTO> Candidates { get; set; }
+
+        public int? CountryId { get; set; }
+        public string CountryName { get; set; }
+
+
+
+
+
+
+
+
     }
 }

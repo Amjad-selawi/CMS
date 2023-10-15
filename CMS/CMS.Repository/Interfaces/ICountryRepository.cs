@@ -16,5 +16,6 @@ namespace CMS.Repository.Interfaces
         Task<List<Country>> GetAll();
 
         bool DoesCountryNameExist(string name);
+        Task<IEnumerable<Country>> GetAllCountriesAsync();
     }
 }

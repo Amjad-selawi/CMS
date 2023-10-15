@@ -133,5 +133,11 @@ namespace CMS.Repository.Implementation
             return _context.Countries.Any(x => x.Name == name);
         }
 
+
+        public async Task<IEnumerable<Country>> GetAllCountriesAsync()
+        {
+            return await _context.Countries.ToListAsync();
+        }
+
     }
 }
