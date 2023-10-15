@@ -104,16 +104,7 @@ namespace CMS.Repository.Implementation
             .CountAsync();
             return candidateCounts;
         }
-        public async Task<Dictionary<string, int>> CountCandidatesPerCountry()
-        {
-            var candidateCounts = await _dbContext.Candidates
-                .GroupBy(c => c.Country.Name) 
-                .Select(g => new { CountryName = g.Key, Count = g.Count() })
-                .ToListAsync();
-            var result = candidateCounts.ToDictionary(x => x.CountryName, x => x.Count);
-
-            return result;
-        }
+  
         public async Task<int> CountPendingAsync()
         {
             int candidateCounts = await _dbContext.Candidates

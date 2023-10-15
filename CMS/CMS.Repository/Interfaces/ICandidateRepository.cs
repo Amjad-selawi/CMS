@@ -21,7 +21,6 @@ namespace CMS.Repository.Interfaces
         Task<int> CountAcceptedAsync();
         Task<int> CountPendingAsync();
         Task<int> CountRejectedAsync();
-        Task<Dictionary<string, int>> CountCandidatesPerCountry();
         //Task<Dictionary<string, int>> CountCandidatesPerCompanyAsync();
     }
 }

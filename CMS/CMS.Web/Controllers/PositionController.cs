@@ -59,8 +59,11 @@ namespace CMS.Web.Controllers
                 if (attachmentStream != null)
                 {
                     attachmentStream.Close();
+                    attachmentStream.Dispose();
+                    AttachmentHelper.removeFile(file.FileName, _attachmentStoragePath);
+
                 }
-               
+
 
                 if (result.IsSuccess)
                 {
