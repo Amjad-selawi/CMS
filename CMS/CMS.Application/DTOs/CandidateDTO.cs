@@ -22,10 +22,6 @@ namespace CMS.Application.DTOs
         public int CompanyId { set; get; }
         public string CompanyName { set; get; }
 
-        //[Required(ErrorMessage = "Email is required.")]
-
-        //public string Email { get; set; }
-        //public string Address { get; set; }
 
         [Required(ErrorMessage = "Experience is required.")]
         [RegularExpression(@"^[0-9]+$", ErrorMessage = "Experience must contain only numeric values.")]

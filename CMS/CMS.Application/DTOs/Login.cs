@@ -8,7 +8,7 @@ namespace CMS.Application.DTOs
 {
     public class Login : IdentityUser
     {
-
+        //Updated class
         public string LoginId { get; set; }
         [Required(ErrorMessage = "User Email is required.")]
         public string UserEmail { get; set; }

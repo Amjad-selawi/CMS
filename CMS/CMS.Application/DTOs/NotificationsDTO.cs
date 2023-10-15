@@ -7,7 +7,7 @@ namespace CMS.Application.DTOs
 {
     public class NotificationsDTO
     {
-        
+        //Updated class
         public int NotificationsId { get; set; }
 
         public string ReceiverId { get; set; }

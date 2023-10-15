@@ -8,7 +8,7 @@ using System.Text;
 namespace CMS.Application.DTOs
 {
     public class PositionDTO
-    {
+    {//Updated class
         public int Id { set; get; }
         [Required]
         public string Name { set; get; }

@@ -9,7 +9,7 @@ namespace CMS.Application.DTOs
 {
     public class InterviewsDTO
     {
-        
+        //Updated class
         public int InterviewsId { get; set; }
 
         [Range(0, 5, ErrorMessage = "Score must be between 0 and 5.")]

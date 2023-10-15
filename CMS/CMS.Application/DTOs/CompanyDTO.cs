@@ -6,7 +6,7 @@ using System.Text;
 namespace CMS.Application.DTOs
 {
     public class CompanyDTO
-    {
+    {//Updated class
         public int Id { get; set; }
 
         [Required(ErrorMessage = "The Name field is required.")]

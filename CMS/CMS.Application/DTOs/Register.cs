@@ -8,7 +8,7 @@ namespace CMS.Application.DTOs
     public class Register
     {
         public string RegisterrId { get; set; }
-
+        //Updated class
         [Required]
         [DataType(DataType.EmailAddress)]
         public string Email { get; set; }

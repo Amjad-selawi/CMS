@@ -5,7 +5,7 @@ using System.Text;
 namespace CMS.Application.DTOs
 {
     public class PerformanceReportDTO
-    {
+    {//Updated class
         public int NumberOfCandidates { get; set; }
         public int NumberOfAccepted { get; set; }
         public int NumberOfRejected { get; set; }
