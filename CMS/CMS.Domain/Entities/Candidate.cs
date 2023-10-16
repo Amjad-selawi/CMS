@@ -35,8 +35,8 @@ namespace CMS.Domain.Entities
         //public string Address { get; set; }
 
         [Required(ErrorMessage = "Experience is required.")]
-        [RegularExpression(@"^[0-9]+$", ErrorMessage = "Experience must contain only numeric values.")]
-        public string Experience { get; set; }
+        [RegularExpression(@"^(?:0(\.\d+)?|[1-9]\d*(\.\d+)?)$", ErrorMessage = "Experience must be a non-negative numeric value.")]
+        public decimal Experience { get; set; }
 
         public int? CVAttachmentId { get; set; }
         public virtual Attachment CV { get; set; }

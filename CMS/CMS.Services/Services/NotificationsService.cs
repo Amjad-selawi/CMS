@@ -293,20 +293,16 @@ namespace CMS.Services.Services
 
 
 
-        public async Task CreateNotificationForGeneralManagerAsync(int status, string notes, int CandidateId , int positionId)
+        public async Task CreateNotificationForGeneralManagerAsync(int status, string notes, int CandidateId, int positionId)
         {
             var managerId = "";
             var HrId = "";
 
             var manager = await _roleManager.FindByNameAsync("General Manager");
-
             managerId = (await _userManager.GetUsersInRoleAsync(manager.Name)).FirstOrDefault().Id;
-
 
             var Hr = await _roleManager.FindByNameAsync("HR Manager");
             HrId = (await _userManager.GetUsersInRoleAsync(Hr.Name)).FirstOrDefault().Id;
-
-
 
             string userName = GetLoggedInUserName();
             var currentUser = await _userManager.GetUserAsync(_httpContextAccessor.HttpContext.User);
@@ -314,47 +310,49 @@ namespace CMS.Services.Services
             var candidateName = await GetCandidateName(CandidateId);
             var positionName = await GetPositionName(positionId);
 
-            // Create the notification.
+            // Create the notification for the manager.
             var notification = new Notifications
             {
                 SendDate = DateTime.Now,
-                //ReceiverId = managerId,
+                
                 IsReceived = true,
                 IsRead = false,
                 Title = "",
                 BodyDesc = notes,
-                CreatedBy=currentUser.Id,
-                CreatedOn=DateTime.Now
+                CreatedBy = currentUser.Id,
+                CreatedOn = DateTime.Now
             };
 
             if (status == 2)
             {
-                notification.Title = $"You have a Second Interview with <span style=\"color: red;\">{candidateName}</span> for the <span style=\"color: red;\">{positionName}</span> position. Get ready to shine! 💼🚀";
+                notification.Title = $"You have a Second Interview with {candidateName} for the {positionName} position. Get ready to shine! 💼🚀";
                 notification.ReceiverId = managerId;
             }
-
-            //if (status == 2)
-            //{
-            //    notification.ReceiverId = $"{managerId},{HrId}";
-
-            //    if (notification.ReceiverId.Contains(HrId))
-            //    {
-            //        notification.Title = $"{candidateName} Approved by {userName} for position {positionName}";
-            //    }
-            //    else if (notification.ReceiverId.Contains(managerId))
-            //    {
-            //        notification.Title = $"You have a Second Interview with <span style=\"color: red;\">{candidateName}</span> for the <span style=\"color: red;\">{positionName}</span> position. Get ready to shine! 💼🚀";
-            //    }
-            //}
-
             else
             {
                 notification.Title = $"{candidateName} Rejected by {userName} for position {positionName}";
                 notification.ReceiverId = HrId;
             }
 
-
             await _notificationsRepository.Create(notification);
+
+          
+            if (status == 2)  
+            {
+                var hrNotification = new Notifications
+                {
+                    ReceiverId = HrId,
+                    SendDate = DateTime.Now,
+                    IsReceived = true,
+                    IsRead = false,
+                    Title = $"{candidateName} Approved by {userName} for position {positionName}",
+                    BodyDesc = $"The candidate has been approved by the {userName} for the {positionName} position.",
+                    CreatedBy = currentUser.Id,
+                    CreatedOn = DateTime.Now
+                };
+
+                await _notificationsRepository.Create(hrNotification);
+            }
         }
 
 
@@ -380,8 +378,8 @@ namespace CMS.Services.Services
                 SendDate = DateTime.Now,
                 IsReceived = true,
                 IsRead = false,
-                Title = $"New interview invitation",
-                BodyDesc = $"You've been selected for a First Interview with <span style=\"color: red;\">{candidateName}</span> for the <span style=\"color: red;\">{positionName}</span> position on <span style=\"color: red;\">{interviewDate}</span>. Get ready to shine! 💼🚀",
+                Title = $"New interview invitation for {candidateName}",
+                BodyDesc = $"You've been selected for a First Interview with {candidateName} for the {positionName} position on {interviewDate}. Get ready to shine! 💼🚀",
                 CreatedBy=currentUser.Id,
                 CreatedOn=DateTime.Now
             };
@@ -421,7 +419,7 @@ namespace CMS.Services.Services
 
             if (status == 2)
             {
-                notification.Title = $"You have a Third Interview with <span style=\"color: red;\">{candidateName}</span> for the <span style=\"color: red;\">{positionName}</span> position. Get ready to shine! 💼🚀 ";
+                notification.Title = $"You have a Third Interview with {candidateName} for the {positionName} position. Get ready to shine! 💼🚀 ";
             }
             else
             {
