@@ -179,6 +179,22 @@ namespace CMS.Web.Controllers
             }
         }
 
+        public async Task<ActionResult> ShowHistory(int id)
+        {
+            var result =await _interviewsService.ShowHistory(id);
+
+            if (result.IsSuccess)
+            {
+                var interviewsDTOs = result.Value;
+                return View(interviewsDTOs);
+            }
+            else
+            {
+                ModelState.AddModelError("", result.Error);
+                return View();
+            }
+        }
+
         //[Authorize(Roles = "General Manager")]
         // GET: InterviewsController/Create
         public async Task<ActionResult> Create()
@@ -406,6 +422,11 @@ namespace CMS.Web.Controllers
             {
                 ModelState.AddModelError("AttachmentId", "Please choose a file to upload.");
             
+            }
+
+            if (interviewsDTO.ActualExperience == null)
+            {
+                ModelState.AddModelError("ActualExperience", "Please add the actual experience.");
             }
          
 

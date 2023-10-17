@@ -14,6 +14,7 @@ namespace CMS.Repository.Interfaces
         Task<Interviews> GetById(int id);
         Task<Interviews> GetByIdForEdit(int id);
         Task<List<Interviews>> GetAll();
+        
         Task<List<Interviews>> GetCurrentInterviews(string id);
 
         Task<string> GetInterviewerEmail(string interviewerId);

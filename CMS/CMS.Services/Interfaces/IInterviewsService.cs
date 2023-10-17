@@ -23,6 +23,7 @@ namespace CMS.Services.Interfaces
         Task<string> GetInterviewerName(string id);
         Task<string> GetInterviewerRole(string id);
 
+        Task <Result<List<InterviewsDTO>>> ShowHistory(int id);
 
 
     }

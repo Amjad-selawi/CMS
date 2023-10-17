@@ -14,6 +14,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
+using System.Runtime.InteropServices;
 using System.Runtime.InteropServices.WindowsRuntime;
 using System.Threading.Tasks;
 
@@ -126,6 +127,33 @@ namespace CMS.Services.Services
             }
         }
 
+       public async Task<Result<List<InterviewsDTO>>>ShowHistory(int id){
+
+            
+
+            List<InterviewsDTO> interviewsDTOs = new List<InterviewsDTO>();
+            try
+            {
+                var Result = await GetById(id);
+                var interview = Result.Value;
+                while (interview.ParentId != null)
+                {
+                    var result = await GetById((int)interview.ParentId);
+                    interview= result.Value;
+                    interviewsDTOs.Add(result.Value);
+                }
+                return Result<List<InterviewsDTO>>.Success(interviewsDTOs);
+
+            }
+            catch (Exception ex)
+            {
+                return Result<List<InterviewsDTO>>.Failure(null, $"Unable to get interview History: {ex.Message}");
+            }
+           
+
+
+        }
+
         public async Task<Result<List<InterviewsDTO>>> GetAll()
         {
             try
@@ -158,8 +186,10 @@ namespace CMS.Services.Services
                         InterviewerName = userName,
                         CandidateId = c.CandidateId,
                         FullName = c.Candidate.FullName,
+                        CandidateCVAttachmentId=c.Candidate.CVAttachmentId,
                         AttachmentId = c.AttachmentId,
-                        InterviewerRole = interviewerRole
+                        InterviewerRole = interviewerRole,
+                        ActualExperience= c.ActualExperience,
 
                     };
                     interviewsDTO.Add(com);
@@ -203,8 +233,10 @@ namespace CMS.Services.Services
                     InterviewerName = userName,
                     CandidateId = interview.CandidateId,
                     FullName = interview.Candidate.FullName,
+                    CandidateCVAttachmentId=interview.Candidate.CVAttachmentId,
                     AttachmentId = interview.AttachmentId,
-                    InterviewerRole = interviewerRole
+                    InterviewerRole = interviewerRole,
+                    ActualExperience = interview.ActualExperience,
                 };
                 return Result<InterviewsDTO>.Success(interviewDTO);
             }
@@ -309,6 +341,7 @@ namespace CMS.Services.Services
                 interview.StatusId = (int)completedDTO.StatusId;
                 interview.Score = completedDTO.Score;
                 interview.Notes = completedDTO.Notes;
+                interview.ActualExperience = completedDTO.ActualExperience;
                 interview.AttachmentId = completedDTO.AttachmentId;
                 interview.ModifiedBy = currentUser.Id;
                 interview.ModifiedOn = DateTime.Now;
@@ -388,9 +421,11 @@ namespace CMS.Services.Services
                         ParentId = i.ParentId,
                         CandidateId = i.CandidateId,
                         FullName = i.Candidate.FullName,
+                        CandidateCVAttachmentId=i.Candidate.CVAttachmentId,
                         AttachmentId = i.AttachmentId,
                         modifiedBy = i.ModifiedBy,
                         isUpdated = i.IsUpdated,
+                        ActualExperience=i.ActualExperience
 
                     });
 

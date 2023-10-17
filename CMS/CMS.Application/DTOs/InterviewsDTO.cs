@@ -47,5 +47,9 @@ namespace CMS.Application.DTOs
         public string? Notes { get; set; }
 
         public string? InterviewerRole { get; set; }
+
+       
+        [RegularExpression(@"^(?:0(\.\d+)?|[1-9]\d*(\.\d+)?)$", ErrorMessage = "Experience must be a non-negative numeric value.")]
+        public double? ActualExperience { get; set; }
     }
 }
