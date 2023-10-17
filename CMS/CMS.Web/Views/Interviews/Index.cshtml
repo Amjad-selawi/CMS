@@ -36,6 +36,7 @@
                             <th>Status</th>
                             <th hidden>Parent ID</th>
                             <th>Score</th>
+                            <th>Actual Experience</th>
                             <th hidden>Notes</th>
                             <th>Evaluation</th>
                             <th>Actions</th>
@@ -53,6 +54,7 @@
                                     <td>@item.StatusName</td>
                                     <td hidden>@item.ParentId</td>
                                     <td>@item.Score</td>
+                                    <td>@item.ActualExperience</td>
                                     <td hidden>@item.Notes</td>
                                     @if (item.AttachmentId != null)
                                     {
@@ -66,10 +68,11 @@
                                         @if (item.InterviewerRole == "Interviewer" && item.StatusName == StatusCode.GetName("PND"))
                                         {
                                             <a class="bx bxs-edit-alt" style="font-size:x-large" asp-action="Edit" asp-route-id="@item.InterviewsId" asp-route-idd="@item.StatusId"></a>
+                                            <a class="ri-delete-bin-2-line text-danger" style="font-size:x-large" asp-action="Delete" asp-route-id="@item.InterviewsId"></a>
                                         }
 
-                                        <a class="bx bx-detail" style="font-size:x-large" asp-action="Details" asp-route-id="@item.InterviewsId" asp-route-previousAction="Index"></a> |
-                                        <a class="ri-delete-bin-2-line text-danger" style="font-size:x-large" asp-action="Delete" asp-route-id="@item.InterviewsId"></a>
+                                        <a class="bx bx-detail" style="font-size:x-large" asp-action="Details" asp-route-id="@item.InterviewsId" asp-route-previousAction="Index"></a> 
+                                       
                                     </td>
 
                                 </tr>

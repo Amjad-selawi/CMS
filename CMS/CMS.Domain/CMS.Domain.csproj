@@ -23,6 +23,8 @@
     <Compile Remove="Migrations\20231009185620_makePositionIdNullable.Designer.cs" />
     <Compile Remove="Migrations\20231012112333_removeNullableFromCvAttachmentInCandidate.cs" />
     <Compile Remove="Migrations\20231012112333_removeNullableFromCvAttachmentInCandidate.Designer.cs" />
+    <Compile Remove="Migrations\20231016103207_ActualExperienceNullable.cs" />
+    <Compile Remove="Migrations\20231016103207_ActualExperienceNullable.Designer.cs" />
   </ItemGroup>
 
 	<ItemGroup>

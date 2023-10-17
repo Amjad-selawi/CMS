@@ -42,6 +42,7 @@
                             {
                                 <th>Score</th>
                             }
+                            <th>Actual Experience</th>
                           
                             <th>Status</th>
                             <th hidden>Notes</th>
@@ -49,8 +50,10 @@
                             {
                                 <th>Evaluation</th>
                             }
+                            <th>CV</th>
                             <th>Details</th>
                             <th>Add Result</th>
+                            <th> History</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -66,19 +69,29 @@
                                 {
                                     <td>@item.Score</td>
                                 }
+                                <td>@item.ActualExperience</td>
                                 <td>@item.StatusName</td>
                                 <td hidden>@item.Notes</td>
                                 @if (User.IsInRole("Interviewer"))
                                 {
                                     @if (item.AttachmentId != null)
                                     {
-                                        <td><a asp-controller="Attachments" asp-action="Download" asp-route-id="@item.AttachmentId">Download evaluation</a></td>
+                                        <td><a asp-controller="Attachments" asp-action="Download" asp-route-id="@item.AttachmentId">Download</a></td>
                                     }
                                     else
                                     {
                                         <td> </td>
                                     }
                                 }
+                                @if (item.CandidateCVAttachmentId != null)
+                                {
+                                    <td><a asp-controller="Attachments" asp-action="Download" asp-route-id="@item.CandidateCVAttachmentId">Download CV</a></td>
+                                }
+                                else
+                                {
+                                    <td></td>
+                                }
+                                
                                 
                                 <td>
                                     <a class="bx bx-detail" style="font-size:x-large" asp-action="Details" asp-route-id="@item.InterviewsId" asp-route-previousAction="MyInterviews"></a> 
@@ -100,8 +113,9 @@
                                 {
                                     <td>ADDED</td>
                                 }
+                                   
                                 }
-
+                                <td><a class="bx bx-history" style="font-size:x-large" asp-action="ShowHistory" asp-route-id="@item.InterviewsId"></a></td>
                             </tr>
                         }
                     </tbody>
