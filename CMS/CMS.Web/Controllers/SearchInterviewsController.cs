@@ -48,14 +48,21 @@ namespace CMS.Web.Controllers
 
 
 
-        public async Task<ActionResult> Index(string positionFilter, int? scoreFilter, int? statusFilter, string candidateFilter, string interviewerFilter, DateTime? fromDate, DateTime? toDate)
+        public async Task<ActionResult> Index(string positionFilter, int? scoreFilter, int? statusFilter, string candidateFilter, string interviewerFilter, DateTime? fromDate, DateTime? toDate, string export)
         {
+            ViewBag.positionFilter = positionFilter;
+            ViewBag.scoreFilter = scoreFilter;
+            ViewBag.statusFilter = statusFilter;
+            ViewBag.candidateFilter = candidateFilter;
+            ViewBag.interviewerFilter = interviewerFilter;
+            ViewBag.fromDate = fromDate;
+            ViewBag.toDate = toDate;
+
             if (User.IsInRole("Admin") || User.IsInRole("HR Manager"))
             {
                 var positionsDTO = await _positionService.GetAll();
                 ViewBag.PositionList = new SelectList(positionsDTO.Value, "Id", "Name");
 
-                // Get all statuses
                 var statusesResult = await _StatusService.GetAll();
                 if (!statusesResult.IsSuccess)
                 {
@@ -74,107 +81,17 @@ namespace CMS.Web.Controllers
                 var interviewersDTO = await _searchInterviewsService.GetInterviewers();
                 ViewBag.InterviewerList = new SelectList(interviewersDTO, "Id", "Name");
 
-                // Get all interviews
-                var interviewsResult = await _searchInterviewsService.GetAll();
 
-                if (interviewsResult.IsSuccess)
+                if (!string.IsNullOrEmpty(export) && export == "excel")
                 {
-                    var interviews = interviewsResult.Value;
-
-
-
-                    foreach (var interview in interviews)
-                    {
-                        var candidate = await _candidateService.GetCandidateByIdAsync(interview.CandidateId);
-
-                        if (candidate != null && candidate.CVAttachmentId != null)
-                        {
-                            interview.CandidateCVAttachmentId = candidate.CVAttachmentId.Value;
-                        }
-                    }
-
-
-
-                    int positionId = Convert.ToInt32(positionFilter);
-                    int statusId = Convert.ToInt32(statusFilter);
-
-                    var latestInterviews = interviews
-                .GroupBy(i => i.CandidateId)
-                .Select(group => group.OrderByDescending(i => i.InterviewsId).FirstOrDefault())
-                .ToList();
-
-                    // If a position filter is selected, filter the interviews
-                    if (!string.IsNullOrEmpty(positionFilter) && positionFilter != "All Positions")
-                    {
-                        latestInterviews = latestInterviews
-                            .Where(i => i.PositionId == positionId)
-                            .ToList(); // Materialize the filtered interviews
-                    }
-
-                    // Filter by score if the scoreFilter parameter is provided
-                    if (scoreFilter.HasValue)
-                    {
-                        latestInterviews = latestInterviews
-                            .Where(i => i.Score == scoreFilter.Value)
-                            .ToList(); // Materialize the filtered interviews
-                    }
-
-                    // Filter by status if the statusFilter parameter is provided
-                    if (statusFilter.HasValue && statusFilter.Value > 0)
-                    {
-                        latestInterviews = latestInterviews
-                            .Where(i => i.StatusId == statusFilter.Value)
-                            .ToList(); // Materialize the filtered interviews
-                    }
-
-                    // Filter by candidate if the candidateFilter parameter is provided
-                    if (!string.IsNullOrEmpty(candidateFilter))
-                    {
-                        latestInterviews = latestInterviews
-                   .Where(i => i.FullName.Contains(candidateFilter, StringComparison.OrdinalIgnoreCase))
-                   .ToList();
-                        //latestInterviews = latestInterviews
-                        //   .GroupBy(i => i.CandidateId)
-                        //   .Select(group => group.OrderByDescending(i => i.InterviewsId).FirstOrDefault())
-                        //   .Where(i => i.FullName.Contains(candidateFilter, StringComparison.OrdinalIgnoreCase))
-                        //   .ToList();
-
-
-                    }
-
-                    // Filter by interviewer if the interviewerFilter parameter is provided
-                    if (!string.IsNullOrEmpty(interviewerFilter) && interviewerFilter != "All Interviewers")
-                    {
-                        latestInterviews = latestInterviews
-                            .Where(i => i.InterviewerId == interviewerFilter)
-                            .ToList(); // Materialize the filtered interviews
-                    }
-
-                    // Apply date filtering
-                    if (fromDate.HasValue && toDate.HasValue)
-                    {
-                        toDate = toDate.Value.AddDays(1);
-
-                        latestInterviews = latestInterviews
-                            .Where(i => i.Date >= fromDate.Value && i.Date <= toDate.Value)
-                            .OrderBy(i => i.Date)
-                            .ToList(); // Materialize the filtered interviews
-                    }
-
-                    if (Request.Query["export"].ToString() == "excel")
-                    {
-                        // Export data to Excel using the filtered data
-                        var excelData = GenerateExcelFile(latestInterviews);
-
-                        return File(excelData, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", "Interviews.xlsx");
-                    }
-
-                    return View(latestInterviews);
+                    var filteredInterviews = await ApplyFiltersAndRetrieveData(positionFilter, scoreFilter, statusFilter, candidateFilter, interviewerFilter, fromDate, toDate);
+                    var excelData = GenerateExcelFile(filteredInterviews);
+                    return File(excelData, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", "Interviews.xlsx");
                 }
                 else
                 {
-                    ModelState.AddModelError("", interviewsResult.Error);
-                    return View(new List<InterviewsDTO>()); // Return an empty list if there was an error
+                    var filteredInterviews = await ApplyFiltersAndRetrieveData(positionFilter, scoreFilter, statusFilter, candidateFilter, interviewerFilter, fromDate, toDate);
+                    return View(filteredInterviews);
                 }
             }
             else
@@ -182,6 +99,90 @@ namespace CMS.Web.Controllers
                 return View("AccessDenied");
             }
         }
+
+        private async Task<IEnumerable<InterviewsDTO>> ApplyFiltersAndRetrieveData(string positionFilter, int? scoreFilter, int? statusFilter, string candidateFilter, string interviewerFilter, DateTime? fromDate, DateTime? toDate)
+        {
+            var interviewsResult = await _searchInterviewsService.GetAll();
+
+            if (!interviewsResult.IsSuccess)
+            {
+                ModelState.AddModelError("", interviewsResult.Error);
+                return new List<InterviewsDTO>();
+            }
+
+            var interviews = interviewsResult.Value;
+
+            // Apply your filters to the data
+            int positionId = Convert.ToInt32(positionFilter);
+            int statusId = Convert.ToInt32(statusFilter);
+
+            var filteredInterviews = interviews
+                .GroupBy(i => i.CandidateId)
+                .Select(group => group.OrderByDescending(i => i.InterviewsId).FirstOrDefault())
+                .ToList();
+
+            // If a position filter is selected, filter the interviews
+            if (!string.IsNullOrEmpty(positionFilter) && positionFilter != "All Positions")
+            {
+                filteredInterviews = filteredInterviews
+                    .Where(i => i.PositionId == positionId)
+                    .ToList();
+            }
+
+            // Filter by score if the scoreFilter parameter is provided
+            if (scoreFilter.HasValue)
+            {
+                filteredInterviews = filteredInterviews
+                    .Where(i => i.Score == scoreFilter.Value)
+                    .ToList();
+            }
+
+            // Filter by status if the statusFilter parameter is provided
+            if (statusFilter.HasValue && statusFilter.Value > 0)
+            {
+                filteredInterviews = filteredInterviews
+                    .Where(i => i.StatusId == statusFilter.Value)
+                    .ToList();
+            }
+
+            // Filter by candidate if the candidateFilter parameter is provided
+            if (!string.IsNullOrEmpty(candidateFilter))
+            {
+                filteredInterviews = filteredInterviews
+                    .Where(i => i.FullName.Contains(candidateFilter, StringComparison.OrdinalIgnoreCase))
+                    .ToList();
+            }
+
+            // Filter by interviewer if the interviewerFilter parameter is provided
+            if (!string.IsNullOrEmpty(interviewerFilter) && interviewerFilter != "All Interviewers")
+            {
+                filteredInterviews = filteredInterviews
+                    .Where(i => i.InterviewerId == interviewerFilter)
+                    .ToList();
+            }
+
+            // Apply date filtering
+            if (fromDate.HasValue && toDate.HasValue)
+            {
+                toDate = toDate.Value.AddDays(1);
+
+                filteredInterviews = filteredInterviews
+                    .Where(i => i.Date >= fromDate.Value && i.Date <= toDate.Value)
+                    .OrderBy(i => i.Date)
+                    .ToList();
+            }
+
+            return filteredInterviews;
+        }
+
+
+        public async Task<ActionResult> ExportFilteredData(string positionFilter, int? scoreFilter, int? statusFilter, string candidateFilter, string interviewerFilter, DateTime? fromDate, DateTime? toDate)
+        {
+            var filteredInterviews = await ApplyFiltersAndRetrieveData(positionFilter, scoreFilter, statusFilter, candidateFilter, interviewerFilter, fromDate, toDate);
+            var excelData = GenerateExcelFile(filteredInterviews);
+            return File(excelData, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", "FilteredInterviews.xlsx");
+        }
+
 
 
         private byte[] GenerateExcelFile(IEnumerable<InterviewsDTO> data)

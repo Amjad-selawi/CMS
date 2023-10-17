@@ -93,16 +93,11 @@ namespace CMS.Repository.Implementation
         }
 
 
-        public async Task<List<Notifications>> GetSpacificNotificationsforInterviewer()
+        public async Task<List<Notifications>> GetSpacificNotificationsforInterviewer(string interviewerId)
         {
-            var interviewerId = "";
-
-            var interviewer = await _roleManager.FindByNameAsync("Interviewer");
-
-            interviewerId = (await _userManager.GetUsersInRoleAsync(interviewer.Name)).FirstOrDefault().Id;
-
-            return await Db.Notifications.Where(x => x.ReceiverId == interviewerId).ToListAsync();//InterviewerId
+            return await Db.Notifications.Where(x => x.ReceiverId == interviewerId).ToListAsync();
         }
+
 
     }
 }

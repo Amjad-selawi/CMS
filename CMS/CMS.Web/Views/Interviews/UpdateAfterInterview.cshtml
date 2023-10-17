@@ -15,7 +15,7 @@
     {
         <div class="form-group">
             <label asp-for="Score">Score out of 5:</label>
-            <input asp-for="Score" class="form-control" />
+            <input style="width: 30%;" asp-for="Score" class="form-control" />
             <span asp-validation-for="Score" class="text-danger"></span>
         </div>
     }
@@ -23,13 +23,13 @@
 
     <div class="form-group" style="margin-top: 15px;">
         <label asp-for="Notes">Notes:</label>
-        <textarea asp-for="Notes" class="form-control"></textarea>
+        <textarea style="width: 30%;" asp-for="Notes" class="form-control"></textarea>
         <span asp-validation-for="Notes" class="text-danger"></span>
     </div>
 
     <div class="form-group" style="margin-top: 15px;">
         <label asp-for="ActualExperience">Actual Experience:</label>
-        <textarea asp-for="ActualExperience" class="form-control"></textarea>
+        <textarea style="width: 30%;" asp-for="ActualExperience" class="form-control"></textarea>
         <span asp-validation-for="ActualExperience" class="text-danger"></span>
     </div>
 
@@ -43,7 +43,7 @@
 
             </select>*@
 
-            <select asp-for="StatusId" class="form-control">
+            <select style="width: 30%;" asp-for="StatusId" class="form-control">
                 <option value="">Select a Status</option>
                 @foreach (var sta in ViewBag.StatusDTOs)
                 {
@@ -93,8 +93,8 @@
     }
   <p>
         <div class="form-group text-end">
-            <a class="btn btn-secondary" asp-action="MyInterviews">Back to Interview List</a>
             <button type="submit" class="btn btn-primary">Save</button>
+            <a class="btn btn-secondary" asp-action="MyInterviews">Back to List</a>
 
         </div>
   </p>

@@ -7,7 +7,7 @@ using System.Text;
 
 namespace CMS.Domain.Entities
 {
-    public class Candidate:BaseEntity
+    public class Candidate : BaseEntity
     {
 
         public int Id { get; set; }
@@ -35,8 +35,8 @@ namespace CMS.Domain.Entities
         //public string Address { get; set; }
 
         [Required(ErrorMessage = "Experience is required.")]
-        [RegularExpression(@"^(?:0(\.\d+)?|[1-9]\d*(\.\d+)?)$", ErrorMessage = "Experience must be a non-negative numeric value.")]
-        public decimal Experience { get; set; }
+        [RegularExpression(@"^(?:\d{1,2}(\.\d{1})?)$", ErrorMessage = "Experience must be a non-negative numeric value with up to 1 decimal place.")]
+        public double Experience { get; set; }
 
         public int? CVAttachmentId { get; set; }
         public virtual Attachment CV { get; set; }

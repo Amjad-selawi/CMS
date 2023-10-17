@@ -59,7 +59,10 @@ namespace CMS.Web.Controllers
 
         public async Task<ActionResult> IndexInterviewernotification()
         {
-            var notifications = await _notificationsService.GetNotificationsForInterviewers();
+            var userId = _userManager.GetUserId(User);
+
+            var notifications = await _notificationsService.GetNotificationsForInterviewers(userId);
+
             return View(notifications);
         }
 
@@ -178,7 +181,10 @@ namespace CMS.Web.Controllers
 
         public async Task<IActionResult> GetNotificationsForInterviewers()
         {
-            var notifications = await _notificationsService.GetNotificationsForInterviewers();
+            var userId = _userManager.GetUserId(User);
+
+            var notifications = await _notificationsService.GetNotificationsForInterviewers(userId);
+
             return Json(notifications);
         }
 

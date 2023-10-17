@@ -235,20 +235,10 @@ namespace CMS.Services.Services
 
 
 
-        public async Task<IEnumerable<NotificationsDTO>> GetNotificationsForInterviewers()
+        public async Task<IEnumerable<NotificationsDTO>> GetNotificationsForInterviewers(string interviewerId)
         {
-
-            var interviewerId = "";
-
-            var interviewer = await _roleManager.FindByNameAsync("Interviewer");
-
-            interviewerId = (await _userManager.GetUsersInRoleAsync(interviewer.Name)).FirstOrDefault().Id;
-
-
-
-            var notifications = await _notificationsRepository.GetSpacificNotificationsforInterviewer();
+            var notifications = await _notificationsRepository.GetSpacificNotificationsforInterviewer(interviewerId);
             var notificationsDTOList = notifications
-                .Where(notification => notification.ReceiverId == interviewerId)//InterviewerId
                 .Select(notification => new NotificationsDTO
                 {
                     NotificationsId = notification.NotificationsId,
@@ -359,30 +349,32 @@ namespace CMS.Services.Services
 
 
 
-        public async Task CreateInterviewNotificationForInterviewerAsync(DateTime interviewDate , int CandidateId ,int positionId)
+        public async Task CreateInterviewNotificationForInterviewerAsync(DateTime interviewDate, int candidateId, int positionId, string selectedInterviewerId, bool isCanceled)
         {
-
-            var interviewerId = "";
-
-            var interviewer = await _roleManager.FindByNameAsync("Interviewer");
-
-            interviewerId = (await _userManager.GetUsersInRoleAsync(interviewer.Name)).FirstOrDefault().Id;
             var currentUser = await _userManager.GetUserAsync(_httpContextAccessor.HttpContext.User);
-
-            var candidateName = await GetCandidateName(CandidateId);
+            var candidateName = await GetCandidateName(candidateId);
             var positionName = await GetPositionName(positionId);
 
             var notification = new Notifications
             {
-                ReceiverId = interviewerId,
+                ReceiverId = selectedInterviewerId,
                 SendDate = DateTime.Now,
                 IsReceived = true,
                 IsRead = false,
-                Title = $"New interview invitation for {candidateName}",
-                BodyDesc = $"You've been selected for a First Interview with {candidateName} for the {positionName} position on {interviewDate}. Get ready to shine! 💼🚀",
-                CreatedBy=currentUser.Id,
-                CreatedOn=DateTime.Now
+                CreatedBy = currentUser.Id,
+                CreatedOn = DateTime.Now
             };
+
+            if (isCanceled)
+            {
+                notification.Title = $"Interview Cancellation for {candidateName}";
+                notification.BodyDesc = $"The interview with {candidateName} for the {positionName} position, scheduled on {interviewDate}, has been canceled by HR.";
+            }
+            else
+            {
+                notification.Title = $"New interview invitation for {candidateName}";
+                notification.BodyDesc = $"You've been selected for a First Interview with {candidateName} for the {positionName} position on {interviewDate}. Get ready to shine! 💼🚀";
+            }
 
             await _notificationsRepository.Create(notification);
         }
@@ -429,6 +421,30 @@ namespace CMS.Services.Services
             await _notificationsRepository.Create(notification);
         }
 
+
+
+
+
+
+        public async Task CreateNotificationForInterviewer(int CandidateId, string selectedInterviewerId)
+        {
+            var currentUser = await _userManager.GetUserAsync(_httpContextAccessor.HttpContext.User);
+            var candidateName = await GetCandidateName(CandidateId);
+
+            var notification = new Notifications
+            {
+                ReceiverId = selectedInterviewerId,
+                SendDate = DateTime.Now,
+                IsReceived = true,
+                IsRead = false,
+                Title = $"Your interview with {candidateName} cancelled",
+                BodyDesc = $"The HR has rejected this candidate for some reasons, so you don't have an interview for {candidateName}.",
+                CreatedBy = currentUser.Id,
+                CreatedOn = DateTime.Now
+            };
+
+            await _notificationsRepository.Create(notification);
+        }
 
 
         public string GetLoggedInUserName()

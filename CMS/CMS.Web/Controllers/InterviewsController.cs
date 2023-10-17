@@ -25,6 +25,7 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.UI.Services;
 using Habanero.Util;
 using CMS.Repository.Interfaces;
+using Hangfire;
 
 namespace CMS.Web.Controllers
 {
@@ -231,7 +232,10 @@ namespace CMS.Web.Controllers
                 {
                     if (User.IsInRole("HR Manager"))
                     {
-                        await _notificationsService.CreateInterviewNotificationForInterviewerAsync(collection.Date,collection.CandidateId,collection.PositionId);
+                        var selectedInterviewerId = collection.InterviewerId;
+
+                        await _notificationsService.CreateInterviewNotificationForInterviewerAsync(collection.Date, collection.CandidateId, collection.PositionId, selectedInterviewerId, isCanceled: false);
+
 
 
 
@@ -242,6 +246,10 @@ namespace CMS.Web.Controllers
                             EmailBody = $"You have an interview scheduled on {collection.Date}. Please be prepared.",
                             Subject = "Interview Invitation"
                         };
+
+
+                        var reminderJobId = BackgroundJob.Schedule(() => ReminderJobAsync(selectedInterviewerId, collection), collection.Date.AddHours(16));
+
                         //if (!string.IsNullOrEmpty(interviewerEmail))
                         //{
                         //    await SendEmailToInterviewer(interviewerEmail, collection, emailModel);
@@ -308,6 +316,11 @@ namespace CMS.Web.Controllers
             if (collection.StatusId ==3  && collection.Notes == null)
             {
                 ModelState.AddModelError("Notes", "Please add note why it was rejected.");
+            }
+            if (collection.StatusId == 3)
+            {
+                var selectedInterviewerId = collection.InterviewerId;
+                await _notificationsService.CreateInterviewNotificationForInterviewerAsync(collection.Date, collection.CandidateId, collection.PositionId, selectedInterviewerId, isCanceled: true);
             }
 
 
@@ -505,6 +518,7 @@ namespace CMS.Web.Controllers
                                 Subject = "Interview Approval"
                             };
 
+                            var reminderJobId = BackgroundJob.Schedule(() => ReminderJobAsync(GMEmail, interviewsDTO), interviewsDTO.Date.AddHours(16));
 
 
                             //if (!string.IsNullOrEmpty(GMEmail))
@@ -530,6 +544,9 @@ namespace CMS.Web.Controllers
                                 EmailBody = $"The first interview was rejected by {userName} .",
                                 Subject = "Interview Rejection"
                             };
+
+                            var reminderJobId = BackgroundJob.Schedule(() => ReminderJobAsync(HREmail, interviewsDTO), interviewsDTO.Date.AddHours(16));
+
                             //if (!string.IsNullOrEmpty(HREmail))
                             //{
                             //    await SendEmailToInterviewer(HREmail, interviewsDTO, emailModel);
@@ -728,6 +745,65 @@ namespace CMS.Web.Controllers
             return _httpContextAccessor.HttpContext.User.Identity.Name;
         }
 
+
+        public async Task ReminderJobAsync(string interviewerId, InterviewsDTO collection)
+        {
+            // Check if the interviewer has given a score, and if not, send a reminder email
+            bool hasGivenScore = await _interviewsRepository.HasGivenScoreAsync(interviewerId, collection.InterviewsId);
+
+            if (!hasGivenScore)
+            {
+                var interviewerEmail2 = await GetInterviewerEmail(collection.InterviewerId);
+                EmailDTOs emailModel = new EmailDTOs
+                {
+                    EmailTo = new List<string> { interviewerEmail2 },
+                    EmailBody = "You haven't provided a score for the interview. Please provide a score.",
+                    Subject = "Interview Score Reminder"
+                };
+
+               await SendEmailToInterviewer(interviewerEmail2, collection, emailModel);
+            }
+        }
+
+
+        public async Task ReminderJobAsyncForGM(string interviewerId, InterviewsDTO collection)
+        {
+            // Check if the interviewer has given a score, and if not, send a reminder email
+            bool hasGivenScore = await _interviewsRepository.HasGivenScoreAsync(interviewerId, collection.InterviewsId);
+
+            if (!hasGivenScore)
+            {
+                var interviewerEmail2 = await GetInterviewerEmail(collection.InterviewerId);
+                EmailDTOs emailModel = new EmailDTOs
+                {
+                    EmailTo = new List<string> { interviewerEmail2 },
+                    EmailBody = "You haven't provided a score for the interview. Please provide a score.",
+                    Subject = "Interview Score Reminder"
+                };
+
+                await SendEmailToInterviewer(interviewerEmail2, collection, emailModel);
+            }
+        }
+
+
+        public async Task ReminderJobAsyncForHR(string interviewerId, InterviewsDTO collection)
+        {
+            // Check if the interviewer has given a score, and if not, send a reminder email
+            bool hasGivenScore = await _interviewsRepository.HasGivenScoreAsync(interviewerId, collection.InterviewsId);
+
+            if (!hasGivenScore)
+            {
+                var interviewerEmail2 = await GetInterviewerEmail(collection.InterviewerId);
+                EmailDTOs emailModel = new EmailDTOs
+                {
+                    EmailTo = new List<string> { interviewerEmail2 },
+                    EmailBody = "You haven't provided a score for the interview. Please provide a score.",
+                    Subject = "Interview Score Reminder"
+                };
+
+                await SendEmailToInterviewer(interviewerEmail2, collection, emailModel);
+            }
+        }
 
 
 

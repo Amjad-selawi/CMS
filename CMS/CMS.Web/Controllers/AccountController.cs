@@ -251,20 +251,38 @@ namespace CMS.Web.Controllers
             return View(model);
         }
 
+
+
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(Register collection/*, string id*/)
+        public async Task<IActionResult> Edit(Register collection)
         {
             if (ModelState.IsValid)
             {
                 var user = await _userManager.FindByIdAsync(collection.RegisterrId);
-               
+
                 user.Email = collection.Email;
                 user.UserName = collection.UserName;
-                
 
-                    var result = await _userManager.UpdateAsync(user);
-              
+                if (!string.IsNullOrEmpty(collection.Password))
+                {
+
+                    var token = await _userManager.GeneratePasswordResetTokenAsync(user);
+                    var passwordChangeResult = await _userManager.ResetPasswordAsync(user, token, collection.Password);
+
+                    if (!passwordChangeResult.Succeeded)
+                    {
+
+                        foreach (var error in passwordChangeResult.Errors)
+                        {
+                            ModelState.AddModelError("", error.Description);
+                        }
+                        return View(collection);
+                    }
+                }
+
+                var result = await _userManager.UpdateAsync(user);
+
                 if (result.Succeeded)
                 {
                     if (!string.IsNullOrEmpty(collection.SelectedRole))
