@@ -66,7 +66,13 @@ namespace CMS.Web
             {
                 builder.AddConsole();
             });
-
+            services.AddRazorPages()
+                .AddMvcOptions(options =>
+                {
+                    options.MaxModelValidationErrors = 50;
+                    options.ModelBindingMessageProvider.SetValueMustNotBeNullAccessor(
+                        _ => "This field is required.");
+                });
 
             services.AddScoped(typeof(ICarrerOfferRepository), typeof(CarrerOfferRepository));
             services.AddScoped<ICarrerOfferService, CarrerOfferService>();

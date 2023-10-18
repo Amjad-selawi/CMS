@@ -313,11 +313,15 @@ namespace CMS.Web.Controllers
             ViewBag.StatusDTOs = new SelectList(StatusDTOs.Value, "Id", "Name");
 
             await LoadSelectionLists();
-            if (collection.StatusId ==3  && collection.Notes == null)
+
+            var statusResult = await _StatusService.GetById((int)collection.StatusId);
+            var status = statusResult.Value;
+
+            if (status.Code == Domain.Enums.StatusCode.Rejected && collection.Notes == null)
             {
                 ModelState.AddModelError("Notes", "Please add note why it was rejected.");
             }
-            if (collection.StatusId == 3)
+            if (status.Code == Domain.Enums.StatusCode.Rejected)
             {
                 var selectedInterviewerId = collection.InterviewerId;
                 await _notificationsService.CreateInterviewNotificationForInterviewerAsync(collection.Date, collection.CandidateId, collection.PositionId, selectedInterviewerId, isCanceled: true);
@@ -441,9 +445,11 @@ namespace CMS.Web.Controllers
             {
                 ModelState.AddModelError("ActualExperience", "Please add the actual experience.");
             }
-         
+            var statusResult = await _StatusService.GetById((int)interviewsDTO.StatusId);
+            var status = statusResult.Value;
 
-            if(interviewsDTO.StatusId == 3 && interviewsDTO.Notes == null)
+
+            if (status.Code == Domain.Enums.StatusCode.Rejected && interviewsDTO.Notes == null)
             {
                  ModelState.AddModelError("Notes", "Please add note why it was rejected.");
             }
@@ -493,11 +499,11 @@ namespace CMS.Web.Controllers
 
                 if (User.IsInRole("Interviewer"))
                 {
-                    if (interviewsDTO.StatusId == 2 || interviewsDTO.StatusId == 3)
+                    if (status.Code == Domain.Enums.StatusCode.Rejected || status.Code == Domain.Enums.StatusCode.Approved)
                     {
                         await _notificationsService.CreateNotificationForGeneralManagerAsync(interviewsDTO.StatusId.Value, interviewsDTO.Notes,interviewsDTO.CandidateId ,interviewsDTO.PositionId);
 
-                        if(interviewsDTO.StatusId == 2)
+                        if(status.Code == Domain.Enums.StatusCode.Approved)
                         {
                             string userName = GetLoggedInUserName();
                             var GMEmail = await GetGMEmail();
@@ -534,7 +540,7 @@ namespace CMS.Web.Controllers
                             return RedirectToAction(nameof(MyInterviews));
                         }
 
-                        else if (interviewsDTO.StatusId == 3)
+                        else if (status.Code == Domain.Enums.StatusCode.Rejected)
                         {
                             string userName = GetLoggedInUserName();
                             var HREmail = await GetHREmail();
@@ -572,12 +578,12 @@ namespace CMS.Web.Controllers
 
                 else if (User.IsInRole("General Manager"))
                 {
-                    if (interviewsDTO.StatusId == 2 || interviewsDTO.StatusId == 3)
+                    if ((status.Code == Domain.Enums.StatusCode.Rejected || status.Code == Domain.Enums.StatusCode.Approved))
                     {
                         await _notificationsService.CreateInterviewNotificationForHRInterview(interviewsDTO.StatusId.Value, interviewsDTO.Notes,interviewsDTO.CandidateId,interviewsDTO.PositionId);
 
 
-                        if (interviewsDTO.StatusId == 2)
+                        if (status.Code == Domain.Enums.StatusCode.Approved)
                         {
                             string userName = GetLoggedInUserName();
                             var HREmail = await GetHREmail();
@@ -604,7 +610,7 @@ namespace CMS.Web.Controllers
                             return RedirectToAction(nameof(MyInterviews));
                         }
 
-                        else if (interviewsDTO.StatusId == 3)
+                        else if (status.Code == Domain.Enums.StatusCode.Rejected)
                         {
                             string userName = GetLoggedInUserName();
                             var HREmail = await GetHREmail();
