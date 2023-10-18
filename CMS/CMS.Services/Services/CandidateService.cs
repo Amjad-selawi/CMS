@@ -43,8 +43,8 @@ namespace CMS.Services.Services
                 //PositionId = c.PositionId,
                 //Name = c.Position.Name,
                 CompanyId = c.CompanyId,
-                CompanyName=c.Company.Name,
-             
+                CompanyName = c.Company.Name,
+
                 Experience = c.Experience,
                 CVAttachmentId = c.CVAttachmentId,
                 //CountryId = c.CountryId,
@@ -67,8 +67,8 @@ namespace CMS.Services.Services
                 Phone = candidate.Phone,
                 //PositionId = candidate.PositionId,
                 //Name = candidate.Position.Name,
-                CompanyId =candidate.CompanyId,
-                CompanyName=candidate.Company.Name,
+                CompanyId = candidate.CompanyId,
+                CompanyName = candidate.Company.Name,
                 Experience = candidate.Experience,
                 CVAttachmentId = candidate.CVAttachmentId,
                 //CountryId = candidate.CountryId,
@@ -91,12 +91,12 @@ namespace CMS.Services.Services
                 FullName = candidateDTO.FullName,
                 Phone = candidateDTO.Phone,
                 //PositionId = candidateDTO.PositionId,
-                CompanyId =candidateDTO.CompanyId,
+                CompanyId = candidateDTO.CompanyId,
                 Experience = candidateDTO.Experience,
                 CVAttachmentId = candidateDTO.CVAttachmentId,
                 //CountryId = candidateDTO.CountryId,
-                CreatedBy =currentUser.Id,
-                CreatedOn=DateTime.Now
+                CreatedBy = currentUser.Id,
+                CreatedOn = DateTime.Now
             };
             await _candidateRepository.CreateCandidateAsync(candidate);
         }
@@ -111,7 +111,7 @@ namespace CMS.Services.Services
             existingCandidate.FullName = candidateDTO.FullName;
             existingCandidate.Phone = candidateDTO.Phone;
             //existingCandidate.PositionId = candidateDTO.PositionId;
-            existingCandidate.CompanyId= candidateDTO.CompanyId;
+            existingCandidate.CompanyId = candidateDTO.CompanyId;
             existingCandidate.Experience = candidateDTO.Experience;
             existingCandidate.CVAttachmentId = candidateDTO.CVAttachmentId;
             //existingCandidate.CountryId = candidateDTO.CountryId;
@@ -157,7 +157,7 @@ namespace CMS.Services.Services
 
             if (candidate != null)
             {
-                int? attachmentToRemove = (int?)candidate.CVAttachmentId; 
+                int? attachmentToRemove = (int?)candidate.CVAttachmentId;
                 await _candidateRepository.DeleteCandidateAsync(candidate);
 
                 if (attachmentToRemove.HasValue)
@@ -172,22 +172,39 @@ namespace CMS.Services.Services
         {
             var candidate = await _candidateRepository.GetCandidateByIdAsync(id);
             int attachmentId = await _attachmentService.CreateAttachmentAsync(fileName, fileSize, fileStream);
-            
-            int attachmentToRemove=0;
+
+            int attachmentToRemove = 0;
             if (candidate.CVAttachmentId != null)
             {
                 attachmentToRemove = (int)candidate.CVAttachmentId;
-                
-                
+
+
             }
-           
+
             candidate.CVAttachmentId = attachmentId;
             await _candidateRepository.UpdateCandidateAsync(candidate);
-            if (attachmentToRemove!=0)
+            if (attachmentToRemove != 0)
             {
                 await _attachmentService.DeleteAttachmentAsync(attachmentToRemove);
             }
-            
+
         }
+
+
+
+        public async Task<int?> GetCVAttachmentIdByCandidateId(int candidateId)
+        {
+            try
+            {
+                return await _candidateRepository.GetCVAttachmentIdByCandidateId(candidateId);
+            }
+            catch (Exception ex)
+            {
+                // Handle exceptions as needed
+                throw ex;
+            }
+        }
+
+
     }
 }

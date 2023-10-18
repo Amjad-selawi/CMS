@@ -25,7 +25,7 @@ namespace CMS.Repository.Implementation
         {
             return await _dbContext.Candidates
                 .Include(c => c.Position)
-                .Include(c=>c.Company)
+                .Include(c => c.Company)
                 .Include(c => c.Country)
                 .AsNoTracking().ToListAsync();
         }
@@ -34,7 +34,7 @@ namespace CMS.Repository.Implementation
         {
             return await _dbContext.Candidates
                 .Include(c => c.Position)
-                .Include(c=>c.Company)
+                .Include(c => c.Company)
                  .Include(c => c.Country)
                 .AsNoTracking().FirstOrDefaultAsync(c => c.Id == id);
         }
@@ -155,5 +155,29 @@ namespace CMS.Repository.Implementation
 
         //    return result;
         //}
+
+
+        public async Task<int?> GetCVAttachmentIdByCandidateId(int candidateId)
+        {
+            try
+            {
+                var candidate = await _dbContext.Candidates
+                    .Include(c => c.CV)
+                    .FirstOrDefaultAsync(c => c.Id == candidateId);
+
+                if (candidate != null && candidate.CV != null)
+                {
+                    return candidate.CV.Id;
+                }
+
+                return null;
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+
     }
 }

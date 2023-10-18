@@ -18,6 +18,7 @@ namespace CMS.Services.Interfaces
         //Task<Result<CandidateDTO>> DeleteCandidateAsync(int id);
         Task DeleteCandidateAsync(int id);
 
+        Task<int?> GetCVAttachmentIdByCandidateId(int candidateId);
 
         //Task<Result<CandidateCreateDTO>> Insert(CandidateCreateDTO data);
         //Task<Result<List<CandidateCreateDTO>>> GetAll();

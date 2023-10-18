@@ -65,7 +65,7 @@
 
     <dl class="row">
         <dt class="col-sm-2">
-            Position Name
+            Position Name:
         </dt>
         <dd class="col-sm-10">
             @Html.DisplayFor(model => model.Name)
@@ -95,8 +95,8 @@
 
 <form asp-controller="Position" asp-action="DeletePosition" method="post" class="text-end">
     <input type="hidden" asp-for="Id" />
-    <a asp-action="GetPositions" class="btn btn-secondary">Back To List</a>
         <button type="button" class="btn btn-danger" onclick="showConfirmationDialog()">Delete</button>
+        <a asp-action="GetPositions" class="btn btn-secondary">Back To List</a>
     </form>
 </div>
 

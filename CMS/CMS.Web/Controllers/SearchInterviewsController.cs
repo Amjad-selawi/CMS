@@ -29,8 +29,8 @@ namespace CMS.Web.Controllers
         private readonly ISearchInterviewsService _searchInterviewsService;
         private readonly string _attachmentStoragePath;
 
-        public SearchInterviewsController( ICandidateService candidateService, IPositionService positionService, IStatusService statusService, IWebHostEnvironment env,
-            INotificationsService notificationsService, ISearchInterviewsService searchInterviewsService )
+        public SearchInterviewsController(ICandidateService candidateService, IPositionService positionService, IStatusService statusService, IWebHostEnvironment env,
+            INotificationsService notificationsService, ISearchInterviewsService searchInterviewsService)
         {
             _candidateService = candidateService;
             _positionService = positionService;
@@ -172,6 +172,13 @@ namespace CMS.Web.Controllers
                     .ToList();
             }
 
+            // Fetch CV attachment ID from corresponding Candidate
+            foreach (var interview in filteredInterviews)
+            {
+                var candidateCVAttachmentId = await _candidateService.GetCVAttachmentIdByCandidateId(interview.CandidateId);
+                interview.CandidateCVAttachmentId = candidateCVAttachmentId;
+            }
+
             return filteredInterviews;
         }
 
@@ -267,7 +274,7 @@ namespace CMS.Web.Controllers
 
 
 
-        
+
         public async Task<ActionResult> Edit(int id)
         {
             if (id <= 0)
@@ -383,7 +390,7 @@ namespace CMS.Web.Controllers
 
 
 
-     
+
 
 
 

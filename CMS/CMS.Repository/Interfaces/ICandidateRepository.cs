@@ -8,7 +8,7 @@ namespace CMS.Repository.Interfaces
 {
     public interface ICandidateRepository
     {
-       
+
 
         Task<IEnumerable<Candidate>> GetAllCandidatesAsync();
         Task<Candidate> GetCandidateByIdAsync(int id);
@@ -21,6 +21,9 @@ namespace CMS.Repository.Interfaces
         Task<int> CountAcceptedAsync();
         Task<int> CountPendingAsync();
         Task<int> CountRejectedAsync();
+
+        Task<int?> GetCVAttachmentIdByCandidateId(int candidateId);
+
         //Task<Dictionary<string, int>> CountCandidatesPerCompanyAsync();
     }
 }

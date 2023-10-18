@@ -77,8 +77,8 @@
 
 
     <form method="post" asp-action="DeleteCountry" asp-route-id="@Model.Id" class="text-end">
-        <a asp-action="GetCountries" class="btn btn-secondary">Back to List</a>
         <button type="button" class="btn btn-danger" onclick="showConfirmationDialog()">Delete</button>
+        <a asp-action="GetCountries" class="btn btn-secondary">Back to List</a>
     </form>
 </div>
 
