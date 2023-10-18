@@ -55,7 +55,7 @@ namespace CMS.Application.DTOs
 
 
         public string? SecondInterviewerId { get; set; }
-        public string SecondInterviewerName { get; set; }
+        public string? SecondInterviewerName { get; set; }
 
     }
 }

@@ -13,75 +13,90 @@
         <dd class="col-sm-10">
             @Model.FullName
         </dd>
-        <dt class="col-sm-2">
+        <dt class="col-sm-2" style="margin-top: 15px;">
             Position:
         </dt>
-        <dd class="col-sm-10">
+        <dd class="col-sm-10" style="margin-top: 15px;">
             @Model.Name
         </dd>
-        <dt class="col-sm-2">
+        <dt class="col-sm-2" style="margin-top: 15px;">
             First Interviewer Name:
         </dt>
-        <dd class="col-sm-10">
+        <dd class="col-sm-10" style="margin-top: 15px;">
             @Model.InterviewerName
         </dd>
 
-        <dt class="col-sm-2">
+        <dt class="col-sm-2" style="margin-top: 15px;">
             Second Interviewer Name:
         </dt>
-        <dd class="col-sm-10">
+        <dd class="col-sm-10" style="margin-top: 15px;">
             @Model.SecondInterviewerName
         </dd>
-        <dt class="col-sm-2">
+        <dt class="col-sm-2" style="margin-top: 15px;">
             Date:
         </dt>
-        <dd class="col-sm-10">
+        <dd class="col-sm-10" style="margin-top: 15px;">
             @Model.Date
         </dd>
         <dt class="col-sm-2" hidden>
             Parent ID
         </dt>
-      
-        <dt class="col-sm-2">
-            Score:
-        </dt>
-        <dd class="col-sm-10">
-            @Model.Score
-        </dd>
-        <dt class="col-sm-2">
+
+        @if (@Model.Score != null)
+        {
+            <dt class="col-sm-2" style="margin-top: 15px;">
+                Score:
+            </dt>
+
+            <dd class="col-sm-10" style="margin-top: 15px;">
+                @Model.Score
+            </dd>
+        }
+        else
+        {
+            <dt class="col-sm-2" style="margin-top: 15px;">
+                Score:
+            </dt>
+
+            <dd class="col-sm-10" style="margin-top: 15px;">
+                There is no score here
+            </dd>
+        }
+
+        <dt class="col-sm-2" style="margin-top: 15px;">
             Actual Experience:
         </dt>
-        <dd class="col-sm-10">
+        <dd class="col-sm-10" style="margin-top: 15px;">
             @Model.ActualExperience
         </dd>
-        <dt class="col-sm-2">
+        <dt class="col-sm-2" style="margin-top: 15px;">
             Status:
         </dt>
-        <dd class="col-sm-10">
+        <dd class="col-sm-10" style="margin-top: 15px;">
             @Model.StatusName
         </dd>
-        <dt class="col-sm-2">
+        <dt class="col-sm-2" style="margin-top: 15px;">
             Notes:
         </dt>
-        <dd class="col-sm-10">
+        <dd class="col-sm-10" style="margin-top: 15px;">
             @Model.Notes
         </dd>
 
         @if (Model.AttachmentId != null)
             {
-        <dt class="col-sm-2">
+            <dt class="col-sm-2" style="margin-top: 15px;">
             Evaluation:
         </dt>
-        <dd class="col-sm-10">
+            <dd class="col-sm-10" style="margin-top: 15px;">
                 <a asp-controller="Attachments" asp-action="Download" asp-route-id="@Model.AttachmentId">Download evaluation</a>
         </dd>
         }
         else
         {
-            <dt class="col-sm-2">
+            <dt class="col-sm-2" style="margin-top: 15px;">
                 Evaluation:
             </dt>
-            <dd class="col-sm-10">
+            <dd class="col-sm-10" style="margin-top: 15px;">
                There is no Evaluation for this interview
             </dd>
         }
@@ -96,7 +111,8 @@
             returnAction = "MyInterviews";
         }
     }
-    <a class="btn btn-secondary"  asp-action="@returnAction">Back to List</a>
    <a asp-action="Edit" asp-route-id="@Model.InterviewsId" class="btn btn-primary">Edit</a>
+    <a class="btn btn-secondary" asp-action="@returnAction">Back to List</a>
+
     
 </div>
