@@ -27,6 +27,8 @@
     <Compile Remove="Migrations\20231016103207_ActualExperienceNullable.Designer.cs" />
     <Compile Remove="Migrations\20231017205811_fixed.cs" />
     <Compile Remove="Migrations\20231017205811_fixed.Designer.cs" />
+    <Compile Remove="Migrations\20231018103009_secondInterviewer.cs" />
+    <Compile Remove="Migrations\20231018103009_secondInterviewer.Designer.cs" />
   </ItemGroup>
 
 	<ItemGroup>
