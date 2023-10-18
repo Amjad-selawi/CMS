@@ -14,5 +14,7 @@ namespace CMS.Services.Interfaces
 
         Task<int> GetStatusIdByName(string statusName);
 
+        Task<Result<StatusDTO>> GetById(int id);
+
     }
 }

@@ -28,6 +28,7 @@ namespace CMS.Services.Services
         private readonly ICarrerOfferRepository _carrerOfferRepository;
         private readonly ICandidateService _candidateService;
         private readonly IPositionService _positionService;
+        private readonly IStatusService _statusService;
 
         public NotificationsService
             (
@@ -39,7 +40,8 @@ namespace CMS.Services.Services
              UserManager<IdentityUser> userManager,
             ICarrerOfferRepository carrerOfferRepository,
             ICandidateService candidateService,
-            IPositionService positionService
+            IPositionService positionService,
+            IStatusService statusService
             )
         {
             _notificationsRepository = notificationsRepository;
@@ -51,6 +53,7 @@ namespace CMS.Services.Services
             _carrerOfferRepository = carrerOfferRepository;
             _candidateService = candidateService;
             _positionService = positionService;
+            _statusService = statusService;
         }
 
         public async Task<IEnumerable<NotificationsDTO>> GetAllNotificationsAsync()
@@ -66,7 +69,7 @@ namespace CMS.Services.Services
                 Title = i.Title,
                 BodyDesc = i.BodyDesc,
                 IsRead = i.IsRead,
-               
+
 
             });
 
@@ -83,7 +86,7 @@ namespace CMS.Services.Services
             {
                 Title = notification.Title,
                 BodyDesc = notification.BodyDesc,
-              
+
             };
 
 
@@ -137,8 +140,8 @@ namespace CMS.Services.Services
                 Title = entity.Title,
                 BodyDesc = entity.BodyDesc,
                 CreatedOn = DateTime.Now,
-                CreatedBy=currentUser.Id,
-            
+                CreatedBy = currentUser.Id,
+
 
             };
             await _notificationsRepository.Create(notification);
@@ -159,8 +162,8 @@ namespace CMS.Services.Services
             existingNotification.BodyDesc = entity.BodyDesc;
             existingNotification.IsRead = entity.IsRead;
             existingNotification.ModifiedOn = DateTime.Now;
-            existingNotification.ModifiedBy=currentUser.Id;
-        
+            existingNotification.ModifiedBy = currentUser.Id;
+
 
             await _notificationsRepository.Update(existingNotification);
 
@@ -288,6 +291,9 @@ namespace CMS.Services.Services
             var managerId = "";
             var HrId = "";
 
+            var statusResult = await _statusService.GetById(status);
+            var statusstatus = statusResult.Value;
+
             var manager = await _roleManager.FindByNameAsync("General Manager");
             managerId = (await _userManager.GetUsersInRoleAsync(manager.Name)).FirstOrDefault().Id;
 
@@ -304,7 +310,7 @@ namespace CMS.Services.Services
             var notification = new Notifications
             {
                 SendDate = DateTime.Now,
-                
+
                 IsReceived = true,
                 IsRead = false,
                 Title = "",
@@ -313,7 +319,7 @@ namespace CMS.Services.Services
                 CreatedOn = DateTime.Now
             };
 
-            if (status == 2)
+            if (statusstatus.Code == Domain.Enums.StatusCode.Approved)
             {
                 notification.Title = $"You have a Second Interview with {candidateName} for the {positionName} position. Get ready to shine! 💼🚀";
                 notification.ReceiverId = managerId;
@@ -326,8 +332,8 @@ namespace CMS.Services.Services
 
             await _notificationsRepository.Create(notification);
 
-          
-            if (status == 2)  
+
+            if (statusstatus.Code == Domain.Enums.StatusCode.Approved)
             {
                 var hrNotification = new Notifications
                 {
@@ -382,8 +388,12 @@ namespace CMS.Services.Services
 
 
 
-        public async Task CreateInterviewNotificationForHRInterview(int status, string notes, int CandidateId , int positionId)
+        public async Task CreateInterviewNotificationForHRInterview(int status, string notes, int CandidateId, int positionId)
         {
+
+            var statusResult = await _statusService.GetById(status);
+            var statusstatus = statusResult.Value;
+
 
             var HrId = "";
 
@@ -406,10 +416,10 @@ namespace CMS.Services.Services
                 Title = "",
                 BodyDesc = notes,
                 CreatedOn = DateTime.Now,
-                CreatedBy =currentUser.Id,
+                CreatedBy = currentUser.Id,
             };
 
-            if (status == 2)
+            if (statusstatus.Code == Domain.Enums.StatusCode.Approved)
             {
                 notification.Title = $"You have a Third Interview with {candidateName} for the {positionName} position. Get ready to shine! 💼🚀 ";
             }

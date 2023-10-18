@@ -108,7 +108,35 @@ namespace CMS.Services.Services
                 throw new Exception($"Error getting status ID by name: {ex.Message}", ex);
             }
         }
+        public async Task<Result<StatusDTO>> GetById(int id)
+        {
+            try
+            {
+                var status = await _repository.GetById(id);
+                if (status != null)
+                {
+                    var statusDTO = new StatusDTO
+                    {
+                        Id = status.Id,
+                        Name = status.Name,
+                        Code = status.Code,
+                    };
 
+                    return Result<StatusDTO>.Success(statusDTO);
+                }
+                else
+                {
+                    return Result<StatusDTO>.Failure(null, "no statuse found");
+                }
+
+            }
+            catch (Exception ex)
+            {
+                return Result<StatusDTO>.Failure(null, $"unable to get status{ex.InnerException.Message}");
+            }
+
+
+        }
 
 
 
