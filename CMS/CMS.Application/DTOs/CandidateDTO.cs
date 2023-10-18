@@ -22,13 +22,17 @@ namespace CMS.Application.DTOs
         public int CompanyId { set; get; }
         public string CompanyName { set; get; }
 
+        //[Required(ErrorMessage = "Email is required.")]
+
+        //public string Email { get; set; }
+        //public string Address { get; set; }
 
         [Required(ErrorMessage = "Experience is required.")]
-        [RegularExpression(@"^(?:0(\.\d+)?|[1-9]\d*(\.\d+)?)$", ErrorMessage = "Experience must be a non-negative numeric value.")]
-        public decimal Experience { get; set; }
+        [RegularExpression(@"^(?:\d{1,2}(\.\d{1})?)$", ErrorMessage = "Experience must be a non-negative numeric value with up to 1 decimal place.")]
+        public double Experience { get; set; }
 
         public int? CVAttachmentId { get; set; }
-       
+
         //[Url(ErrorMessage = "Invalid LinkedIn URL.")]
         //public string LinkedInUrl { get; set; }
         public int? CountryId { get; set; }

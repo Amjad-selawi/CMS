@@ -168,6 +168,8 @@ namespace CMS.Services.Services
                 foreach (var c in interviews)
                 {
                     string userName = await GetInterviewerName(c.InterviewerId);
+                    string SeconduserName = await GetInterviewerName(c.SecondInterviewerId);
+
                     string interviewerRole = await GetInterviewerRole(c.InterviewerId);
                     var com = new InterviewsDTO
                     {
@@ -190,6 +192,8 @@ namespace CMS.Services.Services
                         AttachmentId = c.AttachmentId,
                         InterviewerRole = interviewerRole,
                         ActualExperience= c.ActualExperience,
+                        SecondInterviewerId = c.SecondInterviewerId,
+                        SecondInterviewerName = SeconduserName,
 
                     };
                     interviewsDTO.Add(com);
@@ -216,6 +220,8 @@ namespace CMS.Services.Services
 
                 var interview = await _interviewsRepository.GetById(id);
                 string userName = await GetInterviewerName(interview.InterviewerId);
+                string SeconduserName = await GetInterviewerName(interview.SecondInterviewerId);
+
                 string interviewerRole = await GetInterviewerRole(interview.InterviewerId);
                 var interviewDTO = new InterviewsDTO
                 {
@@ -237,6 +243,8 @@ namespace CMS.Services.Services
                     AttachmentId = interview.AttachmentId,
                     InterviewerRole = interviewerRole,
                     ActualExperience = interview.ActualExperience,
+                    SecondInterviewerId = interview.SecondInterviewerId,
+                    SecondInterviewerName = SeconduserName,
                 };
                 return Result<InterviewsDTO>.Success(interviewDTO);
             }
@@ -267,6 +275,8 @@ namespace CMS.Services.Services
                 AttachmentId = data.AttachmentId,
                 CreatedBy = currentUser.Id,
                 CreatedOn = DateTime.Now,
+                SecondInterviewerId = data.SecondInterviewerId,
+
 
             };
             await _interviewsRepository.Insert(interview);
@@ -296,6 +306,8 @@ namespace CMS.Services.Services
                 Score = data.Score,
                 ParentId = data.ParentId,
                 InterviewerId = data.InterviewerId,
+                SecondInterviewerId = data.SecondInterviewerId,
+
                 Date = data.Date,
                 Notes = data.Notes,
                 StatusId = (int)data.StatusId,
@@ -406,11 +418,15 @@ namespace CMS.Services.Services
                 foreach (var i in interviews)
                 {
                     string userName = await GetInterviewerName(i.InterviewerId);
+                    string SeconduserName = await GetInterviewerName(i.SecondInterviewerId);
+
                     interviewsDTOs.Add(new InterviewsDTO
                     {
                         InterviewsId = i.InterviewsId,
                         InterviewerId = i.InterviewerId,
                         InterviewerName = userName,
+                        SecondInterviewerId = i.SecondInterviewerId,
+                        SecondInterviewerName = SeconduserName,
                         Score = i.Score,
                         StatusId = i.StatusId,
                         StatusName = i.Status.Name,
@@ -440,5 +456,8 @@ namespace CMS.Services.Services
                 return Result<List<InterviewsDTO>>.Failure(null, $"Unable to get interviews: {ex.InnerException.Message}");
             }
         }
+
+
+
     }
 }

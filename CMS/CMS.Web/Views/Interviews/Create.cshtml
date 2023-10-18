@@ -15,7 +15,7 @@
         <label asp-for="CandidateId" class="control-label"><span class="text-danger">*</span> Candidate</label>
         @if (ViewBag.candidateList != null)
         {
-            <select asp-for="CandidateId" asp-items="@(ViewBag.candidateList)" class="form-control" id="candidate-dropdown" name="CandidateId" data-selectize="true">
+            <select style="width: 30%;" asp-for="CandidateId" asp-items="@(ViewBag.candidateList)" class="form-control" id="candidate-dropdown" name="CandidateId" data-selectize="true">
                 <option value="">-- Select a Name --</option>
             </select>
         }
@@ -34,7 +34,7 @@
         <label asp-for="PositionId" class="control-label"><span class="text-danger">*</span> Position</label>
         @if (ViewBag.positionList != null)
         {
-            <select asp-for="PositionId" asp-items="@(ViewBag.positionList)" class="form-control">
+            <select style="width: 30%;" asp-for="PositionId" asp-items="@(ViewBag.positionList)" class="form-control">
                 <option value="">-- Select a Position --</option>
 
             </select>
@@ -51,10 +51,10 @@
 
     <div class="form-group" style="margin-top: 15px;">
 
-        <label asp-for="InterviewerId" class="control-label"><span class="text-danger">*</span> Interviewer</label>
+        <label asp-for="InterviewerId" class="control-label"><span class="text-danger">*</span> First Interviewer</label>
         @if (ViewBag.interviewersList != null)
         {
-            <select asp-for="InterviewerId" asp-items="@(ViewBag.interviewersList)" class="form-control">
+            <select style="width: 30%;" asp-for="InterviewerId" asp-items="@(ViewBag.interviewersList)" class="form-control">
                 <option value="">-- Select an Interviewer --</option>
 
             </select>
@@ -62,6 +62,21 @@
 
         <span asp-validation-for="InterviewerId" class="text-danger"></span>
     </div>
+
+      <div class="form-group" style="margin-top: 15px;">
+
+        <label asp-for="SecondInterviewerId" class="control-label">Second Interviewer</label>
+        @if (ViewBag.interviewersList != null)
+        {
+            <select style="width: 30%;" style="width: 30%;" asp-for="SecondInterviewerId" asp-items="@(ViewBag.interviewersList)" class="form-control">
+                <option value="">-- Select Second Interviewer --</option>
+
+            </select>
+        }
+
+        <span asp-validation-for="SecondInterviewerId" class="text-danger"></span>
+    </div>
+
 
   @*   <div class="form-group">
         <label asp-for="InterviewerId" class="control-label">Interviewer</label>
@@ -71,7 +86,7 @@
     </div> *@
     <div class="form-group" style="margin-top: 15px;">
         <label asp-for="Date" class="control-label"><span class="text-danger">*</span> Date</label>
-        <input asp-for="Date" class="form-control" />
+        <input style="width: 30%;" asp-for="Date" class="form-control" />
         <span asp-validation-for="Date" class="text-danger" id="dateValidationMessage"></span>
     </div>
     <div class="form-group"  hidden>
@@ -84,8 +99,9 @@
    
 
     <div class="form-group text-end" style="margin-top: 10px;">
-        <a class="btn btn-secondary" asp-action="Index">Back to List</a>
         <input type="submit" value="Create" class="btn btn-primary" />
+        <a class="btn btn-secondary" asp-action="Index">Back to List</a>
+
     </div>
 
 </form>

@@ -4,7 +4,7 @@
 @*     <div asp-validation-summary="ModelOnly" class="text-danger"></div>
  *@    <div class="form-group">
         <label asp-for="Name" class="control-label"><span class="text-danger">*</span> Name</label>
-        <input asp-for="Name" class="form-control" />
+        <input style="width: 30%;" asp-for="Name" class="form-control" />
         <span asp-validation-for="Name" class="text-danger"></span>
         <span id="errorMessage" class="text-danger"></span>
     </div>
@@ -13,7 +13,7 @@
         <label asp-for="CountryId" class="control-label"><span class="text-danger">*</span> Country</label>
         @if (ViewBag.CountriesDTOs != null)
         {
-            <select asp-for="CountryId" asp-items="@(ViewBag.CountriesDTOs)" class="form-control">
+            <select style="width: 30%;" asp-for="CountryId" asp-items="@(ViewBag.CountriesDTOs)" class="form-control">
                 <option value="">-- Select a country --</option>
             </select>
         }
@@ -27,25 +27,26 @@
     <h2 style="margin-top: 50px;font-size: 27px;">Contact Person</h2>
     <div class="form-group" style="margin-top: 15px;">
         <label asp-for="PersonName" class="control-label">Person Name</label>
-        <input asp-for="PersonName" class="form-control" />
+        <input style="width: 30%;" asp-for="PersonName" class="form-control" />
         <span asp-validation-for="PersonName" class="text-danger"></span>
     </div>
 
     <div class="form-group" style="margin-top: 15px;">
         <label asp-for="Email" class="control-label">Email</label>
-        <input asp-for="Email" class="form-control" />
+        <input style="width: 30%;" asp-for="Email" class="form-control" />
         <span asp-validation-for="Email" class="text-danger"></span>
     </div>
 
     <div class="form-group" style="margin-top: 15px;">
         <label asp-for="PhoneNumber" class="control-label">Phone Number</label>
-        <input asp-for="PhoneNumber" class="form-control" />
+        <input style="width: 30%;" asp-for="PhoneNumber" class="form-control" />
         <span asp-validation-for="PhoneNumber" class="text-danger"></span>
     </div>
 
     <div class="form-group text-end" style="margin-top: 10px;">
-        <a class="btn btn-secondary" asp-action="GetCompanies">Back to list</a>
         <button type="submit" class="btn btn-primary">Add</button>
+        <a class="btn btn-secondary" asp-action="GetCompanies">Back to list</a>
+
     </div>
 </form>
 

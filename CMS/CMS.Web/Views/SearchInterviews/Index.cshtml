@@ -48,23 +48,32 @@
 
             <div class="col-md-3" style="margin-top:27px;">
                 <label>&nbsp;</label>
-                <button type="submit" name="export" value="excel" class="btn btn-primary btn-block">Filter</button>
+                <button type="submit" class="btn btn-primary btn-block">Filter</button>
             </div>
-           
 
-            <input type="hidden" name="export" value="excel" />
+
+
 
             <div class="col-md-3" style="margin-top:10px;margin-bottom: 8px;">
                 <label>&nbsp;</label>
-                <button type="submit" class="btn btn-success btn-block">Export to Excel</button>
+                <a asp-action="ExportFilteredData"
+                   asp-route-positionFilter="@ViewBag.positionFilter"
+                   asp-route-scoreFilter="@ViewBag.scoreFilter"
+                   asp-route-statusFilter="@ViewBag.statusFilter"
+                   asp-route-candidateFilter="@ViewBag.candidateFilter"
+                   asp-route-interviewerFilter="@ViewBag.interviewerFilter"
+                   asp-route-fromDate="@ViewBag.fromDate"
+                   asp-route-toDate="@ViewBag.toDate"
+                   class="btn btn-success btn-block">Export to Excel</a>
             </div>
-            
+
+
+
 
           
         </div>
     </div>
 }
-
 
 
 

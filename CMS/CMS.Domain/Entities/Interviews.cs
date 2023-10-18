@@ -43,5 +43,7 @@ namespace CMS.Domain.Entities
 
         public bool IsUpdated { get; set; }
 
+
+        public string? SecondInterviewerId { get; set; }
     }
 }

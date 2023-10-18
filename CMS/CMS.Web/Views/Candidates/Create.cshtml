@@ -6,35 +6,23 @@
     <div asp-validation-summary="ModelOnly" class="text-danger"></div>
     <div class="form-group">
         <label asp-for="FullName" class="control-label"><span class="text-danger">*</span> Full Name</label>
-        <input asp-for="FullName" class="form-control" autocomplete="off" />
+        <input style="width: 30%;" asp-for="FullName" class="form-control" autocomplete="off" />
         <span asp-validation-for="FullName" class="text-danger"></span>
     </div>
     <div class="form-group" style="margin-top: 15px;">
         <label asp-for="Phone" class="control-label"><span class="text-danger">*</span> Phone</label>
-        <input asp-for="Phone" class="form-control" autocomplete="off" />
+        <input style="width: 30%;" asp-for="Phone" class="form-control" autocomplete="off" />
         <span asp-validation-for="Phone" class="text-danger"></span>
     </div>
 
- @*    <div class="form-group" style="margin-top: 15px;">
 
-        <label asp-for="PositionId" class="control-label">Position</label>
-        @if (ViewBag.positions != null)
-        {
-            <select asp-for="PositionId" asp-items="@(ViewBag.positions)" class="form-control">
-                <option value="">-- Select a position --</option>
-                
-            </select>
-        }
-
-        <span asp-validation-for="PositionId" class="text-danger"></span>
-    </div> *@
     <div class="form-group" style="margin-top: 15px;">
 
-        <label asp-for="CompanyId" class="control-label">Company Name</label>
+        <label asp-for="CompanyId" class="control-label">CV Provider name</label>
         @if (ViewBag.CompaniesDTOs != null)
         {
-            <select asp-for="CompanyId" asp-items="@(ViewBag.CompaniesDTOs)" class="form-control">
-                <option value="">-- company --</option>
+            <select style="width: 30%;" asp-for="CompanyId" asp-items="@(ViewBag.CompaniesDTOs)" class="form-control">
+                <option value="">-- Select the provider --</option>
 
             </select>
         }
@@ -42,39 +30,13 @@
         <span asp-validation-for="CompanyId" class="text-danger"></span>
     </div>
 
-@*     <div class="form-group" style="margin-top: 15px;">
-        <label asp-for="Email" class="control-label">Email</label>
-        <input asp-for="Email" class="form-control" autocomplete="off" />
-        <span asp-validation-for="Email" class="text-danger"></span>
-    </div>
-    <div class="form-group" style="margin-top: 15px;">
-        <label asp-for="Address" class="control-label">Address</label>
-        <input asp-for="Address" class="form-control" autocomplete="off" />
-        <span asp-validation-for="Address" class="text-danger"></span>
-    </div> *@
+
     <div class="form-group" style="margin-top: 15px;">
         <label asp-for="Experience" class="control-label"><span class="text-danger">*</span> Experience</label>
-        <input asp-for="Experience" class="form-control" autocomplete="off" />
+        <input style="width: 30%;" asp-for="Experience" class="form-control" autocomplete="off" />
         <span asp-validation-for="Experience" class="text-danger"></span>
     </div>
- @*    <div class="form-group" style="margin-top: 15px;">
-        <label asp-for="LinkedInUrl" class="control-label">LinkedIn Url</label>
-        <input asp-for="LinkedInUrl" class="form-control" autocomplete="off" />
-        <span asp-validation-for="LinkedInUrl" class="text-danger"></span>
-    </div> *@
-  @*   <div class="form-group" style="margin-top: 15px;">
 
-        <label asp-for="CountryId" class="control-label"><span class="text-danger">*</span> Country Name</label>
-        @if (ViewBag.CompaniesDTOs != null)
-        {
-            <select asp-for="CountryId" asp-items="@(ViewBag.CountryDTOs)" class="form-control">
-                <option value="">-- Select a country --</option>
-
-            </select>
-        }
-
-        <span asp-validation-for="CountryId" class="text-danger"></span>
-    </div> *@
 
     <div class="form-group" style="margin-top: 15px;">
         <label for="file">Upload CV:</label>
@@ -85,8 +47,9 @@
 
    
     <div class="form-group text-end" >
-        <a class="btn btn-secondary" asp-action="Index">Back to List</a>
      <input type="submit" value="Create" class="btn btn-primary" />
+        <a class="btn btn-secondary" asp-action="Index">Back to List</a>
+
     </div>
 </form>
 

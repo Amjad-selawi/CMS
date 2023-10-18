@@ -13,6 +13,7 @@ namespace CMS.Application.DTOs
         public string FullName { get; set; }
 
         [Required(ErrorMessage = "Phone is required.")]
+        //[RegularExpression(@"\d.*", ErrorMessage = "Phone must contain at least one number.")]
 
         public int Phone { get; set; }
 
@@ -24,18 +25,24 @@ namespace CMS.Application.DTOs
 
         public string CompanyName { set; get; }
 
+        //[DataType(DataType.EmailAddress, ErrorMessage = "E-mail is not valid")]
+        //public string Email { get; set; }
+
+        //public string Address { get; set; }
+
         [Required(ErrorMessage = "Experience is required.")]
-        [RegularExpression(@"^(?:0(\.\d+)?|[1-9]\d*(\.\d+)?)$", ErrorMessage = "Experience must be a non-negative numeric value.")]
-        public decimal Experience { get; set; }
+        [RegularExpression(@"^(?:\d{1,2}(\.\d{1})?)$", ErrorMessage = "Experience must be a non-negative numeric value with up to 1 decimal place.")]
+        public double Experience { get; set; }
 
         //[Url(ErrorMessage = "Invalid LinkedIn URL.")]
-      
+
         //public string LinkedInUrl { get; set; }
         public int? CountryId { get; set; }
         public string CountryName { get; set; }
         public int? CVAttachmentId { get; set; }
         public string FileName { get; set; }
         public long FileSize { get; set; }
+        //[Required(ErrorMessage = "CVAttachment is required.")]
         public Stream FileData { get; set; }
         public DateTime CreatedOn { get; set; }
         public List<InterviewsDTO> InterviewsDTO { get; set; }

@@ -21,6 +21,6 @@ namespace CMS.Repository.Interfaces
 
         Task<List<Notifications>> GetSpacificNotificationsforGeneral();
 
-        Task<List<Notifications>> GetSpacificNotificationsforInterviewer();
+        Task<List<Notifications>> GetSpacificNotificationsforInterviewer(string interviewerId);
     }
 }

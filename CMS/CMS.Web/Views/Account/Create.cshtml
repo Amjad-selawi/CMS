@@ -9,17 +9,17 @@
         <input asp-for="Email" class="form-control" />
         <span asp-validation-for="Email" class="text-danger"></span>
     </div>
-    <div class="form-group">
+    <div class="form-group" style="margin-top:15px;">
         <label asp-for="UserName" class="control-label">Username</label>
         <input asp-for="UserName" class="form-control" />
         <span asp-validation-for="UserName" class="text-danger"></span>
     </div>
-    <div class="form-group">
+    <div class="form-group" style="margin-top:15px;">
         <label asp-for="Password" class="control-label">Password</label>
         <input asp-for="Password" type="password" class="form-control" />
         <span asp-validation-for="Password" class="text-danger"></span>
     </div>
-    <div class="form-group">
+    <div class="form-group" style="margin-top:15px;">
         <label asp-for="ConfirmPassword" class="control-label">Confirm Password</label>
         <input asp-for="ConfirmPassword" type="password" class="form-control" />
         <span asp-validation-for="ConfirmPassword" class="text-danger"></span>
@@ -33,7 +33,7 @@
     </div> *@
 
 
-    <div class="form-group">
+    <div class="form-group" style="margin-top:15px;">
         <label asp-for="SelectedRole" class="control-label">Role:</label>
         @Html.DropDownListFor(model => model.SelectedRole, (SelectList)ViewBag.Roles, "Select a Role", new { @class = "form-control" })
         <span asp-validation-for="SelectedRole" class="text-danger"></span>
@@ -41,8 +41,8 @@
 
 
     <div class="form-group text-end" style="margin-top: 10px;">
-        <a class="btn btn-secondary" asp-action="Index">Back to List</a>
         <input type="submit" value="Create" class="btn btn-primary" />
+        <a class="btn btn-secondary" asp-action="Index">Back to List</a>
     </div>
 </form>
 <p>

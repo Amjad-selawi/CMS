@@ -4,14 +4,15 @@
 @*     <div asp-validation-summary="ModelOnly" class="text-danger"></div>
  *@        <div class="form-group">
         <label asp-for="Name" class="control-label"><span class="text-danger">*</span> Name</label>
-        <input asp-for="Name" class="form-control" />
+        <input style="width: 30%;" asp-for="Name" class="form-control" />
         <span asp-validation-for="Name" class="text-danger"></span>
         <span id="errorMessage" class="text-danger"></span>
     </div>
  
     <div class="form-group text-end" style="margin-top: 10px;">
-        <a class="btn btn-secondary" asp-action="GetCountries"> back to list</a>
         <button type="submit" class="btn btn-primary">Add</button>
+        <a class="btn btn-secondary" asp-action="GetCountries"> Back to list</a>
+
     </div>
 
 </form>

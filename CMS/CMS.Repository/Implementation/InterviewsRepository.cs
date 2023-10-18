@@ -238,7 +238,44 @@ namespace CMS.Repository.Repositories
                 return null;
             }
         }
+        //public async Task<bool> HasGivenScoreAsync(string interviewerId, int interviewId)
+        //{
+        //    try
+        //    {
+        //        var interview = await _context.Interviews
+        //            .Where(i => i.InterviewerId == interviewerId && i.InterviewsId == interviewId)
+        //            .FirstOrDefaultAsync();
 
-      
+        //        if (interview != null)
+        //        {
+        //            return interview.Score.HasValue; // Assuming that the score is a nullable value.
+        //        }
+
+        //        return false; // Interviewer hasn't given a score for this interview.
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        // Handle exceptions here if needed
+        //        return false; // An error occurred, so assume no score was given.
+        //    }
+        //}
+
+        public async Task<bool> HasGivenScoreAsync(string interviewerId, int interviewId)
+        {
+            try
+            {
+                var interview = await _context.Interviews
+                    .FirstOrDefaultAsync(c => c.InterviewsId == interviewId && c.InterviewerId == interviewerId);
+
+                return interview != null && interview.Score.HasValue;
+            }
+            catch (Exception ex)
+            {
+                // Handle exceptions here if needed
+                return false;
+            }
+        }
+
+
     }
 }

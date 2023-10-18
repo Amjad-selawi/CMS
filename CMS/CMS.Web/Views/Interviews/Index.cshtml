@@ -31,7 +31,8 @@
                         <tr>
                             <th>Candidate Name</th>
                             <th>Position</th>
-                            <th>Interviewer</th>
+                            <th>First Interviewer</th>
+                            <th>Second Interviewer</th>
                             <th>Date</th>
                             <th>Status</th>
                             <th hidden>Parent ID</th>
@@ -50,6 +51,14 @@
                                     <td>@Html.DisplayFor(modelItem => item.FullName)</td>
                                     <td>@Html.DisplayFor(modelItem => item.Name)</td>
                                     <td>@item.InterviewerName</td>
+                                    @if (item.SecondInterviewerId != null)
+                                    {
+                                        <td>@item.SecondInterviewerName</td>
+                                    }
+                                    else
+                                    {
+                                        <td>There is no Second Interviewer</td>
+                                    }
                                     <td>@item.Date</td>
                                     <td>@item.StatusName</td>
                                     <td hidden>@item.ParentId</td>

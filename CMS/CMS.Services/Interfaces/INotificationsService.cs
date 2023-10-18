@@ -22,16 +22,17 @@ namespace CMS.Services.Interfaces
         Task<List<NotificationsDTO>> GetNotificationsForUserAsync(string userId);
 
         Task<IEnumerable<NotificationsDTO>> GetNotificationsForHRAsync();
-        Task<IEnumerable<NotificationsDTO>> GetNotificationsForInterviewers();
+        Task<IEnumerable<NotificationsDTO>> GetNotificationsForInterviewers(string interviewerId);
         Task<IEnumerable<NotificationsDTO>> GetNotificationsForGeneralManager();
 
         Task CreateNotificationForGeneralManagerAsync(int status, string notes, int CandidateId, int positionId);
 
-        Task CreateInterviewNotificationForInterviewerAsync(DateTime interviewDate, int CandidateId, int positionId);
+        Task CreateInterviewNotificationForInterviewerAsync(DateTime interviewDate, int CandidateId, int positionId, string selectedInterviewerId, bool isCanceled);
 
 
         Task CreateInterviewNotificationForHRInterview(int status, string notes, int CandidateId, int positionId);
 
+        Task CreateNotificationForInterviewer(int CandidateId, string selectedInterviewerId);
         Task<NotificationsDTO> GetNotificationByIdforDetails(int notificationsId);
 
 

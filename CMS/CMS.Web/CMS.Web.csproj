@@ -748,6 +748,7 @@
 	<ItemGroup>
 		<PackageReference Include="EPPlus" Version="6.2.9" />
 		<PackageReference Include="Habanero" Version="3.0.1" />
+		<PackageReference Include="Hangfire" Version="1.8.5" />
 		<PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="3.1.31" />
 		<PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="3.1.31">
 			<PrivateAssets>all</PrivateAssets>

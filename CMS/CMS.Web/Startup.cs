@@ -22,6 +22,7 @@ using Microsoft.Extensions.Logging;
 using CMS.Application.DTOs;
 using Microsoft.AspNetCore.Mvc.ViewEngines;
 using System.Security.Principal;
+using Hangfire;
 
 namespace CMS.Web
 {
@@ -117,6 +118,11 @@ namespace CMS.Web
 
             });
 
+
+            services.AddHangfire(x => x.UseSqlServerStorage(Configuration.GetConnectionString("Defultconiction")));
+            services.AddHangfireServer();
+
+
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -139,6 +145,7 @@ namespace CMS.Web
 
             app.UseAuthorization();
             app.UseAuthentication();
+            app.UseHangfireDashboard("/jobs");
 
             app.UseEndpoints(endpoints =>
             {

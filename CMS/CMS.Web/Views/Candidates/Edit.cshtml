@@ -6,37 +6,21 @@
     <div asp-validation-summary="ModelOnly" class="text-danger"></div>
     <div class="form-group">
         <label asp-for="FullName" class="control-label"></label>
-        <input asp-for="FullName" class="form-control" />
+        <input style="width: 30%;" asp-for="FullName" class="form-control" />
         <span asp-validation-for="FullName" class="text-danger"></span>
     </div>
     <div class="form-group" style="margin-top: 15px;">
         <label asp-for="Phone" class="control-label"></label>
-        <input asp-for="Phone" class="form-control" />
+        <input style="width: 30%;" asp-for="Phone" class="form-control" />
         <span asp-validation-for="Phone" class="text-danger"></span>
     </div>
- @*    <div class="form-group" style="margin-top:15px;" >
 
-        <label asp-for="PositionId" class="control-label">Position Name</label>
-        @if (ViewBag.positions != null)
-        {
-            <select asp-for="PositionId"  class="form-control">
-                <option value=""> Position</option>
-                @foreach (var pos in ViewBag.positions)
-                {
-                    <option value="@pos.Value" selected="@(pos.Value == Model.PositionId.ToString())">@pos.Text</option>
-                }
-
-            </select>
-        }
-        <span asp-validation-for="PositionId" class="text-danger"></span>
-    </div>
- *@
     <div class="form-group" style="margin-top: 15px;">
 
-        <label asp-for="CompanyId" class="control-label">Company Name</label>
+        <label asp-for="CompanyId" class="control-label">CV Provider name</label>
         @if (ViewBag.CompaniesDTOs != null)
         {
-            <select asp-for="CompanyId" class="form-control">
+            <select style="width: 30%;" asp-for="CompanyId" class="form-control">
                 <option value=""> Company</option>
                 @foreach (var c in ViewBag.CompaniesDTOs)
                 {
@@ -51,34 +35,23 @@
 
     <div class="form-group" style="margin-top: 15px;">
         <label asp-for="Experience" class="control-label"></label>
-        <input asp-for="Experience" class="form-control" />
+        <input style="width: 30%;" asp-for="Experience" class="form-control" />
         <span asp-validation-for="Experience" class="text-danger"></span>
     </div>
   
-    <div class="form-group">
-
-        <label asp-for="CountryId" class="control-label">Country Name</label>
-        @if (ViewBag.CompaniesDTOs != null)
-        {
-            <select asp-for="CountryId" asp-items="@(ViewBag.CountryDTOs)" class="form-control">
-                <option value=""> country </option>
-
-            </select>
-        }
-
-        <span asp-validation-for="CountryId" class="text-danger"></span>
-    </div>
+  
     <div class="form-group" style="margin-top: 15px;">
         <input asp-for="CVAttachmentId" class="form-control"  hidden />
     </div>
     <!-- Add other fields similarly -->
    
     <div class="form-group text-end" style="margin-top:15px;">
-        <a class="btn btn-secondary" asp-action="Index">Back to List</a>
         <input type="submit" value="Save" class="btn btn-primary" />
+        <a class="btn btn-secondary" asp-action="Index">Back to List</a>
+
     </div>
 </form>
-<form asp-action="UpdateAttachment" asp-route-id="@Model.Id" enctype="multipart/form-data">
+@* <form asp-action="UpdateAttachment" asp-route-id="@Model.Id" enctype="multipart/form-data">
     <div class="form-group">
         <label for="file">Upload CV:</label>
         <input type="file" id="file" name="file" class="form-control-file" onchange="validateFileFormat(this)" required />
@@ -93,7 +66,7 @@
         <input type="submit" value="Upload" class="btn btn-primary" id="uploadButton" disabled />
     </div>
 
-</form>
+</form> *@
 
 
 
