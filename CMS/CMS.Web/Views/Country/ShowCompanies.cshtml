@@ -16,17 +16,21 @@
     <dl>
         <dt>Companies Name:</dt>
         <dd>
-            @foreach (var com in Model.companyDTOs)
+            @if (Model.companyDTOs.Any())
             {
-
-
-                @com.Name
-
-                @if (com != Model.companyDTOs.Last())
+                @foreach (var com in Model.companyDTOs)
                 {
-                    @(",  ")
-                }
+                    @com.Name
 
+                    @if (com != Model.companyDTOs.Last())
+                    {
+                        @(",  ")
+                    }
+                }
+            }
+            else
+            {
+                <p>There is no companies connected to this country</p>
             }
         </dd>
     </dl>
@@ -36,6 +40,7 @@
 
 
 <div class="form-group text-end">
-    <a asp-action="GetCountries" class="btn btn-secondary"> back to list</a>
     <a asp-action="UpdateCountry" asp-route-id="@Model.Id" class="btn btn-primary">Edit</a>
+    <a asp-action="GetCountries" class="btn btn-secondary">Back to List</a>
+
 </div>

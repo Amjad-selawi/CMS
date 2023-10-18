@@ -427,6 +427,8 @@ namespace CMS.Web.Controllers
 
             return View(InterviewsDTO);
         }
+     
+
         [HttpPost]
         public async Task<IActionResult> UpdateAfterInterview(InterviewsDTO interviewsDTO, IFormFile file)
         {
@@ -438,33 +440,31 @@ namespace CMS.Web.Controllers
             if ((file == null || file.Length == 0) && User.IsInRole("Interviewer"))
             {
                 ModelState.AddModelError("AttachmentId", "Please choose a file to upload.");
-            
             }
 
             if (interviewsDTO.ActualExperience == null)
             {
                 ModelState.AddModelError("ActualExperience", "Please add the actual experience.");
             }
+
             var statusResult = await _StatusService.GetById((int)interviewsDTO.StatusId);
             var status = statusResult.Value;
 
-
             if (status.Code == Domain.Enums.StatusCode.Rejected && interviewsDTO.Notes == null)
             {
-                 ModelState.AddModelError("Notes", "Please add note why it was rejected.");
+                ModelState.AddModelError("Notes", "Please add a note for why it was rejected.");
             }
+
             if (interviewsDTO.Score == null && User.IsInRole("Interviewer"))
             {
-               
-                ModelState.AddModelError("Score", "Please add score.");
-
+                ModelState.AddModelError("Score", "Please add a score.");
             }
+
             if (interviewsDTO.StatusId == null)
             {
-               
                 ModelState.AddModelError("StatusId", "Please select a status.");
-
             }
+
             if (validationErrors.Count() > 0)
             {
                 foreach (var validation in validationErrors)
@@ -473,6 +473,7 @@ namespace CMS.Web.Controllers
                 }
                 return View(interviewsDTO);
             }
+
             FileStream attachmentStream = null;
             if (file != null && file.Length != 0)
             {
@@ -484,174 +485,172 @@ namespace CMS.Web.Controllers
 
             if (ModelState.IsValid)
             {
-
-
-
-
-                await _interviewsService.ConductInterview(interviewsDTO);
-                if (attachmentStream != null)
+                try
                 {
-                    attachmentStream.Close();
-                    attachmentStream.Dispose(); // Dispose the stream to release the file
-                    AttachmentHelper.removeFile(file.FileName, _attachmentStoragePath);
-                }
-                   
+                    await _interviewsService.ConductInterview(interviewsDTO);
 
-                if (User.IsInRole("Interviewer"))
-                {
-                    if (status.Code == Domain.Enums.StatusCode.Rejected || status.Code == Domain.Enums.StatusCode.Approved)
+                    if (attachmentStream != null)
                     {
-                        await _notificationsService.CreateNotificationForGeneralManagerAsync(interviewsDTO.StatusId.Value, interviewsDTO.Notes,interviewsDTO.CandidateId ,interviewsDTO.PositionId);
+                        // Close the file stream and release the file
+                        attachmentStream.Close();
+                        attachmentStream.Dispose();
+                        AttachmentHelper.removeFile(file.FileName, _attachmentStoragePath);
+                    }
 
-                        if(status.Code == Domain.Enums.StatusCode.Approved)
+                    if (User.IsInRole("Interviewer"))
+                    {
+                        if (status.Code == Domain.Enums.StatusCode.Rejected || status.Code == Domain.Enums.StatusCode.Approved)
                         {
-                            string userName = GetLoggedInUserName();
-                            var GMEmail = await GetGMEmail();
-                            var HREmail = await GetHREmail();
+                            await _notificationsService.CreateNotificationForGeneralManagerAsync(interviewsDTO.StatusId.Value, interviewsDTO.Notes, interviewsDTO.CandidateId, interviewsDTO.PositionId);
 
-                            EmailDTOs emailModel = new EmailDTOs
+                            if (status.Code == Domain.Enums.StatusCode.Approved)
                             {
-                                EmailTo = new List<string> { GMEmail },
-                                EmailBody = $"You have a second interview. Please be prepared.",
-                                Subject = "Interview Invitation"
-                            };
+                                string userName = GetLoggedInUserName();
+                                var GMEmail = await GetGMEmail();
+                                var HREmail = await GetHREmail();
+
+                                EmailDTOs emailModel = new EmailDTOs
+                                {
+                                    EmailTo = new List<string> { GMEmail },
+                                    EmailBody = $"You have a second interview. Please be prepared.",
+                                    Subject = "Interview Invitation"
+                                };
 
 
-                            EmailDTOs emailModelToHR = new EmailDTOs
+                                EmailDTOs emailModelToHR = new EmailDTOs
+                                {
+                                    EmailTo = new List<string> { HREmail },
+                                    EmailBody = $"The first interview Approved by {userName}.",
+                                    Subject = "Interview Approval"
+                                };
+
+                                //var reminderJobId = BackgroundJob.Schedule(() => ReminderJobAsync(GMEmail, interviewsDTO), interviewsDTO.Date.AddHours(16));
+
+
+                                //if (!string.IsNullOrEmpty(GMEmail))
+                                //{
+                                //    await SendEmailToInterviewer(GMEmail, interviewsDTO, emailModel);
+                                //}
+
+                                //if (!string.IsNullOrEmpty(HREmail))
+                                //{
+                                //    await SendEmailToInterviewer(HREmail, interviewsDTO, emailModelToHR);
+                                //}
+
+                                return RedirectToAction(nameof(MyInterviews));
+                            }
+
+                            else if (status.Code == Domain.Enums.StatusCode.Rejected)
                             {
-                                EmailTo = new List<string> { HREmail },
-                                EmailBody = $"The first interview Approved by {userName}.",
-                                Subject = "Interview Approval"
-                            };
+                                string userName = GetLoggedInUserName();
+                                var HREmail = await GetHREmail();
+                                EmailDTOs emailModel = new EmailDTOs
+                                {
+                                    EmailTo = new List<string> { HREmail },
+                                    EmailBody = $"The first interview was rejected by {userName} .",
+                                    Subject = "Interview Rejection"
+                                };
 
-                            var reminderJobId = BackgroundJob.Schedule(() => ReminderJobAsync(GMEmail, interviewsDTO), interviewsDTO.Date.AddHours(16));
+                                //var reminderJobId = BackgroundJob.Schedule(() => ReminderJobAsync(HREmail, interviewsDTO), interviewsDTO.Date.AddHours(16));
+
+                                //if (!string.IsNullOrEmpty(HREmail))
+                                //{
+                                //    await SendEmailToInterviewer(HREmail, interviewsDTO, emailModel);
+                                //}
+
+                                return RedirectToAction(nameof(MyInterviews));
+                            }
+
+                            else
+                            {
+                                return RedirectToAction(nameof(MyInterviews));
+
+                            }
 
 
-                            //if (!string.IsNullOrEmpty(GMEmail))
-                            //{
-                            //    await SendEmailToInterviewer(GMEmail, interviewsDTO, emailModel);
-                            //}
-
-                            //if (!string.IsNullOrEmpty(HREmail))
-                            //{
-                            //    await SendEmailToInterviewer(HREmail, interviewsDTO, emailModelToHR);
-                            //}
-
-                            return RedirectToAction(nameof(MyInterviews));
                         }
-
-                        else if (status.Code == Domain.Enums.StatusCode.Rejected)
-                        {
-                            string userName = GetLoggedInUserName();
-                            var HREmail = await GetHREmail();
-                            EmailDTOs emailModel = new EmailDTOs
-                            {
-                                EmailTo = new List<string> { HREmail },
-                                EmailBody = $"The first interview was rejected by {userName} .",
-                                Subject = "Interview Rejection"
-                            };
-
-                            var reminderJobId = BackgroundJob.Schedule(() => ReminderJobAsync(HREmail, interviewsDTO), interviewsDTO.Date.AddHours(16));
-
-                            //if (!string.IsNullOrEmpty(HREmail))
-                            //{
-                            //    await SendEmailToInterviewer(HREmail, interviewsDTO, emailModel);
-                            //}
-
-                            return RedirectToAction(nameof(MyInterviews));
-                        }
-
                         else
                         {
                             return RedirectToAction(nameof(MyInterviews));
 
                         }
+                    }
+                    else if (User.IsInRole("General Manager"))
+                    {
+                        if ((status.Code == Domain.Enums.StatusCode.Rejected || status.Code == Domain.Enums.StatusCode.Approved))
+                        {
+                            await _notificationsService.CreateInterviewNotificationForHRInterview(interviewsDTO.StatusId.Value, interviewsDTO.Notes, interviewsDTO.CandidateId, interviewsDTO.PositionId);
 
+
+                            if (status.Code == Domain.Enums.StatusCode.Approved)
+                            {
+                                string userName = GetLoggedInUserName();
+                                var HREmail = await GetHREmail();
+                                EmailDTOs emailModel = new EmailDTOs
+                                {
+                                    EmailTo = new List<string> { HREmail },
+                                    EmailBody = $"You have a thierd interview. Please be prepared.",
+                                    Subject = "Interview Invitation"
+                                };
+
+                                EmailDTOs emailModelApproval = new EmailDTOs
+                                {
+                                    EmailTo = new List<string> { HREmail },
+                                    EmailBody = $"The Second Interview Approved by {userName}.",
+                                    Subject = "Interview Approval"
+                                };
+
+
+                                //if (!string.IsNullOrEmpty(HREmail))
+                                //{
+                                //    await SendEmailToInterviewer(HREmail, interviewsDTO, emailModel);
+                                //}
+
+                                return RedirectToAction(nameof(MyInterviews));
+                            }
+
+                            else if (status.Code == Domain.Enums.StatusCode.Rejected)
+                            {
+                                string userName = GetLoggedInUserName();
+                                var HREmail = await GetHREmail();
+                                EmailDTOs emailModel = new EmailDTOs
+                                {
+                                    EmailTo = new List<string> { HREmail },
+                                    EmailBody = $"The second interview was rejected by {userName} .",
+                                    Subject = "Interview Rejection"
+                                };
+                                //if (!string.IsNullOrEmpty(HREmail))
+                                //{
+                                //    await SendEmailToInterviewer(HREmail, interviewsDTO, emailModel);
+                                //}
+
+                                return RedirectToAction(nameof(MyInterviews));
+                            }
+
+                            else
+                            {
+                                return RedirectToAction(nameof(MyInterviews));
+
+                            }
+                        }
 
                     }
                     else
                     {
                         return RedirectToAction(nameof(MyInterviews));
-
-                    }
-                }
-
-                else if (User.IsInRole("General Manager"))
-                {
-                    if ((status.Code == Domain.Enums.StatusCode.Rejected || status.Code == Domain.Enums.StatusCode.Approved))
-                    {
-                        await _notificationsService.CreateInterviewNotificationForHRInterview(interviewsDTO.StatusId.Value, interviewsDTO.Notes,interviewsDTO.CandidateId,interviewsDTO.PositionId);
-
-
-                        if (status.Code == Domain.Enums.StatusCode.Approved)
-                        {
-                            string userName = GetLoggedInUserName();
-                            var HREmail = await GetHREmail();
-                            EmailDTOs emailModel = new EmailDTOs
-                            {
-                                EmailTo = new List<string> { HREmail },
-                                EmailBody = $"You have a thierd interview. Please be prepared.",
-                                Subject = "Interview Invitation"
-                            };
-
-                            EmailDTOs emailModelApproval = new EmailDTOs
-                            {
-                                EmailTo = new List<string> { HREmail },
-                                EmailBody = $"The Second Interview Approved by {userName}.",
-                                Subject = "Interview Approval"
-                            };
-
-
-                            //if (!string.IsNullOrEmpty(HREmail))
-                            //{
-                            //    await SendEmailToInterviewer(HREmail, interviewsDTO, emailModel);
-                            //}
-
-                            return RedirectToAction(nameof(MyInterviews));
-                        }
-
-                        else if (status.Code == Domain.Enums.StatusCode.Rejected)
-                        {
-                            string userName = GetLoggedInUserName();
-                            var HREmail = await GetHREmail();
-                            EmailDTOs emailModel = new EmailDTOs
-                            {
-                                EmailTo = new List<string> { HREmail },
-                                EmailBody = $"The second interview was rejected by {userName} .",
-                                Subject = "Interview Rejection"
-                            };
-                            //if (!string.IsNullOrEmpty(HREmail))
-                            //{
-                            //    await SendEmailToInterviewer(HREmail, interviewsDTO, emailModel);
-                            //}
-
-                            return RedirectToAction(nameof(MyInterviews));
-                        }
-
-                        else
-                        {
-                            return RedirectToAction(nameof(MyInterviews));
-
-                        }
                     }
 
-                }
-                else
-                {
+                    // Redirect to the appropriate action
                     return RedirectToAction(nameof(MyInterviews));
                 }
-
-
-
-
-
+                catch (Exception ex)
+                {
+                    ModelState.AddModelError("", "An error occurred: " + ex.Message);
+                }
             }
+
             return View(interviewsDTO);
-
-
         }
-
-
 
 
 
