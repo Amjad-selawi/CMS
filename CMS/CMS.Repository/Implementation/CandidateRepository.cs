@@ -128,10 +128,13 @@ namespace CMS.Repository.Implementation
         public async Task<int> CountPendingAsync()
         {
             int candidateCounts = await _dbContext.Candidates
-             .Include(a => a.Interviews)
-             .ThenInclude(a => a.Status)
-             .Where(a => a.Interviews.Count > 0 && a.Interviews.Any(a => a.Status.Code == StatusCode.Pending))
-             .CountAsync();
+        .Include(a => a.Interviews)
+        .ThenInclude(a => a.Status)
+        .Where(candidate =>
+            candidate.Interviews.Any(interview => interview.Status.Code == StatusCode.Pending) ||
+           candidate.Interviews.All(interview => interview.Status.Code != StatusCode.Rejected) &&
+           candidate.Interviews.All(interview => interview.Status.Code != StatusCode.Approved))
+        .CountAsync();
 
             return candidateCounts;
 

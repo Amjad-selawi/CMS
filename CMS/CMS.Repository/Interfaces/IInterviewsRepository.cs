@@ -14,7 +14,9 @@ namespace CMS.Repository.Interfaces
         Task<Interviews> GetById(int id);
         Task<Interviews> GetByIdForEdit(int id);
         Task<List<Interviews>> GetAll();
-        Task<bool> HasGivenScoreAsync(string interviewerId, int interviewId);
+        
+        //Task<bool> HasGivenScoreAsync(string interviewerId, int interviewId);
+        Task<bool> HasGivenStatusAsync(string interviewerId, int interviewId);
         Task<List<Interviews>> GetCurrentInterviews(string id);
 
         Task<string> GetInterviewerEmail(string interviewerId);
