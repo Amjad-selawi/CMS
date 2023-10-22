@@ -236,8 +236,7 @@ namespace CMS.Web.Controllers
 
                         await _notificationsService.CreateInterviewNotificationForInterviewerAsync(collection.Date, collection.CandidateId, collection.PositionId, selectedInterviewerId, isCanceled: false);
 
-
-
+                        ScheduleInterviewReminder(collection);
 
                         var interviewerEmail = await GetInterviewerEmail(collection.InterviewerId);
                         EmailDTOs emailModel = new EmailDTOs
@@ -447,13 +446,27 @@ namespace CMS.Web.Controllers
                 ModelState.AddModelError("ActualExperience", "Please add the actual experience.");
             }
 
-            var statusResult = await _StatusService.GetById((int)interviewsDTO.StatusId);
-            var status = statusResult.Value;
-
-            if (status.Code == Domain.Enums.StatusCode.Rejected && interviewsDTO.Notes == null)
+            if (!interviewsDTO.StatusId.HasValue)
             {
-                ModelState.AddModelError("Notes", "Please add a note for why it was rejected.");
+                ModelState.AddModelError("StatusId", "Please select a status.");
             }
+            else
+            {
+                var statusResult = await _StatusService.GetById(interviewsDTO.StatusId.Value);
+                if (!statusResult.IsSuccess)
+                {
+                    ModelState.AddModelError("StatusId", "Invalid status selected.");
+                }
+                else
+                {
+                    var status = statusResult.Value;
+                    if (status.Code == Domain.Enums.StatusCode.Rejected && string.IsNullOrWhiteSpace(interviewsDTO.Notes))
+                    {
+                        ModelState.AddModelError("Notes", "Please add a note for why it was rejected.");
+                    }
+                }
+            }
+
 
             if (interviewsDTO.Score == null && User.IsInRole("Interviewer"))
             {
@@ -497,8 +510,13 @@ namespace CMS.Web.Controllers
                         AttachmentHelper.removeFile(file.FileName, _attachmentStoragePath);
                     }
 
+
                     if (User.IsInRole("Interviewer"))
                     {
+                        var statusResult = await _StatusService.GetById(interviewsDTO.StatusId.Value);
+                        var status = statusResult.Value;
+
+
                         if (status.Code == Domain.Enums.StatusCode.Rejected || status.Code == Domain.Enums.StatusCode.Approved)
                         {
                             await _notificationsService.CreateNotificationForGeneralManagerAsync(interviewsDTO.StatusId.Value, interviewsDTO.Notes, interviewsDTO.CandidateId, interviewsDTO.PositionId);
@@ -512,7 +530,7 @@ namespace CMS.Web.Controllers
                                 EmailDTOs emailModel = new EmailDTOs
                                 {
                                     EmailTo = new List<string> { GMEmail },
-                                    EmailBody = $"You have a second interview. Please be prepared.",
+                                    EmailBody = $"You have a second interview, Check the system. Please be prepared.",
                                     Subject = "Interview Invitation"
                                 };
 
@@ -524,9 +542,11 @@ namespace CMS.Web.Controllers
                                     Subject = "Interview Approval"
                                 };
 
+
+
                                 //var reminderJobId = BackgroundJob.Schedule(() => ReminderJobAsync(GMEmail, interviewsDTO), interviewsDTO.Date.AddHours(16));
 
-
+                          
                                 //if (!string.IsNullOrEmpty(GMEmail))
                                 //{
                                 //    await SendEmailToInterviewer(GMEmail, interviewsDTO, emailModel);
@@ -551,7 +571,6 @@ namespace CMS.Web.Controllers
                                     Subject = "Interview Rejection"
                                 };
 
-                                //var reminderJobId = BackgroundJob.Schedule(() => ReminderJobAsync(HREmail, interviewsDTO), interviewsDTO.Date.AddHours(16));
 
                                 //if (!string.IsNullOrEmpty(HREmail))
                                 //{
@@ -577,6 +596,9 @@ namespace CMS.Web.Controllers
                     }
                     else if (User.IsInRole("General Manager"))
                     {
+                        var statusResult = await _StatusService.GetById(interviewsDTO.StatusId.Value);
+                        var status = statusResult.Value;
+
                         if ((status.Code == Domain.Enums.StatusCode.Rejected || status.Code == Domain.Enums.StatusCode.Approved))
                         {
                             await _notificationsService.CreateInterviewNotificationForHRInterview(interviewsDTO.StatusId.Value, interviewsDTO.Notes, interviewsDTO.CandidateId, interviewsDTO.PositionId);
@@ -589,7 +611,7 @@ namespace CMS.Web.Controllers
                                 EmailDTOs emailModel = new EmailDTOs
                                 {
                                     EmailTo = new List<string> { HREmail },
-                                    EmailBody = $"You have a thierd interview. Please be prepared.",
+                                    EmailBody = $"You have a thierd interview, Check the system. Please be prepared.",
                                     Subject = "Interview Invitation"
                                 };
 
@@ -600,6 +622,7 @@ namespace CMS.Web.Controllers
                                     Subject = "Interview Approval"
                                 };
 
+                                //var reminderJobId = BackgroundJob.Schedule(() => ReminderJobAsync(HREmail, interviewsDTO), interviewsDTO.Date.AddHours(16));
 
                                 //if (!string.IsNullOrEmpty(HREmail))
                                 //{
@@ -754,7 +777,7 @@ namespace CMS.Web.Controllers
         public async Task ReminderJobAsync(string interviewerId, InterviewsDTO collection)
         {
             // Check if the interviewer has given a score, and if not, send a reminder email
-            bool hasGivenScore = await _interviewsRepository.HasGivenScoreAsync(interviewerId, collection.InterviewsId);
+            bool hasGivenScore = await _interviewsRepository.HasGivenStatusAsync(interviewerId, collection.InterviewsId);
 
             if (!hasGivenScore)
             {
@@ -774,7 +797,7 @@ namespace CMS.Web.Controllers
         public async Task ReminderJobAsyncForGM(string interviewerId, InterviewsDTO collection)
         {
             // Check if the interviewer has given a score, and if not, send a reminder email
-            bool hasGivenScore = await _interviewsRepository.HasGivenScoreAsync(interviewerId, collection.InterviewsId);
+            bool hasGivenScore = await _interviewsRepository.HasGivenStatusAsync(interviewerId, collection.InterviewsId);
 
             if (!hasGivenScore)
             {
@@ -794,7 +817,7 @@ namespace CMS.Web.Controllers
         public async Task ReminderJobAsyncForHR(string interviewerId, InterviewsDTO collection)
         {
             // Check if the interviewer has given a score, and if not, send a reminder email
-            bool hasGivenScore = await _interviewsRepository.HasGivenScoreAsync(interviewerId, collection.InterviewsId);
+            bool hasGivenScore = await _interviewsRepository.HasGivenStatusAsync(interviewerId, collection.InterviewsId);
 
             if (!hasGivenScore)
             {
@@ -807,6 +830,41 @@ namespace CMS.Web.Controllers
                 };
 
                 await SendEmailToInterviewer(interviewerEmail2, collection, emailModel);
+            }
+        }
+
+
+
+
+        public void ScheduleInterviewReminder(InterviewsDTO collection)
+        {
+            var reminderTime = collection.Date.AddMinutes(-15);
+
+            if (DateTime.UtcNow < reminderTime)
+            {
+                var interviewReminderJobId = BackgroundJob.Schedule(
+                    () => SendInterviewReminderEmail(collection), 
+                    reminderTime
+                );
+            }
+        }
+
+
+        public async Task SendInterviewReminderEmail(InterviewsDTO collection)
+        {
+            
+            string interviewerEmail = await GetInterviewerEmail(collection.InterviewerId);
+
+            if (!string.IsNullOrEmpty(interviewerEmail))
+            {
+                EmailDTOs emailModel = new EmailDTOs
+                {
+                    EmailTo = new List<string> { interviewerEmail },
+                    EmailBody = "Your interview is scheduled to start in 15 minutes. Please be prepared.",
+                    Subject = "Interview Reminder"
+                };
+
+                await SendEmailToInterviewer(interviewerEmail, collection, emailModel);
             }
         }
 

@@ -14,7 +14,7 @@
     @if (User.IsInRole("Interviewer"))
     {
         <div class="form-group">
-            <label asp-for="Score">Score out of 5:</label>
+            <label asp-for="Score"><span class="text-danger">*</span> Score out of 5:</label>
             <input style="width: 30%;" asp-for="Score" class="form-control" />
             <span asp-validation-for="Score" class="text-danger"></span>
         </div>
@@ -28,14 +28,14 @@
     </div>
 
     <div class="form-group" style="margin-top: 15px;">
-        <label asp-for="ActualExperience">Actual Experience:</label>
+        <label asp-for="ActualExperience"><span class="text-danger">*</span> Actual Experience:</label>
         <textarea style="width: 30%;" asp-for="ActualExperience" class="form-control"></textarea>
         <span asp-validation-for="ActualExperience" class="text-danger"></span>
     </div>
 
     <div class="form-group" style="margin-top: 15px;">
 
-        <label asp-for="StatusId" class="control-label">Status</label>
+        <label asp-for="StatusId" class="control-label"><span class="text-danger">*</span> Status</label>
         @if (ViewBag.StatusDTOs != null)
         {
           @*  <select asp-for="StatusId" asp-items="@(ViewBag.StatusDTOs)" class="form-control">
@@ -84,7 +84,7 @@
 
 
         <div class="form-group" style="margin-top: 15px;">
-            <label for="file">Upload An evaluation:</label>
+            <label for="file"><span class="text-danger">*</span> Upload An evaluation:</label>
             <input type="file" id="file" name="file" class="form-control-file" onchange="validateFileFormat(this)"  />
          <br>
             <span asp-validation-for="AttachmentId" class="text-danger"></span>
