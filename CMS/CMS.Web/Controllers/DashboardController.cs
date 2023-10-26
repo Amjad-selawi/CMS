@@ -159,8 +159,8 @@ namespace CMS.Web.Controllers
                                      CandidateName = candidate.FullName,
                                      StatusName = interview.Status.Name,
                                      Score = interview.Score,
-                                     InterviewDate = interview.Date  // Assuming you have an InterviewDate property
-                                 }).ToList();  // Remove Distinct to keep all interviews
+                                     InterviewDate = interview.Date  
+                                 }).ToList();  
 
             var latestInterviews = candidateData
                 .GroupBy(x => new
@@ -173,7 +173,7 @@ namespace CMS.Web.Controllers
                 })
                 .Select(group => group
                     .OrderByDescending(c => c.InterviewDate)
-                    .FirstOrDefault())  // Select the most recent interview for each candidate
+                    .FirstOrDefault())  
                 .ToList();
 
             var positionsGroups = latestInterviews

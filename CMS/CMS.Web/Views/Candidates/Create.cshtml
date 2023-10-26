@@ -18,7 +18,7 @@
 
     <div class="form-group" style="margin-top: 15px;">
 
-        <label asp-for="CompanyId" class="control-label">CV Provider name</label>
+        <label asp-for="CompanyId" class="control-label"><span class="text-danger">*</span> CV Provider name</label>
         @if (ViewBag.CompaniesDTOs != null)
         {
             <select style="width: 30%;" asp-for="CompanyId" asp-items="@(ViewBag.CompaniesDTOs)" class="form-control">
