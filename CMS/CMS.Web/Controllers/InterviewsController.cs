@@ -249,11 +249,6 @@ namespace CMS.Web.Controllers
 
                         var reminderJobId = BackgroundJob.Schedule(() => ReminderJobAsync(selectedInterviewerId, collection), collection.Date.AddHours(16));
 
-                        //if (!string.IsNullOrEmpty(interviewerEmail))
-                        //{
-                        //    await SendEmailToInterviewer(interviewerEmail, collection, emailModel);
-                        //}
-
                         return RedirectToAction("Index");
                     }
 
@@ -793,7 +788,6 @@ namespace CMS.Web.Controllers
             }
         }
 
-
         public async Task ReminderJobAsyncForGM(string interviewerId, InterviewsDTO collection)
         {
             // Check if the interviewer has given a score, and if not, send a reminder email
@@ -812,7 +806,6 @@ namespace CMS.Web.Controllers
                 await SendEmailToInterviewer(interviewerEmail2, collection, emailModel);
             }
         }
-
 
         public async Task ReminderJobAsyncForHR(string interviewerId, InterviewsDTO collection)
         {
@@ -833,9 +826,6 @@ namespace CMS.Web.Controllers
             }
         }
 
-
-
-
         public void ScheduleInterviewReminder(InterviewsDTO collection)
         {
             var reminderTime = collection.Date.AddMinutes(-15);
@@ -848,7 +838,6 @@ namespace CMS.Web.Controllers
                 );
             }
         }
-
 
         public async Task SendInterviewReminderEmail(InterviewsDTO collection)
         {
@@ -867,8 +856,5 @@ namespace CMS.Web.Controllers
                 await SendEmailToInterviewer(interviewerEmail, collection, emailModel);
             }
         }
-
-
-
     }
 }

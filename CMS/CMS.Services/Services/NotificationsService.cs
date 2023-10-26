@@ -176,9 +176,6 @@ namespace CMS.Services.Services
                 await _notificationsRepository.Delete(notification);
         }
 
-
-
-
         public async Task<List<NotificationsDTO>> GetNotificationsForUserAsync(string userId)
         {
             var HrId = "";
@@ -206,9 +203,6 @@ namespace CMS.Services.Services
 
         }
 
-
-
-
         public async Task<IEnumerable<NotificationsDTO>> GetNotificationsForHRAsync()
         {
 
@@ -235,9 +229,6 @@ namespace CMS.Services.Services
             return notificationsDTOList;
         }
 
-
-
-
         public async Task<IEnumerable<NotificationsDTO>> GetNotificationsForInterviewers(string interviewerId)
         {
             var notifications = await _notificationsRepository.GetSpacificNotificationsforInterviewer(interviewerId);
@@ -254,9 +245,6 @@ namespace CMS.Services.Services
 
             return notificationsDTOList;
         }
-
-
-
 
         public async Task<IEnumerable<NotificationsDTO>> GetNotificationsForGeneralManager()
         {
@@ -283,8 +271,6 @@ namespace CMS.Services.Services
 
             return notificationsDTOList;
         }
-
-
 
         public async Task CreateNotificationForGeneralManagerAsync(int status, string notes, int CandidateId, int positionId)
         {
@@ -351,10 +337,6 @@ namespace CMS.Services.Services
             }
         }
 
-
-
-
-
         public async Task CreateInterviewNotificationForInterviewerAsync(DateTime interviewDate, int candidateId, int positionId, string selectedInterviewerId, bool isCanceled)
         {
             var currentUser = await _userManager.GetUserAsync(_httpContextAccessor.HttpContext.User);
@@ -384,9 +366,6 @@ namespace CMS.Services.Services
 
             await _notificationsRepository.Create(notification);
         }
-
-
-
 
         public async Task CreateInterviewNotificationForHRInterview(int status, string notes, int CandidateId, int positionId)
         {
@@ -431,11 +410,6 @@ namespace CMS.Services.Services
             await _notificationsRepository.Create(notification);
         }
 
-
-
-
-
-
         public async Task CreateNotificationForInterviewer(int CandidateId, string selectedInterviewerId)
         {
             var currentUser = await _userManager.GetUserAsync(_httpContextAccessor.HttpContext.User);
@@ -456,13 +430,10 @@ namespace CMS.Services.Services
             await _notificationsRepository.Create(notification);
         }
 
-
         public string GetLoggedInUserName()
         {
             return _httpContextAccessor.HttpContext.User.Identity.Name;
         }
-
-
 
         public async Task<string> GetCandidateName(int candidateId)
         {
@@ -476,8 +447,6 @@ namespace CMS.Services.Services
             return "Candidate Not Found";
         }
 
-
-
         public async Task<string> GetPositionName(int positionId)
         {
             var result = await _positionService.GetById(positionId);
@@ -490,15 +459,5 @@ namespace CMS.Services.Services
 
             return "Position Not Found";
         }
-
-
-
-
-
-
     }
-
-
-
 }
-
