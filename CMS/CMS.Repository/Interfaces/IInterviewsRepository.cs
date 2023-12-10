@@ -26,6 +26,9 @@ namespace CMS.Repository.Interfaces
         Task<string> GetArchiEmail( string UserId);
         void LogException(string methodName, Exception ex, string createdByUserId, string additionalInfo);
 
+        Task<Interviews> GetGeneralManagerInterviewForCandidate(int candidateId);
+
+        Task<Interviews> GetArchiInterviewForCandidate(int candidateId);
 
     }
 }

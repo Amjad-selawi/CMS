@@ -153,7 +153,7 @@ namespace CMS.Repository.Implementation
             int candidateCounts = await _dbContext.Candidates
              .Include(a => a.Interviews)
              .ThenInclude(a => a.Status)
-             .Where(a => a.Interviews.Count == 3 && a.Interviews.All(a => a.Status.Code == StatusCode.Approved))
+             .Where(a => (a.Interviews.Count == 3 || a.Interviews.Count == 4) && a.Interviews.All(a => a.Status.Code == StatusCode.Approved))
              .CountAsync();
 
             return candidateCounts;

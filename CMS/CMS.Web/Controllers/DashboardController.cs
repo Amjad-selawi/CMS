@@ -12,6 +12,8 @@ using CMS.Domain;
 using System.Text.Json;
 using CMS.Domain.Entities;
 using CMS.Services.Services;
+using System.Net.Mail;
+using System.Net;
 
 namespace CMS.Web.Controllers
 {
@@ -55,6 +57,15 @@ namespace CMS.Web.Controllers
                 ViewBag.TreeData = treeData;
 
 
+                var userEmail = "mousaalmajthoob01@gmail.com"; 
+                EmailDTOs emailModel = new EmailDTOs
+                {
+                    EmailTo = new List<string> { userEmail },
+                    EmailBody = "Welcome to the dashboard! This is your email notification.",
+                    Subject = "Dashboard Access Notification"
+                };
+
+                await SendEmailToUser(userEmail, emailModel);
 
                 return View(report);
             }
@@ -219,6 +230,46 @@ namespace CMS.Web.Controllers
             return View();
         }
 
+        private async Task SendEmailToUser(string userEmail, EmailDTOs emailModel)
+        {
+            try
+            {
+                SmtpClient smtp = new SmtpClient();
+                smtp.Host = "mail.sssprocess.com";
+                smtp.Port = 587;
+                smtp.DeliveryMethod = SmtpDeliveryMethod.Network;
+                smtp.EnableSsl = true;
+                smtp.UseDefaultCredentials = true;
+                string UserName = "Mousa.AlMajthoob@techprocess.net";
+                string Password = "kingm0us@11111";
+                smtp.Credentials = new NetworkCredential(UserName, Password);
+
+                using (var message = new MailMessage())
+                {
+                    message.From = new MailAddress("notifications@techprocess.net");
+
+                    if (emailModel.EmailTo != null && emailModel.EmailTo.Any())
+                    {
+                        foreach (var to in emailModel.EmailTo)
+                        {
+                            message.To.Add(to);
+                        }
+                    }
+
+
+                    message.Body = emailModel.EmailBody;
+                    message.Subject = emailModel.Subject;
+                    message.IsBodyHtml = true;
+
+                    smtp.Send(message);
+                }
+            }
+            catch (Exception ex)
+            {
+                ModelState.AddModelError("", "Failed to send email: " + ex.Message);
+            }
+
+        }
 
 
     }

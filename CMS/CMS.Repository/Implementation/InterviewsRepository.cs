@@ -5,6 +5,7 @@ using CMS.Domain.Entities;
 using CMS.Domain.Enums;
 using CMS.Repository.Interfaces;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
@@ -17,10 +18,13 @@ namespace CMS.Repository.Repositories
     public class InterviewsRepository : IInterviewsRepository
     {
         private readonly ApplicationDbContext _context;
-
-        public InterviewsRepository(ApplicationDbContext context)
+        private readonly UserManager<IdentityUser> _userManager; 
+        private readonly RoleManager<IdentityRole> _roleManager;
+        public InterviewsRepository(ApplicationDbContext context, UserManager<IdentityUser> userManager, RoleManager<IdentityRole> roleManager)
         {
             _context = context;
+            _userManager = userManager;
+            _roleManager = roleManager;
         }
 
         public void LogException(string methodName, Exception ex, string createdByUserId, string additionalInfo)
@@ -305,6 +309,59 @@ namespace CMS.Repository.Repositories
             }
         }
 
+        public async Task<Interviews> GetGeneralManagerInterviewForCandidate(int candidateId)
+        {
+            try
+            {
+                var generalManagerRoleId = (await _roleManager.FindByNameAsync("General Manager"))?.Id;
+
+                if (!string.IsNullOrEmpty(generalManagerRoleId))
+                {
+                    var generalManagerId = (await _userManager.GetUsersInRoleAsync("General Manager")).FirstOrDefault()?.Id;
+
+                    if (!string.IsNullOrEmpty(generalManagerId))
+                    {
+                        return await _context.Interviews
+                            .Where(i => i.CandidateId == candidateId && i.InterviewerId == generalManagerId)
+                            .FirstOrDefaultAsync();
+                    }
+                }
+
+                return null; // Handle the case when role or user is not found
+            }
+            catch (Exception ex)
+            {
+                LogException(nameof(GetGeneralManagerInterviewForCandidate), ex, null, $"Error retrieving General Manager interview for candidate with ID: {candidateId}");
+                throw ex;
+            }
+        }
+
+        public async Task<Interviews> GetArchiInterviewForCandidate(int candidateId)
+        {
+            try
+            {
+                var archiRoleId = (await _roleManager.FindByNameAsync("Solution Architecture"))?.Id;
+
+                if (!string.IsNullOrEmpty(archiRoleId))
+                {
+                    var archiId = (await _userManager.GetUsersInRoleAsync("Solution Architecture")).FirstOrDefault()?.Id;
+
+                    if (!string.IsNullOrEmpty(archiId))
+                    {
+                        return await _context.Interviews
+                            .Where(i => i.CandidateId == candidateId && i.InterviewerId == archiId)
+                            .FirstOrDefaultAsync();
+                    }
+                }
+
+                return null; 
+            }
+            catch (Exception ex)
+            {
+                LogException(nameof(GetGeneralManagerInterviewForCandidate), ex, null, $"Error retrieving General Manager interview for candidate with ID: {candidateId}");
+                throw ex;
+            }
+        }
 
     }
 }

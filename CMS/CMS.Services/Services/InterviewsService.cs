@@ -466,6 +466,33 @@ namespace CMS.Services.Services
                 interview.IsUpdated = true;
                 await _interviewsRepository.Update(interview, GetUserId());
                 // Step 2: Create Next Interview if Needed.
+                var generalManagerInterview = await _interviewsRepository.GetGeneralManagerInterviewForCandidate(interview.CandidateId);
+                if (generalManagerInterview != null)
+                {
+                    generalManagerInterview.StatusId = (int)completedDTO.StatusId;
+                    generalManagerInterview.Score = completedDTO.Score;
+                    generalManagerInterview.Notes = completedDTO.Notes;
+                    generalManagerInterview.ActualExperience = completedDTO.ActualExperience;
+                    generalManagerInterview.AttachmentId = completedDTO.AttachmentId;
+                    generalManagerInterview.ModifiedBy = currentUser.Id;
+                    generalManagerInterview.ModifiedOn = DateTime.Now;
+                    generalManagerInterview.IsUpdated = true;
+                    await _interviewsRepository.Update(generalManagerInterview, GetUserId());
+                }
+                var archiInterview = await _interviewsRepository.GetArchiInterviewForCandidate(interview.CandidateId);
+                if (archiInterview != null)
+                {
+                    archiInterview.StatusId = (int)completedDTO.StatusId;
+                    archiInterview.Score = completedDTO.Score;
+                    archiInterview.Notes = completedDTO.Notes;
+                    archiInterview.ActualExperience = completedDTO.ActualExperience;
+                    archiInterview.AttachmentId = completedDTO.AttachmentId;
+                    archiInterview.ModifiedBy = currentUser.Id;
+                    archiInterview.ModifiedOn = DateTime.Now;
+                    archiInterview.IsUpdated = true;
+                    await _interviewsRepository.Update(archiInterview, GetUserId());
+                }
+
                 var Completedstatus = await _statusRepository.GetById((int)completedDTO.StatusId);
                 bool isApproved = Completedstatus.Code == StatusCode.Approved;
                 bool isLastInterviewerAnHR = await _userManager.IsInRoleAsync(interview.Interviewer, "HR Manager");
