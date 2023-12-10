@@ -13,9 +13,9 @@ namespace CMS.Application.DTOs
         public string FullName { get; set; }
 
         [Required(ErrorMessage = "Phone is required.")]
-        //[RegularExpression(@"\d.*", ErrorMessage = "Phone must contain at least one number.")]
+        [RegularExpression(@"^(\+[0-9]{1,})?[0-9]+$", ErrorMessage = "Phone must start with '+' and then contain numeric digits.")]
 
-        public int Phone { get; set; }
+        public string Phone { get; set; }
 
         //[Required(ErrorMessage = "DesiredPosition is required.")]
         public int? PositionId { get; set; }

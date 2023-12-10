@@ -10,6 +10,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Security.Claims;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -33,27 +34,23 @@ namespace CMS.Services.Services
             _attachmentService = attachmentService;
         }
 
-        //public async Task<Result<PositionDTO>> Delete(int id)
-        //{
-        //    try
-        //    {
-        //        await _repository.Delete(id);
-        //        return Result<PositionDTO>.Success(null);
+        public void LogException(string methodName, Exception ex, string createdByUserId = null, string additionalInfo = null)
+        {
+            _repository.LogException(methodName, ex, createdByUserId, additionalInfo);
+        }
 
-        //    }
-        //    catch (Exception ex)
-        //    {
-        //        return Result<PositionDTO>.Failure(null, $"An error occurred while deleting the position {ex.InnerException.Message}");
-        //    }
+        private string GetUserId()
+        {
+            var userId = _httpContextAccessor.HttpContext.User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            return userId;
+        }
 
 
-
-        //}
         public async Task<Result<PositionDTO>> Delete(int id)
         {
             try
             {
-                var pos = await _repository.GetById(id)
+                var pos = await _repository.GetById(id, GetUserId())
 ;
 
                 if (pos != null)
@@ -64,7 +61,7 @@ namespace CMS.Services.Services
                         attachmentToRemove = (int)pos.EvaluationId;
                     }
 
-                    await _repository.Delete(id)
+                    await _repository.Delete(id, GetUserId())
 ;
                     if (attachmentToRemove != 0)
                     {
@@ -79,6 +76,7 @@ namespace CMS.Services.Services
             }
             catch (Exception ex)
             {
+                LogException(nameof(Delete),ex);
                 return Result<PositionDTO>.Failure(null, $"An error occurred while deleting the position {ex.InnerException.Message}");
             }
 
@@ -110,6 +108,7 @@ namespace CMS.Services.Services
             }
             catch (Exception ex)
             {
+                LogException(nameof(GetAll), ex);
                 return Result<IEnumerable<PositionDTO>>.Failure(null, $"unable to get positions{ex.InnerException.Message}");
             }
         }
@@ -122,7 +121,7 @@ namespace CMS.Services.Services
             }
             try
             {
-                var position = await _repository.GetById(id);
+                var position = await _repository.GetById(id, GetUserId());
                 var positionDTO = new PositionDTO
                 {
                     Id = position.Id,
@@ -133,6 +132,7 @@ namespace CMS.Services.Services
             }
             catch (Exception ex)
             {
+                LogException(nameof(GetById), ex);
                 return Result<PositionDTO>.Failure(null, $"unable to retrieve the position from the repository{ex.InnerException.Message}");
             }
         }
@@ -158,11 +158,12 @@ namespace CMS.Services.Services
                     CreatedOn=DateTime.Now,
                     EvaluationId=data.EvaluationId,
                 };
-                await _repository.Insert(position);
+                await _repository.Insert(position, GetUserId());
                 return Result<PositionDTO>.Success(data);
             }
             catch (Exception ex)
             {
+                LogException(nameof(Insert), ex);
                 return Result<PositionDTO>.Failure(data, $"unable to insert a position: {ex.InnerException.Message}");
             }
         }
@@ -174,7 +175,7 @@ namespace CMS.Services.Services
                 return Result<PositionDTO>.Failure(null, "can not update a null object");
             }
             var currentUser = await _userManager.GetUserAsync(_httpContextAccessor.HttpContext.User);
-            var previouePos = await _repository.GetById(data.Id);
+            var previouePos = await _repository.GetById(data.Id, GetUserId());
             try
             {
                 var position = new Position
@@ -187,32 +188,43 @@ namespace CMS.Services.Services
                     CreatedBy = previouePos.CreatedBy,
                     CreatedOn=previouePos.CreatedOn,
                 };
-                await _repository.Update(position);
+                await _repository.Update(position, GetUserId());
                 return Result<PositionDTO>.Success(data);
             }
             catch (Exception ex)
             {
+                LogException(nameof(Update), ex);
                 return Result<PositionDTO>.Failure(data, $"error updating the position {ex.InnerException.Message}");
             }
         }
         public async Task UpdatePositionEvaluationAsync(int id, string fileName, long fileSize, Stream fileStream)
         {
-            var position = await _repository.GetById(id);
-            int attachmentId = await _attachmentService.CreateAttachmentAsync(fileName, fileSize, fileStream);
-
-            int attachmentToRemove = 0;
-            if (position.EvaluationId != null)
+            try
             {
-                attachmentToRemove = (int)position.EvaluationId;
 
+
+                var position = await _repository.GetById(id,GetUserId());
+                int attachmentId = await _attachmentService.CreateAttachmentAsync(fileName, fileSize, fileStream);
+
+                int attachmentToRemove = 0;
+                if (position.EvaluationId != null)
+                {
+                    attachmentToRemove = (int)position.EvaluationId;
+
+                }
+
+                position.EvaluationId = attachmentId;
+
+                await _repository.Update(position, GetUserId());
+                if (attachmentToRemove != 0)
+                {
+                    await _attachmentService.DeleteAttachmentAsync(attachmentToRemove);
+                }
             }
-
-            position.EvaluationId = attachmentId;
-           
-            await _repository.Update(position);
-            if (attachmentToRemove != 0)
+            catch (Exception ex)
             {
-                await _attachmentService.DeleteAttachmentAsync(attachmentToRemove);
+                LogException(nameof(Update), ex);
+                throw ex;
             }
 
         }
@@ -221,7 +233,17 @@ namespace CMS.Services.Services
 
         public bool DoesPositionNameExist(string name)
         {
+            try
+            {
+
             return _repository.DoesPositionNameExist(name);
+            }
+
+            catch (Exception ex)
+            {
+                LogException(nameof(DoesPositionNameExist), ex);
+                throw ex;
+            }
         }
 
 

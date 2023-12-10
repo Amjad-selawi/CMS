@@ -21,5 +21,8 @@ namespace CMS.Services.Interfaces
 
         bool DoesCountryNameExist(string name);
         Task<IEnumerable<Country>> GetAllCountriesAsync();
+
+
+        void LogException(string methodName, Exception ex, string createdByUserId = null, string additionalInfo = null);
     }
 }

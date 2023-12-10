@@ -9,18 +9,21 @@ namespace CMS.Repository.Interfaces
     public interface INotificationsRepository
     {
         Task<IEnumerable<Notifications>> GetAllNotifications();
-        Task<Notifications> GetNotificationsById(int notificationId);
-        Task Create(Notifications entity);
-        Task Update(Notifications entity);
-        Task Delete(Notifications entity);
+        Task<Notifications> GetNotificationsById(int notificationId,string ByUserId);
+        Task Create(Notifications entity, string ByUserId);
+        Task Update(Notifications entity, string ByUserId);
+        Task Delete(Notifications entity, string ByUserId);
 
 
 
 
-        Task<List<Notifications>> GetSpacificNotificationsforHR();
+        Task<List<Notifications>> GetSpacificNotificationsforHR( string ByUserId);
 
-        Task<List<Notifications>> GetSpacificNotificationsforGeneral();
+        Task<List<Notifications>> GetSpacificNotificationsforGeneral(string ByUserId);
+        Task<List<Notifications>> GetSpacificNotificationsforArchi(string ByUserId);
 
-        Task<List<Notifications>> GetSpacificNotificationsforInterviewer(string interviewerId);
+        Task<List<Notifications>> GetSpacificNotificationsforInterviewer(string interviewerId, string ByUserId);
+
+        void LogException(string methodName, Exception ex, string createdByUserId, string additionalInfo);
     }
 }

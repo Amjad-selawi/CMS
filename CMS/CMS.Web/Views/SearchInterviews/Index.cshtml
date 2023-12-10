@@ -6,7 +6,13 @@
 @{
     ViewData["Title"] = "Interviews Filter";
 }
-
+<style>
+    .card-body {
+        width: 100%;
+        max-width: 100%;
+        overflow-y: hidden;
+    }
+</style>
 
 @using (Html.BeginForm("Index", "SearchInterviews", FormMethod.Get))
 {
@@ -46,15 +52,9 @@
             </div>
 
 
+
+
             <div class="col-md-3" style="margin-top:27px;">
-                <label>&nbsp;</label>
-                <button type="submit" class="btn btn-primary btn-block">Filter</button>
-            </div>
-
-
-
-
-            <div class="col-md-3" style="margin-top:10px;margin-bottom: 8px;">
                 <label>&nbsp;</label>
                 <a asp-action="ExportFilteredData"
                    asp-route-positionFilter="@ViewBag.positionFilter"
@@ -68,7 +68,10 @@
             </div>
 
 
-
+            <div class="col-md-3" style="margin-top:10px;margin-bottom: 8px;" >
+                <label>&nbsp;</label>
+                <button type="submit" class="btn btn-primary btn-block">Filter</button>
+            </div>
 
 
         </div>

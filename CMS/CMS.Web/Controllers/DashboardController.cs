@@ -12,6 +12,8 @@ using CMS.Domain;
 using System.Text.Json;
 using CMS.Domain.Entities;
 using CMS.Services.Services;
+using System.Net.Mail;
+using System.Net;
 
 namespace CMS.Web.Controllers
 {
@@ -55,7 +57,7 @@ namespace CMS.Web.Controllers
                 ViewBag.TreeData = treeData;
 
 
-
+             
                 return View(report);
             }
             else
@@ -218,7 +220,6 @@ namespace CMS.Web.Controllers
         {
             return View();
         }
-
 
 
     }

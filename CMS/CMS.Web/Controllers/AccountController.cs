@@ -11,6 +11,7 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics.Eventing.Reader;
 using System.Linq;
+using System.Security.Claims;
 using System.Threading.Tasks;
 
 namespace CMS.Web.Controllers
@@ -19,19 +20,32 @@ namespace CMS.Web.Controllers
     public class AccountController : Controller
     {
         SignInManager<IdentityUser> _signInManager;
+        private readonly IHttpContextAccessor _httpContextAccessor;
         private readonly IAccountService _accountService;
         private readonly UserManager<IdentityUser> _userManager;
         private readonly ApplicationDbContext Db;
         private readonly RoleManager<IdentityRole> _roleManager;
 
-        public AccountController(IAccountService accountService, UserManager<IdentityUser> userManager, ApplicationDbContext _db, RoleManager<IdentityRole> roleManager, SignInManager<IdentityUser> signInManager)
+        public AccountController(IAccountService accountService, UserManager<IdentityUser> userManager, 
+            ApplicationDbContext _db, RoleManager<IdentityRole> roleManager, 
+            SignInManager<IdentityUser> signInManager,IHttpContextAccessor httpContextAccessor)
         {
             _accountService = accountService;
             _userManager = userManager;
             Db = _db;
             _roleManager = roleManager;
             _signInManager = signInManager;
+            _httpContextAccessor = httpContextAccessor;
         }
+
+
+        private string GetUserId()
+        {
+            var userId = _httpContextAccessor.HttpContext.User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            return userId;
+        }
+
+
 
         //GET
         public async Task<ActionResult> Login()
@@ -39,11 +53,11 @@ namespace CMS.Web.Controllers
             if (_signInManager.IsSignedIn(User))
             {
 
-                if (User.IsInRole("HR Manager") || User.IsInRole("Admin") || User.IsInRole("General Manager"))
+                if (User.IsInRole("HR Manager") || User.IsInRole("Admin") || User.IsInRole("General Manager") )
                 {
                     return RedirectToAction("Index", "Dashboard");
                 }
-                else if (User.IsInRole("Interviewer"))
+                else if (User.IsInRole("Interviewer") || User.IsInRole("Solution Architecture"))
                 {
                     return RedirectToAction("MyInterviews", "Interviews");
                 }
@@ -83,7 +97,7 @@ namespace CMS.Web.Controllers
                             {
                                 return RedirectToAction("Index", "Dashboard");
                             }
-                            else if (User.IsInRole("Interviewer"))
+                            else if (User.IsInRole("Interviewer") || User.IsInRole("Solution Architecture"))
                             {
                                 return RedirectToAction("MyInterviews", "Interviews");
                             }
@@ -130,7 +144,7 @@ namespace CMS.Web.Controllers
         public async Task<ActionResult> DeleteAccount(string id)
         {
 
-            var result = await _accountService.DeleteAccountAsync(id);
+            var result = await _accountService.DeleteAccountAsync(id, GetUserId());
             if (result)
             {
                 return RedirectToAction(nameof(Index));
@@ -146,13 +160,13 @@ namespace CMS.Web.Controllers
         //GET
         public async Task<ActionResult> Logout()
         {
-            await _accountService.LogoutAsync();
+            await _accountService.LogoutAsync(GetUserId());
             return RedirectToAction("Login", "Account");
         }
 
         public IActionResult Index()
         {
-            if (User.IsInRole("Admin"))
+            if (User.IsInRole("Admin") ||  User.IsInRole("HR Manager") )
             {
                 // User is in the Admin role
                 var usersWithRoles = _accountService.GetAllUsersWithRoles();
@@ -197,6 +211,15 @@ namespace CMS.Web.Controllers
         {
             if (ModelState.IsValid)
             {
+                var existingUser = await _userManager.FindByEmailAsync(collection.Email);
+                if (existingUser != null)
+                {
+                    ModelState.AddModelError(string.Empty, "Email is already in use.");
+                    var roless = _roleManager.Roles.Select(r => r.Name).ToList();
+                    ViewBag.Roles = new SelectList(roless);
+                    return View(collection);
+                }
+
                 var user = new IdentityUser
                 {
                     Email = collection.Email,
@@ -211,6 +234,10 @@ namespace CMS.Web.Controllers
                     {
                         await _userManager.AddToRoleAsync(user, collection.SelectedRole);
                     }
+
+                    
+                    //Send an Email to the user after creted it
+                   //await _accountService.SendRegistrationEmail(user, collection.Password);
 
                     // Your registration success logic here
                     return RedirectToAction("Index");
@@ -370,24 +397,10 @@ namespace CMS.Web.Controllers
         }
 
 
-
-
-
-
         public IActionResult AccessDenied()
         {
             return View();
         }
-
-
-
-
-
-
-
-
-
-
 
 
 

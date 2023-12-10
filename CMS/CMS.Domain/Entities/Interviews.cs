@@ -45,5 +45,7 @@ namespace CMS.Domain.Entities
 
 
         public string? SecondInterviewerId { get; set; }
+
+        public string? ArchitectureInterviewerId { get; set; }
     }
 }

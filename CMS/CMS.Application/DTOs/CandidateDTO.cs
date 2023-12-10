@@ -10,8 +10,12 @@ namespace CMS.Application.DTOs
         public int Id { get; set; }
         [Required(ErrorMessage = "Full Name is required.")]
         public string FullName { get; set; }
+
+
         [Required(ErrorMessage = "Phone is required.")]
-        public int Phone { get; set; }
+        [RegularExpression(@"^[0-9]+$", ErrorMessage = "Phone must be a numeric value.")]
+
+        public string Phone { get; set; }
         //[Required(ErrorMessage = "DesiredPosition is required.")]
         public int? PositionId { get; set; }
 
@@ -42,7 +46,7 @@ namespace CMS.Application.DTOs
 
 
 
-        public int? PositionName { get; set; }
+        public string? PositionName { get; set; }
         public InterviewsDTO LastInterview { get; set; }
         public string Status { get; set; }
         public double? Score { get; set; }

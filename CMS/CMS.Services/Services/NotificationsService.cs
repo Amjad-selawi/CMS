@@ -5,6 +5,7 @@ using CMS.Domain.Entities;
 using CMS.Domain.Enums;
 using CMS.Repository.Implementation;
 using CMS.Repository.Interfaces;
+using CMS.Repository.Repositories;
 using CMS.Services.Interfaces;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
@@ -12,6 +13,7 @@ using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Security.Claims;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -56,6 +58,20 @@ namespace CMS.Services.Services
             _statusService = statusService;
         }
 
+        public void LogException(string methodName, Exception ex, string createdByUserId = null, string additionalInfo = null)
+        {
+            _notificationsRepository.LogException(methodName, ex, createdByUserId, additionalInfo);
+        }
+
+
+        private string GetUserId()
+        {
+            var userId = _httpContextAccessor.HttpContext.User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            return userId;
+        }
+
+
+
         public async Task<IEnumerable<NotificationsDTO>> GetAllNotificationsAsync()
         {
             var notifications = await _notificationsRepository.GetAllNotifications();
@@ -78,7 +94,11 @@ namespace CMS.Services.Services
 
         public async Task<NotificationsDTO> GetNotificationByIdAsync(int notificationsId)
         {
-            var notification = await _notificationsRepository.GetNotificationsById(notificationsId);
+            try
+            {
+
+         
+            var notification = await _notificationsRepository.GetNotificationsById(notificationsId, GetUserId());
             if (notification == null)
                 return null;
 
@@ -101,12 +121,22 @@ namespace CMS.Services.Services
                 BodyDesc = notification.BodyDesc,
 
             };
+            }
+            catch (Exception ex)
+            {
 
+                LogException(nameof(GetNotificationByIdAsync),ex);
+                throw ex;
+            }
         }
 
         public async Task<NotificationsDTO> GetNotificationByIdforDetails(int notificationsId)
         {
-            var notification = await _notificationsRepository.GetNotificationsById(notificationsId);
+            try
+            {
+
+            
+            var notification = await _notificationsRepository.GetNotificationsById(notificationsId, GetUserId());
             if (notification == null)
                 return null;
 
@@ -124,13 +154,23 @@ namespace CMS.Services.Services
                 BodyDesc = notification.BodyDesc,
 
             };
+            }
 
+            catch (Exception ex)
+            {
+
+                LogException(nameof(GetNotificationByIdforDetails), ex);
+                throw ex;
+            }
         }
 
         public async Task Create(NotificationsDTO entity)
         {
 
+            try
+            {
 
+            
             var currentUser = await _userManager.GetUserAsync(_httpContextAccessor.HttpContext.User);
             var notification = new Notifications
             {
@@ -141,17 +181,25 @@ namespace CMS.Services.Services
                 BodyDesc = entity.BodyDesc,
                 CreatedOn = DateTime.Now,
                 CreatedBy = currentUser.Id,
-
+                IsRead=entity.IsRead,
 
             };
-            await _notificationsRepository.Create(notification);
+            await _notificationsRepository.Create(notification, GetUserId());
+            }
+            catch (Exception ex)
+            {
 
+                LogException(nameof(Create), ex);
+                throw ex;
+            }
         }
 
         public async Task Update(int notificationId, NotificationsDTO entity)
         {
+            try
+            {
 
-            var existingNotification = await _notificationsRepository.GetNotificationsById(notificationId);
+            var existingNotification = await _notificationsRepository.GetNotificationsById(notificationId, GetUserId());
             if (existingNotification == null)
                 throw new Exception("Notifications not found");
             var currentUser = await _userManager.GetUserAsync(_httpContextAccessor.HttpContext.User);
@@ -165,19 +213,40 @@ namespace CMS.Services.Services
             existingNotification.ModifiedBy = currentUser.Id;
 
 
-            await _notificationsRepository.Update(existingNotification);
+            await _notificationsRepository.Update(existingNotification, GetUserId());
+            }
+            catch (Exception ex)
+            {
 
+                LogException(nameof(Update), ex);
+                throw ex;
+            }
         }
 
         public async Task Delete(int notificationId)
         {
-            var notification = await _notificationsRepository.GetNotificationsById(notificationId);
+            try
+            {
+
+           
+            var notification = await _notificationsRepository.GetNotificationsById(notificationId,GetUserId());
             if (notification != null)
-                await _notificationsRepository.Delete(notification);
+                await _notificationsRepository.Delete(notification, GetUserId());
+            }
+            catch (Exception ex)
+            {
+
+                LogException(nameof(Delete), ex);
+                throw ex;
+            }
         }
 
         public async Task<List<NotificationsDTO>> GetNotificationsForUserAsync(string userId)
         {
+            try
+            {
+
+            
             var HrId = "";
 
             var Hr = await _roleManager.FindByNameAsync("HR Manager");
@@ -185,7 +254,7 @@ namespace CMS.Services.Services
             HrId = (await _userManager.GetUsersInRoleAsync(Hr.Name)).FirstOrDefault().Id;
 
 
-            var notifications = await _notificationsRepository.GetSpacificNotificationsforHR();
+            var notifications = await _notificationsRepository.GetSpacificNotificationsforHR(GetUserId());
 
             var notificationsDTOList = notifications
          .Where(notification => notification.ReceiverId == HrId) //hrId
@@ -199,13 +268,22 @@ namespace CMS.Services.Services
          .ToList();
 
             return notificationsDTOList;
+            }
+            catch (Exception ex)
+            {
 
+                LogException(nameof(GetNotificationsForUserAsync), ex);
+                throw ex;
+            }
 
         }
 
         public async Task<IEnumerable<NotificationsDTO>> GetNotificationsForHRAsync()
         {
+            try
+            {
 
+            
             var HrId = "";
 
             var Hr = await _roleManager.FindByNameAsync("HR Manager");
@@ -213,7 +291,7 @@ namespace CMS.Services.Services
             HrId = (await _userManager.GetUsersInRoleAsync(Hr.Name)).FirstOrDefault().Id;
 
 
-            var notifications = await _notificationsRepository.GetSpacificNotificationsforHR();
+            var notifications = await _notificationsRepository.GetSpacificNotificationsforHR(GetUserId());
             var notificationsDTOList = notifications
                 .Where(notification => notification.ReceiverId == HrId)//hrId
                 .Select(notification => new NotificationsDTO
@@ -227,11 +305,22 @@ namespace CMS.Services.Services
                 .ToList();
 
             return notificationsDTOList;
+            }
+            catch (Exception ex)
+            {
+
+                LogException(nameof(GetNotificationsForHRAsync), ex);
+                throw ex;
+            }
         }
 
         public async Task<IEnumerable<NotificationsDTO>> GetNotificationsForInterviewers(string interviewerId)
         {
-            var notifications = await _notificationsRepository.GetSpacificNotificationsforInterviewer(interviewerId);
+            try
+            {
+
+            
+            var notifications = await _notificationsRepository.GetSpacificNotificationsforInterviewer(interviewerId, GetUserId());
             var notificationsDTOList = notifications
                 .Select(notification => new NotificationsDTO
                 {
@@ -244,10 +333,21 @@ namespace CMS.Services.Services
                 .ToList();
 
             return notificationsDTOList;
+            }
+            catch (Exception ex)
+            {
+
+                LogException(nameof(GetNotificationsForInterviewers), ex);
+                throw ex;
+            }
         }
 
         public async Task<IEnumerable<NotificationsDTO>> GetNotificationsForGeneralManager()
         {
+            try
+            {
+
+            
             var managerId = "";
 
             var manager = await _roleManager.FindByNameAsync("General Manager");
@@ -256,7 +356,7 @@ namespace CMS.Services.Services
 
 
 
-            var notifications = await _notificationsRepository.GetSpacificNotificationsforGeneral();
+            var notifications = await _notificationsRepository.GetSpacificNotificationsforGeneral(GetUserId());
             var notificationsDTOList = notifications
                 .Where(notification => notification.ReceiverId == managerId)//GMId
                 .Select(notification => new NotificationsDTO
@@ -270,173 +370,353 @@ namespace CMS.Services.Services
                 .ToList();
 
             return notificationsDTOList;
+            }
+            catch (Exception ex)
+            {
+
+                LogException(nameof(GetNotificationsForGeneralManager), ex);
+                throw ex;
+            }
         }
+
+
+        public async Task<IEnumerable<NotificationsDTO>> GetNotificationsForArchitecture()
+        {
+            try
+            {
+
+
+                var archiId = "";
+
+                var archi = await _roleManager.FindByNameAsync("Solution Architecture");
+
+                archiId = (await _userManager.GetUsersInRoleAsync(archi.Name)).FirstOrDefault().Id;
+
+
+
+                var notifications = await _notificationsRepository.GetSpacificNotificationsforArchi(GetUserId());
+                var notificationsDTOList = notifications
+                    .Where(notification => notification.ReceiverId == archiId)//ArchiId
+                    .Select(notification => new NotificationsDTO
+                    {
+                        NotificationsId = notification.NotificationsId,
+                        SendDate = notification.SendDate,
+                        Title = notification.Title,
+                        BodyDesc = notification.BodyDesc,
+                        IsReceived = true
+                    })
+                    .ToList();
+
+                return notificationsDTOList;
+            }
+            catch (Exception ex)
+            {
+
+                LogException(nameof(GetNotificationsForArchitecture), ex);
+                throw ex;
+            }
+        }
+
+
 
         public async Task CreateNotificationForGeneralManagerAsync(int status, string notes, int CandidateId, int positionId)
         {
-            var managerId = "";
-            var HrId = "";
-
-            var statusResult = await _statusService.GetById(status);
-            var statusstatus = statusResult.Value;
-
-            var manager = await _roleManager.FindByNameAsync("General Manager");
-            managerId = (await _userManager.GetUsersInRoleAsync(manager.Name)).FirstOrDefault().Id;
-
-            var Hr = await _roleManager.FindByNameAsync("HR Manager");
-            HrId = (await _userManager.GetUsersInRoleAsync(Hr.Name)).FirstOrDefault().Id;
-
-            string userName = GetLoggedInUserName();
-            var currentUser = await _userManager.GetUserAsync(_httpContextAccessor.HttpContext.User);
-
-            var candidateName = await GetCandidateName(CandidateId);
-            var positionName = await GetPositionName(positionId);
-
-            // Create the notification for the manager.
-            var notification = new Notifications
+            try
             {
-                SendDate = DateTime.Now,
-
-                IsReceived = true,
-                IsRead = false,
-                Title = "",
-                BodyDesc = notes,
-                CreatedBy = currentUser.Id,
-                CreatedOn = DateTime.Now
-            };
-
-            if (statusstatus.Code == Domain.Enums.StatusCode.Approved)
-            {
-                notification.Title = $"You have a Second Interview with {candidateName} for the {positionName} position. Get ready to shine! 💼🚀";
-                notification.ReceiverId = managerId;
-            }
-            else
-            {
-                notification.Title = $"{candidateName} Rejected by {userName} for position {positionName}";
-                notification.ReceiverId = HrId;
-            }
-
-            await _notificationsRepository.Create(notification);
 
 
-            if (statusstatus.Code == Domain.Enums.StatusCode.Approved)
-            {
-                var hrNotification = new Notifications
+                var managerId = "";
+                var HrId = "";
+
+                var statusResult = await _statusService.GetById(status);
+                var statusstatus = statusResult.Value;
+
+                var manager = await _roleManager.FindByNameAsync("General Manager");
+                managerId = (await _userManager.GetUsersInRoleAsync(manager.Name)).FirstOrDefault().Id;
+
+                var Hr = await _roleManager.FindByNameAsync("HR Manager");
+                HrId = (await _userManager.GetUsersInRoleAsync(Hr.Name)).FirstOrDefault().Id;
+
+                string userName = GetLoggedInUserName();
+                var currentUser = await _userManager.GetUserAsync(_httpContextAccessor.HttpContext.User);
+
+                var candidateName = await GetCandidateName(CandidateId);
+                var positionName = await GetPositionName(positionId);
+
+                // Create the notification for the manager.
+                var notification = new Notifications
                 {
-                    ReceiverId = HrId,
                     SendDate = DateTime.Now,
+
                     IsReceived = true,
                     IsRead = false,
-                    Title = $"{candidateName} Approved by {userName} for position {positionName}",
-                    BodyDesc = $"The candidate has been approved by the {userName} for the {positionName} position.",
+                    Title = "",
+                    BodyDesc = notes,
                     CreatedBy = currentUser.Id,
                     CreatedOn = DateTime.Now
                 };
 
-                await _notificationsRepository.Create(hrNotification);
+                if (statusstatus.Code == Domain.Enums.StatusCode.Approved)
+                {
+                    notification.Title = $"You have a Second Interview with {candidateName} for the {positionName} position. Get ready to shine! 💼🚀";
+                    notification.ReceiverId = managerId;
+                }
+                else
+                {
+                    notification.Title = $"{candidateName} Rejected by {userName} for position {positionName}";
+                    notification.ReceiverId = HrId;
+                }
+
+                await _notificationsRepository.Create(notification, GetUserId());
+
+
+                if (statusstatus.Code == Domain.Enums.StatusCode.Approved)
+                {
+                    var hrNotification = new Notifications
+                    {
+                        ReceiverId = HrId,
+                        SendDate = DateTime.Now,
+                        IsReceived = true,
+                        IsRead = false,
+                        Title = $"{candidateName} Approved by {userName} for position {positionName}",
+                        BodyDesc = $"The candidate has been approved by the {userName} for the {positionName} position.",
+                        CreatedBy = currentUser.Id,
+                        CreatedOn = DateTime.Now
+                    };
+
+                    await _notificationsRepository.Create(hrNotification, GetUserId());
+                }
+            }
+            catch (Exception ex)
+            {
+
+                LogException(nameof(CreateNotificationForGeneralManagerAsync), ex);
+                throw ex;
+            }
+        }
+
+
+        public async Task CreateNotificationForArchiAsync(int status, string notes, int CandidateId, int positionId)
+        {
+            try
+            {
+
+
+                var archiId = "";
+                var HrId = "";
+
+                var statusResult = await _statusService.GetById(status);
+                var statusstatus = statusResult.Value;
+
+                var archi = await _roleManager.FindByNameAsync("Solution Architecture");
+                archiId = (await _userManager.GetUsersInRoleAsync(archi.Name)).FirstOrDefault().Id;
+
+                var Hr = await _roleManager.FindByNameAsync("HR Manager");
+                HrId = (await _userManager.GetUsersInRoleAsync(Hr.Name)).FirstOrDefault().Id;
+
+                string userName = GetLoggedInUserName();
+                var currentUser = await _userManager.GetUserAsync(_httpContextAccessor.HttpContext.User);
+
+                var candidateName = await GetCandidateName(CandidateId);
+                var positionName = await GetPositionName(positionId);
+
+                // Create the notification for the manager.
+                var notification = new Notifications
+                {
+                    SendDate = DateTime.Now,
+
+                    IsReceived = true,
+                    IsRead = false,
+                    Title = "",
+                    BodyDesc = notes,
+                    CreatedBy = currentUser.Id,
+                    CreatedOn = DateTime.Now
+                };
+
+                if (statusstatus.Code == Domain.Enums.StatusCode.Approved)
+                {
+                    notification.Title = $"You and the GM have a Second Interview with {candidateName} for the {positionName} position. Get ready to shine! 💼🚀";
+                    notification.ReceiverId = archiId;
+                }
+                else
+                {
+                    notification.Title = $"{candidateName} Rejected by {userName} for position {positionName}";
+                    notification.ReceiverId = HrId;
+                }
+
+                await _notificationsRepository.Create(notification, GetUserId());
+
+
+                if (statusstatus.Code == Domain.Enums.StatusCode.Approved)
+                {
+                    var hrNotification = new Notifications
+                    {
+                        ReceiverId = HrId,
+                        SendDate = DateTime.Now,
+                        IsReceived = true,
+                        IsRead = false,
+                        Title = $"{candidateName} Approved by {userName} for position {positionName}",
+                        BodyDesc = $"The candidate has been approved by the {userName} for the {positionName} position.",
+                        CreatedBy = currentUser.Id,
+                        CreatedOn = DateTime.Now
+                    };
+
+                    await _notificationsRepository.Create(hrNotification, GetUserId());
+                }
+            }
+            catch (Exception ex)
+            {
+
+                LogException(nameof(CreateNotificationForGeneralManagerAsync), ex);
+                throw ex;
             }
         }
 
         public async Task CreateInterviewNotificationForInterviewerAsync(DateTime interviewDate, int candidateId, int positionId, string selectedInterviewerId, bool isCanceled)
         {
-            var currentUser = await _userManager.GetUserAsync(_httpContextAccessor.HttpContext.User);
-            var candidateName = await GetCandidateName(candidateId);
-            var positionName = await GetPositionName(positionId);
-
-            var notification = new Notifications
+            try
             {
-                ReceiverId = selectedInterviewerId,
-                SendDate = DateTime.Now,
-                IsReceived = true,
-                IsRead = false,
-                CreatedBy = currentUser.Id,
-                CreatedOn = DateTime.Now
-            };
 
-            if (isCanceled)
-            {
-                notification.Title = $"Interview Cancellation for {candidateName}";
-                notification.BodyDesc = $"The interview with {candidateName} for the {positionName} position, scheduled on {interviewDate}, has been canceled by HR.";
+
+                var currentUser = await _userManager.GetUserAsync(_httpContextAccessor.HttpContext.User);
+                var candidateName = await GetCandidateName(candidateId);
+                var positionName = await GetPositionName(positionId);
+
+                var notification = new Notifications
+                {
+                    ReceiverId = selectedInterviewerId,
+                    SendDate = DateTime.Now,
+                    IsReceived = true,
+                    IsRead = false,
+                    CreatedBy = currentUser.Id,
+                    CreatedOn = DateTime.Now
+                };
+
+                if (isCanceled)
+                {
+                    notification.Title = $"Interview Cancellation for {candidateName}";
+                    notification.BodyDesc = $"The interview with {candidateName} for the {positionName} position, scheduled on {interviewDate}, has been canceled by HR.";
+                }
+                else
+                {
+                    notification.Title = $"New interview invitation for {candidateName}";
+                    notification.BodyDesc = $"You've been selected for a First Interview with {candidateName} for the {positionName} position on {interviewDate}. Get ready to shine! 💼🚀";
+                }
+
+                await _notificationsRepository.Create(notification, GetUserId());
             }
-            else
+            catch (Exception ex)
             {
-                notification.Title = $"New interview invitation for {candidateName}";
-                notification.BodyDesc = $"You've been selected for a First Interview with {candidateName} for the {positionName} position on {interviewDate}. Get ready to shine! 💼🚀";
-            }
 
-            await _notificationsRepository.Create(notification);
+                LogException(nameof(CreateInterviewNotificationForInterviewerAsync), ex);
+                throw ex;
+            }
         }
 
         public async Task CreateInterviewNotificationForHRInterview(int status, string notes, int CandidateId, int positionId)
         {
-
-            var statusResult = await _statusService.GetById(status);
-            var statusstatus = statusResult.Value;
-
-
-            var HrId = "";
-
-            var Hr = await _roleManager.FindByNameAsync("HR Manager");
-
-            HrId = (await _userManager.GetUsersInRoleAsync(Hr.Name)).FirstOrDefault().Id;
-
-            string userName = GetLoggedInUserName();
-            var currentUser = await _userManager.GetUserAsync(_httpContextAccessor.HttpContext.User);
-
-            var candidateName = await GetCandidateName(CandidateId);
-            var positionName = await GetPositionName(positionId);
-
-            var notification = new Notifications
+            try
             {
-                ReceiverId = HrId,
-                SendDate = DateTime.Now,
-                IsReceived = true,
-                IsRead = false,
-                Title = "",
-                BodyDesc = notes,
-                CreatedOn = DateTime.Now,
-                CreatedBy = currentUser.Id,
-            };
 
-            if (statusstatus.Code == Domain.Enums.StatusCode.Approved)
-            {
-                notification.Title = $"You have a Third Interview with {candidateName} for the {positionName} position. Get ready to shine! 💼🚀 ";
+
+                var statusResult = await _statusService.GetById(status);
+                var statusstatus = statusResult.Value;
+
+
+                var HrId = "";
+
+                var Hr = await _roleManager.FindByNameAsync("HR Manager");
+
+                HrId = (await _userManager.GetUsersInRoleAsync(Hr.Name)).FirstOrDefault().Id;
+
+                string userName = GetLoggedInUserName();
+                var currentUser = await _userManager.GetUserAsync(_httpContextAccessor.HttpContext.User);
+
+                var candidateName = await GetCandidateName(CandidateId);
+                var positionName = await GetPositionName(positionId);
+
+                var notification = new Notifications
+                {
+                    ReceiverId = HrId,
+                    SendDate = DateTime.Now,
+                    IsReceived = true,
+                    IsRead = false,
+                    Title = "",
+                    BodyDesc = notes,
+                    CreatedOn = DateTime.Now,
+                    CreatedBy = currentUser.Id,
+                };
+
+                if (statusstatus.Code == Domain.Enums.StatusCode.Approved)
+                {
+                    notification.Title = $"You have a Third Interview with {candidateName} for the {positionName} position. Get ready to shine! 💼🚀 ";
+                }
+                else
+                {
+                    notification.Title = $"{candidateName} Rejected by {userName} for position {positionName}";
+                }
+
+                await _notificationsRepository.Create(notification, GetUserId());
             }
-            else
+            catch (Exception ex)
             {
-                notification.Title = $"{candidateName} Rejected by {userName} for position {positionName}";
-            }
 
-            await _notificationsRepository.Create(notification);
+                LogException(nameof(CreateInterviewNotificationForHRInterview), ex);
+                throw ex;
+            }
         }
-
+       
         public async Task CreateNotificationForInterviewer(int CandidateId, string selectedInterviewerId)
         {
-            var currentUser = await _userManager.GetUserAsync(_httpContextAccessor.HttpContext.User);
-            var candidateName = await GetCandidateName(CandidateId);
-
-            var notification = new Notifications
+            try
             {
-                ReceiverId = selectedInterviewerId,
-                SendDate = DateTime.Now,
-                IsReceived = true,
-                IsRead = false,
-                Title = $"Your interview with {candidateName} cancelled",
-                BodyDesc = $"The HR has rejected this candidate for some reasons, so you don't have an interview for {candidateName}.",
-                CreatedBy = currentUser.Id,
-                CreatedOn = DateTime.Now
-            };
 
-            await _notificationsRepository.Create(notification);
+
+                var currentUser = await _userManager.GetUserAsync(_httpContextAccessor.HttpContext.User);
+                var candidateName = await GetCandidateName(CandidateId);
+
+                var notification = new Notifications
+                {
+                    ReceiverId = selectedInterviewerId,
+                    SendDate = DateTime.Now,
+                    IsReceived = true,
+                    IsRead = false,
+                    Title = $"Your interview with {candidateName} cancelled",
+                    BodyDesc = $"The HR has rejected this candidate for some reasons, so you don't have an interview for {candidateName}.",
+                    CreatedBy = currentUser.Id,
+                    CreatedOn = DateTime.Now
+                };
+
+                await _notificationsRepository.Create(notification, GetUserId());
+            }
+            catch (Exception ex)
+            {
+
+                LogException(nameof(CreateNotificationForInterviewer), ex);
+                throw ex;
+            }
         }
 
         public string GetLoggedInUserName()
         {
-            return _httpContextAccessor.HttpContext.User.Identity.Name;
+            try
+            {
+                return _httpContextAccessor.HttpContext.User.Identity.Name;
+            }
+            catch (Exception ex)
+            {
+
+                LogException(nameof(GetLoggedInUserName), ex);
+                throw ex;
+            }
         }
 
         public async Task<string> GetCandidateName(int candidateId)
         {
+            try
+            {
+
+            
             var candidate = await _candidateService.GetCandidateByIdAsync(candidateId);
 
             if (candidate != null)
@@ -445,19 +725,37 @@ namespace CMS.Services.Services
             }
 
             return "Candidate Not Found";
+            }
+            catch (Exception ex)
+            {
+
+                LogException(nameof(GetCandidateName), ex);
+                throw ex;
+            }
         }
 
         public async Task<string> GetPositionName(int positionId)
         {
-            var result = await _positionService.GetById(positionId);
-
-            if (result.IsSuccess)
+            try
             {
-                var position = result.Value;
-                return position.Name;
-            }
 
-            return "Position Not Found";
+
+                var result = await _positionService.GetById(positionId);
+
+                if (result.IsSuccess)
+                {
+                    var position = result.Value;
+                    return position.Name;
+                }
+
+                return "Position Not Found";
+            }
+            catch (Exception ex)
+            {
+
+                LogException(nameof(GetPositionName), ex);
+                throw ex;
+            }
         }
     }
 }

@@ -57,6 +57,12 @@ namespace CMS.Web.Controllers
             return View(notifications);
         }
 
+        public async Task<ActionResult> IndexArchinotification()
+        {
+            var notifications = await _notificationsService.GetNotificationsForArchitecture();
+            return View(notifications);
+        }
+
         public async Task<ActionResult> IndexInterviewernotification()
         {
             var userId = _userManager.GetUserId(User);
@@ -194,7 +200,11 @@ namespace CMS.Web.Controllers
             return Json(notifications);
         }
 
-
+        public async Task<IActionResult> GetNotificationsForArchitecture()
+        {
+            var notifications = await _notificationsService.GetNotificationsForArchitecture();
+            return Json(notifications);
+        }
 
 
     }

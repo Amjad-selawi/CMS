@@ -5,10 +5,13 @@ using CMS.Repository.Interfaces;
 using CMS.Services.Interfaces;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Security.Claims;
 using System.Threading.Tasks;
+using System.Xml.Linq;
 
 namespace CMS.Services.Services
 {
@@ -26,17 +29,28 @@ namespace CMS.Services.Services
         }
 
 
+        public void LogException(string methodName, Exception ex, string createdByUserId = null, string additionalInfo = null)
+        {
+            _repository.LogException(methodName, ex, createdByUserId, additionalInfo);
+        }
+
+        private string GetUserId()
+        {
+            var userId = _httpContextAccessor.HttpContext.User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            return userId;
+        }
 
         public Result<CountryDTO> Delete(int id)
         {
             try
             {
-                _repository.Delete(id);
+                _repository.Delete(id,GetUserId());
                 return Result<CountryDTO>.Success(null);
             }
             catch (Exception ex)
             {
-                return Result<CountryDTO>.Failure(null, $"An error occurred while deleting the country{ex.InnerException.Message}");
+                LogException(nameof(Delete), ex);
+                return Result<CountryDTO>.Failure(null, $"An error occurred while deleting the country: {ex.Message}");
             }
         }
 
@@ -87,6 +101,7 @@ namespace CMS.Services.Services
             }
             catch(Exception ex)
             {
+                LogException(nameof(GetAll), ex);
                 return Result<List<CountryDTO>>.Failure(null, $"unable to get countries{ex.InnerException.Message}");
             }
 
@@ -100,7 +115,7 @@ namespace CMS.Services.Services
             }
             try
             {
-                var country=await _repository.GetById(id);
+                var country=await _repository.GetById(id, GetUserId());
                 var countryDTOS = new CountryDTO
                 {
                     Id = country.Id,
@@ -121,6 +136,7 @@ namespace CMS.Services.Services
             }
             catch (Exception ex)
             {
+                LogException(nameof(GetById), ex);
                 return Result<CountryDTO>.Failure(null, $"unable to retrieve the country from the repository{ex.InnerException.Message}");
             }
         }
@@ -140,12 +156,13 @@ namespace CMS.Services.Services
             };
             try
             {
-                await _repository.Insert(country);
+                await _repository.Insert(country, GetUserId());
                 return Result<CountryDTO>.Success(data);
 
             }
             catch (Exception ex)
             {
+                LogException(nameof(Insert), ex);
                 return Result<CountryDTO>.Failure(data, $"unable to insert a country: {ex.InnerException.Message}");
             }
         }
@@ -157,7 +174,7 @@ namespace CMS.Services.Services
                 return Result<CountryDTO>.Failure(null, "can not update a null object");
             }
             var currentUser = await _userManager.GetUserAsync(_httpContextAccessor.HttpContext.User);
-            var previousCountry=await _repository.GetById(data.Id);
+            var previousCountry=await _repository.GetById(data.Id, GetUserId());
             var country=new Country { 
                 Name = data.Name,
                 Id=data.Id,
@@ -169,23 +186,42 @@ namespace CMS.Services.Services
             };
             try
             {
-                await _repository.Update(country);
+                await _repository.Update(country, GetUserId());
                 return Result<CountryDTO>.Success(data);
             }
             catch (Exception ex)
             {
+                LogException(nameof(Update), ex);
                 return Result<CountryDTO>.Failure(data, $"unable to update the country: {ex.InnerException.Message}");
             }
         }
 
         public bool DoesCountryNameExist(string name)
         {
-            return _repository.DoesCountryNameExist(name);
+            try
+            {
+                return _repository.DoesCountryNameExist(name);
+
+            }
+            catch (Exception ex)
+            {
+                LogException(nameof(DoesCountryNameExist), ex);
+                throw;
+            }
         }
 
         public async Task<IEnumerable<Country>> GetAllCountriesAsync()
         {
-            return await _repository.GetAllCountriesAsync();
+            try
+            {
+                return await _repository.GetAllCountriesAsync();
+
+            }
+            catch (Exception ex)
+            {
+                LogException(nameof(GetAllCountriesAsync), ex);
+                throw;
+            }
         }
 
     }

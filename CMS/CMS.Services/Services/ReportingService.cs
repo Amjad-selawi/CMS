@@ -1,5 +1,7 @@
 ﻿using CMS.Application.DTOs;
 using CMS.Application.Extensions;
+using CMS.Domain;
+using CMS.Domain.Entities;
 using CMS.Repository.Interfaces;
 using CMS.Services.Interfaces;
 using System;
@@ -11,19 +13,37 @@ namespace CMS.Services.Services
 {
     public class ReportingService : IReportingService
     {
+        private readonly ApplicationDbContext _dbContext;
         ICarrerOfferRepository _carrerOfferRepository;
         ICandidateRepository _candidateRepository;
         private ICountryService _countryService;
 
 
-        public ReportingService(ICarrerOfferRepository carrerOfferRepository, ICandidateRepository candidateRepository, ICountryService countryService)
+        public ReportingService(ApplicationDbContext dbContext,ICarrerOfferRepository carrerOfferRepository, ICandidateRepository candidateRepository, ICountryService countryService)
         {
+            _dbContext = dbContext;
             _carrerOfferRepository = carrerOfferRepository;
             _candidateRepository = candidateRepository;
             _countryService = countryService;
         }
+        public void LogException(string methodName, Exception ex)
+        {
+            _dbContext.Logs.Add(new Log
+            {
+                MethodName = methodName,
+                ExceptionMessage = ex.Message,
+                StackTrace = ex.StackTrace,
+                LogTime = DateTime.Now
+            });
+            _dbContext.SaveChanges();
+        }
+
         public async Task<Result<PerformanceReportDTO>> GetBusinessPerformanceReport()
         {
+            try
+            {
+
+            
             int candidatesCount = await _candidateRepository.CountAllAsync();
             int acceptedCount = await _candidateRepository.CountAcceptedAsync();
             //Dictionary<string,int> candidatesPerCountry = await _candidateRepository.CountCandidatesPerCountry();
@@ -40,6 +60,12 @@ namespace CMS.Services.Services
                 NumberOfPending = pendingCount, // Add the pending count to the report
             };
             return Result<PerformanceReportDTO>.Success(report);
+            }
+            catch (Exception ex)
+            {
+                LogException(nameof(GetBusinessPerformanceReport),ex);
+                throw ex;
+            }
         }
     }
 }

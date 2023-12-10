@@ -25,7 +25,7 @@ namespace CMS.Domain
         public DbSet<Notifications> Notifications { get; set; }
         public DbSet<Templates> Templates { get; set; }
         public DbSet<Status> Statuses { get; set; }
-
+        public DbSet<Log> Logs { get; set; }
 
 
         protected override void OnModelCreating(ModelBuilder builder)
@@ -39,8 +39,10 @@ namespace CMS.Domain
             builder.Entity<IdentityRole>().HasData(
                 adminRole,
                 new IdentityRole { Id = "1eecb40c-c701-4445-89d4-d1aa7d70460d", Name = "General Manager", NormalizedName = "General Manager".ToUpper() },
-                new IdentityRole { Id = "226cca69-f046-4d15-8b81-9b9ba34f2214", Name = "HR Manager", NormalizedName = "HR Manager".ToUpper() },
-                new IdentityRole { Id = "91c3461a-7da3-4033-b907-b104b903d793",  Name = "Interviewer", NormalizedName = "Interviewer".ToUpper() }
+                new IdentityRole { Id = "226cca69-f046-4d15-8b81-9b9ba34f2214", Name = "HR Manager", NormalizedName = "HR ManagerF".ToUpper() },
+                new IdentityRole { Id = "91c3461a-7da3-4033-b907-b104b903d793",  Name = "Interviewer", NormalizedName = "Interviewer".ToUpper() },
+                new IdentityRole { Id = "3F476A40-97F4-42C6-A226-602AED74A4BC", Name = "Solution Architecture", NormalizedName = "Solution Architecture".ToUpper() }
+
             );
             
             var adminUser = new IdentityUser { Id= "c6585ab9-8b5f-4332-a174-92429db8add2", UserName = "admin", NormalizedUserName= "admin".ToUpper(), Email = "admin@admin.com", NormalizedEmail = "admin@admin.com".ToUpper(), EmailConfirmed = true };

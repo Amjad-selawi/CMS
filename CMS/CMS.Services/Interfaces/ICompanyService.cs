@@ -17,6 +17,6 @@ namespace CMS.Services.Interfaces
 
         bool DoesCompanyNameExist(string name, int countryId);
 
-
+        void LogException(string methodName, Exception ex, string createdByUserId = null, string additionalInfo = null);
     }
 }

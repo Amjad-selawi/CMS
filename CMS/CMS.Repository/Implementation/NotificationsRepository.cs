@@ -26,78 +26,172 @@ namespace CMS.Repository.Implementation
             _userManager = userManager;
         }
 
+        public void LogException(string methodName, Exception ex, string createdByUserId, string additionalInfo)
+        {
+            Db.Logs.Add(new Log
+            {
+                MethodName = methodName,
+                ExceptionMessage = ex.Message,
+                StackTrace = ex.StackTrace,
+                LogTime = DateTime.Now,
+                CreatedByUserId = createdByUserId,
+                AdditionalInfo = additionalInfo
+            });
+            Db.SaveChanges();
+        }
+
         public async Task<IEnumerable<Notifications>> GetAllNotifications()
         {
-            return await Db.Notifications.ToListAsync();
+            try
+            {
+                return await Db.Notifications.ToListAsync();
+            }
+            catch (Exception ex)
+            {
+                LogException(nameof(GetAllNotifications), ex,null,null);
+                throw ex;
+            }
         }
 
-        public async Task<Notifications> GetNotificationsById(int interviewId)
+        public async Task<Notifications> GetNotificationsById(int interviewId, string ByUserId)
         {
-            return await Db.Notifications.FindAsync(interviewId);
+            try
+            {
+                return await Db.Notifications.FindAsync(interviewId);
+            }
+            catch (Exception ex)
+            {
+                LogException(nameof(GetNotificationsById), ex,$"Done by {ByUserId}", $"Error retrieving notification with ID: {interviewId}");
+                throw ex;
+            }
         }
 
-        public async Task Create(Notifications entity)
+        public async Task Create(Notifications entity,string ByUserId)
         {
-            entity.IsActive = true;
-            entity.ModifiedBy = entity.ModifiedBy;
-            entity.ModifiedOn = DateTime.Now;
+            try
+            {
+                entity.IsActive = true;
+                entity.ModifiedBy = entity.ModifiedBy;
+                entity.ModifiedOn = DateTime.Now;
 
-            Db.Notifications.Add(entity);
-            await Db.SaveChangesAsync();
+                Db.Notifications.Add(entity);
+                await Db.SaveChangesAsync();
+            }
+            catch (Exception ex)
+            {
+                LogException(nameof(Create), ex, $"Created by : {ByUserId}", $"Notification inserted with ID: {entity.NotificationsId}");
+                throw ex;
+            }
         }
 
-        public async Task Update(Notifications entity)
+        public async Task Update(Notifications entity,string ByUserId)
         {
-            entity.IsActive = true;
-            entity.ModifiedBy = entity.ModifiedBy;
-            entity.ModifiedOn = DateTime.Now;
+            try
+            {
+                entity.IsActive = true;
+                entity.ModifiedBy = entity.ModifiedBy;
+                entity.ModifiedOn = DateTime.Now;
 
-            Db.Notifications.Update(entity);
-            await Db.SaveChangesAsync();
+                Db.Notifications.Update(entity);
+                await Db.SaveChangesAsync();
+            }
+            catch (Exception ex)
+            {
+                LogException(nameof(Update), ex, $"Modified by : {ByUserId}", $"Error updating notification with ID: {entity.NotificationsId}");
+                throw ex;
+            }
         }
 
-        public async Task Delete(Notifications entity)
+        public async Task Delete(Notifications entity , string ByUserId)
         {
-            entity.IsDelete = true;
-            entity.ModifiedBy = entity.ModifiedBy;
-            entity.ModifiedOn = DateTime.Now;
+            try
+            {
+                entity.IsDelete = true;
+                entity.ModifiedBy = entity.ModifiedBy;
+                entity.ModifiedOn = DateTime.Now;
 
-            Db.Notifications.Remove(entity);
-            await Db.SaveChangesAsync();
+                Db.Notifications.Remove(entity);
+                await Db.SaveChangesAsync();
+            }
+            catch (Exception ex)
+            {
+                LogException(nameof(Delete), ex, $"Deleted by : {ByUserId}", $"Notification deleted with ID: {entity.NotificationsId}");
+                throw ex;
+            }
         }
 
-
-
-        public async Task<List<Notifications>> GetSpacificNotificationsforHR()
+        public async Task<List<Notifications>> GetSpacificNotificationsforHR(string ByUserId)
         {
-            var HrId = "";
+            try
+            {
+                var HrId = "";
 
-            var Hr = await _roleManager.FindByNameAsync("HR Manager");
+                var Hr = await _roleManager.FindByNameAsync("HR Manager");
 
-            HrId = (await _userManager.GetUsersInRoleAsync(Hr.Name)).FirstOrDefault().Id;
+                HrId = (await _userManager.GetUsersInRoleAsync(Hr.Name)).FirstOrDefault().Id;
 
-
-            return await Db.Notifications.Where(x => x.ReceiverId == HrId).ToListAsync(); //hrId
+                return await Db.Notifications.Where(x => x.ReceiverId == HrId).ToListAsync();
+            }
+            catch (Exception ex)
+            {
+                LogException(nameof(GetSpacificNotificationsforHR), ex, ByUserId,$"Error while getting a Spacific Notifications for HR ");
+                throw ex;
+            }
         }
 
-        public async Task<List<Notifications>> GetSpacificNotificationsforGeneral()
+        public async Task<List<Notifications>> GetSpacificNotificationsforGeneral(string ByUserId)
         {
-            var managerId = "";
+            try
+            {
+                var managerId = "";
 
-            var manager = await _roleManager.FindByNameAsync("General Manager");
+                var manager = await _roleManager.FindByNameAsync("General Manager");
 
-            managerId = (await _userManager.GetUsersInRoleAsync(manager.Name)).FirstOrDefault().Id;
+                managerId = (await _userManager.GetUsersInRoleAsync(manager.Name)).FirstOrDefault().Id;
 
-
-            return await Db.Notifications.Where(x => x.ReceiverId == managerId).ToListAsync();//GMid
+                return await Db.Notifications.Where(x => x.ReceiverId == managerId).ToListAsync();
+            }
+            catch (Exception ex)
+            {
+                LogException(nameof(GetSpacificNotificationsforGeneral), ex, ByUserId, $"Error while getting a Spacific Notifications for General Manager ");
+                throw ex;
+            }
         }
 
-
-        public async Task<List<Notifications>> GetSpacificNotificationsforInterviewer(string interviewerId)
+        public async Task<List<Notifications>> GetSpacificNotificationsforArchi(string ByUserId)
         {
-            return await Db.Notifications.Where(x => x.ReceiverId == interviewerId).ToListAsync();
+            try
+            {
+                var archiId = "";
+
+                var archi = await _roleManager.FindByNameAsync("Solution Architecture");
+
+                archiId = (await _userManager.GetUsersInRoleAsync(archi.Name)).FirstOrDefault().Id;
+
+                return await Db.Notifications.Where(x => x.ReceiverId == archiId).ToListAsync();
+            }
+            catch (Exception ex)
+            {
+                LogException(nameof(GetSpacificNotificationsforArchi), ex, ByUserId, $"Error while getting a Spacific Notifications for Architecture ");
+                throw ex;
+            }
         }
 
+        public async Task<List<Notifications>> GetSpacificNotificationsforInterviewer(string interviewerId, string ByUserId)
+        {
+            try
+            {
+                return await Db.Notifications.Where(x => x.ReceiverId == interviewerId).ToListAsync();
+            }
+            catch (Exception ex)
+            {
+                LogException(nameof(GetSpacificNotificationsforInterviewer), ex, ByUserId, $"Error while getting a Spacific Notifications for Interviewer ");
+                throw ex;
+            }
+        }
+
+
+    
 
     }
 }

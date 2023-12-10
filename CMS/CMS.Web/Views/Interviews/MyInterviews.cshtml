@@ -5,6 +5,13 @@
 @{
     ViewData["Title"] = "My Interviews";
 }
+<style>
+    .card-body {
+        width: 100%;
+        max-width: 100%;
+        overflow-y: hidden;
+    }
+</style>
 
 @using (Html.BeginForm("MyInterviews", "Interviews", FormMethod.Get))
 {
@@ -37,6 +44,7 @@
                             <th>Position</th>
                             <th hidden>Interviewer</th>
                             <th>Date</th>
+                            <th>Time</th>
                             <th hidden>Parent ID</th>
                             @if (User.IsInRole("Interviewer"))
                             {
@@ -63,7 +71,8 @@
                                 <td>@Html.DisplayFor(modelItem => item.FullName)</td>
                                 <td>@Html.DisplayFor(modelItem => item.Name)</td>
                                 <td hidden>@item.InterviewerName</td>
-                                <td>@item.Date</td>
+                                <td>@item.Date.ToString("dd-MM-yyyy")</td>
+                                <td>@item.Date.ToString("HH:mm")</td>
                                 <td hidden>@item.ParentId</td>
                                 @if (User.IsInRole("Interviewer"))
                                 {
