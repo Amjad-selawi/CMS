@@ -235,9 +235,9 @@ namespace CMS.Web.Controllers
                         await _userManager.AddToRoleAsync(user, collection.SelectedRole);
                     }
 
-                    
+
                     //Send an Email to the user after creted it
-                   //await _accountService.SendRegistrationEmail(user, collection.Password);
+                    await _accountService.SendRegistrationEmail(user, collection.Password);
 
                     // Your registration success logic here
                     return RedirectToAction("Index");
