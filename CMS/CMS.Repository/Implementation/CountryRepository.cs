@@ -7,6 +7,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Xml.Linq;
 
 namespace CMS.Repository.Implementation
 {
@@ -18,7 +19,24 @@ namespace CMS.Repository.Implementation
             _context = context; 
         }
 
-        public int Delete(int id)
+
+        public void LogException(string methodName, Exception ex, string createdByUserId, string additionalInfo)
+        {
+
+            _context.Logs.Add(new Log
+            {
+                MethodName = methodName,
+                ExceptionMessage = ex.Message,
+                StackTrace = ex.StackTrace,
+                LogTime = DateTime.Now,
+                CreatedByUserId = createdByUserId,
+                AdditionalInfo = additionalInfo
+            });
+            _context.SaveChanges();
+        }
+
+
+        public int Delete(int id,string deletedByUserId)
         {
             try
             {
@@ -40,31 +58,11 @@ namespace CMS.Repository.Implementation
             }
             catch (Exception ex)
             {
-                throw ex;
+                LogException(nameof(Delete), ex, $"Deleted by : {deletedByUserId}", $"Country deleted with ID: {id}");
+                throw;
             }
         }
 
-
-        //public async  Task<int> Delete(int id)
-        //{
-        //    try
-        //    {
-        //       // var country=await _context.Countries.FindAsync(id);
-        //       var country=await _context.Countries.Include(c=>c.Companies)
-        //            .FirstOrDefaultAsync(c=>c.Id==id);
-
-        //        foreach(var com in country.Companies) {
-        //        _context.Companies.Remove(com);
-        //        }
-        //        _context.Countries.Remove(country);
-        //       return  await _context.SaveChangesAsync();
-
-        //    }
-        //    catch (Exception ex)
-        //    {
-        //        throw ex;
-        //    }
-        //}
 
         public async Task<List<Country>> GetAll()
         {
@@ -76,11 +74,12 @@ namespace CMS.Repository.Implementation
             }
             catch (Exception ex)
             {
-                throw ex;
+                LogException(nameof(GetAll), ex,null,null);
+                throw;
             }
         }
 
-        public async Task<Country> GetById(int id)
+        public async Task<Country> GetById(int id,string createdByUserId)
         {
             try
             {
@@ -92,12 +91,13 @@ namespace CMS.Repository.Implementation
             }
             catch (Exception ex)
             {
-                throw ex;
+                LogException(nameof(GetById), ex, $"Done by : {createdByUserId}", $"Error retrieving country with ID: {id}");
+                throw;
             }
 
         }
 
-        public async Task<int> Insert(Country entity)
+        public async Task<int> Insert(Country entity,string createdByUserId)
         {
             try
             {
@@ -107,11 +107,12 @@ namespace CMS.Repository.Implementation
             }
             catch (Exception ex)
             {
-                throw ex;
+                LogException(nameof(Insert), ex, $"Created by : {createdByUserId}", $"country inserted with ID: {entity.Id}");
+                throw;
             }
         }
 
-        public async Task<int> Update(Country entity)
+        public async Task<int> Update(Country entity,string modifiedByUserId)
         {
             try
             {
@@ -123,21 +124,40 @@ namespace CMS.Repository.Implementation
             }
             catch (Exception ex)
             {
-                throw ex;
+                LogException(nameof(Update), ex, $"Modified by : {modifiedByUserId}", $"Error updating country with ID: {entity.Id}");
+                throw;
             }
         }
 
 
         public bool DoesCountryNameExist(string name)
         {
-            return _context.Countries.Any(x => x.Name == name);
+            try
+            {
+                return _context.Countries.Any(x => x.Name == name);
+            }
+            catch (Exception ex)
+            {
+                LogException(nameof(DoesCountryNameExist), ex,null,null);
+                throw;
+            }
+
         }
 
 
         public async Task<IEnumerable<Country>> GetAllCountriesAsync()
         {
-            return await _context.Countries.ToListAsync();
+            try
+            {
+                return await _context.Countries.ToListAsync();
+            }
+            catch (Exception ex)
+            {
+                LogException(nameof(GetAllCountriesAsync), ex, null, null);
+                throw;
+            }
         }
 
+        
     }
 }

@@ -17,7 +17,22 @@ namespace CMS.Repository.Implementation
         {
             _context = context;
         }
-        public async Task<int> Delete(int id)
+        public void LogException(string methodName, Exception ex, string createdByUserId, string additionalInfo)
+        {
+            _context.Logs.Add(new Log
+            {
+                MethodName = methodName,
+                ExceptionMessage = ex.Message,
+                StackTrace = ex.StackTrace,
+                LogTime = DateTime.Now,
+                CreatedByUserId = createdByUserId,
+                AdditionalInfo = additionalInfo
+            });
+            _context.SaveChanges();
+        }
+
+
+        public async Task<int> Delete(int id, string deletedByUserId)
         {
             try
             {
@@ -38,6 +53,7 @@ namespace CMS.Repository.Implementation
             }
             catch (Exception ex)
             {
+                LogException(nameof(Delete), ex,$"Deleted by : {deletedByUserId}", $"Position deleted with ID: {id}");
                 throw ex;
             }
         }
@@ -52,11 +68,12 @@ namespace CMS.Repository.Implementation
             }
             catch (Exception ex)
             {
+                LogException(nameof(GetAll), ex, null, null);
                 throw ex;
             }
         }
 
-        public async Task<Position> GetById(int id)
+        public async Task<Position> GetById(int id, string createdByUserId)
         {
             try
             {
@@ -68,12 +85,13 @@ namespace CMS.Repository.Implementation
             }
             catch (Exception ex)
             {
+                LogException(nameof(GetById), ex,$"Done by : {createdByUserId}", $"Error retrieving position with ID: {id}");
                 throw ex;
             }
 
         }
 
-        public async Task<int> Insert(Position entity)
+        public async Task<int> Insert(Position entity, string createdByUserId)
         {
             try
             {
@@ -83,11 +101,12 @@ namespace CMS.Repository.Implementation
             }
             catch (Exception ex)
             {
+                LogException(nameof(Insert), ex, $"Created by : {createdByUserId}", $"Position inserted with ID: {entity.Id}");
                 throw ex;
             }
         }
 
-        public async Task<int> Update(Position entity)
+        public async Task<int> Update(Position entity, string modifiedByUserId)
         {
             try
             {
@@ -99,6 +118,7 @@ namespace CMS.Repository.Implementation
             }
             catch (Exception ex)
             {
+                LogException(nameof(Update), ex, $"Modified by : {modifiedByUserId}", $"Error updating position with ID: {entity.Id}");
                 throw ex;
             }
         }
@@ -106,108 +126,21 @@ namespace CMS.Repository.Implementation
 
         public bool DoesPositionNameExist(string name)
         {
-            return _context.Positions.Any(x => x.Name == name);
+            try
+            {
+                return _context.Positions.Any(x => x.Name == name);
+            }
+            catch(Exception ex)
+            {
+                LogException(nameof(DoesPositionNameExist), ex, null, null);
+                throw ex;
+            }
         }
 
 
 
 
-        //public async  Task Delete(Position entity)
-        //{
-        //    entity.IsDelete = true;
-        //    entity.ModifiedBy = entity.ModifiedBy;
-        //    entity.ModifiedOn = DateTime.Now;
-
-        //    _context.Positions.Remove(entity);
-        //    await _context.SaveChangesAsync();
-
-
-        //    //try
-        //    //{
-        //    //    var country=await _context.Positions.FindAsync(id);
-        //    //    _context.Positions.Remove(country);
-        //    //   return await _context.SaveChangesAsync();
-
-        //    //}
-        //    //catch (Exception ex)
-        //    //{
-        //    //    throw ex;
-        //    //}
-        //}
-
-        //public async Task<IEnumerable<Position>> GetAll()
-        //{
-        //    return await _context.Positions.ToListAsync();
-
-
-        //    //try
-        //    //{
-        //    //    return await _context.Positions.AsNoTracking().ToListAsync();
-        //    //}
-        //    //catch (Exception ex){
-        //    //    throw ex;
-        //    //}
-        //}
-
-        //public async Task<Position> GetById(int id)
-        //{
-        //    return await _context.Positions.FindAsync(id);
-
-        //    //try
-        //    //{
-        //    //    //var pos = await _context.FindAsync<Position>(id);
-        //    //    var pos=await _context.Positions.AsNoTracking().FirstOrDefaultAsync(p=>p.Id==id);
-        //    //    return pos;
-        //    //}
-        //    //catch (Exception ex)
-        //    //{
-        //    //    throw ex;
-        //    //}
-        //}
-
-        //public async Task Insert(Position entity)
-        //{
-
-        //    entity.IsActive = true;
-        //    entity.ModifiedBy = entity.ModifiedBy;
-        //    entity.ModifiedOn = DateTime.Now;
-
-        //    _context.Positions.Add(entity);
-        //    await _context.SaveChangesAsync();
-
-        //    //try
-        //    //{
-        //    //    _context.Add(entity);
-        //    //   return await _context.SaveChangesAsync();
-
-        //    //}
-        //    //catch (Exception ex)
-        //    //{
-        //    //    throw ex;
-        //    //}
-        //}
-
-        //public async Task Update(Position entity)
-        //{
-        //    entity.IsActive = true;
-        //    entity.ModifiedBy = entity.ModifiedBy;
-        //    entity.ModifiedOn = DateTime.Now;
-
-        //    _context.Positions.Update(entity);
-        //    await _context.SaveChangesAsync();
-
-        //    //try
-        //    //{
-
-        //    //    _context.Update(entity);
-        //    //   return await _context.SaveChangesAsync();
-
-
-        //    //}
-        //    //catch (Exception ex)
-        //    //{
-        //    //    throw ex;
-        //    //}
+        
     }
 }
 

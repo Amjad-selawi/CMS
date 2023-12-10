@@ -108,7 +108,6 @@ namespace CMS.Web
           .AddEntityFrameworkStores<ApplicationDbContext>();
 
 
-
             services.ConfigureApplicationCookie(options =>
             {
                 options.LoginPath = "/Account/Login";
@@ -121,13 +120,20 @@ namespace CMS.Web
                 x.Password.RequireNonAlphanumeric = false;
                 x.Password.RequireLowercase = false;
                 x.Password.RequireUppercase = false;
-
+                x.User.RequireUniqueEmail = false;
             });
 
 
             services.AddHangfire(x => x.UseSqlServerStorage(Configuration.GetConnectionString("Defultconiction")));
             services.AddHangfireServer();
 
+            services.AddDistributedMemoryCache();
+            services.AddSession(options =>
+            {
+                options.IdleTimeout = TimeSpan.FromMinutes(30);
+                options.Cookie.HttpOnly = true;
+                options.Cookie.IsEssential = true;
+            });
 
         }
 
@@ -152,6 +158,7 @@ namespace CMS.Web
             app.UseAuthorization();
             app.UseAuthentication();
             app.UseHangfireDashboard("/jobs");
+            app.UseSession();
 
             app.UseEndpoints(endpoints =>
             {

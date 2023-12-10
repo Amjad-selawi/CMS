@@ -15,6 +15,7 @@ using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using static Microsoft.EntityFrameworkCore.DbLoggerCategory;
+using System.Security.Claims;
 
 namespace CMS.Web.Controllers
 {
@@ -27,16 +28,19 @@ namespace CMS.Web.Controllers
         private readonly IStatusService _StatusService;
         private readonly INotificationsService _notificationsService;
         private readonly ISearchInterviewsService _searchInterviewsService;
+        private readonly IHttpContextAccessor _httpContextAccessor;
         private readonly string _attachmentStoragePath;
 
         public SearchInterviewsController(ICandidateService candidateService, IPositionService positionService, IStatusService statusService, IWebHostEnvironment env,
-            INotificationsService notificationsService, ISearchInterviewsService searchInterviewsService)
+            INotificationsService notificationsService, 
+            ISearchInterviewsService searchInterviewsService, IHttpContextAccessor httpContextAccessor)
         {
             _candidateService = candidateService;
             _positionService = positionService;
             _StatusService = statusService;
             _notificationsService = notificationsService;
             _searchInterviewsService = searchInterviewsService;
+            _httpContextAccessor = httpContextAccessor;
             _attachmentStoragePath = Path.Combine(env.WebRootPath, "attachments");
 
             if (!Directory.Exists(_attachmentStoragePath))
@@ -46,6 +50,11 @@ namespace CMS.Web.Controllers
         }
 
 
+        private string GetUserId()
+        {
+            var userId = _httpContextAccessor.HttpContext.User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            return userId;
+        }
 
 
         public async Task<ActionResult> Index(string positionFilter, int? scoreFilter, int? statusFilter, string candidateFilter, string interviewerFilter, DateTime? fromDate, DateTime? toDate, string export)
@@ -239,7 +248,7 @@ namespace CMS.Web.Controllers
 
         public async Task<ActionResult> Details(int id)
         {
-            var result = await _searchInterviewsService.GetById(id);
+            var result = await _searchInterviewsService.GetById(id, GetUserId());
 
             var positionsDTO = await _positionService.GetAll();
             ViewBag.positionDTOs = new SelectList(positionsDTO.Value, "Id", "Name");
@@ -281,7 +290,7 @@ namespace CMS.Web.Controllers
             {
                 return NotFound();
             }
-            var result = await _searchInterviewsService.GetById(id);
+            var result = await _searchInterviewsService.GetById(id, GetUserId());
             var interviewDTO = result.Value;
             if (interviewDTO == null)
             {
@@ -329,7 +338,7 @@ namespace CMS.Web.Controllers
 
             if (ModelState.IsValid)
             {
-                var result = await _searchInterviewsService.Update(collection);
+                var result = await _searchInterviewsService.Update(collection, GetUserId());
 
                 if (result.IsSuccess)
                 {
@@ -351,7 +360,7 @@ namespace CMS.Web.Controllers
 
         public async Task<ActionResult> Delete(int id)
         {
-            var result = await _searchInterviewsService.GetById(id);
+            var result = await _searchInterviewsService.GetById(id, GetUserId());
             if (result.IsSuccess)
             {
                 var interviewDTO = result.Value;
@@ -378,7 +387,7 @@ namespace CMS.Web.Controllers
             {
                 return BadRequest("invalid career offer id");
             }
-            var result = await _searchInterviewsService.Delete(id);
+            var result = await _searchInterviewsService.Delete(id, GetUserId());
             if (result.IsSuccess)
             {
                 return RedirectToAction("Index");

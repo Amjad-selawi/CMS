@@ -1,6 +1,7 @@
 ﻿// CMS.Application/Services/InterviewsService.cs
 using CMS.Application.DTOs;
 using CMS.Application.Extensions;
+using CMS.Domain;
 using CMS.Domain.Entities;
 using CMS.Domain.Enums;
 using CMS.Repository.Implementation;
@@ -16,6 +17,7 @@ using System.IO;
 using System.Linq;
 using System.Runtime.InteropServices;
 using System.Runtime.InteropServices.WindowsRuntime;
+using System.Security.Claims;
 using System.Threading.Tasks;
 
 namespace CMS.Services.Services
@@ -53,60 +55,119 @@ namespace CMS.Services.Services
             _statusRepository = statusRepository;
         }
 
+        public void LogException(string methodName, Exception ex, string createdByUserId = null, string additionalInfo = null)
+        {
+            _interviewsRepository.LogException(methodName, ex, createdByUserId, additionalInfo);
+        }
+
+        private string GetUserId()
+        {
+            var userId = _httpContextAccessor.HttpContext.User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            return userId;
+        }
+
 
         public async Task<List<UsersDTO>> GetInterviewers()
         {
-            var interviewerRole = await _roleManager.FindByNameAsync("Interviewer");
-            if (interviewerRole == null)
+            try
             {
-                return new List<UsersDTO>();
-            }
-            var usersInRole = await _userManager.GetUsersInRoleAsync(interviewerRole.Name);
+                var interviewerRole = await _roleManager.FindByNameAsync("Interviewer");
+                if (interviewerRole == null)
+                {
+                    return new List<UsersDTO>();
+                }
+                var usersInRole = await _userManager.GetUsersInRoleAsync(interviewerRole.Name);
 
-            var interviewers = usersInRole.Select(user => new UsersDTO
+                var interviewers = usersInRole.Select(user => new UsersDTO
+                {
+                    Id = user.Id,
+                    Name = user.UserName,
+                    Email = user.Email,
+                }).ToList();
+                return interviewers;
+            }
+           catch (Exception ex)
             {
-                Id = user.Id,
-                Name = user.UserName,
-                Email = user.Email,
-            }).ToList();
-            return interviewers;
+                LogException(nameof(GetInterviewers), ex, null, "Error while getting all Interviewers");
+                throw ex;
+            }
 
         }
 
         public async Task<string> GetInterviewerName(string id)
         {
-            var user = await _userManager.FindByIdAsync(id);
-            if (user != null)
+            try
             {
-                return user.UserName;
-            }
-
-            return "User not found";
-        }
-        public async Task<string> GetInterviewerRole(string id)
-        {
-            var user = await _userManager.FindByIdAsync(id);
-            if (user != null)
-            {
-                var roles = await _userManager.GetRolesAsync(user);
-                if (roles.Any())
+                var user = await _userManager.FindByIdAsync(id);
+                if (user != null)
                 {
-                    return roles[0];
+                    return user.UserName;
                 }
-            }
 
-            return "User not found";
+                return "User not found";
+            }
+       
+
+             catch (Exception ex)
+            {
+                LogException(nameof(GetInterviewerName), ex, null, "Error while getting Interviewer Name");
+                throw ex;
+            }
         }
 
-        public async Task<Result<InterviewsDTO>> Delete(int id)
+        public async Task<string> GetArchitectureName(string id)
         {
             try
             {
-                var interview = await _interviewsRepository.GetById(id);
+                var user = await _userManager.FindByIdAsync(id);
+                if (user != null)
+                {
+                    return user.UserName;
+                }
+
+                return "User not found";
+            }
+
+
+            catch (Exception ex)
+            {
+                LogException(nameof(GetArchitectureName), ex, null, "Error while getting Architectur Name");
+                throw ex;
+            }
+        }
+        public async Task<string> GetInterviewerRole(string id)
+        {
+            try
+            {
+                var user = await _userManager.FindByIdAsync(id);
+                if (user != null)
+                {
+                    var roles = await _userManager.GetRolesAsync(user);
+                    if (roles.Any())
+                    {
+                        return roles[0];
+                    }
+                }
+
+                return "User not found";
+
+            }
+            catch (Exception ex)
+            {
+                LogException(nameof(GetInterviewerRole), ex, null, "Error while getting Interviewer Role");
+                throw ex;
+            }
+        }
+
+        public async Task<Result<InterviewsDTO>> Delete(int id,string ByUserId)
+        {
+            try
+            {
+                var interview = await _interviewsRepository.GetById(id,GetUserId());
                 if (interview != null && interview.AttachmentId != null)
                 {
                     var attachmentToRemove = interview.AttachmentId;
-                    await _interviewsRepository.Delete(id);
+                    await _interviewsRepository.Delete(id, GetUserId());
                     if (attachmentToRemove != null)
                     {
                         await _attachmentService.DeleteAttachmentAsync((int)attachmentToRemove);
@@ -115,7 +176,7 @@ namespace CMS.Services.Services
                 }
                 else
                 {
-                    await _interviewsRepository.Delete(id);
+                    await _interviewsRepository.Delete(id, GetUserId());
                 }
 
                 return Result<InterviewsDTO>.Success(null);
@@ -123,6 +184,7 @@ namespace CMS.Services.Services
 
             catch (Exception ex)
             {
+                LogException(nameof(Delete), ex, $"Deleted by : {ByUserId}", $"Error while deleteing an interview with Id : {id}");
                 return Result<InterviewsDTO>.Failure(null, $"An error occurred while deleting the Interview{ex.InnerException.Message}");
             }
         }
@@ -134,11 +196,11 @@ namespace CMS.Services.Services
             List<InterviewsDTO> interviewsDTOs = new List<InterviewsDTO>();
             try
             {
-                var Result = await GetById(id);
+                var Result = await GetById(id,GetUserId());
                 var interview = Result.Value;
                 while (interview.ParentId != null)
                 {
-                    var result = await GetById((int)interview.ParentId);
+                    var result = await GetById((int)interview.ParentId,GetUserId());
                     interview= result.Value;
                     interviewsDTOs.Add(result.Value);
                 }
@@ -147,6 +209,7 @@ namespace CMS.Services.Services
             }
             catch (Exception ex)
             {
+                LogException(nameof(ShowHistory), ex);
                 return Result<List<InterviewsDTO>>.Failure(null, $"Unable to get interview History: {ex.Message}");
             }
            
@@ -169,6 +232,7 @@ namespace CMS.Services.Services
                 {
                     string userName = await GetInterviewerName(c.InterviewerId);
                     string SeconduserName = await GetInterviewerName(c.SecondInterviewerId);
+                    string archiName= await GetArchitectureName(c.ArchitectureInterviewerId);
 
                     string interviewerRole = await GetInterviewerRole(c.InterviewerId);
                     var com = new InterviewsDTO
@@ -181,7 +245,7 @@ namespace CMS.Services.Services
                         Date = c.Date,
                         PositionId = c.PositionId,
                         Name = c.Position.Name,
-                        EvalutaionFormId=c.Position.EvaluationId,
+                        EvalutaionFormId =c.Position.EvaluationId,
                         Notes = c.Notes,
                         ParentId = c.ParentId,
                         InterviewerId = c.InterviewerId,
@@ -195,6 +259,8 @@ namespace CMS.Services.Services
                         SecondInterviewerId = c.SecondInterviewerId,
                         SecondInterviewerName = SeconduserName,
 
+                        ArchitectureInterviewerId=c.ArchitectureInterviewerId,
+                        ArchitectureInterviewerName= archiName,
                     };
                     interviewsDTO.Add(com);
 
@@ -205,11 +271,12 @@ namespace CMS.Services.Services
             }
             catch (Exception ex)
             {
+                LogException(nameof(GetAll), ex, null, null);
                 return Result<List<InterviewsDTO>>.Failure(null, $"Unable to get Interview: {ex.InnerException.Message}");
             }
         }
 
-        public async Task<Result<InterviewsDTO>> GetById(int id)
+        public async Task<Result<InterviewsDTO>> GetById(int id,string ByUserId)
         {
             if (id <= 0)
             {
@@ -218,9 +285,10 @@ namespace CMS.Services.Services
             try
             {
 
-                var interview = await _interviewsRepository.GetById(id);
+                var interview = await _interviewsRepository.GetById(id, GetUserId());
                 string userName = await GetInterviewerName(interview.InterviewerId);
                 string SeconduserName = await GetInterviewerName(interview.SecondInterviewerId);
+                string archiName = await GetArchitectureName(interview.ArchitectureInterviewerId);
 
                 string interviewerRole = await GetInterviewerRole(interview.InterviewerId);
                 var interviewDTO = new InterviewsDTO
@@ -232,7 +300,7 @@ namespace CMS.Services.Services
                     Date = interview.Date,
                     PositionId = interview.PositionId,
                     Name = interview.Position.Name,
-                    EvalutaionFormId=interview.Position.EvaluationId,
+                    EvalutaionFormId =interview.Position.EvaluationId,
                     Notes = interview.Notes,
                     ParentId = interview.ParentId,
                     InterviewerId = interview.InterviewerId,
@@ -245,103 +313,141 @@ namespace CMS.Services.Services
                     ActualExperience = interview.ActualExperience,
                     SecondInterviewerId = interview.SecondInterviewerId,
                     SecondInterviewerName = SeconduserName,
+
+                    ArchitectureInterviewerId = interview.ArchitectureInterviewerId,
+                    ArchitectureInterviewerName = archiName,
                 };
                 return Result<InterviewsDTO>.Success(interviewDTO);
             }
             catch (Exception ex)
             {
+                LogException(nameof(GetById), ex, ByUserId, $"Error while Getting details with Id: {id}");
                 return Result<InterviewsDTO>.Failure(null, $"unable to retrieve the Interview from the repository{ex.InnerException.Message}");
             }
         }
 
-        public async Task<Result<InterviewsDTO>> Insert(InterviewsDTO data)
+        public async Task<Result<InterviewsDTO>> Insert(InterviewsDTO data,string ByUserId)
         {
-            if (data == null)
+            try
             {
-                return Result<InterviewsDTO>.Failure(data, "the interview  DTO is null");
+                if (data == null)
+                {
+                    return Result<InterviewsDTO>.Failure(data, "the interview  DTO is null");
+                }
+                var status = await _statusRepository.GetByCode(StatusCode.Pending);
+                var currentUser = await _userManager.GetUserAsync(_httpContextAccessor.HttpContext.User);
+                var interview = new Interviews
+                {
+                    PositionId = data.PositionId,
+                    CandidateId = data.CandidateId,
+                    Score = data.Score,
+                    StatusId = status.Id,
+                    Date = data.Date,
+                    Notes = data.Notes,
+                    ParentId = data.ParentId,
+                    InterviewerId = data.InterviewerId,
+                    AttachmentId = data.AttachmentId,
+                    CreatedBy = currentUser.Id,
+                    CreatedOn = DateTime.Now,
+                    SecondInterviewerId = data.SecondInterviewerId,
+                    ArchitectureInterviewerId = data.ArchitectureInterviewerId,
+
+                };
+                await _interviewsRepository.Insert(interview, GetUserId());
+
+                _httpContextAccessor.HttpContext.Session.SetString("ArchitectureInterviewerId", data.ArchitectureInterviewerId ?? "");
+
+                return Result<InterviewsDTO>.Success(data);
+
             }
-            var status = await _statusRepository.GetByCode(StatusCode.Pending);
-            var currentUser = await _userManager.GetUserAsync(_httpContextAccessor.HttpContext.User);
-            var interview = new Interviews
+            catch (Exception ex)
             {
-                PositionId = data.PositionId,
-                CandidateId = data.CandidateId,
-                Score = data.Score,
-                StatusId = status.Id,
-                Date = data.Date,
-                Notes = data.Notes,
-                ParentId = data.ParentId,
-                InterviewerId = data.InterviewerId,
-                AttachmentId = data.AttachmentId,
-                CreatedBy = currentUser.Id,
-                CreatedOn = DateTime.Now,
-                SecondInterviewerId = data.SecondInterviewerId,
-
-
-            };
-            await _interviewsRepository.Insert(interview);
-
-
-            return Result<InterviewsDTO>.Success(data);
+                LogException(nameof(Insert), ex, $"Created by : {ByUserId}", $"Error while creating an interview with Id: {data.InterviewsId}");
+                throw ex;
+            }
 
 
         }
 
-        public async Task<Result<InterviewsDTO>> Update(InterviewsDTO data)
+        public async Task<Result<InterviewsDTO>> Update(InterviewsDTO data,string ByUserId)
         {
-
-            if (data == null)
+            try
             {
-                return Result<InterviewsDTO>.Failure(data, "can not update a null object");
+                if (data == null)
+                {
+                    return Result<InterviewsDTO>.Failure(data, "can not update a null object");
+                }
+                var currentUser = await _userManager.GetUserAsync(_httpContextAccessor.HttpContext.User);
+                //if (Enum.TryParse(data.Status, out InterviewStatus status))
+                // {
+                var previouseInterview = await _interviewsRepository.GetByIdForEdit(data.InterviewsId, GetUserId());
+                var interview = new Interviews
+                {
+                    InterviewsId = data.InterviewsId,
+                    PositionId = data.PositionId,
+                    CandidateId = data.CandidateId,
+                    Score = data.Score,
+                    ParentId = data.ParentId,
+                    InterviewerId = data.InterviewerId,
+                    SecondInterviewerId = data.SecondInterviewerId,
+                    ArchitectureInterviewerId = data.ArchitectureInterviewerId,
+
+                    Date = data.Date,
+                    Notes = data.Notes,
+                    StatusId = (int)data.StatusId,
+                    AttachmentId = data.AttachmentId,
+                    ModifiedOn = DateTime.Now,
+                    ModifiedBy = currentUser.Id,
+                    CreatedBy = previouseInterview.CreatedBy,
+                    CreatedOn = previouseInterview.CreatedOn,
+
+                };
+                await _interviewsRepository.Update(interview, GetUserId());
+                // }
+                return Result<InterviewsDTO>.Success(data);
+
             }
-            var currentUser = await _userManager.GetUserAsync(_httpContextAccessor.HttpContext.User);
-            //if (Enum.TryParse(data.Status, out InterviewStatus status))
-            // {
-            var previouseInterview = await _interviewsRepository.GetByIdForEdit(data.InterviewsId);
-            var interview = new Interviews
+
+
+            catch (Exception ex)
             {
-                InterviewsId = data.InterviewsId,
-                PositionId = data.PositionId,
-                CandidateId = data.CandidateId,
-                Score = data.Score,
-                ParentId = data.ParentId,
-                InterviewerId = data.InterviewerId,
-                SecondInterviewerId = data.SecondInterviewerId,
-
-                Date = data.Date,
-                Notes = data.Notes,
-                StatusId = (int)data.StatusId,
-                AttachmentId = data.AttachmentId,
-                ModifiedOn = DateTime.Now,
-                ModifiedBy = currentUser.Id,
-                CreatedBy = previouseInterview.CreatedBy,
-                CreatedOn = previouseInterview.CreatedOn,
-
-            };
-            await _interviewsRepository.Update(interview);
-            // }
-            return Result<InterviewsDTO>.Success(data);
+                LogException(nameof(Update), ex, $"Modified by : {ByUserId}", $"Error while updating an interview with Id: {data.InterviewsId}");
+                throw ex;
+            }
 
         }
 
-        public async Task UpdateInterviewAttachmentAsync(int id, string fileName, long fileSize, Stream fileStream)
+        public async Task UpdateInterviewAttachmentAsync(int id, string fileName, long fileSize, Stream fileStream,string ByUserId)
         {
-            var interview = await _interviewsRepository.GetById(id);
+
+            try
+            {
+
+            var interview = await _interviewsRepository.GetById(id, GetUserId());
             int attachmentId = await _attachmentService.CreateAttachmentAsync(fileName, fileSize, fileStream);
             int attachmentToRemove = (int)interview.AttachmentId;
             interview.AttachmentId = attachmentId;
-            await _interviewsRepository.Update(interview);
+            await _interviewsRepository.Update(interview, GetUserId());
             await _attachmentService.DeleteAttachmentAsync(attachmentToRemove);
+            }
+
+
+            catch (Exception ex)
+            {
+                LogException(nameof(UpdateInterviewAttachmentAsync), ex, ByUserId, $"Error while updating Interview Attachment with ID : {id}");
+                throw ex;
+            }
+
         }
 
 
-        public async Task ConductInterview(InterviewsDTO completedDTO)
+        public async Task ConductInterview(InterviewsDTO completedDTO,string ByUserId)
         {
             try
             {
                 var currentUser = await _userManager.GetUserAsync(_httpContextAccessor.HttpContext.User);
 
-                var interview = await _interviewsRepository.GetById(completedDTO.InterviewsId);
+                var interview = await _interviewsRepository.GetById(completedDTO.InterviewsId, GetUserId());
                 if (completedDTO.FileData != null)
                 {
                     int attachmentId = await _attachmentService.CreateAttachmentAsync(completedDTO.FileName, (long)completedDTO.FileSize, completedDTO.FileData);
@@ -358,7 +464,7 @@ namespace CMS.Services.Services
                 interview.ModifiedBy = currentUser.Id;
                 interview.ModifiedOn = DateTime.Now;
                 interview.IsUpdated = true;
-                await _interviewsRepository.Update(interview);
+                await _interviewsRepository.Update(interview, GetUserId());
                 // Step 2: Create Next Interview if Needed.
                 var Completedstatus = await _statusRepository.GetById((int)completedDTO.StatusId);
                 bool isApproved = Completedstatus.Code == StatusCode.Approved;
@@ -377,23 +483,63 @@ namespace CMS.Services.Services
                         CreatedOn = DateTime.Now,
                         CreatedBy = currentUser.Id,
                     };
-                    if (isFirstMeeting) // Second Interview Needed which done by General Manager
+                    if (isFirstMeeting) // Second Interview Needed which done by General Manager and Solution Architecture
                     {
                         var manager = (await _userManager.GetUsersInRoleAsync("General Manager")).FirstOrDefault();
+
+                        var architectureInterviewerId = _httpContextAccessor.HttpContext.Session.GetString("ArchitectureInterviewerId");
+                        var archiId = architectureInterviewerId;
+
                         Debug.Assert(manager != null, "There is No Valid General Manager in The System");
-                        newInterview.InterviewerId = manager.Id;
+
+                        // Create an interview for the General Manager
+                        var managerInterview = new Interviews
+                        {
+                            StatusId = PendeingStatus.Id,
+                            Date = interview.Date,
+                            CandidateId = interview.CandidateId,
+                            PositionId = interview.PositionId,
+                            ParentId = completedDTO.InterviewsId,
+                            CreatedOn = DateTime.Now,
+                            CreatedBy = currentUser.Id,
+                            InterviewerId = manager.Id
+                        };
+
+                        await _interviewsRepository.Insert(managerInterview, GetUserId());
+
+                        // Create an interview for the Solution Architecture
+                        if (!string.IsNullOrEmpty(archiId))
+                        {
+                            var archi = await _userManager.FindByIdAsync(archiId);
+                            Debug.Assert(archi != null, "There is No Valid Solution Architecture in The System");
+
+                            var newArchiInterview = new Interviews
+                            {
+                                StatusId = PendeingStatus.Id,
+                                Date = interview.Date,
+                                CandidateId = interview.CandidateId,
+                                PositionId = interview.PositionId,
+                                ParentId = completedDTO.InterviewsId,
+                                CreatedOn = DateTime.Now,
+                                CreatedBy = currentUser.Id,
+                                InterviewerId = archi.Id
+                            };
+
+                            await _interviewsRepository.Insert(newArchiInterview, GetUserId());
+                        }
                     }
                     else // Third Interview Needed which done by HR Manager
                     {
                         var hr = (await _userManager.GetUsersInRoleAsync("HR Manager")).FirstOrDefault();
                         Debug.Assert(hr != null, "There is No Valid HR Manager in The System");
                         newInterview.InterviewerId = hr.Id;
+                        await _interviewsRepository.Insert(newInterview, GetUserId());
                     }
-                    await _interviewsRepository.Insert(newInterview);
                 }
             }
             catch (Exception ex)
             {
+                LogException(nameof(ConductInterview), ex, $"Status by : {ByUserId}", "Error while interviwing");
                 throw ex;
             }
         }
@@ -409,7 +555,7 @@ namespace CMS.Services.Services
                     return Result<List<InterviewsDTO>>.Failure(null, "User not found.");
                 }
 
-                var interviews = await _interviewsRepository.GetCurrentInterviews(user.Id);
+                var interviews = await _interviewsRepository.GetCurrentInterviews(user.Id, GetUserId());
                 if (interviews == null)
                 {
                     return Result<List<InterviewsDTO>>.Failure(null, "no available interviews.");
@@ -419,6 +565,7 @@ namespace CMS.Services.Services
                 {
                     string userName = await GetInterviewerName(i.InterviewerId);
                     string SeconduserName = await GetInterviewerName(i.SecondInterviewerId);
+                    string archiName = await GetArchitectureName(i.ArchitectureInterviewerId);
 
                     interviewsDTOs.Add(new InterviewsDTO
                     {
@@ -427,6 +574,10 @@ namespace CMS.Services.Services
                         InterviewerName = userName,
                         SecondInterviewerId = i.SecondInterviewerId,
                         SecondInterviewerName = SeconduserName,
+
+                        ArchitectureInterviewerId=i.ArchitectureInterviewerId,
+                        ArchitectureInterviewerName = archiName,
+
                         Score = i.Score,
                         StatusId = i.StatusId,
                         StatusName = i.Status.Name,
@@ -453,10 +604,12 @@ namespace CMS.Services.Services
             }
             catch (Exception ex)
             {
+                LogException(nameof(MyInterviews), ex, null, "Error while getting my interviews");
                 return Result<List<InterviewsDTO>>.Failure(null, $"Unable to get interviews: {ex.InnerException.Message}");
             }
         }
 
+      
 
 
     }

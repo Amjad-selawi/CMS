@@ -13,6 +13,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Security.Claims;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -53,12 +54,30 @@ namespace CMS.Services.Services
             _db = Db;
         }
 
+        public void LogException(string methodName, Exception ex, string createdByUserId, string additionalInfo)
+        {
+            _db.Logs.Add(new Log
+            {
+                MethodName = methodName,
+                ExceptionMessage = ex.Message,
+                StackTrace = ex.StackTrace,
+                LogTime = DateTime.Now,
+                CreatedByUserId = createdByUserId,
+                AdditionalInfo = additionalInfo
+            });
+            _db.SaveChanges();
+        }
 
-
-   
-
+        private string GetUserId()
+        {
+            var userId = _httpContextAccessor.HttpContext.User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            return userId;
+        }
         public async Task<List<UsersDTO>> GetInterviewers()
         {
+            try
+            {
+
             var interviewerRole = await _roleManager.FindByNameAsync("Interviewer");
             if (interviewerRole == null)
             {
@@ -73,11 +92,21 @@ namespace CMS.Services.Services
                 Email = user.Email,
             }).ToList();
             return interviewers;
+            }
+            catch (Exception ex)
+            {
+                LogException(nameof(GetInterviewers), ex,null,"Error while getting all Interviewers");
+                throw ex;
+            }
 
         }
 
         public async Task<string> GetInterviewerName(string id)
         {
+            try
+            {
+
+            
             var user = await _userManager.FindByIdAsync(id);
             if (user != null)
             {
@@ -85,23 +114,29 @@ namespace CMS.Services.Services
             }
 
             return "User not found";
+            }
+            catch (Exception ex)
+            {
+                LogException(nameof(GetInterviewerName), ex, null, "Error while getting Interviewer Name");
+                throw ex;
+            }
         }
 
-        public async Task<Result<InterviewsDTO>> Delete(int id)
+        public async Task<Result<InterviewsDTO>> Delete(int id,string ByUserId)
         {
             try
             {
-                var interview = await _interviewsRepository.GetById(id);
+                var interview = await _interviewsRepository.GetById(id, GetUserId());
                 if (interview != null && interview.AttachmentId != null)
                 {
                     var attachmentToRemove = (int)interview.AttachmentId;
-                    await _interviewsRepository.Delete(id);
+                    await _interviewsRepository.Delete(id, GetUserId());
                     await _attachmentService.DeleteAttachmentAsync(attachmentToRemove);
 
                 }
                 else
                 {
-                    await _interviewsRepository.Delete(id);
+                    await _interviewsRepository.Delete(id, GetUserId());
                 }
 
                 return Result<InterviewsDTO>.Success(null);
@@ -109,6 +144,7 @@ namespace CMS.Services.Services
 
             catch (Exception ex)
             {
+                LogException(nameof(Delete), ex,$"Deleted by : {ByUserId}", $"Error while deleteing an interview with Id : {id}");
                 return Result<InterviewsDTO>.Failure(null, $"An error occurred while deleting the Interview{ex.InnerException.Message}");
             }
         }
@@ -155,11 +191,12 @@ namespace CMS.Services.Services
             }
             catch (Exception ex)
             {
+                LogException(nameof(GetAll), ex,null,null);
                 return Result<List<InterviewsDTO>>.Failure(null, $"Unable to get Interview: {ex.InnerException.Message}");
             }
         }
 
-        public async Task<Result<InterviewsDTO>> GetById(int id)
+        public async Task<Result<InterviewsDTO>> GetById(int id,string ByUserId)
         {
             if (id <= 0)
             {
@@ -167,7 +204,7 @@ namespace CMS.Services.Services
             }
             try
             {
-                var interview = await _interviewsRepository.GetById(id);
+                var interview = await _interviewsRepository.GetById(id, GetUserId());
                 var interviewDTO = new InterviewsDTO
                 {
                     InterviewsId = interview.InterviewsId,
@@ -188,12 +225,17 @@ namespace CMS.Services.Services
             }
             catch (Exception ex)
             {
+                LogException(nameof(GetById), ex,ByUserId, $"Error while Getting details with Id: {id}");
                 return Result<InterviewsDTO>.Failure(null, $"unable to retrieve the Interview from the repository{ex.InnerException.Message}");
             }
         }
 
-        public async Task<Result<InterviewsDTO>> Insert(InterviewsDTO data)
+        public async Task<Result<InterviewsDTO>> Insert(InterviewsDTO data, string ByUserId)
         {
+            try
+            {
+
+            
             if (data == null)
             {
                 return Result<InterviewsDTO>.Failure(data, "the interview  DTO is null");
@@ -215,16 +257,25 @@ namespace CMS.Services.Services
                 AttachmentId = data.AttachmentId,
 
             };
-            await _interviewsRepository.Insert(interview);
+            await _interviewsRepository.Insert(interview, GetUserId());
 
 
             return Result<InterviewsDTO>.Success(data);
-
+            }
+            catch (Exception ex)
+            {
+                LogException(nameof(Insert), ex, $"Created by : {ByUserId}", $"Error while creating an interview with Id: {data.InterviewsId}");
+                throw ex;
+            }
 
         }
 
-        public async Task<Result<InterviewsDTO>> Update(InterviewsDTO data)
+        public async Task<Result<InterviewsDTO>> Update(InterviewsDTO data, string ByUserId)
         {
+            try
+            {
+
+            
 
             if (data == null)
             {
@@ -246,29 +297,44 @@ namespace CMS.Services.Services
                 AttachmentId = data.AttachmentId,
 
             };
-            await _interviewsRepository.Update(interview);
+            await _interviewsRepository.Update(interview, GetUserId());
             // }
             return Result<InterviewsDTO>.Success(data);
-
+            }
+            catch (Exception ex)
+            {
+                LogException(nameof(Update), ex, $"Modified by : {ByUserId}", $"Error while updating an interview with Id: {data.InterviewsId}");
+                throw ex;
+            }
         }
 
-        public async Task UpdateInterviewAttachmentAsync(int id, string fileName, long fileSize, Stream fileStream)
-        {
-            var interview = await _interviewsRepository.GetById(id);
-            int attachmentId = await _attachmentService.CreateAttachmentAsync(fileName, fileSize, fileStream);
-            int attachmentToRemove = (int)interview.AttachmentId;
-            interview.AttachmentId = attachmentId;
-            await _interviewsRepository.Update(interview);
-            await _attachmentService.DeleteAttachmentAsync(attachmentToRemove);
-        }
-
-
-        public async Task ConductInterview(InterviewsDTO entity)
+        public async Task UpdateInterviewAttachmentAsync(int id, string fileName, long fileSize, Stream fileStream,string ByUserId)
         {
             try
             {
 
-                var interview = await _interviewsRepository.GetById(entity.InterviewsId);
+            
+            var interview = await _interviewsRepository.GetById(id, GetUserId());
+            int attachmentId = await _attachmentService.CreateAttachmentAsync(fileName, fileSize, fileStream);
+            int attachmentToRemove = (int)interview.AttachmentId;
+            interview.AttachmentId = attachmentId;
+            await _interviewsRepository.Update(interview, GetUserId());
+            await _attachmentService.DeleteAttachmentAsync(attachmentToRemove);
+            }
+            catch (Exception ex)
+            {
+                LogException(nameof(UpdateInterviewAttachmentAsync), ex, ByUserId, $"Error while updating Interview Attachment with ID : {id}");
+                throw ex;
+            }
+        }
+
+
+        public async Task ConductInterview(InterviewsDTO entity,string ByUserId)
+        {
+            try
+            {
+
+                var interview = await _interviewsRepository.GetById(entity.InterviewsId, GetUserId());
                 int attachmentId = await _attachmentService.CreateAttachmentAsync(entity.FileName, (long)entity.FileSize, entity.FileData);
                 entity.AttachmentId = attachmentId;
 
@@ -333,7 +399,7 @@ namespace CMS.Services.Services
                         ParentId = entity.InterviewsId
 
                     };
-                    await _interviewsRepository.Insert(newInterview);
+                    await _interviewsRepository.Insert(newInterview, GetUserId());
                 }
                 var updatedInterview = new Interviews
                 {
@@ -350,12 +416,13 @@ namespace CMS.Services.Services
                 };
 
 
-                await _interviewsRepository.Update(updatedInterview);
+                await _interviewsRepository.Update(updatedInterview, GetUserId());
 
 
             }
             catch (Exception ex)
             {
+                LogException(nameof(ConductInterview), ex, $"Status by : {ByUserId}", "Error while interviwing");
                 throw ex;
             }
 
@@ -373,7 +440,7 @@ namespace CMS.Services.Services
                     return Result<List<InterviewsDTO>>.Failure(null, "User not found.");
                 }
 
-                var interviews = await _interviewsRepository.GetCurrentInterviews(user.Id);
+                var interviews = await _interviewsRepository.GetCurrentInterviews(user.Id, GetUserId());
                 if (interviews == null)
                 {
                     return Result<List<InterviewsDTO>>.Failure(null, "no available interviews.");
@@ -409,6 +476,7 @@ namespace CMS.Services.Services
             }
             catch (Exception ex)
             {
+                LogException(nameof(MyInterviews), ex,null,"Error while getting my interviews");
                 return Result<List<InterviewsDTO>>.Failure(null, $"Unable to get interviews: {ex.InnerException.Message}");
             }
         }

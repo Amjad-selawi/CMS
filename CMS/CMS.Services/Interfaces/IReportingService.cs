@@ -10,5 +10,8 @@ namespace CMS.Services.Interfaces
     public interface IReportingService
     {
         public Task<Result<PerformanceReportDTO>> GetBusinessPerformanceReport();
+
+        void LogException(string methodName, Exception ex);
+
     }
 }

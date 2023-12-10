@@ -20,11 +20,7 @@ namespace CMS.Services.Interfaces
 
         Task<int?> GetCVAttachmentIdByCandidateId(int candidateId);
 
-        //Task<Result<CandidateCreateDTO>> Insert(CandidateCreateDTO data);
-        //Task<Result<List<CandidateCreateDTO>>> GetAll();
-        //Task<Result<CandidateCreateDTO>> Delete(int id);
-        //Task<Result<CandidateCreateDTO>> GetById(int id);
-        //Task<Result<CandidateCreateDTO>> Update(CandidateCreateDTO data);
+        void LogException(string methodName, Exception ex, string createdByUserId = null, string additionalInfo = null);
 
 
     }

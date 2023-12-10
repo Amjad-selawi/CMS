@@ -20,6 +20,7 @@ namespace CMS.Services.Interfaces
 
         bool DoesPositionNameExist(string name);
 
+        void LogException(string methodName, Exception ex, string createdByUserId = null, string additionalInfo = null);
 
     }
 }

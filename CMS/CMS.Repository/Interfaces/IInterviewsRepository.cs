@@ -8,21 +8,23 @@ namespace CMS.Repository.Interfaces
 {
     public interface IInterviewsRepository
     {
-        Task<int> Insert(Interviews entity);
-        Task<int> Update(Interviews entity);
-        Task<int> Delete(int id);
-        Task<Interviews> GetById(int id);
-        Task<Interviews> GetByIdForEdit(int id);
+        Task<int> Insert(Interviews entity, string UserId);
+        Task<int> Update(Interviews entity, string UserId);
+        Task<int> Delete(int id, string UserId);
+        Task<Interviews> GetById(int id, string UserId);
+        Task<Interviews> GetByIdForEdit(int id, string UserId);
         Task<List<Interviews>> GetAll();
         
         //Task<bool> HasGivenScoreAsync(string interviewerId, int interviewId);
-        Task<bool> HasGivenStatusAsync(string interviewerId, int interviewId);
-        Task<List<Interviews>> GetCurrentInterviews(string id);
+        Task<bool> HasGivenStatusAsync(string interviewerId, int interviewId, string UserId);
+        Task<List<Interviews>> GetCurrentInterviews(string id, string UserId);
 
-        Task<string> GetInterviewerEmail(string interviewerId);
-        Task<string> GetGeneralManagerEmail();
+        Task<string> GetInterviewerEmail(string interviewerId, string UserId);
+        Task<string> GetGeneralManagerEmail(string UserId);
 
-        Task<string> GetHREmail();
+        Task<string> GetHREmail( string UserId);
+        Task<string> GetArchiEmail( string UserId);
+        void LogException(string methodName, Exception ex, string createdByUserId, string additionalInfo);
 
 
     }

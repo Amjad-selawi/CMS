@@ -24,8 +24,10 @@ namespace CMS.Services.Interfaces
         Task<IEnumerable<NotificationsDTO>> GetNotificationsForHRAsync();
         Task<IEnumerable<NotificationsDTO>> GetNotificationsForInterviewers(string interviewerId);
         Task<IEnumerable<NotificationsDTO>> GetNotificationsForGeneralManager();
+        Task<IEnumerable<NotificationsDTO>> GetNotificationsForArchitecture();
 
         Task CreateNotificationForGeneralManagerAsync(int status, string notes, int CandidateId, int positionId);
+        Task CreateNotificationForArchiAsync(int status, string notes, int CandidateId, int positionId);
 
         Task CreateInterviewNotificationForInterviewerAsync(DateTime interviewDate, int CandidateId, int positionId, string selectedInterviewerId, bool isCanceled);
 
@@ -35,6 +37,7 @@ namespace CMS.Services.Interfaces
         Task CreateNotificationForInterviewer(int CandidateId, string selectedInterviewerId);
         Task<NotificationsDTO> GetNotificationByIdforDetails(int notificationsId);
 
+        void LogException(string methodName, Exception ex, string createdByUserId = null, string additionalInfo = null);
 
     }
 }

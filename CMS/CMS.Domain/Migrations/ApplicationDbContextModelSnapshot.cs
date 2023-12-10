@@ -100,8 +100,9 @@ namespace CMS.Domain.Migrations
                     b.Property<DateTime>("ModifiedOn")
                         .HasColumnType("datetime2");
 
-                    b.Property<int>("Phone")
-                        .HasColumnType("int");
+                    b.Property<string>("Phone")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<int?>("PositionId")
                         .HasColumnType("int");
@@ -259,6 +260,9 @@ namespace CMS.Domain.Migrations
                     b.Property<double?>("ActualExperience")
                         .HasColumnType("float");
 
+                    b.Property<string>("ArchitectureInterviewerId")
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<int?>("AttachmentId")
                         .HasColumnType("int");
 
@@ -324,6 +328,36 @@ namespace CMS.Domain.Migrations
                     b.HasIndex("StatusId");
 
                     b.ToTable("Interviews");
+                });
+
+            modelBuilder.Entity("CMS.Domain.Entities.Log", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int")
+                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
+
+                    b.Property<string>("AdditionalInfo")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("CreatedByUserId")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("ExceptionMessage")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime>("LogTime")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("MethodName")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("StackTrace")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("Logs");
                 });
 
             modelBuilder.Entity("CMS.Domain.Entities.Notifications", b =>
@@ -557,30 +591,37 @@ namespace CMS.Domain.Migrations
                         new
                         {
                             Id = "b024cbbe-f64e-4d1b-9c6e-05ac0f0e3ebb",
-                            ConcurrencyStamp = "e5aaa7cd-c1ab-42bb-a69f-7685405be7de",
+                            ConcurrencyStamp = "0a7fa48d-e676-400b-9960-c08e58948e93",
                             Name = "Admin",
                             NormalizedName = "ADMIN"
                         },
                         new
                         {
                             Id = "1eecb40c-c701-4445-89d4-d1aa7d70460d",
-                            ConcurrencyStamp = "ab6d1146-1e24-4469-88d8-44aeb7d3a204",
+                            ConcurrencyStamp = "1cd73866-46f8-4056-bb73-7a50f56d1689",
                             Name = "General Manager",
                             NormalizedName = "GENERAL MANAGER"
                         },
                         new
                         {
                             Id = "226cca69-f046-4d15-8b81-9b9ba34f2214",
-                            ConcurrencyStamp = "c24cb5fd-66e4-4a63-b687-f4d045491687",
+                            ConcurrencyStamp = "f9d8c3f8-cbd3-4f6b-9365-0c9314ff74d5",
                             Name = "HR Manager",
-                            NormalizedName = "HR MANAGER"
+                            NormalizedName = "HR MANAGERF"
                         },
                         new
                         {
                             Id = "91c3461a-7da3-4033-b907-b104b903d793",
-                            ConcurrencyStamp = "afd72a53-28c4-4478-9e0a-db88e8200cfc",
+                            ConcurrencyStamp = "1fab22c2-f4f4-4801-bafe-1d764b0b53ac",
                             Name = "Interviewer",
                             NormalizedName = "INTERVIEWER"
+                        },
+                        new
+                        {
+                            Id = "3F476A40-97F4-42C6-A226-602AED74A4BC",
+                            ConcurrencyStamp = "2d945c62-1e17-4f47-8a4d-01cf555910b7",
+                            Name = "Solution Architecture",
+                            NormalizedName = "SOLUTION ARCHITECTURE"
                         });
                 });
 
@@ -677,15 +718,15 @@ namespace CMS.Domain.Migrations
                         {
                             Id = "c6585ab9-8b5f-4332-a174-92429db8add2",
                             AccessFailedCount = 0,
-                            ConcurrencyStamp = "0c1da43a-310a-4ceb-8eca-9b5a583d2249",
+                            ConcurrencyStamp = "4783126e-2773-4f40-9e88-5bb557110c36",
                             Email = "admin@admin.com",
                             EmailConfirmed = true,
                             LockoutEnabled = false,
                             NormalizedEmail = "ADMIN@ADMIN.COM",
                             NormalizedUserName = "ADMIN",
-                            PasswordHash = "AQAAAAEAACcQAAAAEA/b+NRKYHMBDQOcNAM1z/6zHAY0Xtc1/m8ywdlNUzgu117axlaSXJPYNqRqBmTtOA==",
+                            PasswordHash = "AQAAAAEAACcQAAAAEE9jlchp/e1gb0BzH8nyF6w428tnMpw1wiMp10bB0NZaQFbMqaEFuLpTriebrfqrWg==",
                             PhoneNumberConfirmed = false,
-                            SecurityStamp = "4ebc4fd2-f0a2-4654-b60f-9b4bc7588bae",
+                            SecurityStamp = "c87a6a63-fb7c-493a-bf48-fba73e1db969",
                             TwoFactorEnabled = false,
                             UserName = "admin"
                         });

@@ -57,7 +57,7 @@
                             <th>Full Name</th>
                             <th>Phone Number</th>
                             <th>Company</th>
-
+                            <th>Position</th>
                             <th>Experience</th>
                             <th>CV</th>
                             <th>Upload CV</th>
@@ -71,6 +71,7 @@
                                 <td>@Html.DisplayFor(modelItem => candidate.FullName)</td>
                                 <td>@Html.DisplayFor(modelItem => candidate.Phone)</td>
                                 <td>@Html.DisplayFor(modelItem => candidate.CompanyName)</td>
+                                <td>@Html.DisplayFor(modelItem => candidate.PositionName)</td>
                                 <td>@Html.DisplayFor(modelItem => candidate.Experience)</td>
                                 <td id="cvColumn_@candidate.Id">
                                     @if (candidate.CVAttachmentId != null)

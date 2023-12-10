@@ -9,6 +9,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using static Microsoft.EntityFrameworkCore.DbLoggerCategory;
 using static Microsoft.EntityFrameworkCore.DbLoggerCategory.Database;
 
 namespace CMS.Repository.Implementation
@@ -21,92 +22,134 @@ namespace CMS.Repository.Implementation
         {
             _dbContext = dbContext;
         }
+
+        public void LogException(string methodName, Exception ex, string createdByUserId, string additionalInfo)
+        {
+
+            _dbContext.Logs.Add(new Log
+            {
+                MethodName = methodName,
+                ExceptionMessage = ex.Message,
+                StackTrace = ex.StackTrace,
+                LogTime = DateTime.Now,
+                CreatedByUserId = createdByUserId,
+                AdditionalInfo = additionalInfo
+            });
+            _dbContext.SaveChanges();
+        }
+
+
+
+
         public async Task<IEnumerable<Candidate>> GetAllCandidatesAsync()
         {
+            try
+            {
+
+            
             return await _dbContext.Candidates
                 .Include(c => c.Position)
                 .Include(c => c.Company)
                 .Include(c => c.Country)
                 .AsNoTracking().ToListAsync();
+            }
+            catch (Exception ex)
+            {
+                LogException(nameof(GetAllCandidatesAsync), ex,null, null );
+                throw ex;
+            }
         }
 
-        public async Task<Candidate> GetCandidateByIdAsync(int id)
+        public async Task<Candidate> GetCandidateByIdAsync(int id, string createdByUserId)
         {
+            try
+            {
+
+           
             return await _dbContext.Candidates
                 .Include(c => c.Position)
                 .Include(c => c.Company)
                  .Include(c => c.Country)
                 .AsNoTracking().FirstOrDefaultAsync(c => c.Id == id);
+            }
+            catch (Exception ex)
+            {
+                LogException(nameof(GetCandidateByIdAsync), ex, $"Done by : {createdByUserId}", $"Error retrieving candidate with ID: {id}");
+                throw ex;
+            }
         }
 
-        public async Task CreateCandidateAsync(Candidate candidate)
+        public async Task CreateCandidateAsync(Candidate candidate, string createdByUserId)
         {
+            try
+            {
+
+           
             _dbContext.Candidates.Add(candidate);
             await _dbContext.SaveChangesAsync();
+ }
+             catch (Exception ex)
+            {
+                LogException(nameof(CreateCandidateAsync), ex, $"Created by : {createdByUserId}", $"Candiate inserted with ID: {candidate.Id}");
+                throw ex;
+            }
         }
 
-        public async Task UpdateCandidateAsync(Candidate candidate)
+        public async Task UpdateCandidateAsync(Candidate candidate,string modifiedByUserId)
         {
+            try
+            {
+
             _dbContext.Entry(candidate).State = EntityState.Modified;
             await _dbContext.SaveChangesAsync();
+            }
+
+            catch (Exception ex)
+            {
+                LogException(nameof(UpdateCandidateAsync), ex, $"Modified by : {modifiedByUserId}", $"Error updating candiate with ID: {candidate.Id}");
+                throw ex;
+            }
         }
 
-        //public async Task<int> DeleteCandidateAsync(int id) {
-        //    try
-        //    {
 
-        //        var candidates = await _dbContext.Candidates.Include(c => c.Interviews)
-        //    .FirstOrDefaultAsync(c => c.Id == id);
-
-        //        if (candidates.Interviews != null && candidates.Interviews.Any())
-        //        {
-        //            foreach (var c in candidates.Interviews.ToList())
-        //            {
-        //                _dbContext.Interviews.Remove(c);
-        //            }
-        //        }
-
-        //        _dbContext.Candidates.Remove(candidates);
-        //        return await _dbContext.SaveChangesAsync();
-
-        //    }
-        //    catch (Exception ex)
-        //    {
-        //        throw ex;
-        //    }
-        //}
-
-
-
-        public async Task DeleteCandidateAsync(Candidate candidate)
+        public async Task DeleteCandidateAsync(Candidate candidate, string deletedByUserId)
         {
 
+            try
+            {
 
             _dbContext.Candidates.Remove(candidate);
             await _dbContext.SaveChangesAsync();
+            }
 
+            catch (Exception ex)
+            {
+                LogException(nameof(DeleteCandidateAsync), null, $"Deleted by : {deletedByUserId}", $"Candidate deleted with ID: {candidate.Id}");
+                throw ex;
+            }
         }
         public async Task<int> CountAllAsync()
         {
+            try
+            {
+
             return await _dbContext.Candidates.CountAsync();
+            }
+
+            catch (Exception ex)
+            {
+                LogException(nameof(CountAllAsync), ex,null,null);
+                throw ex;
+            }
+
         }
-        //public async Task<int> CountAcceptedAsync()
-        //{
-        //    int candidateCounts = await _dbContext.Candidates
-        //    .Where(candidate => !candidate.Interviews.Any(interview => interview.Status.Code == StatusCode.Rejected) && candidate.Interviews.Any(interview => interview.Status.Code == StatusCode.Approved))
-        //    .CountAsync();
-        //    return candidateCounts;
-        //}
-        //public async Task<int> CountRejectedAsync()
-        //{
-        //    int candidateCounts = await _dbContext.Candidates
-        //    .Where(candidate => candidate.Interviews.Any(interview => interview.Status.Code == StatusCode.Rejected))
-        //    .CountAsync();
-        //    return candidateCounts;
-        //}
+    
 
         public async Task<int> CountAcceptedAsync()
         {
+            try
+            {
+
             int candidateCounts = await _dbContext.Candidates
              .Include(a => a.Interviews)
              .ThenInclude(a => a.Status)
@@ -114,9 +157,20 @@ namespace CMS.Repository.Implementation
              .CountAsync();
 
             return candidateCounts;
+            }
+
+            catch (Exception ex)
+            {
+                LogException(nameof(CountAcceptedAsync), ex, null, null);
+                throw ex;
+            }
+
         }
         public async Task<int> CountRejectedAsync()
         {
+            try
+            {
+
             int rejectedCount = await _dbContext.Candidates
               .Include(a => a.Interviews)
               .ThenInclude(a => a.Status)
@@ -124,9 +178,19 @@ namespace CMS.Repository.Implementation
               .CountAsync();
 
             return rejectedCount;
+            }
+
+            catch (Exception ex)
+            {
+                LogException(nameof(CountRejectedAsync), ex, null, null);
+                throw ex;
+            }
         }
         public async Task<int> CountPendingAsync()
         {
+            try
+            {
+
             int candidateCounts = await _dbContext.Candidates
         .Include(a => a.Interviews)
         .ThenInclude(a => a.Status)
@@ -137,27 +201,15 @@ namespace CMS.Repository.Implementation
         .CountAsync();
 
             return candidateCounts;
+            }
 
-            //int candidateCounts = await _dbContext.Candidates
-            //  .Where(candidate =>
-            //      candidate.Interviews.All(interview => interview.Status.Code != StatusCode.Rejected) &&
-            //      candidate.Interviews.All(interview => interview.Status.Code != StatusCode.Approved))
-            //  .CountAsync();
-
-            //return candidateCounts;
+            catch (Exception ex)
+            {
+                LogException(nameof(CountPendingAsync), ex, null, null);
+                throw ex;
+            }
 
         }
-        //public async Task<Dictionary<string, int>> CountCandidatesPerCompanyAsync()
-        //{
-        //    var candidateCounts = await _dbContext.Candidates
-        //        .GroupBy(c => c.Company.Name)
-        //        .Select(g => new { CompanyName = g.Key, Count = g.Count() })
-        //        .ToListAsync();
-
-        //    var result = candidateCounts.ToDictionary(x => x.CompanyName, x => x.Count);
-
-        //    return result;
-        //}
 
 
         public async Task<int?> GetCVAttachmentIdByCandidateId(int candidateId)
@@ -177,6 +229,7 @@ namespace CMS.Repository.Implementation
             }
             catch (Exception ex)
             {
+                LogException(nameof(GetCVAttachmentIdByCandidateId), ex, null, null);
                 throw ex;
             }
         }

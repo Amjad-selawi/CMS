@@ -18,7 +18,20 @@ namespace CMS.Repository.Implementation
             _context = context;
         }
 
-        public async Task<int> Delete(int id)
+        public void LogException(string methodName, Exception ex, string createdByUserId, string additionalInfo)
+        {
+            _context.Logs.Add(new Log
+            {
+                MethodName = methodName,
+                ExceptionMessage = ex.Message,
+                StackTrace = ex.StackTrace,
+                LogTime = DateTime.Now,
+                CreatedByUserId = createdByUserId,
+                AdditionalInfo = additionalInfo
+            });
+            _context.SaveChanges();
+        }
+        public async Task<int> Delete(int id, string deletedByUserId)
         {
             try
             {
@@ -39,6 +52,7 @@ namespace CMS.Repository.Implementation
             }
             catch(Exception ex)
             {
+                LogException(nameof(Delete), ex, $"Deleted by : {deletedByUserId}", $"Company deleted with ID: {id}");
                 throw ex;
             }
         }
@@ -57,11 +71,12 @@ namespace CMS.Repository.Implementation
             }
             catch(Exception ex)
             {
+                LogException(nameof(GetAll), ex,null,null);
                 throw ex;
             }
         }
 
-        public async Task<Company> GetById(int id)
+        public async Task<Company> GetById(int id, string createdByUserId)
         {
             try
             {
@@ -73,11 +88,12 @@ namespace CMS.Repository.Implementation
                 return company;
             }
             catch (Exception ex) {
+                LogException(nameof(GetById), ex, $"Done by : {createdByUserId}", $"Error retrieving company with ID: {id}");
                 throw ex;
             }
         }
 
-        public async Task<int> Insert(Company entity)
+        public async Task<int> Insert(Company entity, string createdByUserId)
         {
             try
             {
@@ -88,11 +104,12 @@ namespace CMS.Repository.Implementation
             }
             catch (Exception ex)
             {
+                LogException(nameof(Insert), ex, $"Created by : {createdByUserId}", $"Company inserted with ID: {entity.Id}");
                 throw ex;
             }
         }
 
-        public async Task<int> Update(Company entity)
+        public async Task<int> Update(Company entity,string modifiedByUserId)
         {
             try
             {
@@ -106,6 +123,7 @@ namespace CMS.Repository.Implementation
             }
             catch (Exception ex)
             {
+                LogException(nameof(Update), ex, $"Modified by : {modifiedByUserId}", $"Error updating company with ID: {entity.Id}");
                 throw ex;
             }
         }
@@ -113,10 +131,18 @@ namespace CMS.Repository.Implementation
 
         public bool DoesCompanyNameExist(string name, int countryId)
         {
-            return _context.Companies.Any(x => x.Name == name && x.CountryId == countryId);
+            try
+            {
+                return _context.Companies.Any(x => x.Name == name && x.CountryId == countryId);
+            }
+
+            catch (Exception ex)
+            {
+                LogException(nameof(DoesCompanyNameExist), ex, null, null);
+                throw ex;
+            }
+
         }
-
-
 
 
     }

@@ -29,6 +29,8 @@
     <Compile Remove="Migrations\20231017205811_fixed.Designer.cs" />
     <Compile Remove="Migrations\20231018103009_secondInterviewer.cs" />
     <Compile Remove="Migrations\20231018103009_secondInterviewer.Designer.cs" />
+    <Compile Remove="Migrations\20231207083444_AddNullAbleToPositionId.cs" />
+    <Compile Remove="Migrations\20231207083444_AddNullAbleToPositionId.Designer.cs" />
   </ItemGroup>
 
 	<ItemGroup>
