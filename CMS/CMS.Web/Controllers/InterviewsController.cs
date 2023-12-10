@@ -243,7 +243,7 @@ namespace CMS.Web.Controllers
                         };
 
                         //Send an Email to the interviewer
-                        //await SendEmailToInterviewer(interviewerEmail, collection, emailModel);
+                        await SendEmailToInterviewer(interviewerEmail, collection, emailModel);
 
                         var reminderJobId = BackgroundJob.Schedule(() => ReminderJobAsync(selectedInterviewerId, collection), collection.Date.AddHours(16));
 
@@ -770,7 +770,7 @@ namespace CMS.Web.Controllers
                 smtp.Host = "mail.sssprocess.com";
                 smtp.Port = 587;
                 smtp.DeliveryMethod = SmtpDeliveryMethod.Network;
-                smtp.EnableSsl = true;
+                smtp.EnableSsl = false;
                 smtp.UseDefaultCredentials = true;
                 string UserName = "notifications@sss-process.org";
                 string Password = "P@ssw0rd";
