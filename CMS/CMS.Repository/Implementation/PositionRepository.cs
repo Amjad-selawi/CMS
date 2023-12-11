@@ -24,10 +24,10 @@ namespace CMS.Repository.Implementation
             _userManager = userManager;
             _httpContextAccessor = httpContextAccessor;
         }
-        public void LogException(string methodName, Exception ex, string additionalInfo)
+        public async void LogException(string methodName, Exception ex, string additionalInfo)
         {
-            var currentUser = _userManager.GetUserAsync(_httpContextAccessor.HttpContext.User);
-            string userId = currentUser?.Id.ToString();
+            var currentUser = await _userManager.GetUserAsync(_httpContextAccessor.HttpContext.User);
+            var userId = currentUser?.Id;
             _context.Logs.Add(new Log
             {
                 MethodName = methodName,

@@ -316,6 +316,7 @@ namespace CMS.Web.Controllers
                             //var reminderJobId = BackgroundJob.Schedule(() => ReminderJobAsync(selectedInterviewerId, collection), collection.Date.AddHours(16));
 
 
+
                             return RedirectToAction("Index");
                     }
 
