@@ -20,7 +20,7 @@ namespace CMS.Services.Interfaces
         Task<Result<InterviewsDTO>> Delete(int id, string ByUserId);
         Task<Result<InterviewsDTO>> GetById(int id, string ByUserId);
         Task<Result<InterviewsDTO>> Update(InterviewsDTO data, string ByUserId);
-
+        string GetUserId();
         Task<string> GetInterviewerName(string id);
         Task<string> GetArchitectureName(string id);
         Task<string> GetInterviewerRole(string id);

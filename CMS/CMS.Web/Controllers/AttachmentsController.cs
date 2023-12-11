@@ -7,6 +7,7 @@ using System.Threading.Tasks;
 using System;
 using CMS.Application.DTOs;
 using CMS.Web.Utils;
+using CMS.Services.Services;
 
 namespace CMS.Web.Controllers
 {
@@ -25,11 +26,36 @@ namespace CMS.Web.Controllers
                 Directory.CreateDirectory(_attachmentStoragePath);
             }
         }
-
+        public void LogException(string methodName, Exception ex, string additionalInfo = null)
+        {
+            var createdByUserId = GetUserId();
+            _attachmentService.LogException(methodName, ex, createdByUserId, additionalInfo);
+        }
+        public string GetUserId()
+        {
+            try
+            {
+                var userId = _attachmentService.GetUserId();
+                return userId;
+            }
+            catch (Exception ex)
+            {
+                LogException(nameof(GetUserId), ex, null);
+                throw ex;
+            }
+        }
         public async Task<IActionResult> Index()
         {
-            var attachments = await _attachmentService.GetAllAttachmentsAsync();
-            return View(attachments);
+            try
+            {
+                var attachments = await _attachmentService.GetAllAttachmentsAsync();
+                return View(attachments);
+            }
+            catch (Exception ex)
+            {
+                LogException(nameof(Index), ex, null);
+                throw ex;
+            }
         }
 
         public IActionResult Create()
@@ -41,87 +67,128 @@ namespace CMS.Web.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create(IFormFile file)
         {
-            if (file == null || file.Length == 0)
+            try
             {
-                ModelState.AddModelError("File", "Please choose a file to upload.");
-                return View();
+                if (file == null || file.Length == 0)
+                {
+                    ModelState.AddModelError("File", "Please choose a file to upload.");
+                    return View();
+                }
+
+                FileStream attachmentStream = await AttachmentHelper.handleUpload(file, _attachmentStoragePath);
+                var attachmentId = await _attachmentService.CreateAttachmentAsync(file.FileName, file.Length, attachmentStream);
+                attachmentStream.Close();
+                return RedirectToAction(nameof(Index));
             }
-
-            FileStream attachmentStream = await AttachmentHelper.handleUpload(file, _attachmentStoragePath);
-            var attachmentId = await _attachmentService.CreateAttachmentAsync(file.FileName, file.Length, attachmentStream);
-            attachmentStream.Close();
-            return RedirectToAction(nameof(Index));
+            catch (Exception ex)
+            {
+                LogException(nameof(Create), ex, "Faild to create an Attachment");
+                throw ex;
+            }
         }
-
         public async Task<IActionResult> Download(int id)
         {
-            var attachment = await _attachmentService.GetAttachmentByIdAsync(id);
-            if (attachment == null)
+            try
             {
-                return NotFound();
-            }
-            Console.WriteLine(attachment.FileName);
-            if(attachment.FileData == null)
-            {
-                Console.WriteLine("notfound");
-            }
-            string contentType = "application/octet-stream";
-            var result = new FileContentResult(attachment.FileData, contentType)
-            {
-                FileDownloadName = attachment.FileName
-            };
+                var attachment = await _attachmentService.GetAttachmentByIdAsync(id);
+                if (attachment == null)
+                {
+                    return NotFound();
+                }
 
-            return result;
+                string contentType = "application/octet-stream";
+                var result = new FileContentResult(attachment.FileData, contentType)
+                {
+                    FileDownloadName = attachment.FileName
+                };
 
+                return result;
+            }
+            catch (Exception ex)
+            {
+                LogException(nameof(Download), ex, $"Faild to download Attachment ID: {id}");
+                throw ex;
+            }
         }
         public async Task<IActionResult> Edit(int id)
         {
-            var attachment = await _attachmentService.GetAttachmentByIdAsync(id);
-            if (attachment == null)
+            try
             {
-                return NotFound();
-            }
+                var attachment = await _attachmentService.GetAttachmentByIdAsync(id);
+                if (attachment == null)
+                {
+                    return NotFound();
+                }
 
-            return View(attachment);
+                return View(attachment);
+            }
+            catch (Exception ex)
+            {
+                LogException(nameof(Edit), ex, $"Faild to load Attachment ID: {id} edit page");
+                throw ex;
+            }
         }
 
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Edit(int id, AttachmentDTO attachmentDTO)
         {
-            if (id != attachmentDTO.Id)
+            try
             {
-                return NotFound();
-            }
+                if (id != attachmentDTO.Id)
+                {
+                    return NotFound();
+                }
 
-            if (ModelState.IsValid)
+                if (ModelState.IsValid)
+                {
+                    await _attachmentService.UpdateAttachmentAsync(id, attachmentDTO);
+                    return RedirectToAction(nameof(Index));
+                }
+
+                return View(attachmentDTO);
+            }
+            catch (Exception ex)
             {
-                await _attachmentService.UpdateAttachmentAsync(id, attachmentDTO);
-                return RedirectToAction(nameof(Index));
+                LogException(nameof(Edit), ex, $"Faild to edit Attachment ID: {id}");
+                throw ex;
             }
-
-            return View(attachmentDTO);
         }
-
         public async Task<IActionResult> Delete(int id)
         {
-            var attachment = await _attachmentService.GetAttachmentByIdAsync(id);
-            if (attachment == null)
+            try
             {
-                return NotFound();
-            }
+                var attachment = await _attachmentService.GetAttachmentByIdAsync(id);
+                if (attachment == null)
+                {
+                    return NotFound();
+                }
 
-            return View(attachment);
+                return View(attachment);
+            }
+            catch (Exception ex)
+            {
+                LogException(nameof(Delete), ex, $"Faild to load Attachment ID: {id} page");
+                throw ex;
+            }
         }
 
         [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
-            await _attachmentService.DeleteAttachmentAsync(id);
-            return RedirectToAction(nameof(Index));
+            try
+            {
+                await _attachmentService.DeleteAttachmentAsync(id);
+                return RedirectToAction(nameof(Index));
+            }
+            catch (Exception ex)
+            {
+                LogException(nameof(DeleteConfirmed), ex, $"Faild to delete Attachment ID: {id}");
+                throw ex;
+            }
         }
 
-     
+
     }
 }

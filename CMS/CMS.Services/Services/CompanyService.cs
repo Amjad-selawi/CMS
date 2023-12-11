@@ -37,13 +37,13 @@ namespace CMS.Services.Services
             _repository.LogException(methodName, ex, createdByUserId, additionalInfo);
         }
 
-        private string GetUserId()
+        public string GetUserId()
         {
             var userId = _httpContextAccessor.HttpContext.User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
             return userId;
         }
 
-        public async Task<Result<CompanyDTO>> Delete(int id)
+        public async Task<Result<CompanyDTO>> Delete(int id, string ByUserId)
         {
          
             try
@@ -54,12 +54,12 @@ namespace CMS.Services.Services
 
             catch (Exception ex)
             {
-                LogException(nameof(Delete), ex);
+                LogException(nameof(Delete), ex, ByUserId, "An error occurred while deleting the company");
                 return Result<CompanyDTO>.Failure(null, $"An error occurred while deleting the company{ex.InnerException.Message}");
             }
         }
 
-        public async Task<Result<List<CompanyDTO>>> GetAll()
+        public async Task<Result<List<CompanyDTO>>> GetAll(string ByUserId)
         {
             try
             {
@@ -93,13 +93,13 @@ namespace CMS.Services.Services
             }
             catch(Exception ex)
             {
-                LogException(nameof(GetAll), ex);
+                LogException(nameof(GetAll), ex,  ByUserId, "Unable to get companies");
                 return Result<List<CompanyDTO>>.Failure(null, $"Unable to get companies: {ex.InnerException.Message}");
             }
 
         }
 
-        public async  Task<Result<CompanyDTO>> GetById(int id)
+        public async  Task<Result<CompanyDTO>> GetById(int id, string ByUserId)
         {
             if (id <= 0)
             {
@@ -123,13 +123,13 @@ namespace CMS.Services.Services
             }
             catch (Exception ex)
             {
-                LogException(nameof(GetById), ex);
+                LogException(nameof(GetById), ex, ByUserId, "unable to retrieve the company from the repository");
                 return Result<CompanyDTO>.Failure(null, $"unable to retrieve the company from the repository{ex.InnerException.Message}");
             }
             
         }
 
-        public async Task<Result<CompanyDTO>> Insert(CompanyDTO data)
+        public async Task<Result<CompanyDTO>> Insert(CompanyDTO data,string ByUserId)
         {
             if(data == null)
             {
@@ -157,14 +157,14 @@ namespace CMS.Services.Services
             }
             catch (Exception ex)
             {
-                LogException(nameof(Insert), ex);
+                LogException(nameof(Insert), ex, ByUserId, "unable to insert a company");
                 return Result<CompanyDTO>.Failure(data,$"unable to insert a company: {ex.InnerException.Message}");
 
             }
           
         }
 
-        public async Task<Result<CompanyDTO>> Update(CompanyDTO data)
+        public async Task<Result<CompanyDTO>> Update(CompanyDTO data,string ByUserId)
         {
             if(data == null)
             {
@@ -194,7 +194,7 @@ namespace CMS.Services.Services
             }
             catch (Exception ex)
             {
-                LogException(nameof(Update), ex);
+                LogException(nameof(Update), ex, ByUserId, "error updating the company");
                 return Result<CompanyDTO>.Failure(data, $"error updating the company {ex.Message}");
             }
         }
@@ -211,7 +211,7 @@ namespace CMS.Services.Services
 
             catch (Exception ex)
             {
-                LogException(nameof(DoesCompanyNameExist), ex);
+                LogException(nameof(DoesCompanyNameExist), ex,null,null);
                 throw ex;
             }
         }

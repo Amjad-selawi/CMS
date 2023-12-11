@@ -1,4 +1,5 @@
 ﻿using CMS.Domain;
+using CMS.Domain.Entities;
 using CMS.Repository.Interfaces;
 using Microsoft.EntityFrameworkCore;
 using System;
@@ -18,30 +19,75 @@ namespace CMS.Repository.Implementation
             _dbContext = dbContext;
         }
 
-        public async Task<IEnumerable<CMS.Domain.Entities.Attachment>> GetAllAttachmentsAsync()
+        public void LogException(string methodName, Exception ex, string createdByUserId, string additionalInfo)
         {
-            return await _dbContext.Attachments.ToListAsync();
+
+            _dbContext.Logs.Add(new Log
+            {
+                MethodName = methodName,
+                ExceptionMessage = ex.Message,
+                StackTrace = ex.StackTrace,
+                LogTime = DateTime.Now,
+                CreatedByUserId = createdByUserId,
+                AdditionalInfo = additionalInfo
+            });
+            _dbContext.SaveChanges();
         }
 
+        public async Task<IEnumerable<CMS.Domain.Entities.Attachment>> GetAllAttachmentsAsync()
+        {
+            try
+            {
+                return await _dbContext.Attachments.ToListAsync();
+            }
+            catch (Exception ex)
+            {
+                LogException(nameof(GetAllAttachmentsAsync), ex, null, null);
+                throw ex;
+            }
+        }
         public async Task<CMS.Domain.Entities.Attachment> GetAttachmentByIdAsync(int id)
         {
-            return await _dbContext.Attachments.FindAsync(id);
+            try
+            {
+                return await _dbContext.Attachments.FindAsync(id);
+            }
+            catch (Exception ex)
+            {
+                LogException(nameof(GetAttachmentByIdAsync), ex, null, $"Attachment ID: {id}");
+                throw ex;
+            }
         }
 
         public async Task<int> CreateAttachmentAsync(CMS.Domain.Entities.Attachment attachment)
         {
-            _dbContext.Attachments.Add(attachment);
-            await _dbContext.SaveChangesAsync();
-            return attachment.Id;
+            try
+            {
+                _dbContext.Attachments.Add(attachment);
+                await _dbContext.SaveChangesAsync();
+                return attachment.Id;
+            }
+            catch (Exception ex)
+            {
+                LogException(nameof(CreateAttachmentAsync), ex, null, null);
+                throw ex;
+            }
         }
-
         public async Task DeleteAttachmentAsync(int id)
         {
-            var attachment = await _dbContext.Attachments.FindAsync(id);
-            if (attachment != null)
+            try
             {
-                _dbContext.Attachments.Remove(attachment);
-                await _dbContext.SaveChangesAsync();
+                var attachment = await _dbContext.Attachments.FindAsync(id);
+                if (attachment != null)
+                {
+                    _dbContext.Attachments.Remove(attachment);
+                    await _dbContext.SaveChangesAsync();
+                }
+            }
+            catch (Exception ex)
+            {
+                LogException(nameof(DeleteAttachmentAsync), ex, null, $"Attachment ID: {id}");
+                throw ex;
             }
         }
     }

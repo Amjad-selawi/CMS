@@ -63,16 +63,33 @@ namespace CMS.Web.Controllers
             }
         }
 
-
-        private string GetUserId()
+        public void LogException(string methodName, Exception ex, string additionalInfo = null)
         {
-            var userId = _httpContextAccessor.HttpContext.User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-            return userId;
+            var createdByUserId = GetUserId();
+            _interviewsService.LogException(methodName, ex, createdByUserId, additionalInfo);
         }
+        public string GetUserId()
+        {
+            try
+            {
+                var userId = _interviewsService.GetUserId();
+                return userId;
+            }
+            catch (Exception ex)
+            {
+                LogException(nameof(GetUserId), ex, null);
+                throw ex;
+            }
+        }
+      
 
 
         public async Task<ActionResult> MyInterviews(int? statusFilter)
         {
+            try
+            {
+
+            
             if (User.IsInRole("Interviewer") || User.IsInRole("General Manager") || User.IsInRole("HR Manager") || User.IsInRole("Solution Architecture"))
             { 
                 // Get all statuses
@@ -117,6 +134,12 @@ namespace CMS.Web.Controllers
             {
                 return View("AccessDenied");
             }
+            }
+            catch (Exception ex)
+            {
+                LogException(nameof(MyInterviews), ex, "Faild to load MyInterviews");
+                throw ex;
+            }
         }
 
 
@@ -124,7 +147,10 @@ namespace CMS.Web.Controllers
         // GET: InterviewsController
         public async Task<ActionResult> Index()
         {
+            try
+            {
 
+            
             if (User.IsInRole("Admin") || User.IsInRole("HR Manager"))
             {
 
@@ -145,11 +171,21 @@ namespace CMS.Web.Controllers
             {
                 return View("AccessDenied");
             }
+            }
+            catch (Exception ex)
+            {
+                LogException(nameof(Index), ex, "Faild to load Interviews index page");
+                throw ex;
+            }
         }
 
         // GET: InterviewsController/Details/5
         public async Task<ActionResult> Details(int id, string previousAction)
         {
+            try
+            {
+
+            
             ViewBag.PreviousAction = previousAction;
             var result = await _interviewsService.GetById(id, GetUserId());
 
@@ -171,10 +207,20 @@ namespace CMS.Web.Controllers
                 ModelState.AddModelError("", result.Error);
                 return View();
             }
+            }
+            catch (Exception ex)
+            {
+                LogException(nameof(Details), ex, $"Faild to load Interview details with ID: {id} ");
+                throw ex;
+            }
         }
 
         public async Task<ActionResult> ShowHistory(int id)
         {
+            try
+            {
+
+            
             var result =await _interviewsService.ShowHistory(id);
 
             if (result.IsSuccess)
@@ -187,17 +233,37 @@ namespace CMS.Web.Controllers
                 ModelState.AddModelError("", result.Error);
                 return View();
             }
+            }
+            catch (Exception ex)
+            {
+                LogException(nameof(ShowHistory), ex, "Faild to load show history page");
+                throw ex;
+            }
         }
 
         //[Authorize(Roles = "General Manager")]
         // GET: InterviewsController/Create
         public async Task<ActionResult> Create()
         {
+            try
+            {
+
+            
             await LoadSelectionLists();
             return View();
+            }
+            catch (Exception ex)
+            {
+                LogException(nameof(Create), ex, "Faild to load interview create page");
+                throw ex;
+            }
         }
         private async Task LoadSelectionLists()
         {
+            try
+            {
+
+            
             var positions = await _positionService.GetAll();
             ViewBag.positionList = new SelectList(positions.Value, "Id", "Name");
             var candidates = await _candidateService.GetAllCandidatesAsync();
@@ -208,6 +274,12 @@ namespace CMS.Web.Controllers
             ViewBag.architecturesList = new SelectList(architectures.Value, "Id", "UserName");
             var statuses = await _StatusService.GetAll();
             ViewBag.statusList = new SelectList(statuses.Value, "Id", "Name");
+            }
+            catch (Exception ex)
+            {
+                LogException(nameof(LoadSelectionLists), ex, "Faild to LoadSelectionLists");
+                throw ex;
+            }
         }
         // POST: InterviewsController/Create
 
@@ -215,7 +287,10 @@ namespace CMS.Web.Controllers
         [ValidateAntiForgeryToken]
         public async Task<ActionResult> Create(InterviewsDTO collection)
         {
+            try
+            {
 
+           
             await LoadSelectionLists();
 
             if (ModelState.IsValid)
@@ -230,7 +305,7 @@ namespace CMS.Web.Controllers
                         var selectedInterviewerId = collection.InterviewerId;
                         HttpContext.Session.SetString("ArchitectureInterviewerId", collection.ArchitectureInterviewerId ?? "");
 
-                        await _notificationsService.CreateInterviewNotificationForInterviewerAsync(collection.Date, collection.CandidateId, collection.PositionId, selectedInterviewerId, isCanceled: false);
+                        await _notificationsService.CreateInterviewNotificationForInterviewerAsync(collection.Date, collection.CandidateId, collection.PositionId, selectedInterviewerId, isCanceled: false, GetUserId());
 
                         ScheduleInterviewReminder(collection);
 
@@ -242,13 +317,13 @@ namespace CMS.Web.Controllers
                             Subject = "Interview Invitation"
                         };
 
-                        //Send an Email to the interviewer
-                        await SendEmailToInterviewer(interviewerEmail, collection, emailModel);
+                            //Send an Email to the interviewer
+                            await SendEmailToInterviewer(interviewerEmail, collection, emailModel);
 
-                        var reminderJobId = BackgroundJob.Schedule(() => ReminderJobAsync(selectedInterviewerId, collection), collection.Date.AddHours(16));
+                            var reminderJobId = BackgroundJob.Schedule(() => ReminderJobAsync(selectedInterviewerId, collection), collection.Date.AddHours(16));
 
 
-                        return RedirectToAction("Index");
+                            return RedirectToAction("Index");
                     }
 
 
@@ -268,13 +343,22 @@ namespace CMS.Web.Controllers
             }
 
             return View(collection);
-
+            }
+            catch (Exception ex)
+            {
+                LogException(nameof(Create), ex, "Faild to create interview");
+                throw ex;
+            }
 
         }
 
         // GET: InterviewsController/Edit/5
         public async Task<ActionResult> Edit(int id)
         {
+            try
+            {
+
+            
             if (id <= 0)
             {
                 return NotFound();
@@ -290,6 +374,12 @@ namespace CMS.Web.Controllers
             await LoadSelectionLists();
 
             return View(interviewDTO);
+            }
+            catch (Exception ex)
+            {
+                LogException(nameof(Edit), ex, "Faild to load edit interview page");
+                throw ex;
+            }
         }
 
         // POST: InterviewsController/Edit/5
@@ -297,6 +387,10 @@ namespace CMS.Web.Controllers
         [ValidateAntiForgeryToken]
         public async Task<ActionResult> Edit(int id, InterviewsDTO collection)
         {
+            try
+            {
+
+           
             if (collection == null)
             {
                 ModelState.AddModelError("", $"the interview dto you are trying to update is null ");
@@ -320,7 +414,7 @@ namespace CMS.Web.Controllers
             if (status.Code == Domain.Enums.StatusCode.Rejected)
             {
                 var selectedInterviewerId = collection.InterviewerId;
-                await _notificationsService.CreateInterviewNotificationForInterviewerAsync(collection.Date, collection.CandidateId, collection.PositionId, selectedInterviewerId, isCanceled: true);
+                await _notificationsService.CreateInterviewNotificationForInterviewerAsync(collection.Date, collection.CandidateId, collection.PositionId, selectedInterviewerId, isCanceled: true, GetUserId());
             }
 
 
@@ -341,12 +435,22 @@ namespace CMS.Web.Controllers
                 ModelState.AddModelError("", $"");
             }
             return View(collection);
+            }
+            catch (Exception ex)
+            {
+                LogException(nameof(Edit), ex, "Faild to edit interview");
+                throw ex;
+            }
         }
 
 
         // GET: InterviewsController/Delete/5
         public async Task<ActionResult> Delete(int id)
         {
+            try
+            {
+
+            
             var result = await _interviewsService.GetById(id, GetUserId());
             if (result.IsSuccess)
             {
@@ -365,6 +469,12 @@ namespace CMS.Web.Controllers
                 ModelState.AddModelError("", result.Error);
                 return View();
             }
+            }
+            catch (Exception ex)
+            {
+                LogException(nameof(Delete), ex, "Faild to load delete interview page");
+                throw ex;
+            }
         }
 
         // POST: InterviewsController/Delete/5
@@ -372,6 +482,10 @@ namespace CMS.Web.Controllers
         [ValidateAntiForgeryToken]
         public async Task<ActionResult> Delete(int id, InterviewsDTO collection)
         {
+            try
+            {
+
+           
             if (id <= 0)
             {
                 return BadRequest("invalid career offer id");
@@ -383,6 +497,12 @@ namespace CMS.Web.Controllers
             }
             ModelState.AddModelError("", result.Error);
             return View();
+            }
+            catch (Exception ex)
+            {
+                LogException(nameof(Delete), ex, "Faild to delete interview");
+                throw ex;
+            }
         }
 
         [HttpPost]
@@ -390,7 +510,10 @@ namespace CMS.Web.Controllers
         public async Task<IActionResult> UpdateAttachment(int id, IFormFile file)
         {
 
+            try
+            {
 
+            
             if (file == null || file.Length == 0)
             {
                 ModelState.AddModelError("File", "Please choose a file to upload.");
@@ -412,9 +535,19 @@ namespace CMS.Web.Controllers
 
             }
             return RedirectToAction(nameof(Index));
+            }
+            catch (Exception ex)
+            {
+                LogException(nameof(UpdateAttachment), ex, null);
+                throw ex;
+            }
         }
         public async Task<IActionResult> UpdateAfterInterview(int id)
         {
+            try
+            {
+
+            
             var StatusDTOs = await _StatusService.GetAll();
             ViewBag.StatusDTOs = new SelectList(StatusDTOs.Value, "Id", "Name");
 
@@ -422,12 +555,22 @@ namespace CMS.Web.Controllers
             var InterviewsDTO = result.Value;
 
             return View(InterviewsDTO);
+            }
+            catch (Exception ex)
+            {
+                LogException(nameof(UpdateAfterInterview), ex, null);
+                throw ex;
+            }
         }
      
 
         [HttpPost]
         public async Task<IActionResult> UpdateAfterInterview(InterviewsDTO interviewsDTO, IFormFile file)
         {
+            try
+            {
+
+            
             var StatusDTOs = await _StatusService.GetAll();
             ViewBag.StatusDTOs = new SelectList(StatusDTOs.Value, "Id", "Name");
 
@@ -516,12 +659,12 @@ namespace CMS.Web.Controllers
 
                         if (status.Code == Domain.Enums.StatusCode.Rejected || status.Code == Domain.Enums.StatusCode.Approved)
                         {
-                            await _notificationsService.CreateNotificationForGeneralManagerAsync(interviewsDTO.StatusId.Value, interviewsDTO.Notes, interviewsDTO.CandidateId, interviewsDTO.PositionId);
+                            await _notificationsService.CreateNotificationForGeneralManagerAsync(interviewsDTO.StatusId.Value, interviewsDTO.Notes, interviewsDTO.CandidateId, interviewsDTO.PositionId, GetUserId());
 
                             var architectureInterviewerId = HttpContext.Session.GetString("ArchitectureInterviewerId");
                             if(architectureInterviewerId != "")
                             {
-                                await _notificationsService.CreateNotificationForArchiAsync(interviewsDTO.StatusId.Value, interviewsDTO.Notes, interviewsDTO.CandidateId, interviewsDTO.PositionId);
+                                await _notificationsService.CreateNotificationForArchiAsync(interviewsDTO.StatusId.Value, interviewsDTO.Notes, interviewsDTO.CandidateId, interviewsDTO.PositionId, GetUserId());
                             }
 
 
@@ -558,26 +701,26 @@ namespace CMS.Web.Controllers
                                     };
                                     if (!string.IsNullOrEmpty(ArchiEmail))
                                     {
-                                        //Send an Email to the Archi if it was selceted
-                                        await SendEmailToInterviewer(ArchiEmail, interviewsDTO, architectureEmailModel);
+                                            //Send an Email to the Archi if it was selceted
+                                            await SendEmailToInterviewer(ArchiEmail, interviewsDTO, architectureEmailModel);
+                                        }
+                                }
+
+                                    var reminderJobId = BackgroundJob.Schedule(() => ReminderJobAsync(GMEmail, interviewsDTO), interviewsDTO.Date.AddHours(16));
+
+
+                                    if (!string.IsNullOrEmpty(GMEmail))
+                                    {
+                                        await SendEmailToInterviewer(GMEmail, interviewsDTO, emailModel);
                                     }
-                                }
 
-                                var reminderJobId = BackgroundJob.Schedule(() => ReminderJobAsync(GMEmail, interviewsDTO), interviewsDTO.Date.AddHours(16));
-
-
-                                if (!string.IsNullOrEmpty(GMEmail))
-                                {
-                                    await SendEmailToInterviewer(GMEmail, interviewsDTO, emailModel);
-                                }
-
-                                if (!string.IsNullOrEmpty(HREmail))
-                                {
-                                    await SendEmailToInterviewer(HREmail, interviewsDTO, emailModelToHR);
-                                }
+                                    if (!string.IsNullOrEmpty(HREmail))
+                                    {
+                                        await SendEmailToInterviewer(HREmail, interviewsDTO, emailModelToHR);
+                                    }
 
 
-                                return RedirectToAction(nameof(MyInterviews));
+                                    return RedirectToAction(nameof(MyInterviews));
                             }
 
                             else if (status.Code == Domain.Enums.StatusCode.Rejected)
@@ -592,13 +735,13 @@ namespace CMS.Web.Controllers
                                 };
 
 
-                                if (!string.IsNullOrEmpty(HREmail))
-                                {
-                                    await SendEmailToInterviewer(HREmail, interviewsDTO, emailModel);
-                                }
+                                    if (!string.IsNullOrEmpty(HREmail))
+                                    {
+                                        await SendEmailToInterviewer(HREmail, interviewsDTO, emailModel);
+                                    }
 
-                                return RedirectToAction(nameof(MyInterviews));
-                            }
+                                    return RedirectToAction(nameof(MyInterviews));
+                                }
 
                             else
                             {
@@ -621,7 +764,7 @@ namespace CMS.Web.Controllers
 
                         if ((status.Code == Domain.Enums.StatusCode.Rejected || status.Code == Domain.Enums.StatusCode.Approved))
                         {
-                            await _notificationsService.CreateInterviewNotificationForHRInterview(interviewsDTO.StatusId.Value, interviewsDTO.Notes, interviewsDTO.CandidateId, interviewsDTO.PositionId);
+                            await _notificationsService.CreateInterviewNotificationForHRInterview(interviewsDTO.StatusId.Value, interviewsDTO.Notes, interviewsDTO.CandidateId, interviewsDTO.PositionId, GetUserId());
 
 
                             if (status.Code == Domain.Enums.StatusCode.Approved)
@@ -642,14 +785,14 @@ namespace CMS.Web.Controllers
                                     Subject = "Interview Approval"
                                 };
 
-                                var reminderJobId = BackgroundJob.Schedule(() => ReminderJobAsync(HREmail, interviewsDTO), interviewsDTO.Date.AddHours(16));
+                                    var reminderJobId = BackgroundJob.Schedule(() => ReminderJobAsync(HREmail, interviewsDTO), interviewsDTO.Date.AddHours(16));
 
-                                if (!string.IsNullOrEmpty(HREmail))
-                                {
-                                    await SendEmailToInterviewer(HREmail, interviewsDTO, emailModel);
-                                }
+                                    if (!string.IsNullOrEmpty(HREmail))
+                                    {
+                                        await SendEmailToInterviewer(HREmail, interviewsDTO, emailModel);
+                                    }
 
-                                return RedirectToAction(nameof(MyInterviews));
+                                    return RedirectToAction(nameof(MyInterviews));
                             }
 
                             else if (status.Code == Domain.Enums.StatusCode.Rejected)
@@ -662,15 +805,15 @@ namespace CMS.Web.Controllers
                                     EmailBody = $"The second interview was rejected by {userName} .",
                                     Subject = "Interview Rejection"
                                 };
-                                if (!string.IsNullOrEmpty(HREmail))
-                                {
-                                    await SendEmailToInterviewer(HREmail, interviewsDTO, emailModel);
+                                    if (!string.IsNullOrEmpty(HREmail))
+                                    {
+                                        await SendEmailToInterviewer(HREmail, interviewsDTO, emailModel);
+                                    }
+
+                                    return RedirectToAction(nameof(MyInterviews));
                                 }
 
-                                return RedirectToAction(nameof(MyInterviews));
-                            }
-
-                            else
+                                else
                             {
                                 return RedirectToAction(nameof(MyInterviews));
 
@@ -685,7 +828,7 @@ namespace CMS.Web.Controllers
 
                         if ((status.Code == Domain.Enums.StatusCode.Rejected || status.Code == Domain.Enums.StatusCode.Approved))
                         {
-                            await _notificationsService.CreateInterviewNotificationForHRInterview(interviewsDTO.StatusId.Value, interviewsDTO.Notes, interviewsDTO.CandidateId, interviewsDTO.PositionId);
+                            await _notificationsService.CreateInterviewNotificationForHRInterview(interviewsDTO.StatusId.Value, interviewsDTO.Notes, interviewsDTO.CandidateId, interviewsDTO.PositionId, GetUserId());
 
 
                             if (status.Code == Domain.Enums.StatusCode.Approved)
@@ -706,14 +849,14 @@ namespace CMS.Web.Controllers
                                     Subject = "Interview Approval"
                                 };
 
-                                var reminderJobId = BackgroundJob.Schedule(() => ReminderJobAsync(HREmail, interviewsDTO), interviewsDTO.Date.AddHours(16));
+                                    var reminderJobId = BackgroundJob.Schedule(() => ReminderJobAsync(HREmail, interviewsDTO), interviewsDTO.Date.AddHours(16));
 
-                                if (!string.IsNullOrEmpty(HREmail))
-                                {
-                                    await SendEmailToInterviewer(HREmail, interviewsDTO, emailModel);
-                                }
+                                    if (!string.IsNullOrEmpty(HREmail))
+                                    {
+                                        await SendEmailToInterviewer(HREmail, interviewsDTO, emailModel);
+                                    }
 
-                                return RedirectToAction(nameof(MyInterviews));
+                                    return RedirectToAction(nameof(MyInterviews));
                             }
 
                             else if (status.Code == Domain.Enums.StatusCode.Rejected)
@@ -726,12 +869,12 @@ namespace CMS.Web.Controllers
                                     EmailBody = $"The second interview was rejected by {userName} .",
                                     Subject = "Interview Rejection"
                                 };
-                                if (!string.IsNullOrEmpty(HREmail))
-                                {
-                                    await SendEmailToInterviewer(HREmail, interviewsDTO, emailModel);
-                                }
+                                    if (!string.IsNullOrEmpty(HREmail))
+                                    {
+                                        await SendEmailToInterviewer(HREmail, interviewsDTO, emailModel);
+                                    }
 
-                                return RedirectToAction(nameof(MyInterviews));
+                                    return RedirectToAction(nameof(MyInterviews));
                             }
 
                             else
@@ -757,6 +900,12 @@ namespace CMS.Web.Controllers
             }
 
             return View(interviewsDTO);
+            }
+            catch (Exception ex)
+            {
+                LogException(nameof(UpdateAfterInterview), ex, "Faild to save a status");
+                throw ex;
+            }
         }
 
 
@@ -798,7 +947,8 @@ namespace CMS.Web.Controllers
             }
             catch (Exception ex)
             {
-                ModelState.AddModelError("", "Failed to send email: " + ex.Message);
+                LogException(nameof(SendEmailToInterviewer), ex, "Faild to send an email");
+                throw ex;
             }
 
         }
@@ -807,7 +957,10 @@ namespace CMS.Web.Controllers
 
         public async Task<string> GetInterviewerEmail(string interviewerId)
         {
+            try
+            {
 
+            
             var email = await _interviewsRepository.GetInterviewerEmail(interviewerId, GetUserId());
 
             if (email != null)
@@ -818,25 +971,44 @@ namespace CMS.Web.Controllers
             {
                 return null;
             }
-         
+            }
+            catch (Exception ex)
+            {
+                LogException(nameof(GetInterviewerEmail), ex, "Faild to get interviewer email");
+                throw ex;
+            }
         }
 
 
         public async Task<string> GetHREmail()
         {
-            var email = await _interviewsRepository.GetHREmail(GetUserId());
+            try
+            {
 
-            if (email != null)
-            {
-                return email;
+
+                var email = await _interviewsRepository.GetHREmail(GetUserId());
+
+                if (email != null)
+                {
+                    return email;
+                }
+                else
+                {
+                    return null;
+                }
             }
-            else
+            catch (Exception ex)
             {
-                return null;
+                LogException(nameof(GetHREmail), ex, "Faild to get hr email");
+                throw ex;
             }
         }
         public async Task<string> GetArchiEmail()
         {
+            try
+            {
+
+            
             var email = await _interviewsRepository.GetArchiEmail(GetUserId());
 
             if (email != null)
@@ -847,12 +1019,22 @@ namespace CMS.Web.Controllers
             {
                 return null;
             }
+            }
+            catch (Exception ex)
+            {
+                LogException(nameof(GetHREmail), ex, "Faild to get archi email");
+                throw ex;
+            }
         }
 
 
 
         public async Task<string> GetGMEmail()
         {
+            try
+            {
+
+            
             var email = await _interviewsRepository.GetGeneralManagerEmail(GetUserId());
 
             if (email != null)
@@ -863,17 +1045,35 @@ namespace CMS.Web.Controllers
             {
                 return null;
             }
+            }
+            catch (Exception ex)
+            {
+                LogException(nameof(GetGMEmail), ex, "Faild to get genetal manager email");
+                throw ex;
+            }
         }
 
 
         public string GetLoggedInUserName()
         {
+            try
+            { 
             return _httpContextAccessor.HttpContext.User.Identity.Name;
+            }
+            catch (Exception ex)
+            {
+                LogException(nameof(GetLoggedInUserName), ex, "Faild to get Logged In UserName");
+                throw ex;
+            }
         }
 
 
         public async Task ReminderJobAsync(string interviewerId, InterviewsDTO collection)
         {
+            try
+            {
+
+            
             // Check if the interviewer has given a score, and if not, send a reminder email
             bool hasGivenScore = await _interviewsRepository.HasGivenStatusAsync(interviewerId, collection.InterviewsId, GetUserId());
 
@@ -887,12 +1087,22 @@ namespace CMS.Web.Controllers
                     Subject = "Interview Score Reminder"
                 };
 
-               await SendEmailToInterviewer(interviewerEmail2, collection, emailModel);
+                    await SendEmailToInterviewer(interviewerEmail2, collection, emailModel);
+                }
+            }
+            catch (Exception ex)
+            {
+                LogException(nameof(ReminderJobAsync), ex, "Faild to send a reminder email");
+                throw ex;
             }
         }
 
         public async Task ReminderJobAsyncForGM(string interviewerId, InterviewsDTO collection)
         {
+            try
+            {
+
+            
             // Check if the interviewer has given a score, and if not, send a reminder email
             bool hasGivenScore = await _interviewsRepository.HasGivenStatusAsync(interviewerId, collection.InterviewsId, GetUserId());
 
@@ -906,12 +1116,22 @@ namespace CMS.Web.Controllers
                     Subject = "Interview Score Reminder"
                 };
 
-                await SendEmailToInterviewer(interviewerEmail2, collection, emailModel);
+                    await SendEmailToInterviewer(interviewerEmail2, collection, emailModel);
+                }
+            }
+            catch (Exception ex)
+            {
+                LogException(nameof(ReminderJobAsyncForGM), ex, "Faild to send a reminder email for general manager");
+                throw ex;
             }
         }
 
         public async Task ReminderJobAsyncForHR(string interviewerId, InterviewsDTO collection)
         {
+            try
+            {
+
+           
             // Check if the interviewer has given a score, and if not, send a reminder email
             bool hasGivenScore = await _interviewsRepository.HasGivenStatusAsync(interviewerId, collection.InterviewsId, GetUserId());
 
@@ -925,12 +1145,22 @@ namespace CMS.Web.Controllers
                     Subject = "Interview Score Reminder"
                 };
 
-                await SendEmailToInterviewer(interviewerEmail2, collection, emailModel);
+                    await SendEmailToInterviewer(interviewerEmail2, collection, emailModel);
+                }
+            }
+            catch (Exception ex)
+            {
+                LogException(nameof(ReminderJobAsyncForHR), ex, "Faild to send a reminder email for hr");
+                throw ex;
             }
         }
 
         public void ScheduleInterviewReminder(InterviewsDTO collection)
         {
+            try
+            {
+
+           
             var reminderTime = collection.Date.AddMinutes(-15);
 
             if (DateTime.UtcNow < reminderTime)
@@ -940,10 +1170,19 @@ namespace CMS.Web.Controllers
                     reminderTime
                 );
             }
+            }
+            catch (Exception ex)
+            {
+                LogException(nameof(ScheduleInterviewReminder), ex, "Faild to Schedule Interview Reminder");
+                throw ex;
+            }
         }
 
         public async Task SendInterviewReminderEmail(InterviewsDTO collection)
         {
+            try
+            {
+
             
             string interviewerEmail = await GetInterviewerEmail(collection.InterviewerId);
 
@@ -956,7 +1195,13 @@ namespace CMS.Web.Controllers
                     Subject = "Interview Reminder"
                 };
 
-                await SendEmailToInterviewer(interviewerEmail, collection, emailModel);
+                    await SendEmailToInterviewer(interviewerEmail, collection, emailModel);
+                }
+            }
+            catch (Exception ex)
+            {
+                LogException(nameof(ScheduleInterviewReminder), ex, "Faild to Send Interview Reminder Email");
+                throw ex;
             }
         }
 

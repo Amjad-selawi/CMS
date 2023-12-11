@@ -68,7 +68,7 @@ namespace CMS.Services.Services
             _db.SaveChanges();
         }
 
-        private string GetUserId()
+        public string GetUserId()
         {
             var userId = _httpContextAccessor.HttpContext.User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
             return userId;

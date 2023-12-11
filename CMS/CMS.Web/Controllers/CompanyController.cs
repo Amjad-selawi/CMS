@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.Extensions.Logging;
+using System;
 using System.Threading.Tasks;
 
 namespace CMS.Web.Controllers
@@ -20,237 +21,300 @@ namespace CMS.Web.Controllers
             _countryService = countryService;
             
         }
+
+        public void LogException(string methodName, Exception ex, string additionalInfo = null)
+        {
+            var createdByUserId = GetUserId();
+            _companyService.LogException(methodName, ex, createdByUserId, additionalInfo);
+        }
+        public string GetUserId()
+        {
+            try
+            {
+                var userId = _companyService.GetUserId();
+                return userId;
+            }
+            catch (Exception ex)
+            {
+                LogException(nameof(GetUserId), ex, null);
+                throw ex;
+            }
+        }
+
+
         public IActionResult Index()
         {
-            return View();
+            try
+            {
+                return View();
+            }
+            catch (Exception ex)
+            {
+                LogException(nameof(Index), ex, null);
+                throw ex;
+            }
         }
         [HttpGet]
         public async Task<IActionResult> AddCompany()
         {
+            try
+            {
+                var CountriesDTOs = await _countryService.GetAll(GetUserId());
+                ViewBag.CountriesDTOs = new SelectList(CountriesDTOs.Value, "Id", "Name");
 
-            var CountriesDTOs = await _countryService.GetAll();
-            ViewBag.CountriesDTOs = new SelectList(CountriesDTOs.Value, "Id", "Name");
-
-            return View();
+                return View();
+            }
+            catch (Exception ex)
+            {
+                LogException(nameof(AddCompany), ex, null);
+                throw ex;
+            }
         }
 
         [HttpPost]
         public async Task<IActionResult> AddCompany(CompanyDTO companyDTO)
         {
-
-            var CountriesDTOs= await _countryService.GetAll();
-            ViewBag.CountriesDTOs = new SelectList(CountriesDTOs.Value, "Id", "Name");
-            if (ModelState.IsValid)
+            try
             {
+                var CountriesDTOs = await _countryService.GetAll(GetUserId());
+                ViewBag.CountriesDTOs = new SelectList(CountriesDTOs.Value, "Id", "Name");
 
-                if (_companyService.DoesCompanyNameExist(companyDTO.Name, companyDTO.CountryId))
+                if (ModelState.IsValid)
                 {
-                    ModelState.AddModelError("Name", "A company with the same name already exists in the selected country.");
-                    return View(companyDTO);
-                }
+                    if (_companyService.DoesCompanyNameExist(companyDTO.Name, companyDTO.CountryId))
+                    {
+                        ModelState.AddModelError("Name", "A company with the same name already exists in the selected country.");
+                        return View(companyDTO);
+                    }
 
+                    var result = await _companyService.Insert(companyDTO, GetUserId());
 
+                    if (result.IsSuccess)
+                    {
+                        return RedirectToAction("GetCompanies");
+                    }
 
-
-
-                var result = await _companyService.Insert(companyDTO);
-
-                if (result.IsSuccess)
-                {
-                    return RedirectToAction("GetCompanies");
-                }
-
-                ModelState.AddModelError("", result.Error);
-            }
-            else
-            {
-                
-
-                ModelState.AddModelError("", "error validating the model");
-
-            }
-
-            return View(companyDTO);
-        }
-        [HttpGet]
-        public async Task<IActionResult> GetCompanies()
-        {
-            if (User.IsInRole("Admin") || User.IsInRole("HR Manager"))
-            {
-                var result = await _companyService.GetAll();
-                if (result.IsSuccess)
-                {
-                    var companiesDTOs = result.Value;
-                    return View(companiesDTOs);
+                    ModelState.AddModelError("", result.Error);
                 }
                 else
                 {
-                    ModelState.AddModelError("", result.Error);
-                    return View();
+                    ModelState.AddModelError("", "error validating the model");
                 }
+
+                return View(companyDTO);
             }
-            else
+            catch (Exception ex)
             {
-                return View("AccessDenied");
+                LogException(nameof(AddCompany), ex, "Faild to create a company");
+                throw ex;
             }
         }
 
-        // CompanyController.cs
+        [HttpGet]
+        public async Task<IActionResult> GetCompanies()
+        {
+            try
+            {
+                if (User.IsInRole("Admin") || User.IsInRole("HR Manager"))
+                {
+                    var result = await _companyService.GetAll(GetUserId());
 
-        // Add a new action for displaying the confirmation page
+                    if (result.IsSuccess)
+                    {
+                        var companiesDTOs = result.Value;
+                        return View(companiesDTOs);
+                    }
+                    else
+                    {
+                        ModelState.AddModelError("", result.Error);
+                        return View();
+                    }
+                }
+                else
+                {
+                    return View("AccessDenied");
+                }
+            }
+            catch (Exception ex)
+            {
+                LogException(nameof(GetCompanies), ex, "Faild to load the company page");
+                throw ex;
+            }
+        }
+
         [HttpGet]
         public async Task<IActionResult> ConfirmDelete(int id)
         {
-            if (id <= 0)
+            try
             {
-                return NotFound();
+                if (id <= 0)
+                {
+                    return NotFound();
+                }
+
+                var result = await _companyService.GetById(id, GetUserId());
+                var companyDTO = result.Value;
+
+                if (companyDTO == null)
+                {
+                    return NotFound();
+                }
+
+                return View(companyDTO);
             }
-
-            var result = await _companyService.GetById(id);
-            var companyDTO = result.Value;
-
-            if (companyDTO == null)
+            catch (Exception ex)
             {
-                return NotFound();
+                LogException(nameof(ConfirmDelete), ex, $"Faild to load Company ID: {id} delete page");
+                throw ex;
             }
-
-            return View(companyDTO);
         }
 
-        // Modify the DeleteCompany action to handle both GET and POST requests
         [HttpGet]
         [HttpPost]
         public async Task<IActionResult> DeleteCompany(int id)
         {
-            if (id <= 0)
+            try
             {
-                return BadRequest("Invalid company id");
-            }
-
-            if (HttpContext.Request.Method == "POST")
-            {
-                // Handle the actual deletion
-                var result = await _companyService.Delete(id);
-
-                if (result.IsSuccess)
+                if (id <= 0)
                 {
-                    return RedirectToAction("GetCompanies");
+                    return BadRequest("Invalid company id");
                 }
 
-                ModelState.AddModelError("", result.Error);
+                if (HttpContext.Request.Method == "POST")
+                {
+                    var result = await _companyService.Delete(id, GetUserId());
+
+                    if (result.IsSuccess)
+                    {
+                        return RedirectToAction("GetCompanies");
+                    }
+
+                    ModelState.AddModelError("", result.Error);
+                }
+                else
+                {
+                    return RedirectToAction("ConfirmDelete", new { id });
+                }
+
+                return View();
             }
-            else
+            catch (Exception ex)
             {
-                // For GET requests, show the confirmation page
-                return RedirectToAction("ConfirmDelete", new { id });
+                LogException(nameof(DeleteCompany), ex, $"Faild to delete Company ID: {id}");
+                throw ex;
             }
-
-            return View();
         }
-
-
-        //[HttpPost]
-        //public async Task<IActionResult> DeleteCompany(int id)
-        //{
-        //    if (id <= 0)
-        //    {
-        //        return BadRequest("invalid company id");
-        //    }
-        //    var result = await _companyService.Delete(id);
-        //    if (result.IsSuccess)
-        //    {
-        //        return RedirectToAction("GetCompanies");
-        //    }
-        //    ModelState.AddModelError("", result.Error);
-        //    //return RedirectToAction("GetCompanies");
-        //    return View();
-        //}
 
         [HttpGet]
         public async Task<IActionResult> UpdateCompany(int id)
         {
-            if (id <= 0)
+            try
             {
-                return NotFound();
-            }
-            var result = await _companyService.GetById(id);
-            var companyDTO = result.Value;
-            if (companyDTO == null)
-            {
-                return NotFound();
-            }
-            var CountriesDTOs = await _countryService.GetAll();
-            ViewBag.CountriesDTOs = new SelectList(CountriesDTOs.Value, "Id", "Name");
-            return View(companyDTO);
+                if (id <= 0)
+                {
+                    return NotFound();
+                }
 
+                var result = await _companyService.GetById(id, GetUserId());
+                var companyDTO = result.Value;
+
+                if (companyDTO == null)
+                {
+                    return NotFound();
+                }
+
+                var CountriesDTOs = await _countryService.GetAll(GetUserId());
+                ViewBag.CountriesDTOs = new SelectList(CountriesDTOs.Value, "Id", "Name");
+
+                return View(companyDTO);
+            }
+            catch (Exception ex)
+            {
+                LogException(nameof(UpdateCompany), ex, $"Faild to load Company ID: {id} edit page");
+                throw ex;
+            }
         }
 
         [HttpPost]
         public async Task<IActionResult> UpdateCompany(CompanyDTO companyDTO)
         {
-            if(companyDTO == null)
+            try
             {
-                ModelState.AddModelError("", $"the company dto you are trying to update is null ");
-                return RedirectToAction("Index");
-            }
-            
-            var CountriesDTOs = await _countryService.GetAll();
-            ViewBag.CountriesDTOs = new SelectList(CountriesDTOs.Value, "Id", "Name");
-            if (ModelState.IsValid)
-            {
-                var result = await _companyService.Update(companyDTO);
-
-                if (result.IsSuccess)
+                if (companyDTO == null)
                 {
-                    return RedirectToAction("GetCompanies");
+                    ModelState.AddModelError("", $"The company DTO you are trying to update is null.");
+                    return RedirectToAction("Index");
                 }
-              
-                ModelState.AddModelError("", result.Error);
+
+                var CountriesDTOs = await _countryService.GetAll(GetUserId());
+                ViewBag.CountriesDTOs = new SelectList(CountriesDTOs.Value, "Id", "Name");
+
+                if (ModelState.IsValid)
+                {
+                    var result = await _companyService.Update(companyDTO, GetUserId());
+
+                    if (result.IsSuccess)
+                    {
+                        return RedirectToAction("GetCompanies");
+                    }
+
+                    ModelState.AddModelError("", result.Error);
+                    return View(companyDTO);
+                }
+                else
+                {
+                    ModelState.AddModelError("", $"The model state is not valid.");
+                }
+
                 return View(companyDTO);
             }
-            else
+            catch (Exception ex)
             {
-                ModelState.AddModelError("", $"the model state is not valid");
+                LogException(nameof(UpdateCompany), ex, $"Faild to edit Company ID: {companyDTO?.Id}");
+                throw ex;
             }
-            return View(companyDTO);
-
         }
-
-
-
 
         public async Task<ActionResult> Details(int id)
         {
-            var result = await _companyService.GetById(id);
+            try
+            {
+                var result = await _companyService.GetById(id, GetUserId());
 
-            if (result.IsSuccess)
-            {
-                return View(result.Value); 
+                if (result.IsSuccess)
+                {
+                    return View(result.Value);
+                }
+                else
+                {
+                    return NotFound();
+                }
             }
-            else
+            catch (Exception ex)
             {
-               
-                return NotFound();
+                LogException(nameof(Details), ex, $"Faild to load Company ID: {id} details");
+                throw ex;
             }
         }
-
-
-
-
-
-
-
 
         [HttpPost]
         public IActionResult CheckCompanyName([FromBody] CompanyDTO companyDTO)
         {
-            if (companyDTO != null)
+            try
             {
-                bool exists = _companyService.DoesCompanyNameExist(companyDTO.Name, companyDTO.CountryId);
-                return Ok(new { exists });
-            }
+                if (companyDTO != null)
+                {
+                    bool exists = _companyService.DoesCompanyNameExist(companyDTO.Name, companyDTO.CountryId);
+                    return Ok(new { exists });
+                }
 
-            return BadRequest("Invalid data");
+                return BadRequest("Invalid data");
+            }
+            catch (Exception ex)
+            {
+                LogException(nameof(CheckCompanyName), ex, "Faild to Check Company Name validation");
+                throw ex;
+            }
         }
 
 

@@ -24,6 +24,6 @@ namespace CMS.Services.Interfaces
         void LogException(string methodName, Exception ex, string createdByUserId, string additionalInfo);
 
         Task SendRegistrationEmail(IdentityUser user, string password);
-
+        string GetUserId();
     }
 }

@@ -39,7 +39,7 @@ namespace CMS.Services.Services
             _repository.LogException(methodName, ex, createdByUserId, additionalInfo);
         }
 
-        private string GetUserId()
+        public string GetUserId()
         {
             var userId = _httpContextAccessor.HttpContext.User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
             return userId;

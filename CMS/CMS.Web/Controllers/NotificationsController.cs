@@ -35,72 +35,143 @@ namespace CMS.Web.Controllers
             _userManager = userManager;
         }
 
-
+        public void LogException(string methodName, Exception ex, string additionalInfo = null)
+        {
+            var createdByUserId = GetUserId();
+            _notificationsService.LogException(methodName, ex, createdByUserId, additionalInfo);
+        }
+        public string GetUserId()
+        {
+            try
+            {
+                var userId = _notificationsService.GetUserId();
+                return userId;
+            }
+            catch (Exception ex)
+            {
+                LogException(nameof(GetUserId), ex, null);
+                throw ex;
+            }
+        }
 
         // GET: NotificationsController
         public async Task<ActionResult> Index()
         {
-            if (User.IsInRole("Admin") || User.IsInRole("HR Manager"))
+            try
             {
-                var notifications = await _notificationsService.GetAllNotificationsAsync();
-                return View(notifications);
+                if (User.IsInRole("Admin") || User.IsInRole("HR Manager"))
+                {
+                    var notifications = await _notificationsService.GetAllNotificationsAsync();
+                    return View(notifications);
+                }
+                else
+                {
+                    return View("AccessDenied");
+                }
             }
-            else
+            catch (Exception ex)
             {
-                return View("AccessDenied");
+                LogException(nameof(Index), ex, null);
+                throw ex;
             }
         }
 
         public async Task<ActionResult> IndexGMnotification()
         {
-            var notifications = await _notificationsService.GetNotificationsForGeneralManager();
-            return View(notifications);
+            try
+            {
+                var notifications = await _notificationsService.GetNotificationsForGeneralManager();
+                return View(notifications);
+            }
+            catch (Exception ex)
+            {
+                LogException(nameof(IndexGMnotification), ex, "Faild to load GM notifiacations");
+                throw ex;
+            }
         }
 
         public async Task<ActionResult> IndexArchinotification()
         {
-            var notifications = await _notificationsService.GetNotificationsForArchitecture();
-            return View(notifications);
+            try
+            {
+                var notifications = await _notificationsService.GetNotificationsForArchitecture();
+                return View(notifications);
+            }
+            catch (Exception ex)
+            {
+                LogException(nameof(IndexArchinotification), ex, "Faild to load Archi notifiacations");
+                throw ex;
+            }
         }
 
         public async Task<ActionResult> IndexInterviewernotification()
         {
-            var userId = _userManager.GetUserId(User);
-
-            var notifications = await _notificationsService.GetNotificationsForInterviewers(userId);
-
-            return View(notifications);
+            try
+            {
+                var userId = _userManager.GetUserId(User);
+                var notifications = await _notificationsService.GetNotificationsForInterviewers(userId);
+                return View(notifications);
+            }
+            catch (Exception ex)
+            {
+                LogException(nameof(IndexInterviewernotification), ex, "Faild to load Interviewer notifiacations");
+                throw ex;
+            }
         }
 
         public async Task<ActionResult> IndexHRnotification()
         {
-            var notifications = await _notificationsService.GetNotificationsForHRAsync();
-            return View(notifications);
+            try
+            {
+                var notifications = await _notificationsService.GetNotificationsForHRAsync();
+                return View(notifications);
+            }
+            catch (Exception ex)
+            {
+                LogException(nameof(IndexHRnotification), ex, "Faild to load HR notifiacations");
+                throw ex;
+            }
         }
 
         // GET: NotificationsController/Details/5
         public async Task<ActionResult> Details(int id)
         {
-            var notifications = await _notificationsService.GetNotificationByIdforDetails(id);
-
-            if (notifications != null)
+            try
             {
-                notifications.IsRead = true;
+                var notifications = await _notificationsService.GetNotificationByIdforDetails(id);
 
-                await _notificationsService.Update(id, notifications);
-                return View(notifications);
+                if (notifications != null)
+                {
+                    notifications.IsRead = true;
+                    await _notificationsService.Update(id, notifications);
+                    return View(notifications);
+                }
+                else
+                {
+                    return NotFound();
+                }
             }
-            else
+            catch (Exception ex)
             {
-                return NotFound();
+                LogException(nameof(Details), ex, $"Faild to load  ID: {id} details");
+                throw ex;
             }
         }
 
         // GET: NotificationsController/Create
         public async Task<ActionResult> Create()
         {
-         
+            try
+            {
+
+            
             return View();
+            }
+            catch (Exception ex)
+            {
+                LogException(nameof(Create), ex, null);
+                throw ex;
+            }
         }
 
         // POST: NotificationsController/Create
@@ -108,23 +179,35 @@ namespace CMS.Web.Controllers
         [ValidateAntiForgeryToken]
         public async Task<ActionResult> Create(NotificationsDTO collection)
         {
-            if (ModelState.IsValid)
+            try
             {
-                await _notificationsService.Create(collection);
-                return RedirectToAction(nameof(Index));
+                if (ModelState.IsValid)
+                {
+                    await _notificationsService.Create(collection);
+                    return RedirectToAction(nameof(Index));
+                }
+                return View(collection);
             }
-
-
-            return View(collection);
+            catch (Exception ex)
+            {
+                LogException(nameof(Create), ex, "Faild to create a notification");
+                throw ex;
+            }
         }
 
         // GET: NotificationsController/Edit/5
         public async Task<ActionResult> Edit(int id)
         {
-            var notifications = await _notificationsService.GetNotificationByIdAsync(id);
-
-    
-            return View(notifications);
+            try
+            {
+                var notifications = await _notificationsService.GetNotificationByIdAsync(id);
+                return View(notifications);
+            }
+            catch (Exception ex)
+            {
+                LogException(nameof(Edit), ex, null);
+                throw ex;
+            }
         }
 
         // POST: NotificationsController/Edit/5
@@ -132,21 +215,28 @@ namespace CMS.Web.Controllers
         [ValidateAntiForgeryToken]
         public async Task<ActionResult> Edit(int id, NotificationsDTO collection)
         {
-            if (id != collection.NotificationsId)
+            try
             {
-                return NotFound();
+                if (id != collection.NotificationsId)
+                {
+                    return NotFound();
+                }
+
+                var temp = await _templatesService.GetTemplateByIdAsync(id);
+
+                if (ModelState.IsValid)
+                {
+                    await _notificationsService.Update(id, collection);
+                    return RedirectToAction(nameof(Index));
+                }
+
+                return View(collection);
             }
-
-            var temp = await _templatesService.GetTemplateByIdAsync(id);
-
-            if (ModelState.IsValid)
+            catch (Exception ex)
             {
-                await _notificationsService.Update(id, collection);
-                return RedirectToAction(nameof(Index));
+                LogException(nameof(Edit), ex, "Faild to edit a notification");
+                throw ex;
             }
-    
-
-            return View(collection);
         }
 
 
@@ -154,11 +244,18 @@ namespace CMS.Web.Controllers
         // GET: NotificationsController/Delete/5
         public async Task<ActionResult> Delete(int id)
         {
-
-            var notifications = await _notificationsService.GetNotificationByIdAsync(id);
-
-            return View(notifications);
+            try
+            {
+                var notifications = await _notificationsService.GetNotificationByIdAsync(id);
+                return View(notifications);
+            }
+            catch (Exception ex)
+            {
+                LogException(nameof(Delete), ex, null);
+                throw ex;
+            }
         }
+
 
         // POST: NotificationsController/Delete/5
         [HttpPost]
@@ -170,9 +267,10 @@ namespace CMS.Web.Controllers
                 await _notificationsService.Delete(id);
                 return RedirectToAction(nameof(Index));
             }
-            catch
+            catch (Exception ex)
             {
-                return View();
+                LogException(nameof(Delete), ex, "Faild to delete a notification");
+                throw ex;
             }
         }
 
@@ -181,29 +279,60 @@ namespace CMS.Web.Controllers
 
         public async Task<IActionResult> GetNotificationsForHR()
         {
-            var notifications = await _notificationsService.GetNotificationsForHRAsync();
-            return Json(notifications);
+            try
+            {
+                var notifications = await _notificationsService.GetNotificationsForHRAsyncicon();
+                return Json(notifications);
+            }
+            catch (Exception ex)
+            {
+                LogException(nameof(GetNotificationsForHR), ex, "Faild to get the notification for the HR");
+                throw ex;
+            }
         }
 
         public async Task<IActionResult> GetNotificationsForInterviewers()
         {
-            var userId = _userManager.GetUserId(User);
-
-            var notifications = await _notificationsService.GetNotificationsForInterviewers(userId);
-
-            return Json(notifications);
+            try
+            {
+                var userId = _userManager.GetUserId(User);
+                var notifications = await _notificationsService.GetNotificationsForInterviewersicon(userId);
+                return Json(notifications);
+            }
+            catch (Exception ex)
+            {
+                LogException(nameof(GetNotificationsForInterviewers), ex, "Faild to get the notification for the Interviewers");
+                throw ex;
+            }
         }
+
 
         public async Task<IActionResult> GetNotificationsForGeneralManager()
         {
-            var notifications = await _notificationsService.GetNotificationsForGeneralManager();
-            return Json(notifications);
+            try
+            {
+                var notifications = await _notificationsService.GetNotificationsForGeneralManagericon();
+                return Json(notifications);
+            }
+            catch (Exception ex)
+            {
+                LogException(nameof(GetNotificationsForGeneralManager), ex, "Faild to get the notification for the GM");
+                throw ex;
+            }
         }
 
         public async Task<IActionResult> GetNotificationsForArchitecture()
         {
-            var notifications = await _notificationsService.GetNotificationsForArchitecture();
-            return Json(notifications);
+            try
+            {
+                var notifications = await _notificationsService.GetNotificationsForArchitectureicon();
+                return Json(notifications);
+            }
+            catch (Exception ex)
+            {
+                LogException(nameof(GetNotificationsForArchitecture), ex, "Faild to get the notification for the Architecture");
+                throw ex;
+            }
         }
 
 

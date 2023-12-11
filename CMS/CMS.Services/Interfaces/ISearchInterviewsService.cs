@@ -21,7 +21,7 @@ namespace CMS.Services.Interfaces
         Task<Result<List<InterviewsDTO>>> MyInterviews();
 
         Task<string> GetInterviewerName(string id);
-
+        string GetUserId();
         void LogException(string methodName, Exception ex, string createdByUserId, string additionalInfo);
 
 

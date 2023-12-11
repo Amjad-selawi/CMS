@@ -29,8 +29,31 @@ namespace CMS.Web.Controllers
             _context = context;
             _countryService = countryService;
         }
+
+          public void LogException(string methodName, Exception ex, string additionalInfo = null)
+        {
+            var createdByUserId = GetUserId();
+            _countryService.LogException(methodName, ex, createdByUserId, additionalInfo);
+        }
+        public string GetUserId()
+        {
+            try
+            {
+            var userId = _countryService.GetUserId();
+            return userId;
+            }
+            catch (Exception ex)
+            {
+                LogException(nameof(GetUserId), ex, null);
+                throw ex;
+            }
+        }
         public async Task<IActionResult> Index()
         {
+            try
+            {
+
+            
             if (User.IsInRole("Admin") || User.IsInRole("General Manager") || User.IsInRole("HR Manager"))
             {
                 var report = (await _reportingService.GetBusinessPerformanceReport()).Value;
@@ -45,7 +68,7 @@ namespace CMS.Web.Controllers
                 ViewBag.PendingCount = report.NumberOfPending; // Add the pending count to the ViewBag
                                                                //var countries = await _countryService.GetAllCountriesAsync();
 
-                var countries = await _countryService.GetAllCountriesAsync(); // Assuming you have a countryService instance
+                var countries = await _countryService.GetAllCountriesAsync(GetUserId()); // Assuming you have a countryService instance
 
                 // Convert the list of countries to a JSON array for use in JavaScript
                 var countriesJson = JsonSerializer.Serialize(countries.Select(c => c.Name).ToList());
@@ -65,33 +88,58 @@ namespace CMS.Web.Controllers
                 // User is not in the Admin role, handle accordingly (redirect or show an error message)
                 return View("AccessDenied");
             }
+            }
+            catch (Exception ex)
+            {
+                LogException(nameof(Index), ex, null);
+                throw ex;
+            }
         }
         private static string ArrayToString(string[] array)
         {
-            StringBuilder sb = new StringBuilder();
-            sb.Append("[");
-            for (int i = 0; i < array.Length; i++)
+            try
             {
-                sb.Append("'");
-                sb.Append(array[i]);
-                sb.Append("'");
 
-                if (i < array.Length - 1)
+
+                StringBuilder sb = new StringBuilder();
+                sb.Append("[");
+                for (int i = 0; i < array.Length; i++)
                 {
-                    sb.Append(",");
+                    sb.Append("'");
+                    sb.Append(array[i]);
+                    sb.Append("'");
+
+                    if (i < array.Length - 1)
+                    {
+                        sb.Append(",");
+                    }
                 }
+                sb.Append("]");
+                return sb.ToString();
             }
-            sb.Append("]");
-            return sb.ToString();
+            catch (Exception ex)
+            {
+                throw ex;
+            }
         }
 
 
 
         public IActionResult IndexForTree()
         {
+            try
+            {
+
+            
             var treeData = GetDataFromDatabase(); // Retrieve data from the database
 
             return View(treeData);
+            }
+            catch(Exception ex)
+            {
+                LogException(nameof(IndexForTree), ex, null);
+                throw ex;
+            }
         }
 
 
@@ -149,7 +197,10 @@ namespace CMS.Web.Controllers
 
             //    return result;
             //}
+            try
+            {
 
+            
             var candidateData = (from candidate in _context.Candidates
                                  join interview in _context.Interviews on candidate.Id equals interview.CandidateId
                                  select new
@@ -214,11 +265,26 @@ namespace CMS.Web.Controllers
             .ToList();
 
             return result;
+            }
+            catch (Exception ex)
+            {
+                LogException(nameof(GetDataFromDatabase), ex, null);
+                throw ex;
+            }
         }
 
         public IActionResult AccessDenied()
         {
+            try
+            {
+
             return View();
+            }
+            catch (Exception ex)
+            {
+                LogException(nameof(AccessDenied), ex, "Faild to load AccessDenied page");
+                throw ex;
+            }
         }
 
 

@@ -40,7 +40,7 @@ namespace CMS.Services.Services
             _candidateRepository.LogException(methodName, ex, createdByUserId, additionalInfo);
         }
 
-        private string GetUserId()
+        public string GetUserId()
         {
             var userId = _httpContextAccessor.HttpContext.User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
             return userId;
@@ -72,7 +72,7 @@ namespace CMS.Services.Services
             }
           catch (Exception ex)
             {
-                LogException(nameof(GetAllCandidatesAsync), ex);
+                LogException(nameof(GetAllCandidatesAsync), ex,null,null);
                 throw ex;
             }
         }
@@ -106,7 +106,7 @@ namespace CMS.Services.Services
           
             catch (Exception ex)
             {
-                LogException(nameof(GetCandidateByIdAsync), ex);
+                LogException(nameof(GetCandidateByIdAsync), ex, null, null);
                 throw ex;
             }
         }
@@ -140,7 +140,7 @@ namespace CMS.Services.Services
 
             catch (Exception ex)
             {
-                LogException(nameof(CreateCandidateAsync), ex);
+                LogException(nameof(CreateCandidateAsync), ex, null, null);
                 throw ex;
             }
         }
@@ -170,7 +170,7 @@ namespace CMS.Services.Services
 
             catch (Exception ex)
             {
-                LogException(nameof(UpdateCandidateAsync), ex);
+                LogException(nameof(UpdateCandidateAsync), ex, null, null);
                 throw ex;
             }
         }
@@ -197,7 +197,7 @@ namespace CMS.Services.Services
 
             catch (Exception ex)
             {
-                LogException(nameof(DeleteCandidateAsync), ex);
+                LogException(nameof(DeleteCandidateAsync), ex, null, null);
                 throw ex;
             }
         }
@@ -228,7 +228,7 @@ namespace CMS.Services.Services
             
               catch (Exception ex)
             {
-                LogException(nameof(UpdateCandidateCVAsync), ex);
+                LogException(nameof(UpdateCandidateCVAsync), ex, null, null);
                 throw ex;
             }
 
@@ -244,7 +244,7 @@ namespace CMS.Services.Services
             }
             catch (Exception ex)
             {
-                LogException(nameof(GetCVAttachmentIdByCandidateId), ex);
+                LogException(nameof(GetCVAttachmentIdByCandidateId), ex, null, null);
                 throw ex;
             }
         }

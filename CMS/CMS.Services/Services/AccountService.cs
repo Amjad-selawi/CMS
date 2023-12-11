@@ -26,10 +26,12 @@ namespace CMS.Services.Services
         private readonly SignInManager<IdentityUser> _signInManager;
         private readonly ApplicationDbContext _dbContext;
         private readonly RoleManager<IdentityRole> _roleManager;
+        private readonly IHttpContextAccessor _httpContextAccessor;
         private readonly IUserRepository _userRepository;
 
         public AccountService(UserManager<IdentityUser> userManager, SignInManager<IdentityUser> signInManager, ApplicationDbContext dbContext,
-            IUserRepository userRepository, RoleManager<IdentityRole> roleManager
+            IUserRepository userRepository, RoleManager<IdentityRole> roleManager,
+            IHttpContextAccessor httpContextAccessor
 
             )
         {
@@ -38,6 +40,7 @@ namespace CMS.Services.Services
             _dbContext = dbContext;
             _userRepository = userRepository;
             _roleManager = roleManager;
+            _httpContextAccessor = httpContextAccessor;
         }
 
         public void LogException(string methodName, Exception ex, string createdByUserId, string additionalInfo)
@@ -54,9 +57,13 @@ namespace CMS.Services.Services
             _dbContext.SaveChanges();
         }
 
+        public string GetUserId()
+        {
+            var userId = _httpContextAccessor.HttpContext.User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            return userId;
+        }
 
 
-    
         public async Task<List<Login>> GetAllUsersAsync()
         {
             try
@@ -311,7 +318,7 @@ namespace CMS.Services.Services
 
 
 
-                var subject = "Welcome to Your Website";
+                var subject = "Welcome to CMS System ";
                 var body = $"Dear {user.UserName},\n\n"
                    + $"Your account details:\n"
                    + $"Username: {user.UserName}\n"

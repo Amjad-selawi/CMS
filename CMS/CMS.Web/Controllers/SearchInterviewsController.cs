@@ -16,6 +16,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using static Microsoft.EntityFrameworkCore.DbLoggerCategory;
 using System.Security.Claims;
+using CMS.Domain.Migrations;
 
 namespace CMS.Web.Controllers
 {
@@ -49,16 +50,33 @@ namespace CMS.Web.Controllers
             }
         }
 
-
-        private string GetUserId()
+        public void LogException(string methodName, Exception ex, string additionalInfo = null)
         {
-            var userId = _httpContextAccessor.HttpContext.User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-            return userId;
+            var createdByUserId = GetUserId();
+            _positionService.LogException(methodName, ex, createdByUserId, additionalInfo);
         }
+        public string GetUserId()
+        {
+            try
+            {
+                var userId = _positionService.GetUserId();
+                return userId;
+            }
+            catch (Exception ex)
+            {
+                LogException(nameof(GetUserId), ex, null);
+                throw ex;
+            }
+        }
+      
 
 
         public async Task<ActionResult> Index(string positionFilter, int? scoreFilter, int? statusFilter, string candidateFilter, string interviewerFilter, DateTime? fromDate, DateTime? toDate, string export)
         {
+            try
+            {
+
+            
             ViewBag.positionFilter = positionFilter;
             ViewBag.scoreFilter = scoreFilter;
             ViewBag.statusFilter = statusFilter;
@@ -107,10 +125,20 @@ namespace CMS.Web.Controllers
             {
                 return View("AccessDenied");
             }
+            }
+            catch (Exception ex)
+            {
+                LogException(nameof(Index), ex, null);
+                throw ex;
+            }
         }
 
         private async Task<IEnumerable<InterviewsDTO>> ApplyFiltersAndRetrieveData(string positionFilter, int? scoreFilter, int? statusFilter, string candidateFilter, string interviewerFilter, DateTime? fromDate, DateTime? toDate)
         {
+            try
+            {
+
+            
             var interviewsResult = await _searchInterviewsService.GetAll();
 
             if (!interviewsResult.IsSuccess)
@@ -189,20 +217,40 @@ namespace CMS.Web.Controllers
             }
 
             return filteredInterviews;
+            }
+            catch (Exception ex)
+            {
+                LogException(nameof(ApplyFiltersAndRetrieveData), ex, "Faild to apply filter");
+                throw ex;
+            }
         }
 
 
         public async Task<ActionResult> ExportFilteredData(string positionFilter, int? scoreFilter, int? statusFilter, string candidateFilter, string interviewerFilter, DateTime? fromDate, DateTime? toDate)
         {
+            try
+            {
+
+           
             var filteredInterviews = await ApplyFiltersAndRetrieveData(positionFilter, scoreFilter, statusFilter, candidateFilter, interviewerFilter, fromDate, toDate);
             var excelData = GenerateExcelFile(filteredInterviews);
             return File(excelData, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", "FilteredInterviews.xlsx");
+            }
+            catch (Exception ex)
+            {
+                LogException(nameof(ExportFilteredData), ex, "Faild to Export Filtered Data");
+                throw ex;
+            }
         }
 
 
 
         private byte[] GenerateExcelFile(IEnumerable<InterviewsDTO> data)
         {
+            try
+            {
+
+          
             using (var package = new ExcelPackage())
             {
                 var worksheet = package.Workbook.Worksheets.Add("Interviews");
@@ -243,11 +291,21 @@ namespace CMS.Web.Controllers
 
                 return package.GetAsByteArray();
             }
+            }
+            catch (Exception ex)
+            {
+                LogException(nameof(GenerateExcelFile), ex, "Faild to Generate Excel File");
+                throw ex;
+            }
         }
 
 
         public async Task<ActionResult> Details(int id)
         {
+            try
+            {
+
+            
             var result = await _searchInterviewsService.GetById(id, GetUserId());
 
             var positionsDTO = await _positionService.GetAll();
@@ -276,6 +334,12 @@ namespace CMS.Web.Controllers
                 ModelState.AddModelError("", result.Error);
                 return View();
             }
+            }
+            catch (Exception ex)
+            {
+                LogException(nameof(Details), ex, $"Faild to load {id} details");
+                throw ex;
+            }
         }
 
 
@@ -286,6 +350,10 @@ namespace CMS.Web.Controllers
 
         public async Task<ActionResult> Edit(int id)
         {
+            try
+            {
+
+            
             if (id <= 0)
             {
                 return NotFound();
@@ -309,6 +377,12 @@ namespace CMS.Web.Controllers
             ViewBag.interviewersDTOs = new SelectList(interviewersDTOs, "Id", "Name");
 
             return View(interviewDTO);
+            }
+            catch (Exception ex)
+            {
+                LogException(nameof(Edit), ex, $"Faild to load ID: {id} edit page");
+                throw ex;
+            }
         }
 
 
@@ -317,6 +391,10 @@ namespace CMS.Web.Controllers
         [ValidateAntiForgeryToken]
         public async Task<ActionResult> Edit(int id, InterviewsDTO collection)
         {
+            try
+            {
+
+            
             if (collection == null)
             {
                 ModelState.AddModelError("", $"the interview dto you are trying to update is null ");
@@ -353,6 +431,12 @@ namespace CMS.Web.Controllers
                 ModelState.AddModelError("", $"the model state is not valid");
             }
             return View(collection);
+            }
+            catch (Exception ex)
+            {
+                LogException(nameof(Edit), ex, $"Faild to edit ID: {id}");
+                throw ex;
+            }
         }
 
 
@@ -360,6 +444,10 @@ namespace CMS.Web.Controllers
 
         public async Task<ActionResult> Delete(int id)
         {
+            try
+            {
+
+            
             var result = await _searchInterviewsService.GetById(id, GetUserId());
             if (result.IsSuccess)
             {
@@ -376,6 +464,12 @@ namespace CMS.Web.Controllers
                 ModelState.AddModelError("", result.Error);
                 return View();
             }
+            }
+            catch (Exception ex)
+            {
+                LogException(nameof(Delete), ex, $"Faild to load ID: {id} delete page" );
+                throw ex;
+            }
         }
 
         // POST: InterviewsController/Delete/5
@@ -383,6 +477,10 @@ namespace CMS.Web.Controllers
         [ValidateAntiForgeryToken]
         public async Task<ActionResult> Delete(int id, InterviewsDTO collection)
         {
+            try
+            {
+
+            
             if (id <= 0)
             {
                 return BadRequest("invalid career offer id");
@@ -394,6 +492,12 @@ namespace CMS.Web.Controllers
             }
             ModelState.AddModelError("", result.Error);
             return View();
+            }
+            catch (Exception ex)
+            {
+                LogException(nameof(Delete), ex, $"Faild to delete ID: {id}");
+                throw ex;
+            }
         }
 
 

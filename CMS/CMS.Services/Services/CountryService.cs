@@ -34,13 +34,13 @@ namespace CMS.Services.Services
             _repository.LogException(methodName, ex, createdByUserId, additionalInfo);
         }
 
-        private string GetUserId()
+        public string GetUserId()
         {
             var userId = _httpContextAccessor.HttpContext.User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
             return userId;
         }
 
-        public Result<CountryDTO> Delete(int id)
+        public Result<CountryDTO> Delete(int id,string ByUserId)
         {
             try
             {
@@ -49,7 +49,7 @@ namespace CMS.Services.Services
             }
             catch (Exception ex)
             {
-                LogException(nameof(Delete), ex);
+                LogException(nameof(Delete), ex, ByUserId, "An error occurred while deleting the country");
                 return Result<CountryDTO>.Failure(null, $"An error occurred while deleting the country: {ex.Message}");
             }
         }
@@ -67,7 +67,7 @@ namespace CMS.Services.Services
         //    }
         //}
 
-        public async Task<Result<List<CountryDTO>>> GetAll()
+        public async Task<Result<List<CountryDTO>>> GetAll(string ByUserId)
         {
             var countries=await _repository.GetAll();
             if(countries == null)
@@ -101,13 +101,13 @@ namespace CMS.Services.Services
             }
             catch(Exception ex)
             {
-                LogException(nameof(GetAll), ex);
+                LogException(nameof(GetAll), ex, ByUserId, "unable to get countries");
                 return Result<List<CountryDTO>>.Failure(null, $"unable to get countries{ex.InnerException.Message}");
             }
 
         }
 
-        public async Task<Result<CountryDTO>> GetById(int id)
+        public async Task<Result<CountryDTO>> GetById(int id,string ByUserId)
         {
             if (id <= 0)
             {
@@ -136,12 +136,12 @@ namespace CMS.Services.Services
             }
             catch (Exception ex)
             {
-                LogException(nameof(GetById), ex);
+                LogException(nameof(GetById), ex, ByUserId, "unable to retrieve the country from the repository");
                 return Result<CountryDTO>.Failure(null, $"unable to retrieve the country from the repository{ex.InnerException.Message}");
             }
         }
 
-        public async Task<Result<CountryDTO>> Insert(CountryDTO data)
+        public async Task<Result<CountryDTO>> Insert(CountryDTO data,string ByUserId)
         {
             if(data == null)
             {
@@ -162,12 +162,12 @@ namespace CMS.Services.Services
             }
             catch (Exception ex)
             {
-                LogException(nameof(Insert), ex);
+                LogException(nameof(Insert), ex, ByUserId, "unable to insert a country");
                 return Result<CountryDTO>.Failure(data, $"unable to insert a country: {ex.InnerException.Message}");
             }
         }
 
-        public async Task<Result<CountryDTO>> Update(CountryDTO data)
+        public async Task<Result<CountryDTO>> Update(CountryDTO data,string ByUserId)
         {
             if (data == null)
             {
@@ -191,7 +191,7 @@ namespace CMS.Services.Services
             }
             catch (Exception ex)
             {
-                LogException(nameof(Update), ex);
+                LogException(nameof(Update), ex, ByUserId, "unable to update the country");
                 return Result<CountryDTO>.Failure(data, $"unable to update the country: {ex.InnerException.Message}");
             }
         }
@@ -205,12 +205,12 @@ namespace CMS.Services.Services
             }
             catch (Exception ex)
             {
-                LogException(nameof(DoesCountryNameExist), ex);
+                LogException(nameof(DoesCountryNameExist), ex,null,null);
                 throw;
             }
         }
 
-        public async Task<IEnumerable<Country>> GetAllCountriesAsync()
+        public async Task<IEnumerable<Country>> GetAllCountriesAsync(string ByUserId)
         {
             try
             {
@@ -219,7 +219,7 @@ namespace CMS.Services.Services
             }
             catch (Exception ex)
             {
-                LogException(nameof(GetAllCountriesAsync), ex);
+                LogException(nameof(GetAllCountriesAsync), ex, ByUserId, "unable to get all countries");
                 throw;
             }
         }

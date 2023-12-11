@@ -60,10 +60,19 @@ namespace CMS.Services.Services
             _interviewsRepository.LogException(methodName, ex, createdByUserId, additionalInfo);
         }
 
-        private string GetUserId()
+        public string GetUserId()
         {
+            try
+            {
+            
             var userId = _httpContextAccessor.HttpContext.User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
             return userId;
+            }
+            catch (Exception ex)
+            {
+                LogException(nameof(GetUserId), ex, null, "Error while getting user id");
+                throw ex;
+            }
         }
 
 

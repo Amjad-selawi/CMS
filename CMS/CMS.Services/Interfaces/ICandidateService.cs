@@ -22,6 +22,6 @@ namespace CMS.Services.Interfaces
 
         void LogException(string methodName, Exception ex, string createdByUserId = null, string additionalInfo = null);
 
-
+        string GetUserId();
     }
 }
