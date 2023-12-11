@@ -35,16 +35,11 @@ namespace CMS.Services.Services
 
 
 
-        public void LogException(string methodName, Exception ex, string createdByUserId = null, string additionalInfo = null)
+        public void LogException(string methodName, Exception ex = null, string additionalInfo = null)
         {
-            _candidateRepository.LogException(methodName, ex, createdByUserId, additionalInfo);
+            _candidateRepository.LogException(methodName, ex, additionalInfo);
         }
 
-        public string GetUserId()
-        {
-            var userId = _httpContextAccessor.HttpContext.User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-            return userId;
-        }
 
 
         public async Task<IEnumerable<CandidateDTO>> GetAllCandidatesAsync()
@@ -72,7 +67,7 @@ namespace CMS.Services.Services
             }
           catch (Exception ex)
             {
-                LogException(nameof(GetAllCandidatesAsync), ex,null,null);
+                LogException(nameof(GetAllCandidatesAsync), ex,null);
                 throw ex;
             }
         }
@@ -81,7 +76,9 @@ namespace CMS.Services.Services
         {
             try
             {
-                var candidate = await _candidateRepository.GetCandidateByIdAsync(id,GetUserId());
+                
+
+                var candidate = await _candidateRepository.GetCandidateByIdAsync(id);
 
 
                 if (candidate == null)
@@ -106,7 +103,7 @@ namespace CMS.Services.Services
           
             catch (Exception ex)
             {
-                LogException(nameof(GetCandidateByIdAsync), ex, null, null);
+                LogException(nameof(GetCandidateByIdAsync), ex, "GetCandidateByIdAsync not working");
                 throw ex;
             }
         }
@@ -115,6 +112,8 @@ namespace CMS.Services.Services
         {
             try
             {
+                
+
                 if (candidateDTO.FileData != null)
                 {
                     int attachmentId = await _attachmentService.CreateAttachmentAsync(candidateDTO.FileName, candidateDTO.FileSize, candidateDTO.FileData);
@@ -134,13 +133,13 @@ namespace CMS.Services.Services
                     CreatedBy = currentUser.Id,
                     CreatedOn = DateTime.Now
                 };
-                await _candidateRepository.CreateCandidateAsync(candidate, GetUserId());
+                await _candidateRepository.CreateCandidateAsync(candidate);
 
             }
 
             catch (Exception ex)
             {
-                LogException(nameof(CreateCandidateAsync), ex, null, null);
+                LogException(nameof(CreateCandidateAsync), ex, "CreateCandidateAsync not working");
                 throw ex;
             }
         }
@@ -149,7 +148,9 @@ namespace CMS.Services.Services
         {
             try
             {
-                var existingCandidate = await _candidateRepository.GetCandidateByIdAsync(id, GetUserId());
+                
+
+                var existingCandidate = await _candidateRepository.GetCandidateByIdAsync(id);
                 if (existingCandidate == null)
                     throw new Exception("Candidate not found");
                 var currentUser = await _userManager.GetUserAsync(_httpContextAccessor.HttpContext.User);
@@ -164,13 +165,13 @@ namespace CMS.Services.Services
                 existingCandidate.ModifiedOn = DateTime.Now;
                 existingCandidate.ModifiedBy = currentUser.Id;
 
-                await _candidateRepository.UpdateCandidateAsync(existingCandidate, GetUserId());
+                await _candidateRepository.UpdateCandidateAsync(existingCandidate);
 
             }
 
             catch (Exception ex)
             {
-                LogException(nameof(UpdateCandidateAsync), ex, null, null);
+                LogException(nameof(UpdateCandidateAsync), ex,"not working");
                 throw ex;
             }
         }
@@ -180,12 +181,14 @@ namespace CMS.Services.Services
         {
             try
             {
-                var candidate = await _candidateRepository.GetCandidateByIdAsync(id, GetUserId());
+                
+
+                var candidate = await _candidateRepository.GetCandidateByIdAsync(id);
 
                 if (candidate != null)
                 {
                     int? attachmentToRemove = (int?)candidate.CVAttachmentId;
-                    await _candidateRepository.DeleteCandidateAsync(candidate, GetUserId());
+                    await _candidateRepository.DeleteCandidateAsync(candidate);
 
                     if (attachmentToRemove.HasValue)
                     {
@@ -197,7 +200,7 @@ namespace CMS.Services.Services
 
             catch (Exception ex)
             {
-                LogException(nameof(DeleteCandidateAsync), ex, null, null);
+                LogException(nameof(DeleteCandidateAsync), ex,"not working");
                 throw ex;
             }
         }
@@ -207,7 +210,9 @@ namespace CMS.Services.Services
         {
             try
             {
-                var candidate = await _candidateRepository.GetCandidateByIdAsync(id, GetUserId());
+                
+
+                var candidate = await _candidateRepository.GetCandidateByIdAsync(id);
                 int attachmentId = await _attachmentService.CreateAttachmentAsync(fileName, fileSize, fileStream);
 
                 int attachmentToRemove = 0;
@@ -219,7 +224,7 @@ namespace CMS.Services.Services
                 }
 
                 candidate.CVAttachmentId = attachmentId;
-                await _candidateRepository.UpdateCandidateAsync(candidate, GetUserId());
+                await _candidateRepository.UpdateCandidateAsync(candidate);
                 if (attachmentToRemove != 0)
                 {
                     await _attachmentService.DeleteAttachmentAsync(attachmentToRemove);
@@ -228,7 +233,7 @@ namespace CMS.Services.Services
             
               catch (Exception ex)
             {
-                LogException(nameof(UpdateCandidateCVAsync), ex, null, null);
+                LogException(nameof(UpdateCandidateCVAsync), ex,"not working");
                 throw ex;
             }
 
@@ -244,7 +249,7 @@ namespace CMS.Services.Services
             }
             catch (Exception ex)
             {
-                LogException(nameof(GetCVAttachmentIdByCandidateId), ex, null, null);
+                LogException(nameof(GetCVAttachmentIdByCandidateId), ex,"not working");
                 throw ex;
             }
         }

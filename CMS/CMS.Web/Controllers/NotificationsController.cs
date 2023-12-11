@@ -22,37 +22,28 @@ namespace CMS.Web.Controllers
         private readonly INotificationsService _notificationsService;
         private readonly ITemplatesService _templatesService;
         private readonly UserManager<IdentityUser> _userManager;
+        private readonly IHttpContextAccessor _httpContextAccessor;
 
         public NotificationsController
             (
             INotificationsService notificationsService,
             ITemplatesService templatesService,
-            UserManager<IdentityUser> userManager
+            UserManager<IdentityUser> userManager,
+            IHttpContextAccessor httpContextAccessor
             )
         {
             _notificationsService = notificationsService;
             _templatesService = templatesService;
             _userManager = userManager;
+            _httpContextAccessor = httpContextAccessor;
         }
 
         public void LogException(string methodName, Exception ex, string additionalInfo = null)
         {
-            var createdByUserId = GetUserId();
-            _notificationsService.LogException(methodName, ex, createdByUserId, additionalInfo);
+            
+            _notificationsService.LogException(methodName, ex, additionalInfo);
         }
-        public string GetUserId()
-        {
-            try
-            {
-                var userId = _notificationsService.GetUserId();
-                return userId;
-            }
-            catch (Exception ex)
-            {
-                LogException(nameof(GetUserId), ex, null);
-                throw ex;
-            }
-        }
+     
 
         // GET: NotificationsController
         public async Task<ActionResult> Index()
@@ -71,7 +62,7 @@ namespace CMS.Web.Controllers
             }
             catch (Exception ex)
             {
-                LogException(nameof(Index), ex, null);
+                LogException(nameof(Index), ex,"not working");
                 throw ex;
             }
         }
@@ -169,7 +160,7 @@ namespace CMS.Web.Controllers
             }
             catch (Exception ex)
             {
-                LogException(nameof(Create), ex, null);
+                LogException(nameof(Create), ex,"not working");
                 throw ex;
             }
         }
@@ -205,7 +196,7 @@ namespace CMS.Web.Controllers
             }
             catch (Exception ex)
             {
-                LogException(nameof(Edit), ex, null);
+                LogException(nameof(Edit), ex,"not working");
                 throw ex;
             }
         }
@@ -251,7 +242,7 @@ namespace CMS.Web.Controllers
             }
             catch (Exception ex)
             {
-                LogException(nameof(Delete), ex, null);
+                LogException(nameof(Delete), ex,"not working");
                 throw ex;
             }
         }

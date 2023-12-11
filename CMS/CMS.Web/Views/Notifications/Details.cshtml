@@ -36,6 +36,10 @@
     {
         <a class="btn btn-secondary" asp-action="IndexGMnotification">Back to List</a>
     }
+    else if (User.IsInRole("Solution Architecture"))
+    {
+        <a class="btn btn-secondary" asp-action="IndexArchinotification">Back to List</a>
+    }
     else
     {
         <a class="btn btn-secondary" asp-action="Index">Back to List</a>

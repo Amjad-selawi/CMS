@@ -16,7 +16,7 @@ namespace CMS.Services.Interfaces
         Task Create(NotificationsDTO entity);
         Task Update(int notificationsId, NotificationsDTO entity);
         Task Delete(int notificationsId);
-        string GetUserId();
+        
 
 
         Task<List<NotificationsDTO>> GetNotificationsForUserAsync(string userId);
@@ -33,18 +33,18 @@ namespace CMS.Services.Interfaces
         Task<IEnumerable<NotificationsDTO>> GetNotificationsForArchitectureicon();
 
 
-        Task CreateNotificationForGeneralManagerAsync(int status, string notes, int CandidateId, int positionId, string ByUserId);
-        Task CreateNotificationForArchiAsync(int status, string notes, int CandidateId, int positionId, string ByUserId);
+        Task CreateNotificationForGeneralManagerAsync(int status, string notes, int CandidateId, int positionId);
+        Task CreateNotificationForArchiAsync(int status, string notes, int CandidateId, int positionId);
 
-        Task CreateInterviewNotificationForInterviewerAsync(DateTime interviewDate, int CandidateId, int positionId, string selectedInterviewerId, bool isCanceled, string ByUserId);
+        Task CreateInterviewNotificationForInterviewerAsync(DateTime interviewDate, int CandidateId, int positionId, string selectedInterviewerId, bool isCanceled);
 
 
-        Task CreateInterviewNotificationForHRInterview(int status, string notes, int CandidateId, int positionId, string ByUserId);
+        Task CreateInterviewNotificationForHRInterview(int status, string notes, int CandidateId, int positionId);
 
-        Task CreateNotificationForInterviewer(int CandidateId, string selectedInterviewerId, string ByUserId);
+        Task CreateNotificationForInterviewer(int CandidateId, string selectedInterviewerId);
         Task<NotificationsDTO> GetNotificationByIdforDetails(int notificationsId);
 
-        void LogException(string methodName, Exception ex, string createdByUserId = null, string additionalInfo = null);
+        void LogException(string methodName, Exception ex = null, string additionalInfo = null);
         Task<int> GetUnreadNotificationCount();
     }
 }

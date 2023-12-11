@@ -20,8 +20,8 @@ namespace CMS.Services.Interfaces
 
         Task<int?> GetCVAttachmentIdByCandidateId(int candidateId);
 
-        void LogException(string methodName, Exception ex, string createdByUserId = null, string additionalInfo = null);
+        void LogException(string methodName, Exception ex = null, string additionalInfo = null);
 
-        string GetUserId();
+        
     }
 }

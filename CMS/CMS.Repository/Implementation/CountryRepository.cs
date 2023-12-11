@@ -1,6 +1,8 @@
 ﻿using CMS.Domain;
 using CMS.Domain.Entities;
 using CMS.Repository.Interfaces;
+using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
@@ -13,30 +15,36 @@ namespace CMS.Repository.Implementation
 {
     public class CountryRepository : ICountryRepository
     {
-        readonly ApplicationDbContext _context; 
-        public CountryRepository(ApplicationDbContext context)
+        readonly ApplicationDbContext _context;
+        private readonly UserManager<IdentityUser> _userManager;
+        private readonly IHttpContextAccessor _httpContextAccessor;
+
+        public CountryRepository(ApplicationDbContext context, UserManager<IdentityUser> userManager, IHttpContextAccessor httpContextAccessor)
         {
-            _context = context; 
+            _context = context;
+            _userManager = userManager;
+            _httpContextAccessor = httpContextAccessor;
         }
 
 
-        public void LogException(string methodName, Exception ex, string createdByUserId, string additionalInfo)
+        public void LogException(string methodName, Exception ex, string additionalInfo)
         {
-
+            var currentUser = _userManager.GetUserAsync(_httpContextAccessor.HttpContext.User);
+            string userId = currentUser?.Id.ToString();
             _context.Logs.Add(new Log
             {
                 MethodName = methodName,
                 ExceptionMessage = ex.Message,
-                StackTrace = ex.StackTrace,
+                StackTrace = ex.StackTrace,CreatedByUserId = userId,
                 LogTime = DateTime.Now,
-                CreatedByUserId = createdByUserId,
+                
                 AdditionalInfo = additionalInfo
             });
             _context.SaveChanges();
         }
 
 
-        public int Delete(int id,string deletedByUserId)
+        public int Delete(int id)
         {
             try
             {
@@ -58,7 +66,7 @@ namespace CMS.Repository.Implementation
             }
             catch (Exception ex)
             {
-                LogException(nameof(Delete), ex, $"Deleted by : {deletedByUserId}", $"Country deleted with ID: {id}");
+                LogException(nameof(Delete), ex, $"Country deleted with ID: {id}");
                 throw;
             }
         }
@@ -74,12 +82,12 @@ namespace CMS.Repository.Implementation
             }
             catch (Exception ex)
             {
-                LogException(nameof(GetAll), ex,null,null);
+                LogException(nameof(GetAll), ex,null);
                 throw;
             }
         }
 
-        public async Task<Country> GetById(int id,string createdByUserId)
+        public async Task<Country> GetById(int id)
         {
             try
             {
@@ -91,13 +99,13 @@ namespace CMS.Repository.Implementation
             }
             catch (Exception ex)
             {
-                LogException(nameof(GetById), ex, $"Done by : {createdByUserId}", $"Error retrieving country with ID: {id}");
+                LogException(nameof(GetById), ex, $"Error retrieving country with ID: {id}");
                 throw;
             }
 
         }
 
-        public async Task<int> Insert(Country entity,string createdByUserId)
+        public async Task<int> Insert(Country entity)
         {
             try
             {
@@ -107,12 +115,12 @@ namespace CMS.Repository.Implementation
             }
             catch (Exception ex)
             {
-                LogException(nameof(Insert), ex, $"Created by : {createdByUserId}", $"country inserted with ID: {entity.Id}");
+                LogException(nameof(Insert), ex, $"country inserted with ID: {entity.Id}");
                 throw;
             }
         }
 
-        public async Task<int> Update(Country entity,string modifiedByUserId)
+        public async Task<int> Update(Country entity)
         {
             try
             {
@@ -124,7 +132,7 @@ namespace CMS.Repository.Implementation
             }
             catch (Exception ex)
             {
-                LogException(nameof(Update), ex, $"Modified by : {modifiedByUserId}", $"Error updating country with ID: {entity.Id}");
+                LogException(nameof(Update), ex, $"Error updating country with ID: {entity.Id}");
                 throw;
             }
         }
@@ -138,7 +146,7 @@ namespace CMS.Repository.Implementation
             }
             catch (Exception ex)
             {
-                LogException(nameof(DoesCountryNameExist), ex,null,null);
+                LogException(nameof(DoesCountryNameExist), ex,null);
                 throw;
             }
 
@@ -153,7 +161,7 @@ namespace CMS.Repository.Implementation
             }
             catch (Exception ex)
             {
-                LogException(nameof(GetAllCountriesAsync), ex, null, null);
+                LogException(nameof(GetAllCountriesAsync), ex, "GetAllCountriesAsync not working");
                 throw;
             }
         }

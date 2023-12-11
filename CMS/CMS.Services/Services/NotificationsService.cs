@@ -58,18 +58,10 @@ namespace CMS.Services.Services
             _statusService = statusService;
         }
 
-        public void LogException(string methodName, Exception ex, string createdByUserId = null, string additionalInfo = null)
+        public void LogException(string methodName, Exception ex = null, string additionalInfo = null)
         {
-            _notificationsRepository.LogException(methodName, ex, createdByUserId, additionalInfo);
+            _notificationsRepository.LogException(methodName, ex,  additionalInfo);
         }
-
-
-        public string GetUserId()
-        {
-            var userId = _httpContextAccessor.HttpContext.User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-            return userId;
-        }
-
 
 
         public async Task<IEnumerable<NotificationsDTO>> GetAllNotificationsAsync()
@@ -94,7 +86,7 @@ namespace CMS.Services.Services
             });
             }
             catch (Exception ex) {
-                LogException(nameof(GetAllNotificationsAsync), ex,null,"Error while getting all Notifications");
+                LogException(nameof(GetAllNotificationsAsync), ex,"Error while getting all Notifications");
                 throw ex;
             }
 
@@ -105,8 +97,9 @@ namespace CMS.Services.Services
             try
             {
 
-         
-            var notification = await _notificationsRepository.GetNotificationsById(notificationsId, GetUserId());
+                
+
+                var notification = await _notificationsRepository.GetNotificationsById(notificationsId);
             if (notification == null)
                 return null;
 
@@ -133,7 +126,7 @@ namespace CMS.Services.Services
             catch (Exception ex)
             {
 
-                LogException(nameof(GetNotificationByIdAsync),ex,null,null);
+                LogException(nameof(GetNotificationByIdAsync),ex,null);
                 throw ex;
             }
         }
@@ -142,9 +135,10 @@ namespace CMS.Services.Services
         {
             try
             {
+                
 
-            
-            var notification = await _notificationsRepository.GetNotificationsById(notificationsId, GetUserId());
+
+                var notification = await _notificationsRepository.GetNotificationsById(notificationsId);
             if (notification == null)
                 return null;
 
@@ -167,7 +161,7 @@ namespace CMS.Services.Services
             catch (Exception ex)
             {
 
-                LogException(nameof(GetNotificationByIdforDetails), ex, null, null);
+                LogException(nameof(GetNotificationByIdforDetails), ex,"not working");
                 throw ex;
             }
         }
@@ -178,8 +172,9 @@ namespace CMS.Services.Services
             try
             {
 
-            
-            var currentUser = await _userManager.GetUserAsync(_httpContextAccessor.HttpContext.User);
+                
+
+                var currentUser = await _userManager.GetUserAsync(_httpContextAccessor.HttpContext.User);
             var notification = new Notifications
             {
                 SendDate = DateTime.Now,
@@ -192,12 +187,12 @@ namespace CMS.Services.Services
                 IsRead=entity.IsRead,
 
             };
-            await _notificationsRepository.Create(notification, GetUserId());
+            await _notificationsRepository.Create(notification);
             }
             catch (Exception ex)
             {
 
-                LogException(nameof(Create), ex, null, null);
+                LogException(nameof(Create), ex,"not working");
                 throw ex;
             }
         }
@@ -206,8 +201,9 @@ namespace CMS.Services.Services
         {
             try
             {
+                
 
-            var existingNotification = await _notificationsRepository.GetNotificationsById(notificationId, GetUserId());
+                var existingNotification = await _notificationsRepository.GetNotificationsById(notificationId);
             if (existingNotification == null)
                 throw new Exception("Notifications not found");
             var currentUser = await _userManager.GetUserAsync(_httpContextAccessor.HttpContext.User);
@@ -221,12 +217,12 @@ namespace CMS.Services.Services
             existingNotification.ModifiedBy = currentUser.Id;
 
 
-            await _notificationsRepository.Update(existingNotification, GetUserId());
+            await _notificationsRepository.Update(existingNotification);
             }
             catch (Exception ex)
             {
 
-                LogException(nameof(Update), ex, null, null);
+                LogException(nameof(Update), ex,"not working");
                 throw ex;
             }
         }
@@ -236,15 +232,16 @@ namespace CMS.Services.Services
             try
             {
 
-           
-            var notification = await _notificationsRepository.GetNotificationsById(notificationId,GetUserId());
+                
+
+                var notification = await _notificationsRepository.GetNotificationsById(notificationId);
             if (notification != null)
-                await _notificationsRepository.Delete(notification, GetUserId());
+                await _notificationsRepository.Delete(notification);
             }
             catch (Exception ex)
             {
 
-                LogException(nameof(Delete), ex, null, null);
+                LogException(nameof(Delete), ex,"not working");
                 throw ex;
             }
         }
@@ -253,16 +250,17 @@ namespace CMS.Services.Services
         {
             try
             {
+                
 
-            
-            var HrId = "";
+
+                var HrId = "";
 
             var Hr = await _roleManager.FindByNameAsync("HR Manager");
 
             HrId = (await _userManager.GetUsersInRoleAsync(Hr.Name)).FirstOrDefault().Id;
 
 
-            var notifications = await _notificationsRepository.GetSpacificNotificationsforHR(GetUserId());
+            var notifications = await _notificationsRepository.GetSpacificNotificationsforHR();
 
             var notificationsDTOList = notifications
          .Where(notification => notification.ReceiverId == HrId) //hrId
@@ -280,7 +278,7 @@ namespace CMS.Services.Services
             catch (Exception ex)
             {
 
-                LogException(nameof(GetNotificationsForUserAsync), ex, null, null);
+                LogException(nameof(GetNotificationsForUserAsync), ex,"not working");
                 throw ex;
             }
 
@@ -290,16 +288,17 @@ namespace CMS.Services.Services
         {
             try
             {
+                
 
-            
-            var HrId = "";
+
+                var HrId = "";
 
             var Hr = await _roleManager.FindByNameAsync("HR Manager");
 
             HrId = (await _userManager.GetUsersInRoleAsync(Hr.Name)).FirstOrDefault().Id;
 
 
-            var notifications = await _notificationsRepository.GetSpacificNotificationsforHR(GetUserId());
+            var notifications = await _notificationsRepository.GetSpacificNotificationsforHR();
             var notificationsDTOList = notifications
                 .Where(notification => notification.ReceiverId == HrId)//hrId
                 .Select(notification => new NotificationsDTO
@@ -317,7 +316,7 @@ namespace CMS.Services.Services
             catch (Exception ex)
             {
 
-                LogException(nameof(GetNotificationsForHRAsync), ex, null, null);
+                LogException(nameof(GetNotificationsForHRAsync), ex,"not working");
                 throw ex;
             }
         }
@@ -326,6 +325,7 @@ namespace CMS.Services.Services
         {
             try
             {
+                
 
 
                 var HrId = "";
@@ -335,7 +335,7 @@ namespace CMS.Services.Services
                 HrId = (await _userManager.GetUsersInRoleAsync(Hr.Name)).FirstOrDefault().Id;
 
 
-                var notifications = await _notificationsRepository.GetSpacificNotificationsforHR(GetUserId());
+                var notifications = await _notificationsRepository.GetSpacificNotificationsforHR();
                 var notificationsDTOList = notifications
                     .Where(notification => notification.ReceiverId == HrId && notification.IsRead == false)//hrId
                     .Select(notification => new NotificationsDTO
@@ -353,7 +353,7 @@ namespace CMS.Services.Services
             catch (Exception ex)
             {
 
-                LogException(nameof(GetNotificationsForHRAsyncicon), ex, null, null);
+                LogException(nameof(GetNotificationsForHRAsyncicon), ex,"not working");
                 throw ex;
             }
         }
@@ -363,8 +363,9 @@ namespace CMS.Services.Services
             try
             {
 
-            
-            var notifications = await _notificationsRepository.GetSpacificNotificationsforInterviewer(interviewerId, GetUserId());
+                
+
+                var notifications = await _notificationsRepository.GetSpacificNotificationsforInterviewer(interviewerId);
             var notificationsDTOList = notifications
                 .Select(notification => new NotificationsDTO
                 {
@@ -381,7 +382,7 @@ namespace CMS.Services.Services
             catch (Exception ex)
             {
 
-                LogException(nameof(GetNotificationsForInterviewers), ex, null, null);
+                LogException(nameof(GetNotificationsForInterviewers), ex,"not working");
                 throw ex;
             }
         }
@@ -390,9 +391,10 @@ namespace CMS.Services.Services
         {
             try
             {
+                
 
 
-                var notifications = await _notificationsRepository.GetSpacificNotificationsforInterviewer(interviewerId, GetUserId());
+                var notifications = await _notificationsRepository.GetSpacificNotificationsforInterviewer(interviewerId);
                 var notificationsDTOList = notifications.Where(notification => notification.IsRead == false)
                     .Select(notification => new NotificationsDTO
                     {
@@ -409,7 +411,7 @@ namespace CMS.Services.Services
             catch (Exception ex)
             {
 
-                LogException(nameof(GetNotificationsForInterviewersicon), ex, null, null);
+                LogException(nameof(GetNotificationsForInterviewersicon), ex,"not working");
                 throw ex;
             }
         }
@@ -417,9 +419,10 @@ namespace CMS.Services.Services
         {
             try
             {
+                
 
-            
-            var managerId = "";
+
+                var managerId = "";
 
             var manager = await _roleManager.FindByNameAsync("General Manager");
 
@@ -427,7 +430,7 @@ namespace CMS.Services.Services
 
 
 
-            var notifications = await _notificationsRepository.GetSpacificNotificationsforGeneral(GetUserId());
+            var notifications = await _notificationsRepository.GetSpacificNotificationsforGeneral();
             var notificationsDTOList = notifications
                 .Where(notification => notification.ReceiverId == managerId)//GMId
                 .Select(notification => new NotificationsDTO
@@ -445,7 +448,7 @@ namespace CMS.Services.Services
             catch (Exception ex)
             {
 
-                LogException(nameof(GetNotificationsForGeneralManager), ex, null, null);
+                LogException(nameof(GetNotificationsForGeneralManager), ex,"not working");
                 throw ex;
             }
         }
@@ -454,6 +457,7 @@ namespace CMS.Services.Services
         {
             try
             {
+                
 
 
                 var managerId = "";
@@ -464,7 +468,7 @@ namespace CMS.Services.Services
 
 
 
-                var notifications = await _notificationsRepository.GetSpacificNotificationsforGeneral(GetUserId());
+                var notifications = await _notificationsRepository.GetSpacificNotificationsforGeneral();
                 var notificationsDTOList = notifications
                     .Where(notification => notification.ReceiverId == managerId && notification.IsRead == false)//GMId
                     .Select(notification => new NotificationsDTO
@@ -482,7 +486,7 @@ namespace CMS.Services.Services
             catch (Exception ex)
             {
 
-                LogException(nameof(GetNotificationsForGeneralManagericon), ex, null, null);
+                LogException(nameof(GetNotificationsForGeneralManagericon), ex,"not working");
                 throw ex;
             }
         }
@@ -491,6 +495,7 @@ namespace CMS.Services.Services
         {
             try
             {
+                
 
 
                 var archiId = "";
@@ -501,7 +506,7 @@ namespace CMS.Services.Services
 
 
 
-                var notifications = await _notificationsRepository.GetSpacificNotificationsforArchi(GetUserId());
+                var notifications = await _notificationsRepository.GetSpacificNotificationsforArchi();
                 var notificationsDTOList = notifications
                     .Where(notification => notification.ReceiverId == archiId)//ArchiId
                     .Select(notification => new NotificationsDTO
@@ -519,7 +524,7 @@ namespace CMS.Services.Services
             catch (Exception ex)
             {
 
-                LogException(nameof(GetNotificationsForArchitecture), ex, null, null);
+                LogException(nameof(GetNotificationsForArchitecture), ex,"not working");
                 throw ex;
             }
         }
@@ -528,6 +533,7 @@ namespace CMS.Services.Services
         {
             try
             {
+                
 
 
                 var archiId = "";
@@ -538,7 +544,7 @@ namespace CMS.Services.Services
 
 
 
-                var notifications = await _notificationsRepository.GetSpacificNotificationsforArchi(GetUserId());
+                var notifications = await _notificationsRepository.GetSpacificNotificationsforArchi();
                 var notificationsDTOList = notifications
                     .Where(notification => notification.ReceiverId == archiId && notification.IsRead == false)//ArchiId
                     .Select(notification => new NotificationsDTO
@@ -556,16 +562,17 @@ namespace CMS.Services.Services
             catch (Exception ex)
             {
 
-                LogException(nameof(GetNotificationsForArchitectureicon), ex, null, null);
+                LogException(nameof(GetNotificationsForArchitectureicon), ex,"not working");
                 throw ex;
             }
         }
 
 
-        public async Task CreateNotificationForGeneralManagerAsync(int status, string notes, int CandidateId, int positionId,string ByUserId)
+        public async Task CreateNotificationForGeneralManagerAsync(int status, string notes, int CandidateId, int positionId)
         {
             try
             {
+                
 
 
                 var managerId = "";
@@ -610,7 +617,7 @@ namespace CMS.Services.Services
                     notification.ReceiverId = HrId;
                 }
 
-                await _notificationsRepository.Create(notification, GetUserId());
+                await _notificationsRepository.Create(notification);
 
 
                 if (statusstatus.Code == Domain.Enums.StatusCode.Approved)
@@ -627,23 +634,24 @@ namespace CMS.Services.Services
                         CreatedOn = DateTime.Now
                     };
 
-                    await _notificationsRepository.Create(hrNotification, GetUserId());
+                    await _notificationsRepository.Create(hrNotification);
                 }
             }
             catch (Exception ex)
             {
 
-                LogException(nameof(CreateNotificationForGeneralManagerAsync), ex, ByUserId, null);
+                LogException(nameof(CreateNotificationForGeneralManagerAsync), ex,  null);
                 throw ex;
             }
         }
 
 
-        public async Task CreateNotificationForArchiAsync(int status, string notes, int CandidateId, int positionId,string ByUserId)
+        public async Task CreateNotificationForArchiAsync(int status, string notes, int CandidateId, int positionId)
         {
             try
             {
 
+                
 
                 var archiId = "";
                 var HrId = "";
@@ -687,7 +695,7 @@ namespace CMS.Services.Services
                     notification.ReceiverId = HrId;
                 }
 
-                await _notificationsRepository.Create(notification, GetUserId());
+                await _notificationsRepository.Create(notification);
 
 
                 if (statusstatus.Code == Domain.Enums.StatusCode.Approved)
@@ -704,21 +712,22 @@ namespace CMS.Services.Services
                         CreatedOn = DateTime.Now
                     };
 
-                    await _notificationsRepository.Create(hrNotification, GetUserId());
+                    await _notificationsRepository.Create(hrNotification);
                 }
             }
             catch (Exception ex)
             {
 
-                LogException(nameof(CreateNotificationForGeneralManagerAsync), ex, null, null);
+                LogException(nameof(CreateNotificationForGeneralManagerAsync), ex,"not working");
                 throw ex;
             }
         }
 
-        public async Task CreateInterviewNotificationForInterviewerAsync(DateTime interviewDate, int candidateId, int positionId, string selectedInterviewerId, bool isCanceled, string ByUserId)
+        public async Task CreateInterviewNotificationForInterviewerAsync(DateTime interviewDate, int candidateId, int positionId, string selectedInterviewerId, bool isCanceled)
         {
             try
             {
+                
 
 
                 var currentUser = await _userManager.GetUserAsync(_httpContextAccessor.HttpContext.User);
@@ -746,21 +755,22 @@ namespace CMS.Services.Services
                     notification.BodyDesc = $"You've been selected for a First Interview with {candidateName} for the {positionName} position on {interviewDate}. Get ready to shine! 💼🚀";
                 }
 
-                await _notificationsRepository.Create(notification, GetUserId());
+                await _notificationsRepository.Create(notification);
             }
             catch (Exception ex)
             {
 
-                LogException(nameof(CreateInterviewNotificationForInterviewerAsync), ex, null, null);
+                LogException(nameof(CreateInterviewNotificationForInterviewerAsync), ex,"not working");
                 throw ex;
             }
         }
 
-        public async Task CreateInterviewNotificationForHRInterview(int status, string notes, int CandidateId, int positionId,string ByUserId)
+        public async Task CreateInterviewNotificationForHRInterview(int status, string notes, int CandidateId, int positionId)
         {
             try
             {
 
+                
 
                 var statusResult = await _statusService.GetById(status);
                 var statusstatus = statusResult.Value;
@@ -799,20 +809,21 @@ namespace CMS.Services.Services
                     notification.Title = $"{candidateName} Rejected by {userName} for position {positionName}";
                 }
 
-                await _notificationsRepository.Create(notification, GetUserId());
+                await _notificationsRepository.Create(notification);
             }
             catch (Exception ex)
             {
 
-                LogException(nameof(CreateInterviewNotificationForHRInterview), ex, null, null);
+                LogException(nameof(CreateInterviewNotificationForHRInterview), ex,"not working");
                 throw ex;
             }
         }
        
-        public async Task CreateNotificationForInterviewer(int CandidateId, string selectedInterviewerId,string ByUserId)
+        public async Task CreateNotificationForInterviewer(int CandidateId, string selectedInterviewerId)
         {
             try
             {
+                
 
 
                 var currentUser = await _userManager.GetUserAsync(_httpContextAccessor.HttpContext.User);
@@ -830,12 +841,12 @@ namespace CMS.Services.Services
                     CreatedOn = DateTime.Now
                 };
 
-                await _notificationsRepository.Create(notification, GetUserId());
+                await _notificationsRepository.Create(notification);
             }
             catch (Exception ex)
             {
 
-                LogException(nameof(CreateNotificationForInterviewer), ex, null, null);
+                LogException(nameof(CreateNotificationForInterviewer), ex,"not working");
                 throw ex;
             }
         }
@@ -849,7 +860,7 @@ namespace CMS.Services.Services
             catch (Exception ex)
             {
 
-                LogException(nameof(GetLoggedInUserName), ex, null, null);
+                LogException(nameof(GetLoggedInUserName), ex,"not working");
                 throw ex;
             }
         }
@@ -872,7 +883,7 @@ namespace CMS.Services.Services
             catch (Exception ex)
             {
 
-                LogException(nameof(GetCandidateName), ex, null, null);
+                LogException(nameof(GetCandidateName), ex,"not working");
                 throw ex;
             }
         }
@@ -896,7 +907,7 @@ namespace CMS.Services.Services
             catch (Exception ex)
             {
 
-                LogException(nameof(GetPositionName), ex, null, null);
+                LogException(nameof(GetPositionName), ex,"not working");
                 throw ex;
             }
         }
@@ -905,7 +916,10 @@ namespace CMS.Services.Services
         {
             try
             {
-                var userId = GetUserId();
+                var currentUser = await _userManager.GetUserAsync(_httpContextAccessor.HttpContext.User);
+
+
+                var userId = currentUser.Id;
 
                 var notifications = await _notificationsRepository.GetAllNotifications(); 
 

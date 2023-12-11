@@ -15,10 +15,13 @@ namespace CMS.Web.Controllers
     public class PositionController : Controller
     {
         private readonly IPositionService _positionService;
+        private readonly IHttpContextAccessor _httpContextAccessor;
         private readonly string _attachmentStoragePath;
-        public PositionController(IPositionService positionService, IWebHostEnvironment env)
+        public PositionController(IPositionService positionService, IWebHostEnvironment env,
+            IHttpContextAccessor httpContextAccessor)
         {
             _positionService = positionService;
+            _httpContextAccessor = httpContextAccessor;
             _attachmentStoragePath = Path.Combine(env.WebRootPath, "attachments");
 
             if (!Directory.Exists(_attachmentStoragePath))
@@ -29,22 +32,10 @@ namespace CMS.Web.Controllers
 
         public void LogException(string methodName, Exception ex, string additionalInfo = null)
         {
-            var createdByUserId = GetUserId();
-            _positionService.LogException(methodName, ex, createdByUserId, additionalInfo);
+            
+            _positionService.LogException(methodName, ex, additionalInfo);
         }
-        public string GetUserId()
-        {
-            try
-            {
-            var userId = _positionService.GetUserId();
-            return userId;
-            }
-            catch (Exception ex)
-            {
-                LogException(nameof(GetUserId), ex, null);
-                throw ex;
-            }
-        }
+    
         public IActionResult Index()
         {
             return View();
@@ -114,7 +105,7 @@ namespace CMS.Web.Controllers
             }
             catch (Exception ex)
             {
-                LogException(nameof(AddPosition), ex, null);
+                LogException(nameof(AddPosition), ex,"not working");
                 throw ex;
             }
         }
@@ -146,7 +137,7 @@ namespace CMS.Web.Controllers
             }
             catch(Exception ex)
             {
-                LogException(nameof(GetPositions), ex, null);
+                LogException(nameof(GetPositions), ex,"not working");
                 throw ex;
             }
         }
@@ -174,7 +165,7 @@ namespace CMS.Web.Controllers
             return View(positionDTO);}
             catch(Exception ex)
             {
-                LogException(nameof(GetDeleteConfirmation), ex, null);
+                LogException(nameof(GetDeleteConfirmation), ex,"not working");
                 throw ex;
             }
         }
@@ -203,7 +194,7 @@ namespace CMS.Web.Controllers
             }
             catch(Exception ex)
             {
-                LogException(nameof(DeletePosition), ex, null);
+                LogException(nameof(DeletePosition), ex,"not working");
                 throw ex;
             }
         }
@@ -229,7 +220,7 @@ namespace CMS.Web.Controllers
 }
             catch(Exception ex)
             {
-                LogException(nameof(UpdatePosition), ex, null);
+                LogException(nameof(UpdatePosition), ex,"not working");
                 throw ex;
             }
         }
@@ -260,7 +251,7 @@ namespace CMS.Web.Controllers
 }
             catch (Exception ex)
             {
-                LogException(nameof(UpdatePosition), ex, null);
+                LogException(nameof(UpdatePosition), ex,"not working");
                 throw ex;
             }
         }
@@ -296,7 +287,7 @@ namespace CMS.Web.Controllers
             }
             catch (Exception ex)
             {
-                LogException(nameof(UpdatePosition), ex, null);
+                LogException(nameof(UpdatePosition), ex,"not working");
                 throw ex;
             }
         }
@@ -314,7 +305,7 @@ namespace CMS.Web.Controllers
             return Ok(new { exists });
             }
             catch (Exception ex){
-                LogException(nameof(UpdatePosition), ex, null);
+                LogException(nameof(UpdatePosition), ex,"not working");
                 throw ex;
             }
         }

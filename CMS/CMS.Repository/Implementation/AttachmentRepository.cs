@@ -1,6 +1,8 @@
 ﻿using CMS.Domain;
 using CMS.Domain.Entities;
 using CMS.Repository.Interfaces;
+using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
@@ -13,22 +15,27 @@ namespace CMS.Repository.Implementation
     public class AttachmentRepository : IAttachmentRepository
     {
         private readonly ApplicationDbContext _dbContext;
+        private readonly UserManager<IdentityUser> _userManager;
+        private readonly IHttpContextAccessor _httpContextAccessor;
 
-        public AttachmentRepository(ApplicationDbContext dbContext)
+        public AttachmentRepository(ApplicationDbContext dbContext, UserManager<IdentityUser> userManager, IHttpContextAccessor httpContextAccessor)
         {
             _dbContext = dbContext;
+            _userManager = userManager;
+            _httpContextAccessor = httpContextAccessor;
         }
 
-        public void LogException(string methodName, Exception ex, string createdByUserId, string additionalInfo)
+        public void LogException(string methodName, Exception ex, string additionalInfo)
         {
-
+            var currentUser = _userManager.GetUserAsync(_httpContextAccessor.HttpContext.User);
+            string userId = currentUser?.Id.ToString();
             _dbContext.Logs.Add(new Log
             {
                 MethodName = methodName,
                 ExceptionMessage = ex.Message,
-                StackTrace = ex.StackTrace,
+                StackTrace = ex.StackTrace,CreatedByUserId = userId,
                 LogTime = DateTime.Now,
-                CreatedByUserId = createdByUserId,
+                
                 AdditionalInfo = additionalInfo
             });
             _dbContext.SaveChanges();
@@ -42,7 +49,7 @@ namespace CMS.Repository.Implementation
             }
             catch (Exception ex)
             {
-                LogException(nameof(GetAllAttachmentsAsync), ex, null, null);
+                LogException(nameof(GetAllAttachmentsAsync), ex,"Enable to get all attachments");
                 throw ex;
             }
         }
@@ -54,7 +61,7 @@ namespace CMS.Repository.Implementation
             }
             catch (Exception ex)
             {
-                LogException(nameof(GetAttachmentByIdAsync), ex, null, $"Attachment ID: {id}");
+                LogException(nameof(GetAttachmentByIdAsync), ex, $"Attachment ID: {id}");
                 throw ex;
             }
         }
@@ -69,7 +76,7 @@ namespace CMS.Repository.Implementation
             }
             catch (Exception ex)
             {
-                LogException(nameof(CreateAttachmentAsync), ex, null, null);
+                LogException(nameof(CreateAttachmentAsync), ex,"Enable to create attachment");
                 throw ex;
             }
         }
@@ -86,7 +93,7 @@ namespace CMS.Repository.Implementation
             }
             catch (Exception ex)
             {
-                LogException(nameof(DeleteAttachmentAsync), ex, null, $"Attachment ID: {id}");
+                LogException(nameof(DeleteAttachmentAsync), ex, $"Attachment ID: {id}");
                 throw ex;
             }
         }

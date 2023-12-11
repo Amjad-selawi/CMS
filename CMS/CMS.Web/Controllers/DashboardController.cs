@@ -14,6 +14,8 @@ using CMS.Domain.Entities;
 using CMS.Services.Services;
 using System.Net.Mail;
 using System.Net;
+using System.Security.Claims;
+using Microsoft.AspNetCore.Http;
 
 namespace CMS.Web.Controllers
 {
@@ -22,32 +24,23 @@ namespace CMS.Web.Controllers
         private readonly IReportingService _reportingService;
         private readonly ApplicationDbContext _context;
         private ICountryService _countryService;
+        private readonly IHttpContextAccessor _httpContextAccessor;
 
-        public DashboardController(IReportingService reportingService, ApplicationDbContext context, ICountryService countryService)
+        public DashboardController(IReportingService reportingService, 
+            ApplicationDbContext context, ICountryService countryService,IHttpContextAccessor httpContextAccessor)
         {
             _reportingService = reportingService;
             _context = context;
             _countryService = countryService;
+            _httpContextAccessor = httpContextAccessor;
         }
 
           public void LogException(string methodName, Exception ex, string additionalInfo = null)
         {
-            var createdByUserId = GetUserId();
-            _countryService.LogException(methodName, ex, createdByUserId, additionalInfo);
+            
+            _countryService.LogException(methodName, ex, additionalInfo);
         }
-        public string GetUserId()
-        {
-            try
-            {
-            var userId = _countryService.GetUserId();
-            return userId;
-            }
-            catch (Exception ex)
-            {
-                LogException(nameof(GetUserId), ex, null);
-                throw ex;
-            }
-        }
+    
         public async Task<IActionResult> Index()
         {
             try
@@ -55,8 +48,10 @@ namespace CMS.Web.Controllers
 
             
             if (User.IsInRole("Admin") || User.IsInRole("General Manager") || User.IsInRole("HR Manager"))
-            {
-                var report = (await _reportingService.GetBusinessPerformanceReport()).Value;
+                {
+                    
+
+                    var report = (await _reportingService.GetBusinessPerformanceReport()).Value;
                 double percentageFloat = ((double)report.NumberOfAccepted / report.NumberOfCandidates) * 100;
                 int acceptedPercentage = (int)percentageFloat;
                 ViewBag.AcceptedPercentage = acceptedPercentage;
@@ -68,7 +63,7 @@ namespace CMS.Web.Controllers
                 ViewBag.PendingCount = report.NumberOfPending; // Add the pending count to the ViewBag
                                                                //var countries = await _countryService.GetAllCountriesAsync();
 
-                var countries = await _countryService.GetAllCountriesAsync(GetUserId()); // Assuming you have a countryService instance
+                var countries = await _countryService.GetAllCountriesAsync(); // Assuming you have a countryService instance
 
                 // Convert the list of countries to a JSON array for use in JavaScript
                 var countriesJson = JsonSerializer.Serialize(countries.Select(c => c.Name).ToList());
@@ -91,7 +86,7 @@ namespace CMS.Web.Controllers
             }
             catch (Exception ex)
             {
-                LogException(nameof(Index), ex, null);
+                LogException(nameof(Index), ex,"not working");
                 throw ex;
             }
         }
@@ -137,7 +132,7 @@ namespace CMS.Web.Controllers
             }
             catch(Exception ex)
             {
-                LogException(nameof(IndexForTree), ex, null);
+                LogException(nameof(IndexForTree), ex,"not working");
                 throw ex;
             }
         }
@@ -268,7 +263,7 @@ namespace CMS.Web.Controllers
             }
             catch (Exception ex)
             {
-                LogException(nameof(GetDataFromDatabase), ex, null);
+                LogException(nameof(GetDataFromDatabase), ex,"not working");
                 throw ex;
             }
         }

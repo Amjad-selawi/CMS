@@ -28,23 +28,9 @@ namespace CMS.Services.Services
             _httpContextAccessor = httpContextAccessor;
         }
 
-        public void LogException(string methodName, Exception ex, string createdByUserId = null, string additionalInfo = null)
+        public void LogException(string methodName, Exception ex = null, string additionalInfo = null)
         {
-            _attachmentRepository.LogException(methodName, ex, createdByUserId, additionalInfo);
-        }
-
-        public string GetUserId()
-        {
-            try
-            {
-                var userId = _httpContextAccessor.HttpContext.User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-                return userId;
-            }
-            catch (Exception ex)
-            {
-                LogException(nameof(GetUserId), ex, null, null);
-                throw ex;
-            }
+            _attachmentRepository.LogException(methodName, ex, additionalInfo);
         }
 
 
@@ -64,7 +50,7 @@ namespace CMS.Services.Services
             }
             catch (Exception ex)
             {
-                LogException(nameof(GetAllAttachmentsAsync), ex, null, null);
+                LogException(nameof(GetAllAttachmentsAsync), ex, "GetAllAttachmentsAsync not working");
                 throw ex;
             }
         }
@@ -88,7 +74,7 @@ namespace CMS.Services.Services
             }
             catch (Exception ex)
             {
-                LogException(nameof(GetAttachmentByIdAsync), ex, null, $"Attachment ID: {id}");
+                LogException(nameof(GetAttachmentByIdAsync), ex, $"Attachment ID: {id}");
                 throw ex;
             }
         }
@@ -110,7 +96,7 @@ namespace CMS.Services.Services
             }
             catch (Exception ex)
             {
-                LogException(nameof(CreateAttachmentAsync), ex, null, null);
+                LogException(nameof(CreateAttachmentAsync), ex, "CreateAttachmentAsync not working");
                 throw ex;
             }
         }
@@ -123,7 +109,7 @@ namespace CMS.Services.Services
             }
             catch (Exception ex)
             {
-                LogException(nameof(DeleteAttachmentAsync), ex, null, $"Faild to delete Attachment ID: {id}");
+                LogException(nameof(DeleteAttachmentAsync), ex, $"Faild to delete Attachment ID: {id}");
                 throw ex;
             }
         }
@@ -137,7 +123,7 @@ namespace CMS.Services.Services
             }
             catch (Exception ex)
             {
-                LogException(nameof(GetAttachmentFileDataAsync), ex, null, $"Faild to get Attachment ID: {id}");
+                LogException(nameof(GetAttachmentFileDataAsync), ex, $"Faild to get Attachment ID: {id}");
                 throw ex;
             }
         }

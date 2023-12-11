@@ -43,24 +43,20 @@ namespace CMS.Services.Services
             _httpContextAccessor = httpContextAccessor;
         }
 
-        public void LogException(string methodName, Exception ex, string createdByUserId, string additionalInfo)
+        public void LogException(string methodName, Exception ex, string additionalInfo)
         {
+            var currentUser = _userManager.GetUserAsync(_httpContextAccessor.HttpContext.User);
+            string userId = currentUser?.Id.ToString();
             _dbContext.Logs.Add(new Log
             {
                 MethodName = methodName,
                 ExceptionMessage = ex.Message,
-                StackTrace = ex.StackTrace,
+                StackTrace = ex.StackTrace,CreatedByUserId = userId,
                 LogTime = DateTime.Now,
-                CreatedByUserId = createdByUserId,
+                
                 AdditionalInfo = additionalInfo
             });
             _dbContext.SaveChanges();
-        }
-
-        public string GetUserId()
-        {
-            var userId = _httpContextAccessor.HttpContext.User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-            return userId;
         }
 
 
@@ -83,7 +79,7 @@ namespace CMS.Services.Services
             }
            catch (Exception ex)
             {
-                LogException(nameof(GetAllUsersAsync), ex,null,null);
+                LogException(nameof(GetAllUsersAsync), ex,null);
                 throw ex;
             }
         }
@@ -108,12 +104,12 @@ namespace CMS.Services.Services
           
              catch (Exception ex)
             {
-                LogException(nameof(LoginAsync), ex, null, null);
+                LogException(nameof(LoginAsync), ex, "LoginAsync not working");
                 throw ex;
             }
         }
 
-        public async Task<bool> DeleteAccountAsync(string id, string ByUserId)
+        public async Task<bool> DeleteAccountAsync(string id)
         {
             try
             {
@@ -122,12 +118,12 @@ namespace CMS.Services.Services
             }
             catch (Exception ex)
             {
-                LogException(nameof(DeleteAccountAsync), ex,$"Deleted By :{ByUserId}",$"Error while deleting Account with id :{id}");
+                LogException(nameof(DeleteAccountAsync), ex,$"Error while deleting Account with id :{id}");
                 throw ex;
             }
         }
 
-        public async Task LogoutAsync(string ByUserId)
+        public async Task LogoutAsync()
         {
             try
             {
@@ -136,7 +132,7 @@ namespace CMS.Services.Services
             }
             catch (Exception ex)
             {
-                LogException(nameof(LogoutAsync), ex, ByUserId, $"Error while Logout");
+                LogException(nameof(LogoutAsync), ex, $"Error while Logout");
                 throw ex;
             }
         }
@@ -160,7 +156,7 @@ namespace CMS.Services.Services
 
               catch (Exception ex)
             {
-                LogException(nameof(GetAllInterviewers), ex,null, "Error while Getting All Interviewers");
+                LogException(nameof(GetAllInterviewers), ex, "Error while Getting All Interviewers");
                 throw ex;
             }
         }
@@ -184,7 +180,7 @@ namespace CMS.Services.Services
 
             catch (Exception ex)
             {
-                LogException(nameof(GetAllArchitectureInterviewers), ex,null, "Error while Getting All Architecture");
+                LogException(nameof(GetAllArchitectureInterviewers), ex, "Error while Getting All Architecture");
                 throw ex;
             }
         }
@@ -199,7 +195,7 @@ namespace CMS.Services.Services
 
             catch (Exception ex)
             {
-                LogException(nameof(GetUserRoleAsync), ex, null, "Error while Getting user role");
+                LogException(nameof(GetUserRoleAsync), ex, "Error while Getting user role");
                 throw ex;
             }
         }
@@ -212,7 +208,7 @@ namespace CMS.Services.Services
             }
             catch (Exception ex)
             {
-                LogException(nameof(GetUserByEmailAsync), ex, null, "Error while Getting user by email");
+                LogException(nameof(GetUserByEmailAsync), ex, "Error while Getting user by email");
                 throw ex;
             }
         }
@@ -242,7 +238,7 @@ namespace CMS.Services.Services
 
               catch (Exception ex)
             {
-                LogException(nameof(GetAllUsersWithRoles), ex, null, "Error while Getting all users with roles");
+                LogException(nameof(GetAllUsersWithRoles), ex, "Error while Getting all users with roles");
                 throw ex;
             }
         }
@@ -272,7 +268,7 @@ namespace CMS.Services.Services
 
             catch (Exception ex)
             {
-                LogException(nameof(GetUsersById), ex, null, null);
+                LogException(nameof(GetUsersById), ex, "GetUsersById not working");
                 throw ex;
             }
         }
@@ -342,7 +338,7 @@ namespace CMS.Services.Services
             }
             catch (Exception ex)
             {
-                LogException(nameof(SendRegistrationEmail), ex, null, "Error while Registration");
+                LogException(nameof(SendRegistrationEmail), ex, "Error while Registration");
                 throw ex;
             }
         }

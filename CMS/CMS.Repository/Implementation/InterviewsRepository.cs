@@ -20,29 +20,34 @@ namespace CMS.Repository.Repositories
         private readonly ApplicationDbContext _context;
         private readonly UserManager<IdentityUser> _userManager; 
         private readonly RoleManager<IdentityRole> _roleManager;
-        public InterviewsRepository(ApplicationDbContext context, UserManager<IdentityUser> userManager, RoleManager<IdentityRole> roleManager)
+        private readonly IHttpContextAccessor _httpContextAccessor;
+
+        public InterviewsRepository(ApplicationDbContext context,
+            UserManager<IdentityUser> userManager, RoleManager<IdentityRole> roleManager,IHttpContextAccessor httpContextAccessor)
         {
             _context = context;
             _userManager = userManager;
             _roleManager = roleManager;
+            _httpContextAccessor = httpContextAccessor;
         }
 
-        public void LogException(string methodName, Exception ex, string createdByUserId, string additionalInfo)
+        public void LogException(string methodName, Exception ex, string additionalInfo)
         {
+            var currentUser =  _userManager.GetUserAsync(_httpContextAccessor.HttpContext.User);
+            string userId = currentUser?.Id.ToString();
             _context.Logs.Add(new Log
             {
                 MethodName = methodName,
                 ExceptionMessage = ex.Message,
-                StackTrace = ex.StackTrace,
+                StackTrace = ex.StackTrace,CreatedByUserId = userId,
                 LogTime = DateTime.Now,
-                CreatedByUserId = createdByUserId,
                 AdditionalInfo = additionalInfo
             });
             _context.SaveChanges();
         }
 
 
-        public async Task<int> Delete(int id,string deletedByUserId)
+        public async Task<int> Delete(int id)
         {
             try
             {
@@ -54,7 +59,7 @@ namespace CMS.Repository.Repositories
             }
             catch (Exception ex)
             {
-                LogException(nameof(Delete), ex, $"Deleted by : {deletedByUserId}", $"Interview deleted with ID: {id}");
+                LogException(nameof(Delete), ex, $"Interview deleted with ID: {id}");
                 throw ex;
             }
         }
@@ -75,12 +80,12 @@ namespace CMS.Repository.Repositories
             }
             catch (Exception ex)
             {
-                LogException(nameof(GetAll), ex, null, null);
+                LogException(nameof(GetAll), ex,"Enable to get all the interviews");
                 throw ex;
             }   
         }
 
-        public async Task<Interviews> GetById(int id,string createdByUserId)
+        public async Task<Interviews> GetById(int id)
         {
              try
             {
@@ -89,13 +94,13 @@ namespace CMS.Repository.Repositories
             }
             catch (Exception ex)
             {
-                LogException(nameof(GetById), ex, $"Done by : {createdByUserId}", $"Error retrieving interview with ID: {id}");
+                LogException(nameof(GetById), ex, $"Error retrieving interview with ID: {id}");
                 throw ex;
             }
       
         }
 
-        public async Task<Interviews> GetByIdForEdit(int id,string createdByUserId)
+        public async Task<Interviews> GetByIdForEdit(int id)
         {
 
             try
@@ -108,11 +113,11 @@ namespace CMS.Repository.Repositories
             }
             catch (Exception ex)
             {
-                LogException(nameof(GetByIdForEdit), ex, $"Done by : {createdByUserId}", $"Error retrieving interview with ID: {id}");
+                LogException(nameof(GetByIdForEdit), ex, $"Error retrieving interview with ID: {id}");
                 throw ex;
             }
         }
-        public Task<List<Interviews>> GetCurrentInterviews(string id,string UserId)
+        public Task<List<Interviews>> GetCurrentInterviews(string id)
         {
             try
             {
@@ -128,11 +133,11 @@ namespace CMS.Repository.Repositories
             }
             catch (Exception ex)
             {
-                LogException(nameof(GetCurrentInterviews), ex, UserId, $"Error retrieving Current Interviews with ID: {id}") ;
+                LogException(nameof(GetCurrentInterviews), ex, $"Error retrieving Current Interviews with ID: {id}") ;
                 throw ex;
             }
         }
-        public async Task<int> Insert(Interviews entity,string createdByUserId)
+        public async Task<int> Insert(Interviews entity)
         {
             try
             {
@@ -143,12 +148,12 @@ namespace CMS.Repository.Repositories
             }
             catch (Exception ex)
             {
-                LogException(nameof(Insert), ex, $"Created by : {createdByUserId}", $"Interview inserted with ID: {entity.InterviewsId}");
+                LogException(nameof(Insert), ex, $"Interview inserted with ID: {entity.InterviewsId}");
                 throw ex;
             }
         }
 
-        public async Task<int> Update(Interviews entity, string modifiedByUserId)
+        public async Task<int> Update(Interviews entity)
         {
             try
             {
@@ -161,13 +166,13 @@ namespace CMS.Repository.Repositories
             }
             catch (Exception ex)
             {
-                LogException(nameof(Update), ex, $"Modified by : {modifiedByUserId}", $"Error updating interview with ID: {entity.InterviewsId}");
+                LogException(nameof(Update), ex, $"Error updating interview with ID: {entity.InterviewsId}");
                 throw ex;
             }
         }
 
 
-        public async Task<string> GetInterviewerEmail(string interviewerId, string UserId)
+        public async Task<string> GetInterviewerEmail(string interviewerId)
         {
             try
             {
@@ -184,13 +189,13 @@ namespace CMS.Repository.Repositories
             }
             catch (Exception ex)
             {
-                LogException(nameof(GetInterviewerEmail), ex , UserId,$"Error while getting Interviewer Email");
+                LogException(nameof(GetInterviewerEmail), ex,$"Error while getting Interviewer Email");
                 throw ex;
             }
         }
 
 
-        public async Task<string> GetGeneralManagerEmail(string UserId)
+        public async Task<string> GetGeneralManagerEmail()
         {
             try
             {
@@ -214,7 +219,7 @@ namespace CMS.Repository.Repositories
             }
             catch (Exception ex)
             {
-                LogException(nameof(GetGeneralManagerEmail), ex, UserId, $"Error while getting General Manager Email");
+                LogException(nameof(GetGeneralManagerEmail), ex, $"Error while getting General Manager Email");
                 throw ex;
 
             }
@@ -222,7 +227,7 @@ namespace CMS.Repository.Repositories
 
 
         //Get HrManager Email
-        public async Task<string> GetHREmail(string UserId)
+        public async Task<string> GetHREmail()
         {
             try
             {
@@ -250,11 +255,11 @@ namespace CMS.Repository.Repositories
             }
             catch (Exception ex)
             {
-                LogException(nameof(GetHREmail), ex, UserId, $"Error while getting HR Email");
+                LogException(nameof(GetHREmail), ex, $"Error while getting HR Email");
                 throw ex;
             }
         }
-        public async Task<string> GetArchiEmail(string UserId)
+        public async Task<string> GetArchiEmail()
         {
             try
             {
@@ -282,14 +287,14 @@ namespace CMS.Repository.Repositories
             }
             catch (Exception ex)
             {
-                LogException(nameof(GetArchiEmail), ex, UserId, $"Error while getting Archi Email");
+                LogException(nameof(GetArchiEmail), ex, $"Error while getting Archi Email");
                 throw ex;
             }
         }
 
 
 
-        public async Task<bool> HasGivenStatusAsync(string interviewerId, int interviewId, string UserId)
+        public async Task<bool> HasGivenStatusAsync(string interviewerId, int interviewId)
         {
             try
             {
@@ -304,7 +309,7 @@ namespace CMS.Repository.Repositories
             }
             catch (Exception ex)
             {
-                LogException(nameof(HasGivenStatusAsync), ex, UserId, $"Error while having a status");
+                LogException(nameof(HasGivenStatusAsync), ex, $"Error while having a status");
                 throw ex;
             }
         }
@@ -331,7 +336,7 @@ namespace CMS.Repository.Repositories
             }
             catch (Exception ex)
             {
-                LogException(nameof(GetGeneralManagerInterviewForCandidate), ex, null, $"Error retrieving General Manager interview for candidate with ID: {candidateId}");
+                LogException(nameof(GetGeneralManagerInterviewForCandidate), ex, $"Error retrieving General Manager interview for candidate with ID: {candidateId}");
                 throw ex;
             }
         }
@@ -358,7 +363,7 @@ namespace CMS.Repository.Repositories
             }
             catch (Exception ex)
             {
-                LogException(nameof(GetGeneralManagerInterviewForCandidate), ex, null, $"Error retrieving General Manager interview for candidate with ID: {candidateId}");
+                LogException(nameof(GetGeneralManagerInterviewForCandidate), ex, $"Error retrieving General Manager interview for candidate with ID: {candidateId}");
                 throw ex;
             }
         }

@@ -52,23 +52,9 @@ namespace CMS.Web.Controllers
 
         public void LogException(string methodName, Exception ex, string additionalInfo = null)
         {
-            var createdByUserId = GetUserId();
-            _positionService.LogException(methodName, ex, createdByUserId, additionalInfo);
+            
+            _positionService.LogException(methodName, ex, additionalInfo);
         }
-        public string GetUserId()
-        {
-            try
-            {
-                var userId = _positionService.GetUserId();
-                return userId;
-            }
-            catch (Exception ex)
-            {
-                LogException(nameof(GetUserId), ex, null);
-                throw ex;
-            }
-        }
-      
 
 
         public async Task<ActionResult> Index(string positionFilter, int? scoreFilter, int? statusFilter, string candidateFilter, string interviewerFilter, DateTime? fromDate, DateTime? toDate, string export)
@@ -128,7 +114,7 @@ namespace CMS.Web.Controllers
             }
             catch (Exception ex)
             {
-                LogException(nameof(Index), ex, null);
+                LogException(nameof(Index), ex,"not working");
                 throw ex;
             }
         }
@@ -304,9 +290,10 @@ namespace CMS.Web.Controllers
         {
             try
             {
+                
 
-            
-            var result = await _searchInterviewsService.GetById(id, GetUserId());
+
+                var result = await _searchInterviewsService.GetById(id);
 
             var positionsDTO = await _positionService.GetAll();
             ViewBag.positionDTOs = new SelectList(positionsDTO.Value, "Id", "Name");
@@ -352,13 +339,14 @@ namespace CMS.Web.Controllers
         {
             try
             {
+                
 
-            
-            if (id <= 0)
+
+                if (id <= 0)
             {
                 return NotFound();
             }
-            var result = await _searchInterviewsService.GetById(id, GetUserId());
+            var result = await _searchInterviewsService.GetById(id);
             var interviewDTO = result.Value;
             if (interviewDTO == null)
             {
@@ -393,9 +381,10 @@ namespace CMS.Web.Controllers
         {
             try
             {
+                
 
-            
-            if (collection == null)
+
+                if (collection == null)
             {
                 ModelState.AddModelError("", $"the interview dto you are trying to update is null ");
                 return RedirectToAction("Index");
@@ -416,7 +405,7 @@ namespace CMS.Web.Controllers
 
             if (ModelState.IsValid)
             {
-                var result = await _searchInterviewsService.Update(collection, GetUserId());
+                var result = await _searchInterviewsService.Update(collection);
 
                 if (result.IsSuccess)
                 {
@@ -447,8 +436,9 @@ namespace CMS.Web.Controllers
             try
             {
 
-            
-            var result = await _searchInterviewsService.GetById(id, GetUserId());
+                
+
+                var result = await _searchInterviewsService.GetById(id);
             if (result.IsSuccess)
             {
                 var interviewDTO = result.Value;
@@ -480,12 +470,13 @@ namespace CMS.Web.Controllers
             try
             {
 
-            
-            if (id <= 0)
+                
+
+                if (id <= 0)
             {
                 return BadRequest("invalid career offer id");
             }
-            var result = await _searchInterviewsService.Delete(id, GetUserId());
+            var result = await _searchInterviewsService.Delete(id);
             if (result.IsSuccess)
             {
                 return RedirectToAction("Index");

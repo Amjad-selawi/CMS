@@ -2,8 +2,10 @@
 using CMS.Services.Interfaces;
 using CMS.Services.Services;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using System;
+using System.Security.Claims;
 using System.Threading.Tasks;
 
 namespace CMS.Web.Controllers
@@ -13,29 +15,20 @@ namespace CMS.Web.Controllers
         //
 
         private readonly ICountryService _countryService;
-        public CountryController(ICountryService countryService)
+        private readonly IHttpContextAccessor _httpContextAccessor;
+
+        public CountryController(ICountryService countryService,IHttpContextAccessor httpContextAccessor)
         {
             _countryService = countryService;
+            _httpContextAccessor = httpContextAccessor;
         }
 
         public void LogException(string methodName, Exception ex, string additionalInfo = null)
         {
-            var createdByUserId = GetUserId();
-            _countryService.LogException(methodName, ex, createdByUserId, additionalInfo);
+            
+            _countryService.LogException(methodName, ex, additionalInfo);
         }
-        public string GetUserId()
-        {
-            try
-            {
-                var userId = _countryService.GetUserId();
-                return userId;
-            }
-            catch (Exception ex)
-            {
-                LogException(nameof(GetUserId), ex, null);
-                throw ex;
-            }
-        }
+   
         public IActionResult Index()
         {
             try
@@ -44,7 +37,7 @@ namespace CMS.Web.Controllers
             }
             catch (Exception ex)
             {
-                LogException(nameof(Index), ex, null);
+                LogException(nameof(Index), ex,"not working");
                 throw ex;
             }
         }
@@ -54,11 +47,12 @@ namespace CMS.Web.Controllers
         {
             try
             {
+                
 
-            
-            if (User.IsInRole("Admin") || User.IsInRole("HR Manager"))
+
+                if (User.IsInRole("Admin") || User.IsInRole("HR Manager"))
             {
-                var result = await _countryService.GetAll(GetUserId());
+                var result = await _countryService.GetAll();
                 if (result.IsSuccess)
                 {
                     var CountriesDTOs = result.Value;
@@ -78,7 +72,7 @@ namespace CMS.Web.Controllers
             }
             catch(Exception ex)
             {
-                LogException(nameof(GetCountries), ex, null);
+                LogException(nameof(GetCountries), ex,"not working");
                 throw ex;
             }
         }
@@ -92,7 +86,7 @@ namespace CMS.Web.Controllers
             }
             catch (Exception ex)
             {
-                LogException(nameof(AddCountry), ex, null);
+                LogException(nameof(AddCountry), ex,"not working");
                 throw ex;
             }
         }
@@ -101,6 +95,8 @@ namespace CMS.Web.Controllers
         {
             try
             {
+                
+
                 if (ModelState.IsValid)
                 {
                     if (_countryService.DoesCountryNameExist(countryDTO.Name))
@@ -109,7 +105,7 @@ namespace CMS.Web.Controllers
                         return View(countryDTO);
                     }
 
-                    var result = await _countryService.Insert(countryDTO, GetUserId());
+                    var result = await _countryService.Insert(countryDTO);
 
                     if (result.IsSuccess)
                     {
@@ -138,14 +134,15 @@ namespace CMS.Web.Controllers
         {
             try
             {
+                
 
-            
-            if (id <= 0)
+
+                if (id <= 0)
             {
                 return NotFound();
             }
 
-            var result = await _countryService.GetById(id, GetUserId());
+            var result = await _countryService.GetById(id);
             var countryDTO = result.Value;
 
             if (countryDTO == null)
@@ -169,9 +166,10 @@ namespace CMS.Web.Controllers
         {
             try
             {
+                
 
-            
-            if (id <= 0)
+
+                if (id <= 0)
             {
                 return BadRequest("Invalid country id");
             }
@@ -179,7 +177,7 @@ namespace CMS.Web.Controllers
             if (HttpContext.Request.Method == "POST")
             {
                 // Handle the actual deletion
-                var result = _countryService.Delete(id, GetUserId());
+                var result = _countryService.Delete(id);
 
                 if (result.IsSuccess)
                 {
@@ -208,13 +206,14 @@ namespace CMS.Web.Controllers
         {
             try
             {
+                
 
-            
-            if (id <= 0)
+
+                if (id <= 0)
             {
                 return NotFound();
             }
-            var result = await _countryService.GetById(id, GetUserId());
+            var result = await _countryService.GetById(id);
             var countryDTO = result.Value;
             if (countryDTO == null)
             {
@@ -235,11 +234,12 @@ namespace CMS.Web.Controllers
         {
             try
             {
+                
 
-            
-            if (ModelState.IsValid)
+
+                if (ModelState.IsValid)
             {
-                var result = await _countryService.Update(countryDTO, GetUserId());
+                var result = await _countryService.Update(countryDTO);
 
                 if (result.IsSuccess)
                 {
@@ -266,9 +266,10 @@ namespace CMS.Web.Controllers
         {
             try
             {
+                
 
-            
-            var result = await _countryService.GetById(id, GetUserId());
+
+                var result = await _countryService.GetById(id);
             if (result.IsSuccess)
             {
                 var countryDTO = result.Value;

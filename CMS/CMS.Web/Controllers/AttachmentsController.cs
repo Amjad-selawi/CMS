@@ -8,17 +8,20 @@ using System;
 using CMS.Application.DTOs;
 using CMS.Web.Utils;
 using CMS.Services.Services;
+using System.Security.Claims;
 
 namespace CMS.Web.Controllers
 {
     public class AttachmentsController : Controller
     {
         private readonly IAttachmentService _attachmentService;
+        private readonly IHttpContextAccessor _httpContextAccessor;
         private readonly string _attachmentStoragePath;
 
-        public AttachmentsController(IAttachmentService attachmentService, IWebHostEnvironment env)
+        public AttachmentsController(IAttachmentService attachmentService, IWebHostEnvironment env,IHttpContextAccessor httpContextAccessor)
         {
             _attachmentService = attachmentService;
+            _httpContextAccessor = httpContextAccessor;
             _attachmentStoragePath = Path.Combine(env.WebRootPath, "attachments");
 
             if (!Directory.Exists(_attachmentStoragePath))
@@ -28,22 +31,10 @@ namespace CMS.Web.Controllers
         }
         public void LogException(string methodName, Exception ex, string additionalInfo = null)
         {
-            var createdByUserId = GetUserId();
-            _attachmentService.LogException(methodName, ex, createdByUserId, additionalInfo);
+            
+            _attachmentService.LogException(methodName, ex, additionalInfo);
         }
-        public string GetUserId()
-        {
-            try
-            {
-                var userId = _attachmentService.GetUserId();
-                return userId;
-            }
-            catch (Exception ex)
-            {
-                LogException(nameof(GetUserId), ex, null);
-                throw ex;
-            }
-        }
+        
         public async Task<IActionResult> Index()
         {
             try
@@ -53,7 +44,7 @@ namespace CMS.Web.Controllers
             }
             catch (Exception ex)
             {
-                LogException(nameof(Index), ex, null);
+                LogException(nameof(Index), ex,"not working");
                 throw ex;
             }
         }

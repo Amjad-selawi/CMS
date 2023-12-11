@@ -10,19 +10,18 @@ namespace CMS.Services.Interfaces
 {
     public interface ICountryService
     {
-        Task<Result<CountryDTO>> Insert(CountryDTO data, string ByUserId);
-        Task<Result<List<CountryDTO>>> GetAll(string ByUserId);
-        Result<CountryDTO> Delete(int id, string ByUserId);
+        Task<Result<CountryDTO>> Insert(CountryDTO data);
+        Task<Result<List<CountryDTO>>> GetAll();
+        Result<CountryDTO> Delete(int id);
 
         //Task<Result<CountryDTO>> Delete(int id);
-        Task<Result<CountryDTO>> GetById(int id, string ByUserId);
-        Task<Result<CountryDTO>> Update(CountryDTO data, string ByUserId);
+        Task<Result<CountryDTO>> GetById(int id);
+        Task<Result<CountryDTO>> Update(CountryDTO data);
 
-        string GetUserId();
         bool DoesCountryNameExist(string name);
-        Task<IEnumerable<Country>> GetAllCountriesAsync(string ByUserId);
+        Task<IEnumerable<Country>> GetAllCountriesAsync();
 
 
-        void LogException(string methodName, Exception ex, string createdByUserId = null, string additionalInfo = null);
+        void LogException(string methodName, Exception ex = null, string additionalInfo = null);
     }
 }

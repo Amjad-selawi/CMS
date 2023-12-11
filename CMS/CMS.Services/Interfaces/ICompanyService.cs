@@ -9,14 +9,14 @@ namespace CMS.Services.Interfaces
 {
     public interface ICompanyService
     {
-        Task<Result<CompanyDTO>> Insert(CompanyDTO data,string ByUserId);
-        Task<Result<List<CompanyDTO>>> GetAll(string ByUserId);
-        Task<Result<CompanyDTO>> Delete(int id, string ByUserId);
-        Task<Result<CompanyDTO>> GetById(int id, string ByUserId);
-        Task<Result<CompanyDTO>> Update(CompanyDTO data, string ByUserId);
+        Task<Result<CompanyDTO>> Insert(CompanyDTO data);
+        Task<Result<List<CompanyDTO>>> GetAll();
+        Task<Result<CompanyDTO>> Delete(int id);
+        Task<Result<CompanyDTO>> GetById(int id);
+        Task<Result<CompanyDTO>> Update(CompanyDTO data);
 
         bool DoesCompanyNameExist(string name, int countryId);
-        string GetUserId();
-        void LogException(string methodName, Exception ex, string createdByUserId = null, string additionalInfo = null);
+        
+        void LogException(string methodName, Exception ex = null, string additionalInfo = null);
     }
 }

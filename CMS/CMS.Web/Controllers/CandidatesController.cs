@@ -13,6 +13,7 @@ using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Reflection.Metadata;
+using System.Security.Claims;
 using System.Threading.Tasks;
 
 namespace CMS.Web.Controllers
@@ -26,11 +27,13 @@ namespace CMS.Web.Controllers
         private readonly ICompanyService _companyService;
         private readonly ICountryService _countryService;
         private readonly IAttachmentService _attachmentService;
+        private readonly IHttpContextAccessor _httpContextAccessor;
 
         public CandidatesController(ICandidateService candidateService,
             IWebHostEnvironment env,
             IPositionService positionService,
-            ICompanyService companyService, ICountryService countryService,IAttachmentService attachmentService)
+            ICompanyService companyService, ICountryService countryService,IAttachmentService attachmentService
+            ,IHttpContextAccessor httpContextAccessor)
         {
             _candidateService = candidateService;
             _attachmentStoragePath = Path.Combine(env.WebRootPath, "attachments");
@@ -43,26 +46,15 @@ namespace CMS.Web.Controllers
             _companyService = companyService;
             _countryService = countryService;
             _attachmentService = attachmentService;
+            _httpContextAccessor = httpContextAccessor;
         }
 
         public void LogException(string methodName, Exception ex, string additionalInfo = null)
         {
-            var createdByUserId = GetUserId();
-            _candidateService.LogException(methodName, ex, createdByUserId, additionalInfo);
+            
+            _candidateService.LogException(methodName, ex, additionalInfo);
         }
-        public string GetUserId()
-        {
-            try
-            {
-                var userId = _candidateService.GetUserId();
-                return userId;
-            }
-            catch (Exception ex)
-            {
-                LogException(nameof(GetUserId), ex, null);
-                throw ex;
-            }
-        }
+  
 
         public async Task<IActionResult> Index(string FullName, string Phone)
         {
@@ -104,7 +96,9 @@ namespace CMS.Web.Controllers
         {
             try
             {
-                var Country = await _countryService.GetAll(GetUserId());
+                
+
+                var Country = await _countryService.GetAll();
                 ViewBag.CountryDTOs = new SelectList(Country.Value, "Id", "Name");
 
                 var Position = await _positionService.GetAll();
@@ -129,15 +123,16 @@ namespace CMS.Web.Controllers
         {
             try
             {
+                
 
-            
-            var positions = await _positionService.GetAll();
+
+                var positions = await _positionService.GetAll();
             ViewBag.positions = new SelectList(positions.Value, "Id", "Name");
 
-            var CompaniesDTOs=await _companyService.GetAll(GetUserId());
+            var CompaniesDTOs=await _companyService.GetAll();
             ViewBag.CompaniesDTOs = new SelectList(CompaniesDTOs.Value, "Id", "Name");
 
-            var Country = await _countryService.GetAll(GetUserId());
+            var Country = await _countryService.GetAll();
             ViewBag.CountryDTOs = new SelectList(Country.Value, "Id", "Name");
 
             return View();
@@ -157,15 +152,16 @@ namespace CMS.Web.Controllers
         {
             try
             {
+                
 
-            
-            var positions = await _positionService.GetAll();
+
+                var positions = await _positionService.GetAll();
             ViewBag.positions = new SelectList(positions.Value, "Id", "Name");
 
-            var CompaniesDTOs = await _companyService.GetAll(GetUserId());
+            var CompaniesDTOs = await _companyService.GetAll();
             ViewBag.CompaniesDTOs = new SelectList(CompaniesDTOs.Value, "Id", "Name");
 
-            var Country = await _countryService.GetAll(GetUserId());
+            var Country = await _countryService.GetAll();
             ViewBag.CountryDTOs = new SelectList(Country.Value, "Id", "Name");
             FileStream attachmentStream = null;
             if (file != null && file.Length > 0)
@@ -235,9 +231,10 @@ namespace CMS.Web.Controllers
         {
             try
             {
+                
 
-           
-            var candidate = await _candidateService.GetCandidateByIdAsync(id);
+
+                var candidate = await _candidateService.GetCandidateByIdAsync(id);
             if (candidate == null)
             {
                 return NotFound();
@@ -247,10 +244,10 @@ namespace CMS.Web.Controllers
 
             var positions = await _positionService.GetAll();
             ViewBag.positions = new SelectList(positions.Value, "Id", "Name");
-            var CompaniesDTOs = await _companyService.GetAll(GetUserId());
+            var CompaniesDTOs = await _companyService.GetAll();
             ViewBag.CompaniesDTOs = new SelectList(CompaniesDTOs.Value, "Id", "Name");
 
-            var Country = await _countryService.GetAll(GetUserId());
+            var Country = await _countryService.GetAll();
             ViewBag.CountryDTOs = new SelectList(Country.Value, "Id", "Name");
 
             return View(candidate);
@@ -269,9 +266,10 @@ namespace CMS.Web.Controllers
         {
             try
             {
+                
 
-            
-            if (id != candidateDTO.Id)
+
+                if (id != candidateDTO.Id)
             {
                 return NotFound();
             }
@@ -279,10 +277,10 @@ namespace CMS.Web.Controllers
             var positions = await _positionService.GetAll();
             ViewBag.positions = new SelectList(positions.Value, "Id", "Name");
 
-            var CompaniesDTOs = await _companyService.GetAll(GetUserId());
+            var CompaniesDTOs = await _companyService.GetAll();
             ViewBag.CompaniesDTOs = new SelectList(CompaniesDTOs.Value, "Id", "Name");
 
-            var Country = await _countryService.GetAll(GetUserId());
+            var Country = await _countryService.GetAll();
             ViewBag.CountryDTOs = new SelectList(Country.Value, "Id", "Name");
 
             if (file != null && file.Length > 0)

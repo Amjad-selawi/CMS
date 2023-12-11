@@ -2,10 +2,12 @@
 using CMS.Services.Interfaces;
 using CMS.Services.Services;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.Extensions.Logging;
 using System;
+using System.Security.Claims;
 using System.Threading.Tasks;
 
 namespace CMS.Web.Controllers
@@ -14,34 +16,21 @@ namespace CMS.Web.Controllers
     {
         private readonly ICompanyService _companyService;
         private readonly ICountryService _countryService;
-     
-        public CompanyController(ICompanyService companyService, ICountryService countryService)
+        private readonly IHttpContextAccessor _httpContextAccessor;
+
+        public CompanyController(ICompanyService companyService, ICountryService countryService,IHttpContextAccessor httpContextAccessor)
         {
             _companyService = companyService;
             _countryService = countryService;
-            
+            _httpContextAccessor = httpContextAccessor;
         }
 
         public void LogException(string methodName, Exception ex, string additionalInfo = null)
         {
-            var createdByUserId = GetUserId();
-            _companyService.LogException(methodName, ex, createdByUserId, additionalInfo);
+            
+            _companyService.LogException(methodName, ex, additionalInfo);
         }
-        public string GetUserId()
-        {
-            try
-            {
-                var userId = _companyService.GetUserId();
-                return userId;
-            }
-            catch (Exception ex)
-            {
-                LogException(nameof(GetUserId), ex, null);
-                throw ex;
-            }
-        }
-
-
+       
         public IActionResult Index()
         {
             try
@@ -50,7 +39,7 @@ namespace CMS.Web.Controllers
             }
             catch (Exception ex)
             {
-                LogException(nameof(Index), ex, null);
+                LogException(nameof(Index), ex,"not working");
                 throw ex;
             }
         }
@@ -59,14 +48,16 @@ namespace CMS.Web.Controllers
         {
             try
             {
-                var CountriesDTOs = await _countryService.GetAll(GetUserId());
+                
+
+                var CountriesDTOs = await _countryService.GetAll();
                 ViewBag.CountriesDTOs = new SelectList(CountriesDTOs.Value, "Id", "Name");
 
                 return View();
             }
             catch (Exception ex)
             {
-                LogException(nameof(AddCompany), ex, null);
+                LogException(nameof(AddCompany), ex,"not working");
                 throw ex;
             }
         }
@@ -76,7 +67,9 @@ namespace CMS.Web.Controllers
         {
             try
             {
-                var CountriesDTOs = await _countryService.GetAll(GetUserId());
+                
+
+                var CountriesDTOs = await _countryService.GetAll();
                 ViewBag.CountriesDTOs = new SelectList(CountriesDTOs.Value, "Id", "Name");
 
                 if (ModelState.IsValid)
@@ -87,7 +80,7 @@ namespace CMS.Web.Controllers
                         return View(companyDTO);
                     }
 
-                    var result = await _companyService.Insert(companyDTO, GetUserId());
+                    var result = await _companyService.Insert(companyDTO);
 
                     if (result.IsSuccess)
                     {
@@ -115,9 +108,11 @@ namespace CMS.Web.Controllers
         {
             try
             {
+                
+
                 if (User.IsInRole("Admin") || User.IsInRole("HR Manager"))
                 {
-                    var result = await _companyService.GetAll(GetUserId());
+                    var result = await _companyService.GetAll();
 
                     if (result.IsSuccess)
                     {
@@ -147,12 +142,14 @@ namespace CMS.Web.Controllers
         {
             try
             {
+                
+
                 if (id <= 0)
                 {
                     return NotFound();
                 }
 
-                var result = await _companyService.GetById(id, GetUserId());
+                var result = await _companyService.GetById(id);
                 var companyDTO = result.Value;
 
                 if (companyDTO == null)
@@ -175,6 +172,8 @@ namespace CMS.Web.Controllers
         {
             try
             {
+                
+
                 if (id <= 0)
                 {
                     return BadRequest("Invalid company id");
@@ -182,7 +181,7 @@ namespace CMS.Web.Controllers
 
                 if (HttpContext.Request.Method == "POST")
                 {
-                    var result = await _companyService.Delete(id, GetUserId());
+                    var result = await _companyService.Delete(id);
 
                     if (result.IsSuccess)
                     {
@@ -210,12 +209,14 @@ namespace CMS.Web.Controllers
         {
             try
             {
+                
+
                 if (id <= 0)
                 {
                     return NotFound();
                 }
 
-                var result = await _companyService.GetById(id, GetUserId());
+                var result = await _companyService.GetById(id);
                 var companyDTO = result.Value;
 
                 if (companyDTO == null)
@@ -223,7 +224,7 @@ namespace CMS.Web.Controllers
                     return NotFound();
                 }
 
-                var CountriesDTOs = await _countryService.GetAll(GetUserId());
+                var CountriesDTOs = await _countryService.GetAll();
                 ViewBag.CountriesDTOs = new SelectList(CountriesDTOs.Value, "Id", "Name");
 
                 return View(companyDTO);
@@ -240,18 +241,20 @@ namespace CMS.Web.Controllers
         {
             try
             {
+                
+
                 if (companyDTO == null)
                 {
                     ModelState.AddModelError("", $"The company DTO you are trying to update is null.");
                     return RedirectToAction("Index");
                 }
 
-                var CountriesDTOs = await _countryService.GetAll(GetUserId());
+                var CountriesDTOs = await _countryService.GetAll();
                 ViewBag.CountriesDTOs = new SelectList(CountriesDTOs.Value, "Id", "Name");
 
                 if (ModelState.IsValid)
                 {
-                    var result = await _companyService.Update(companyDTO, GetUserId());
+                    var result = await _companyService.Update(companyDTO);
 
                     if (result.IsSuccess)
                     {
@@ -279,7 +282,9 @@ namespace CMS.Web.Controllers
         {
             try
             {
-                var result = await _companyService.GetById(id, GetUserId());
+                
+
+                var result = await _companyService.GetById(id);
 
                 if (result.IsSuccess)
                 {

@@ -8,6 +8,7 @@ using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
 using System.Linq;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Http;
 
 namespace CMS.Repository.Implementation
 {
@@ -17,24 +18,28 @@ namespace CMS.Repository.Implementation
         private readonly ApplicationDbContext Db;
         private readonly RoleManager<IdentityRole> _roleManager;
         private readonly UserManager<IdentityUser> _userManager;
+        private readonly IHttpContextAccessor _httpContextAccessor;
 
         public NotificationsRepository(ApplicationDbContext _db, RoleManager<IdentityRole> roleManager,
-             UserManager<IdentityUser> userManager)
+             UserManager<IdentityUser> userManager, IHttpContextAccessor httpContextAccessor)
         {
             Db = _db;
             _roleManager = roleManager;
             _userManager = userManager;
+            _httpContextAccessor = httpContextAccessor;
         }
 
-        public void LogException(string methodName, Exception ex, string createdByUserId, string additionalInfo)
+        public void LogException(string methodName, Exception ex, string additionalInfo)
         {
+            var currentUser = _userManager.GetUserAsync(_httpContextAccessor.HttpContext.User);
+            string userId = currentUser?.Id.ToString();
             Db.Logs.Add(new Log
             {
                 MethodName = methodName,
                 ExceptionMessage = ex.Message,
-                StackTrace = ex.StackTrace,
+                StackTrace = ex.StackTrace,CreatedByUserId = userId,
                 LogTime = DateTime.Now,
-                CreatedByUserId = createdByUserId,
+                
                 AdditionalInfo = additionalInfo
             });
             Db.SaveChanges();
@@ -48,12 +53,12 @@ namespace CMS.Repository.Implementation
             }
             catch (Exception ex)
             {
-                LogException(nameof(GetAllNotifications), ex,null,null);
+                LogException(nameof(GetAllNotifications), ex,null);
                 throw ex;
             }
         }
 
-        public async Task<Notifications> GetNotificationsById(int interviewId, string ByUserId)
+        public async Task<Notifications> GetNotificationsById(int interviewId)
         {
             try
             {
@@ -61,12 +66,12 @@ namespace CMS.Repository.Implementation
             }
             catch (Exception ex)
             {
-                LogException(nameof(GetNotificationsById), ex,$"Done by {ByUserId}", $"Error retrieving notification with ID: {interviewId}");
+                LogException(nameof(GetNotificationsById), ex, $"Error retrieving notification with ID: {interviewId}");
                 throw ex;
             }
         }
 
-        public async Task Create(Notifications entity,string ByUserId)
+        public async Task Create(Notifications entity)
         {
             try
             {
@@ -79,12 +84,12 @@ namespace CMS.Repository.Implementation
             }
             catch (Exception ex)
             {
-                LogException(nameof(Create), ex, $"Created by : {ByUserId}", $"Notification inserted with ID: {entity.NotificationsId}");
+                LogException(nameof(Create), ex, $"Notification inserted with ID: {entity.NotificationsId}");
                 throw ex;
             }
         }
 
-        public async Task Update(Notifications entity,string ByUserId)
+        public async Task Update(Notifications entity)
         {
             try
             {
@@ -97,12 +102,12 @@ namespace CMS.Repository.Implementation
             }
             catch (Exception ex)
             {
-                LogException(nameof(Update), ex, $"Modified by : {ByUserId}", $"Error updating notification with ID: {entity.NotificationsId}");
+                LogException(nameof(Update), ex, $"Error updating notification with ID: {entity.NotificationsId}");
                 throw ex;
             }
         }
 
-        public async Task Delete(Notifications entity , string ByUserId)
+        public async Task Delete(Notifications entity )
         {
             try
             {
@@ -115,12 +120,12 @@ namespace CMS.Repository.Implementation
             }
             catch (Exception ex)
             {
-                LogException(nameof(Delete), ex, $"Deleted by : {ByUserId}", $"Notification deleted with ID: {entity.NotificationsId}");
+                LogException(nameof(Delete), ex, $"Notification deleted with ID: {entity.NotificationsId}");
                 throw ex;
             }
         }
 
-        public async Task<List<Notifications>> GetSpacificNotificationsforHR(string ByUserId)
+        public async Task<List<Notifications>> GetSpacificNotificationsforHR()
         {
             try
             {
@@ -134,12 +139,12 @@ namespace CMS.Repository.Implementation
             }
             catch (Exception ex)
             {
-                LogException(nameof(GetSpacificNotificationsforHR), ex, ByUserId,$"Error while getting a Spacific Notifications for HR ");
+                LogException(nameof(GetSpacificNotificationsforHR), ex,$"Error while getting a Spacific Notifications for HR ");
                 throw ex;
             }
         }
 
-        public async Task<List<Notifications>> GetSpacificNotificationsforGeneral(string ByUserId)
+        public async Task<List<Notifications>> GetSpacificNotificationsforGeneral()
         {
             try
             {
@@ -153,12 +158,12 @@ namespace CMS.Repository.Implementation
             }
             catch (Exception ex)
             {
-                LogException(nameof(GetSpacificNotificationsforGeneral), ex, ByUserId, $"Error while getting a Spacific Notifications for General Manager ");
+                LogException(nameof(GetSpacificNotificationsforGeneral), ex, $"Error while getting a Spacific Notifications for General Manager ");
                 throw ex;
             }
         }
 
-        public async Task<List<Notifications>> GetSpacificNotificationsforArchi(string ByUserId)
+        public async Task<List<Notifications>> GetSpacificNotificationsforArchi()
         {
             try
             {
@@ -172,12 +177,12 @@ namespace CMS.Repository.Implementation
             }
             catch (Exception ex)
             {
-                LogException(nameof(GetSpacificNotificationsforArchi), ex, ByUserId, $"Error while getting a Spacific Notifications for Architecture ");
+                LogException(nameof(GetSpacificNotificationsforArchi), ex, $"Error while getting a Spacific Notifications for Architecture ");
                 throw ex;
             }
         }
 
-        public async Task<List<Notifications>> GetSpacificNotificationsforInterviewer(string interviewerId, string ByUserId)
+        public async Task<List<Notifications>> GetSpacificNotificationsforInterviewer(string interviewerId)
         {
             try
             {
@@ -185,7 +190,7 @@ namespace CMS.Repository.Implementation
             }
             catch (Exception ex)
             {
-                LogException(nameof(GetSpacificNotificationsforInterviewer), ex, ByUserId, $"Error while getting a Spacific Notifications for Interviewer ");
+                LogException(nameof(GetSpacificNotificationsforInterviewer), ex, $"Error while getting a Spacific Notifications for Interviewer ");
                 throw ex;
             }
         }

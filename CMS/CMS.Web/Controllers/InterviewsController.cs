@@ -45,7 +45,8 @@ namespace CMS.Web.Controllers
 
         public InterviewsController(IInterviewsService interviewsService, ICandidateService candidateService,
             IPositionService positionService, IStatusService statusService, IWebHostEnvironment env,
-            IAccountService accountService, INotificationsService notificationsService, IInterviewsRepository interviewsRepository, IHttpContextAccessor httpContextAccessor)
+            IAccountService accountService, INotificationsService notificationsService, 
+            IInterviewsRepository interviewsRepository, IHttpContextAccessor httpContextAccessor)
         {
             _interviewsService = interviewsService;
             _candidateService = candidateService;
@@ -65,22 +66,10 @@ namespace CMS.Web.Controllers
 
         public void LogException(string methodName, Exception ex, string additionalInfo = null)
         {
-            var createdByUserId = GetUserId();
-            _interviewsService.LogException(methodName, ex, createdByUserId, additionalInfo);
+            
+            _interviewsService.LogException(methodName, ex, additionalInfo);
         }
-        public string GetUserId()
-        {
-            try
-            {
-                var userId = _interviewsService.GetUserId();
-                return userId;
-            }
-            catch (Exception ex)
-            {
-                LogException(nameof(GetUserId), ex, null);
-                throw ex;
-            }
-        }
+     
       
 
 
@@ -185,9 +174,10 @@ namespace CMS.Web.Controllers
             try
             {
 
-            
-            ViewBag.PreviousAction = previousAction;
-            var result = await _interviewsService.GetById(id, GetUserId());
+                
+
+                ViewBag.PreviousAction = previousAction;
+            var result = await _interviewsService.GetById(id);
 
             await LoadSelectionLists();
 
@@ -262,9 +252,11 @@ namespace CMS.Web.Controllers
         {
             try
             {
+                
 
-            
-            var positions = await _positionService.GetAll();
+
+
+                var positions = await _positionService.GetAll();
             ViewBag.positionList = new SelectList(positions.Value, "Id", "Name");
             var candidates = await _candidateService.GetAllCandidatesAsync();
             ViewBag.candidateList = new SelectList(candidates, "Id", "FullName");
@@ -289,13 +281,14 @@ namespace CMS.Web.Controllers
         {
             try
             {
+                
 
-           
-            await LoadSelectionLists();
+
+                await LoadSelectionLists();
 
             if (ModelState.IsValid)
             {
-                var result = await _interviewsService.Insert(collection, GetUserId());
+                var result = await _interviewsService.Insert(collection);
 
 
                 if (result.IsSuccess)
@@ -305,7 +298,7 @@ namespace CMS.Web.Controllers
                         var selectedInterviewerId = collection.InterviewerId;
                         HttpContext.Session.SetString("ArchitectureInterviewerId", collection.ArchitectureInterviewerId ?? "");
 
-                        await _notificationsService.CreateInterviewNotificationForInterviewerAsync(collection.Date, collection.CandidateId, collection.PositionId, selectedInterviewerId, isCanceled: false, GetUserId());
+                        await _notificationsService.CreateInterviewNotificationForInterviewerAsync(collection.Date, collection.CandidateId, collection.PositionId, selectedInterviewerId, isCanceled: false);
 
                         ScheduleInterviewReminder(collection);
 
@@ -357,15 +350,16 @@ namespace CMS.Web.Controllers
         {
             try
             {
+                
 
-            
-            if (id <= 0)
+
+                if (id <= 0)
             {
                 return NotFound();
             }
             var StatusDTOs = await _StatusService.GetAll();
             ViewBag.StatusDTOs = new SelectList(StatusDTOs.Value, "Id", "Name");
-            var result = await _interviewsService.GetById(id, GetUserId());
+            var result = await _interviewsService.GetById(id);
             var interviewDTO = result.Value;
             if (interviewDTO == null)
             {
@@ -389,9 +383,11 @@ namespace CMS.Web.Controllers
         {
             try
             {
+                
 
-           
-            if (collection == null)
+
+
+                if (collection == null)
             {
                 ModelState.AddModelError("", $"the interview dto you are trying to update is null ");
                 return RedirectToAction("Index");
@@ -414,13 +410,13 @@ namespace CMS.Web.Controllers
             if (status.Code == Domain.Enums.StatusCode.Rejected)
             {
                 var selectedInterviewerId = collection.InterviewerId;
-                await _notificationsService.CreateInterviewNotificationForInterviewerAsync(collection.Date, collection.CandidateId, collection.PositionId, selectedInterviewerId, isCanceled: true, GetUserId());
+                await _notificationsService.CreateInterviewNotificationForInterviewerAsync(collection.Date, collection.CandidateId, collection.PositionId, selectedInterviewerId, isCanceled: true);
             }
 
 
             if (ModelState.IsValid)
             {
-                var result = await _interviewsService.Update(collection, GetUserId());
+                var result = await _interviewsService.Update(collection);
 
                 if (result.IsSuccess)
                 {
@@ -449,9 +445,10 @@ namespace CMS.Web.Controllers
         {
             try
             {
+                
 
-            
-            var result = await _interviewsService.GetById(id, GetUserId());
+
+                var result = await _interviewsService.GetById(id);
             if (result.IsSuccess)
             {
                 var interviewDTO = result.Value;
@@ -484,13 +481,14 @@ namespace CMS.Web.Controllers
         {
             try
             {
+                
 
-           
-            if (id <= 0)
+
+                if (id <= 0)
             {
                 return BadRequest("invalid career offer id");
             }
-            var result = await _interviewsService.Delete(id, GetUserId());
+            var result = await _interviewsService.Delete(id);
             if (result.IsSuccess)
             {
                 return RedirectToAction("Index");
@@ -512,9 +510,10 @@ namespace CMS.Web.Controllers
 
             try
             {
+                
 
-            
-            if (file == null || file.Length == 0)
+
+                if (file == null || file.Length == 0)
             {
                 ModelState.AddModelError("File", "Please choose a file to upload.");
                 return View();
@@ -524,7 +523,7 @@ namespace CMS.Web.Controllers
                 var stream = await AttachmentHelper.handleUpload(file, _attachmentStoragePath);
                 try
                 {
-                    await _interviewsService.UpdateInterviewAttachmentAsync(id, file.FileName, file.Length, stream, GetUserId());
+                    await _interviewsService.UpdateInterviewAttachmentAsync(id, file.FileName, file.Length, stream);
                     return RedirectToAction(nameof(Index));
                 }
                 finally
@@ -538,7 +537,7 @@ namespace CMS.Web.Controllers
             }
             catch (Exception ex)
             {
-                LogException(nameof(UpdateAttachment), ex, null);
+                LogException(nameof(UpdateAttachment), ex,"not working");
                 throw ex;
             }
         }
@@ -546,19 +545,20 @@ namespace CMS.Web.Controllers
         {
             try
             {
+                
 
-            
-            var StatusDTOs = await _StatusService.GetAll();
+
+                var StatusDTOs = await _StatusService.GetAll();
             ViewBag.StatusDTOs = new SelectList(StatusDTOs.Value, "Id", "Name");
 
-            var result = await _interviewsService.GetById(id, GetUserId());
+            var result = await _interviewsService.GetById(id);
             var InterviewsDTO = result.Value;
 
             return View(InterviewsDTO);
             }
             catch (Exception ex)
             {
-                LogException(nameof(UpdateAfterInterview), ex, null);
+                LogException(nameof(UpdateAfterInterview), ex,"not working");
                 throw ex;
             }
         }
@@ -569,9 +569,10 @@ namespace CMS.Web.Controllers
         {
             try
             {
+                
 
-            
-            var StatusDTOs = await _StatusService.GetAll();
+
+                var StatusDTOs = await _StatusService.GetAll();
             ViewBag.StatusDTOs = new SelectList(StatusDTOs.Value, "Id", "Name");
 
             var validationErrors = new List<string>();
@@ -640,7 +641,7 @@ namespace CMS.Web.Controllers
             {
                 try
                 {
-                    await _interviewsService.ConductInterview(interviewsDTO, GetUserId());
+                    await _interviewsService.ConductInterview(interviewsDTO);
 
                     if (attachmentStream != null)
                     {
@@ -659,12 +660,12 @@ namespace CMS.Web.Controllers
 
                         if (status.Code == Domain.Enums.StatusCode.Rejected || status.Code == Domain.Enums.StatusCode.Approved)
                         {
-                            await _notificationsService.CreateNotificationForGeneralManagerAsync(interviewsDTO.StatusId.Value, interviewsDTO.Notes, interviewsDTO.CandidateId, interviewsDTO.PositionId, GetUserId());
+                            await _notificationsService.CreateNotificationForGeneralManagerAsync(interviewsDTO.StatusId.Value, interviewsDTO.Notes, interviewsDTO.CandidateId, interviewsDTO.PositionId);
 
                             var architectureInterviewerId = HttpContext.Session.GetString("ArchitectureInterviewerId");
                             if(architectureInterviewerId != "")
                             {
-                                await _notificationsService.CreateNotificationForArchiAsync(interviewsDTO.StatusId.Value, interviewsDTO.Notes, interviewsDTO.CandidateId, interviewsDTO.PositionId, GetUserId());
+                                await _notificationsService.CreateNotificationForArchiAsync(interviewsDTO.StatusId.Value, interviewsDTO.Notes, interviewsDTO.CandidateId, interviewsDTO.PositionId);
                             }
 
 
@@ -764,7 +765,7 @@ namespace CMS.Web.Controllers
 
                         if ((status.Code == Domain.Enums.StatusCode.Rejected || status.Code == Domain.Enums.StatusCode.Approved))
                         {
-                            await _notificationsService.CreateInterviewNotificationForHRInterview(interviewsDTO.StatusId.Value, interviewsDTO.Notes, interviewsDTO.CandidateId, interviewsDTO.PositionId, GetUserId());
+                            await _notificationsService.CreateInterviewNotificationForHRInterview(interviewsDTO.StatusId.Value, interviewsDTO.Notes, interviewsDTO.CandidateId, interviewsDTO.PositionId);
 
 
                             if (status.Code == Domain.Enums.StatusCode.Approved)
@@ -828,7 +829,7 @@ namespace CMS.Web.Controllers
 
                         if ((status.Code == Domain.Enums.StatusCode.Rejected || status.Code == Domain.Enums.StatusCode.Approved))
                         {
-                            await _notificationsService.CreateInterviewNotificationForHRInterview(interviewsDTO.StatusId.Value, interviewsDTO.Notes, interviewsDTO.CandidateId, interviewsDTO.PositionId, GetUserId());
+                            await _notificationsService.CreateInterviewNotificationForHRInterview(interviewsDTO.StatusId.Value, interviewsDTO.Notes, interviewsDTO.CandidateId, interviewsDTO.PositionId);
 
 
                             if (status.Code == Domain.Enums.StatusCode.Approved)
@@ -959,9 +960,10 @@ namespace CMS.Web.Controllers
         {
             try
             {
+                
 
-            
-            var email = await _interviewsRepository.GetInterviewerEmail(interviewerId, GetUserId());
+
+                var email = await _interviewsRepository.GetInterviewerEmail(interviewerId );
 
             if (email != null)
             {
@@ -984,9 +986,10 @@ namespace CMS.Web.Controllers
         {
             try
             {
+                
 
 
-                var email = await _interviewsRepository.GetHREmail(GetUserId());
+                var email = await _interviewsRepository.GetHREmail();
 
                 if (email != null)
                 {
@@ -1007,9 +1010,10 @@ namespace CMS.Web.Controllers
         {
             try
             {
+                
 
-            
-            var email = await _interviewsRepository.GetArchiEmail(GetUserId());
+
+                var email = await _interviewsRepository.GetArchiEmail();
 
             if (email != null)
             {
@@ -1033,9 +1037,10 @@ namespace CMS.Web.Controllers
         {
             try
             {
+                
 
-            
-            var email = await _interviewsRepository.GetGeneralManagerEmail(GetUserId());
+
+                var email = await _interviewsRepository.GetGeneralManagerEmail();
 
             if (email != null)
             {
@@ -1057,8 +1062,10 @@ namespace CMS.Web.Controllers
         public string GetLoggedInUserName()
         {
             try
-            { 
-            return _httpContextAccessor.HttpContext.User.Identity.Name;
+            {
+                
+
+                return _httpContextAccessor.HttpContext.User.Identity.Name;
             }
             catch (Exception ex)
             {
@@ -1073,9 +1080,10 @@ namespace CMS.Web.Controllers
             try
             {
 
-            
-            // Check if the interviewer has given a score, and if not, send a reminder email
-            bool hasGivenScore = await _interviewsRepository.HasGivenStatusAsync(interviewerId, collection.InterviewsId, GetUserId());
+                
+
+                // Check if the interviewer has given a score, and if not, send a reminder email
+                bool hasGivenScore = await _interviewsRepository.HasGivenStatusAsync(interviewerId, collection.InterviewsId);
 
             if (!hasGivenScore)
             {
@@ -1101,10 +1109,11 @@ namespace CMS.Web.Controllers
         {
             try
             {
+                
 
-            
-            // Check if the interviewer has given a score, and if not, send a reminder email
-            bool hasGivenScore = await _interviewsRepository.HasGivenStatusAsync(interviewerId, collection.InterviewsId, GetUserId());
+
+                // Check if the interviewer has given a score, and if not, send a reminder email
+                bool hasGivenScore = await _interviewsRepository.HasGivenStatusAsync(interviewerId, collection.InterviewsId);
 
             if (!hasGivenScore)
             {
@@ -1131,9 +1140,10 @@ namespace CMS.Web.Controllers
             try
             {
 
-           
-            // Check if the interviewer has given a score, and if not, send a reminder email
-            bool hasGivenScore = await _interviewsRepository.HasGivenStatusAsync(interviewerId, collection.InterviewsId, GetUserId());
+
+
+                // Check if the interviewer has given a score, and if not, send a reminder email
+                bool hasGivenScore = await _interviewsRepository.HasGivenStatusAsync(interviewerId, collection.InterviewsId);
 
             if (!hasGivenScore)
             {

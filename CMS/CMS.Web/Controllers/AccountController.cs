@@ -41,22 +41,10 @@ namespace CMS.Web.Controllers
 
         public void LogException(string methodName, Exception ex, string additionalInfo = null)
         {
-            var createdByUserId = GetUserId();
-            _accountService.LogException(methodName, ex, createdByUserId, additionalInfo);
+            
+            _accountService.LogException(methodName, ex, additionalInfo);
         }
-        public string GetUserId()
-        {
-            try
-            {
-                var userId = _accountService.GetUserId();
-                return userId;
-            }
-            catch (Exception ex)
-            {
-                LogException(nameof(GetUserId), ex, null);
-                throw ex;
-            }
-        }
+       
 
 
         //GET
@@ -168,9 +156,10 @@ namespace CMS.Web.Controllers
         {
             try
             {
+                
 
-            
-            var result = await _accountService.DeleteAccountAsync(id, GetUserId());
+
+                var result = await _accountService.DeleteAccountAsync(id);
             if (result)
             {
                 return RedirectToAction(nameof(Index));
@@ -194,8 +183,9 @@ namespace CMS.Web.Controllers
             try
             {
 
-            
-            await _accountService.LogoutAsync(GetUserId());
+                
+
+                await _accountService.LogoutAsync();
             return RedirectToAction("Login", "Account");
             }
             catch (Exception ex)
