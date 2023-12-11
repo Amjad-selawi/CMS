@@ -301,17 +301,15 @@ namespace CMS.Services.Services
         {
             try
             {
-                var smtp = new SmtpClient();
+                SmtpClient smtp = new SmtpClient();
                 smtp.Host = "mail.sssprocess.com";
                 smtp.Port = 587;
                 smtp.DeliveryMethod = SmtpDeliveryMethod.Network;
-                smtp.EnableSsl = true;
+                smtp.EnableSsl = false;
                 smtp.UseDefaultCredentials = true;
                 string UserName = "notifications@sss-process.org";
                 string Password = "P@ssw0rd";
                 smtp.Credentials = new NetworkCredential(UserName, Password);
-
-
 
 
                 var subject = "Welcome to CMS System ";

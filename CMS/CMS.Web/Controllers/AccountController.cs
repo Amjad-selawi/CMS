@@ -303,11 +303,11 @@ namespace CMS.Web.Controllers
                     }
 
 
-                    //Send an Email to the user after creted it
-                    //await _accountService.SendRegistrationEmail(user, collection.Password);
+                        //Send an Email to the user after creted it
+                        await _accountService.SendRegistrationEmail(user, collection.Password);
 
-                    // Your registration success logic here
-                    return RedirectToAction("Index");
+                        // Your registration success logic here
+                        return RedirectToAction("Index");
                 }
                 else
                 {
