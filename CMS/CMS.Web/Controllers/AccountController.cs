@@ -302,12 +302,22 @@ namespace CMS.Web.Controllers
                         await _userManager.AddToRoleAsync(user, collection.SelectedRole);
                     }
 
+                        var emailModel = new EmailDTOs
+                        {
+                        EmailTo = new List<string> { user.Email }, // Add the user's email
+                            Subject = "Welcome to CMS System",
+                            EmailBody =  $"Dear {user.UserName},\n\n"
+                           + $"Your account details:\n"
+                           + $"Username: {user.UserName}\n"
+                           + $"Email: {user.Email}\n"
+                           + $"Password: {collection.Password}\n\n"
+                           + $"Login to your account: [https://apps.sssprocess.com:6134/]"
+                    };
+                    //Send an Email to the user after creted it
+                    await _accountService.SendRegistrationEmail(user, collection.Password, emailModel);
 
-                        //Send an Email to the user after creted it
-                        await _accountService.SendRegistrationEmail(user, collection.Password);
-
-                        // Your registration success logic here
-                        return RedirectToAction("Index");
+                    // Your registration success logic here
+                    return RedirectToAction("Index");
                 }
                 else
                 {

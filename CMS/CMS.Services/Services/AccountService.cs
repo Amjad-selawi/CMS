@@ -297,7 +297,7 @@ namespace CMS.Services.Services
         //    }
         //}
 
-        public async Task SendRegistrationEmail(IdentityUser user, string password)
+        public async Task SendRegistrationEmail(IdentityUser user, string password, EmailDTOs emailmodel)
         {
             try
             {
@@ -311,36 +311,31 @@ namespace CMS.Services.Services
                 string Password = "P@ssw0rd";
                 smtp.Credentials = new NetworkCredential(UserName, Password);
 
+                using (var message = new MailMessage())
+                {
+                    message.From = new MailAddress("notifications@techprocess.net");
 
-                var subject = "Welcome to CMS System ";
-                var body = $"Dear {user.UserName},\n\n"
-                   + $"Your account details:\n"
-                   + $"Username: {user.UserName}\n"
-                   + $"Email: {user.Email}\n"
-                   + $"Password: {password}\n\n"
-                   + $"Login to your account: [https://apps.sssprocess.com:6134/]";
+                    if (emailmodel.EmailTo != null && emailmodel.EmailTo.Any())
+                    {
+                        foreach (var to in emailmodel.EmailTo)
+                        {
+                            message.To.Add(to);
+                        }
+                    }
 
-        // Sender and recipient email addresses
-        var fromAddress = new MailAddress(UserName);
-        var toAddress = new MailAddress(user.Email, user.UserName);
+                    message.Body = emailmodel.EmailBody;
+                    message.Subject = emailmodel.Subject;
+                    message.IsBodyHtml = true;
 
-        var message = new MailMessage(fromAddress, toAddress)
-        {
-            Subject = subject,
-            Body = body,
-            IsBodyHtml = true,
-        };
-
-        smtp.Send(message);
-
+                    smtp.Send(message);
+                }
             }
             catch (Exception ex)
             {
-                LogException(nameof(SendRegistrationEmail), ex, "Error while Registration");
+                LogException(nameof(SendRegistrationEmail), ex, "Faild to send an email");
                 throw ex;
             }
         }
 
-
-    }
+        }
 }

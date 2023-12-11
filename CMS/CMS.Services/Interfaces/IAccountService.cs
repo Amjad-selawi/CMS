@@ -23,6 +23,6 @@ namespace CMS.Services.Interfaces
 
         void LogException(string methodName, Exception ex, string additionalInfo);
 
-        Task SendRegistrationEmail(IdentityUser user, string password);
+        Task SendRegistrationEmail(IdentityUser user, string password, EmailDTOs emailmodel);
     }
 }
