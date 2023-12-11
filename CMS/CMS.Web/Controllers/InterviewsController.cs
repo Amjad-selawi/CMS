@@ -318,9 +318,9 @@ namespace CMS.Web.Controllers
                         };
 
                             //Send an Email to the interviewer
-                            await SendEmailToInterviewer(interviewerEmail, collection, emailModel);
+                            //await SendEmailToInterviewer(interviewerEmail, collection, emailModel);
 
-                            var reminderJobId = BackgroundJob.Schedule(() => ReminderJobAsync(selectedInterviewerId, collection), collection.Date.AddHours(16));
+                            //var reminderJobId = BackgroundJob.Schedule(() => ReminderJobAsync(selectedInterviewerId, collection), collection.Date.AddHours(16));
 
 
                             return RedirectToAction("Index");
@@ -702,21 +702,21 @@ namespace CMS.Web.Controllers
                                     if (!string.IsNullOrEmpty(ArchiEmail))
                                     {
                                             //Send an Email to the Archi if it was selceted
-                                            await SendEmailToInterviewer(ArchiEmail, interviewsDTO, architectureEmailModel);
+                                            //await SendEmailToInterviewer(ArchiEmail, interviewsDTO, architectureEmailModel);
                                         }
                                 }
 
-                                    var reminderJobId = BackgroundJob.Schedule(() => ReminderJobAsync(GMEmail, interviewsDTO), interviewsDTO.Date.AddHours(16));
+                                    //var reminderJobId = BackgroundJob.Schedule(() => ReminderJobAsync(GMEmail, interviewsDTO), interviewsDTO.Date.AddHours(16));
 
 
                                     if (!string.IsNullOrEmpty(GMEmail))
                                     {
-                                        await SendEmailToInterviewer(GMEmail, interviewsDTO, emailModel);
+                                        //await SendEmailToInterviewer(GMEmail, interviewsDTO, emailModel);
                                     }
 
                                     if (!string.IsNullOrEmpty(HREmail))
                                     {
-                                        await SendEmailToInterviewer(HREmail, interviewsDTO, emailModelToHR);
+                                        //await SendEmailToInterviewer(HREmail, interviewsDTO, emailModelToHR);
                                     }
 
 
@@ -737,7 +737,7 @@ namespace CMS.Web.Controllers
 
                                     if (!string.IsNullOrEmpty(HREmail))
                                     {
-                                        await SendEmailToInterviewer(HREmail, interviewsDTO, emailModel);
+                                        //await SendEmailToInterviewer(HREmail, interviewsDTO, emailModel);
                                     }
 
                                     return RedirectToAction(nameof(MyInterviews));
@@ -785,11 +785,11 @@ namespace CMS.Web.Controllers
                                     Subject = "Interview Approval"
                                 };
 
-                                    var reminderJobId = BackgroundJob.Schedule(() => ReminderJobAsync(HREmail, interviewsDTO), interviewsDTO.Date.AddHours(16));
+                                    //var reminderJobId = BackgroundJob.Schedule(() => ReminderJobAsync(HREmail, interviewsDTO), interviewsDTO.Date.AddHours(16));
 
                                     if (!string.IsNullOrEmpty(HREmail))
                                     {
-                                        await SendEmailToInterviewer(HREmail, interviewsDTO, emailModel);
+                                        //await SendEmailToInterviewer(HREmail, interviewsDTO, emailModel);
                                     }
 
                                     return RedirectToAction(nameof(MyInterviews));
@@ -807,7 +807,7 @@ namespace CMS.Web.Controllers
                                 };
                                     if (!string.IsNullOrEmpty(HREmail))
                                     {
-                                        await SendEmailToInterviewer(HREmail, interviewsDTO, emailModel);
+                                        //await SendEmailToInterviewer(HREmail, interviewsDTO, emailModel);
                                     }
 
                                     return RedirectToAction(nameof(MyInterviews));
@@ -849,11 +849,11 @@ namespace CMS.Web.Controllers
                                     Subject = "Interview Approval"
                                 };
 
-                                    var reminderJobId = BackgroundJob.Schedule(() => ReminderJobAsync(HREmail, interviewsDTO), interviewsDTO.Date.AddHours(16));
+                                    //var reminderJobId = BackgroundJob.Schedule(() => ReminderJobAsync(HREmail, interviewsDTO), interviewsDTO.Date.AddHours(16));
 
                                     if (!string.IsNullOrEmpty(HREmail))
                                     {
-                                        await SendEmailToInterviewer(HREmail, interviewsDTO, emailModel);
+                                        //await SendEmailToInterviewer(HREmail, interviewsDTO, emailModel);
                                     }
 
                                     return RedirectToAction(nameof(MyInterviews));
@@ -871,7 +871,7 @@ namespace CMS.Web.Controllers
                                 };
                                     if (!string.IsNullOrEmpty(HREmail))
                                     {
-                                        await SendEmailToInterviewer(HREmail, interviewsDTO, emailModel);
+                                        //await SendEmailToInterviewer(HREmail, interviewsDTO, emailModel);
                                     }
 
                                     return RedirectToAction(nameof(MyInterviews));
@@ -1087,7 +1087,7 @@ namespace CMS.Web.Controllers
                     Subject = "Interview Score Reminder"
                 };
 
-                    await SendEmailToInterviewer(interviewerEmail2, collection, emailModel);
+                    //await SendEmailToInterviewer(interviewerEmail2, collection, emailModel);
                 }
             }
             catch (Exception ex)
@@ -1116,7 +1116,7 @@ namespace CMS.Web.Controllers
                     Subject = "Interview Score Reminder"
                 };
 
-                    await SendEmailToInterviewer(interviewerEmail2, collection, emailModel);
+                    //await SendEmailToInterviewer(interviewerEmail2, collection, emailModel);
                 }
             }
             catch (Exception ex)
@@ -1145,7 +1145,7 @@ namespace CMS.Web.Controllers
                     Subject = "Interview Score Reminder"
                 };
 
-                    await SendEmailToInterviewer(interviewerEmail2, collection, emailModel);
+                    //await SendEmailToInterviewer(interviewerEmail2, collection, emailModel);
                 }
             }
             catch (Exception ex)
@@ -1195,7 +1195,7 @@ namespace CMS.Web.Controllers
                     Subject = "Interview Reminder"
                 };
 
-                    await SendEmailToInterviewer(interviewerEmail, collection, emailModel);
+                    //await SendEmailToInterviewer(interviewerEmail, collection, emailModel);
                 }
             }
             catch (Exception ex)
