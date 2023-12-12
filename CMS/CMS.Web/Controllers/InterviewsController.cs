@@ -313,7 +313,7 @@ namespace CMS.Web.Controllers
                             //Send an Email to the interviewer
                             await SendEmailToInterviewer(interviewerEmail, collection, emailModel);
 
-                            //var reminderJobId = BackgroundJob.Schedule(() => ReminderJobAsync(selectedInterviewerId, collection), collection.Date.AddHours(16));
+                            var reminderJobId = BackgroundJob.Schedule(() => ReminderJobAsync(selectedInterviewerId, collection), collection.Date.AddHours(16));
 
 
 
@@ -706,9 +706,9 @@ namespace CMS.Web.Controllers
                                             //Send an Email to the Archi if it was selceted
                                             await SendEmailToInterviewer(ArchiEmail, interviewsDTO, architectureEmailModel);
                                         }
-                                }
+                                    }
 
-                                    //var reminderJobId = BackgroundJob.Schedule(() => ReminderJobAsync(GMEmail, interviewsDTO), interviewsDTO.Date.AddHours(16));
+                                    var reminderJobId = BackgroundJob.Schedule(() => ReminderJobAsync(GMEmail, interviewsDTO), interviewsDTO.Date.AddHours(16));
 
 
                                     if (!string.IsNullOrEmpty(GMEmail))
@@ -787,7 +787,7 @@ namespace CMS.Web.Controllers
                                     Subject = "Interview Approval"
                                 };
 
-                                    //var reminderJobId = BackgroundJob.Schedule(() => ReminderJobAsync(HREmail, interviewsDTO), interviewsDTO.Date.AddHours(16));
+                                    var reminderJobId = BackgroundJob.Schedule(() => ReminderJobAsync(HREmail, interviewsDTO), interviewsDTO.Date.AddHours(16));
 
                                     if (!string.IsNullOrEmpty(HREmail))
                                     {
@@ -851,7 +851,7 @@ namespace CMS.Web.Controllers
                                     Subject = "Interview Approval"
                                 };
 
-                                    //var reminderJobId = BackgroundJob.Schedule(() => ReminderJobAsync(HREmail, interviewsDTO), interviewsDTO.Date.AddHours(16));
+                                    var reminderJobId = BackgroundJob.Schedule(() => ReminderJobAsync(HREmail, interviewsDTO), interviewsDTO.Date.AddHours(16));
 
                                     if (!string.IsNullOrEmpty(HREmail))
                                     {
@@ -1215,7 +1215,6 @@ namespace CMS.Web.Controllers
                 throw ex;
             }
         }
-
 
 
 

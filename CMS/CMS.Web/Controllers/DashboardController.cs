@@ -195,35 +195,38 @@ namespace CMS.Web.Controllers
             try
             {
 
-            
-            var candidateData = (from candidate in _context.Candidates
-                                 join interview in _context.Interviews on candidate.Id equals interview.CandidateId
-                                 select new
-                                 {
-                                     PositionId = interview.Position.Id,
-                                     PositionName = interview.Position.Name,
-                                     CountryId = candidate.Company.Country.Id,
-                                     CountryName = candidate.Company.Country.Name,
-                                     CandidateName = candidate.FullName,
-                                     StatusName = interview.Status.Name,
-                                     Score = interview.Score,
-                                     InterviewDate = interview.Date  
-                                 }).ToList();  
 
-            var latestInterviews = candidateData
-                .GroupBy(x => new
-                {
-                    x.PositionId,
-                    x.PositionName,
-                    x.CountryId,
-                    x.CountryName,
-                    x.CandidateName
-                })
-                .Select(group => group
-                    .OrderByDescending(c => c.InterviewDate)
-                    .FirstOrDefault())  
-                .ToList();
 
+                var candidateData = (from candidate in _context.Candidates
+                                     join interview in _context.Interviews on candidate.Id equals interview.CandidateId
+                                     select new
+                                     {
+                                         PositionId = interview.Position.Id,
+                                         PositionName = interview.Position.Name,
+                                         CountryId = candidate.Company.Country.Id,
+                                         CountryName = candidate.Company.Country.Name,
+                                         CandidateName = candidate.FullName,
+                                         StatusName = interview.Status.Name,
+                                         Score = interview.Score,
+                                         InterviewDate = interview.Date,
+                                         ModifiedOn = interview.ModifiedOn
+                                     }).ToList();
+
+                var latestInterviews = candidateData
+                 .GroupBy(x => new
+                 {
+                     x.PositionId,
+                     x.PositionName,
+                     x.CountryId,
+                     x.CountryName,
+                     x.CandidateName
+                 })
+                 .Select(group => group
+                    .OrderByDescending(c => c.ModifiedOn)  // Order by ModifiedOn to get the latest
+         .FirstOrDefault())
+                 .ToList();
+
+                
             var positionsGroups = latestInterviews
                 .GroupBy(x => new
                 {
@@ -247,19 +250,20 @@ namespace CMS.Web.Controllers
                 })
                 .ToList();
 
-            var result = positionsGroups.GroupBy(g => new
-            {
-                g.CountryId,
-                g.CountryName
-            })
-            .Select(g => new PerformanceReportDTO()
-            {
-                Name = g.Key.CountryName,
-                Positions = g.ToList()
-            })
-            .ToList();
 
-            return result;
+                var result = positionsGroups.GroupBy(g => new
+                {
+                    g.CountryId,
+                    g.CountryName
+                })
+          .Select(g => new PerformanceReportDTO()
+          {
+              Name = g.Key.CountryName,
+              Positions = g.ToList()
+          })
+          .ToList();
+
+                return result;
             }
             catch (Exception ex)
             {

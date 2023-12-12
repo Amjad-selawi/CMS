@@ -302,19 +302,24 @@ namespace CMS.Web.Controllers
                         await _userManager.AddToRoleAsync(user, collection.SelectedRole);
                     }
 
+
                         var emailModel = new EmailDTOs
                         {
-                        EmailTo = new List<string> { user.Email }, // Add the user's email
+                            EmailTo = new List<string> { user.Email },
                             Subject = "Welcome to CMS System",
-                            EmailBody =  $"Dear {user.UserName},\n\n"
-                           + $"Your account details:\n"
-                           + $"Username: {user.UserName}\n"
-                           + $"Email: {user.Email}\n"
-                           + $"Password: {collection.Password}\n\n"
-                           + $"Login to your account: [https://apps.sssprocess.com:6134/]"
-                    };
-                    //Send an Email to the user after creted it
-                    await _accountService.SendRegistrationEmail(user, collection.Password, emailModel);
+                            EmailBody = $"<p>Dear {user.UserName},</p>\n\n" +
+                                    "<p>Your account details:</p>\n" +
+                                    $"<ul>\n" +
+                                    $"  <li>Username: {user.UserName}</li>\n" +
+                                    $"  <li>Email: {user.Email}</li>\n" +
+                                    $"  <li>Password: {collection.Password}</li>\n" +
+                                    $"</ul>\n\n" +
+                                    $"<p>Login to your account: <a href='https://apps.sssprocess.com:6134/'>Click here</a></p>"
+                                   };
+
+
+                        //Send an Email to the user after creted it
+                        await _accountService.SendRegistrationEmail(user, collection.Password, emailModel);
 
                     // Your registration success logic here
                     return RedirectToAction("Index");
