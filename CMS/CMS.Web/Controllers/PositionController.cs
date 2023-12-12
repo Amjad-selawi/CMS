@@ -105,7 +105,7 @@ namespace CMS.Web.Controllers
             }
             catch (Exception ex)
             {
-                LogException(nameof(AddPosition), ex,"not working");
+                LogException(nameof(AddPosition), ex, "AddPosition not working");
                 throw ex;
             }
         }
@@ -137,7 +137,7 @@ namespace CMS.Web.Controllers
             }
             catch(Exception ex)
             {
-                LogException(nameof(GetPositions), ex,"not working");
+                LogException(nameof(GetPositions), ex, "GetPositions not working");
                 throw ex;
             }
         }
@@ -165,7 +165,7 @@ namespace CMS.Web.Controllers
             return View(positionDTO);}
             catch(Exception ex)
             {
-                LogException(nameof(GetDeleteConfirmation), ex,"not working");
+                LogException(nameof(GetDeleteConfirmation), ex, "GetDeleteConfirmation not working");
                 throw ex;
             }
         }
@@ -194,7 +194,7 @@ namespace CMS.Web.Controllers
             }
             catch(Exception ex)
             {
-                LogException(nameof(DeletePosition), ex,"not working");
+                LogException(nameof(DeletePosition), ex, "DeletePosition not working");
                 throw ex;
             }
         }
@@ -220,7 +220,7 @@ namespace CMS.Web.Controllers
 }
             catch(Exception ex)
             {
-                LogException(nameof(UpdatePosition), ex,"not working");
+                LogException(nameof(UpdatePosition), ex, "UpdatePosition not working");
                 throw ex;
             }
         }
@@ -251,7 +251,7 @@ namespace CMS.Web.Controllers
 }
             catch (Exception ex)
             {
-                LogException(nameof(UpdatePosition), ex,"not working");
+                LogException(nameof(UpdatePosition), ex, "UpdatePosition not working");
                 throw ex;
             }
         }
@@ -287,7 +287,7 @@ namespace CMS.Web.Controllers
             }
             catch (Exception ex)
             {
-                LogException(nameof(UpdatePosition), ex,"not working");
+                LogException(nameof(UpdatePosition), ex, "UpdatePosition not working");
                 throw ex;
             }
         }
@@ -305,7 +305,7 @@ namespace CMS.Web.Controllers
             return Ok(new { exists });
             }
             catch (Exception ex){
-                LogException(nameof(UpdatePosition), ex,"not working");
+                LogException(nameof(UpdatePosition), ex, "UpdatePosition not working");
                 throw ex;
             }
         }

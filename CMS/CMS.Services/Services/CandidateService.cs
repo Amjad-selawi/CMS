@@ -171,7 +171,7 @@ namespace CMS.Services.Services
 
             catch (Exception ex)
             {
-                LogException(nameof(UpdateCandidateAsync), ex,"not working");
+                LogException(nameof(UpdateCandidateAsync), ex, "UpdateCandidateAsync not working");
                 throw ex;
             }
         }
@@ -200,7 +200,7 @@ namespace CMS.Services.Services
 
             catch (Exception ex)
             {
-                LogException(nameof(DeleteCandidateAsync), ex,"not working");
+                LogException(nameof(DeleteCandidateAsync), ex, " DeleteCandidateAsync not working");
                 throw ex;
             }
         }
@@ -233,7 +233,7 @@ namespace CMS.Services.Services
             
               catch (Exception ex)
             {
-                LogException(nameof(UpdateCandidateCVAsync), ex,"not working");
+                LogException(nameof(UpdateCandidateCVAsync), ex, "UpdateCandidateCVAsync not working");
                 throw ex;
             }
 
@@ -249,7 +249,7 @@ namespace CMS.Services.Services
             }
             catch (Exception ex)
             {
-                LogException(nameof(GetCVAttachmentIdByCandidateId), ex,"not working");
+                LogException(nameof(GetCVAttachmentIdByCandidateId), ex, "GetCVAttachmentIdByCandidateId not working");
                 throw ex;
             }
         }

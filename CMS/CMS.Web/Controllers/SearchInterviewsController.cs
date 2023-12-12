@@ -114,7 +114,7 @@ namespace CMS.Web.Controllers
             }
             catch (Exception ex)
             {
-                LogException(nameof(Index), ex,"not working");
+                LogException(nameof(Index), ex, "Index page for SearchInterviews filter not working");
                 throw ex;
             }
         }

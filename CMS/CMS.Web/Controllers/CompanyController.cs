@@ -39,7 +39,7 @@ namespace CMS.Web.Controllers
             }
             catch (Exception ex)
             {
-                LogException(nameof(Index), ex,"not working");
+                LogException(nameof(Index), ex, "Index page for Company not working");
                 throw ex;
             }
         }
@@ -57,7 +57,7 @@ namespace CMS.Web.Controllers
             }
             catch (Exception ex)
             {
-                LogException(nameof(AddCompany), ex,"not working");
+                LogException(nameof(AddCompany), ex, "AddCompany not working");
                 throw ex;
             }
         }

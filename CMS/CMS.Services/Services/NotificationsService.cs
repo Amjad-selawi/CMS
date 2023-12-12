@@ -161,7 +161,7 @@ namespace CMS.Services.Services
             catch (Exception ex)
             {
 
-                LogException(nameof(GetNotificationByIdforDetails), ex,"not working");
+                LogException(nameof(GetNotificationByIdforDetails), ex, "GetNotificationByIdforDetails not working");
                 throw ex;
             }
         }
@@ -192,7 +192,7 @@ namespace CMS.Services.Services
             catch (Exception ex)
             {
 
-                LogException(nameof(Create), ex,"not working");
+                LogException(nameof(Create), ex, "Can not create Notification");
                 throw ex;
             }
         }
@@ -222,7 +222,7 @@ namespace CMS.Services.Services
             catch (Exception ex)
             {
 
-                LogException(nameof(Update), ex,"not working");
+                LogException(nameof(Update), ex, "Update Notifications not working");
                 throw ex;
             }
         }
@@ -241,7 +241,7 @@ namespace CMS.Services.Services
             catch (Exception ex)
             {
 
-                LogException(nameof(Delete), ex,"not working");
+                LogException(nameof(Delete), ex, "Delete for Notification is not working");
                 throw ex;
             }
         }
@@ -278,7 +278,7 @@ namespace CMS.Services.Services
             catch (Exception ex)
             {
 
-                LogException(nameof(GetNotificationsForUserAsync), ex,"not working");
+                LogException(nameof(GetNotificationsForUserAsync), ex, "GetNotificationsForUserAsync not working");
                 throw ex;
             }
 
@@ -316,7 +316,7 @@ namespace CMS.Services.Services
             catch (Exception ex)
             {
 
-                LogException(nameof(GetNotificationsForHRAsync), ex,"not working");
+                LogException(nameof(GetNotificationsForHRAsync), ex, "GetNotificationsForHRAsync not working");
                 throw ex;
             }
         }
@@ -353,7 +353,7 @@ namespace CMS.Services.Services
             catch (Exception ex)
             {
 
-                LogException(nameof(GetNotificationsForHRAsyncicon), ex,"not working");
+                LogException(nameof(GetNotificationsForHRAsyncicon), ex, "GetNotificationsForHRAsyncicon not working");
                 throw ex;
             }
         }
@@ -382,7 +382,7 @@ namespace CMS.Services.Services
             catch (Exception ex)
             {
 
-                LogException(nameof(GetNotificationsForInterviewers), ex,"not working");
+                LogException(nameof(GetNotificationsForInterviewers), ex, "GetNotificationsForInterviewers not working");
                 throw ex;
             }
         }
@@ -411,7 +411,7 @@ namespace CMS.Services.Services
             catch (Exception ex)
             {
 
-                LogException(nameof(GetNotificationsForInterviewersicon), ex,"not working");
+                LogException(nameof(GetNotificationsForInterviewersicon), ex, "GetNotificationsForInterviewersicon not working");
                 throw ex;
             }
         }
@@ -448,7 +448,7 @@ namespace CMS.Services.Services
             catch (Exception ex)
             {
 
-                LogException(nameof(GetNotificationsForGeneralManager), ex,"not working");
+                LogException(nameof(GetNotificationsForGeneralManager), ex, "GetNotificationsForGeneralManager not working");
                 throw ex;
             }
         }
@@ -486,7 +486,7 @@ namespace CMS.Services.Services
             catch (Exception ex)
             {
 
-                LogException(nameof(GetNotificationsForGeneralManagericon), ex,"not working");
+                LogException(nameof(GetNotificationsForGeneralManagericon), ex, "GetNotificationsForGeneralManagericon not working");
                 throw ex;
             }
         }
@@ -524,7 +524,7 @@ namespace CMS.Services.Services
             catch (Exception ex)
             {
 
-                LogException(nameof(GetNotificationsForArchitecture), ex,"not working");
+                LogException(nameof(GetNotificationsForArchitecture), ex, "GetNotificationsForArchitecture not working");
                 throw ex;
             }
         }
@@ -562,7 +562,7 @@ namespace CMS.Services.Services
             catch (Exception ex)
             {
 
-                LogException(nameof(GetNotificationsForArchitectureicon), ex,"not working");
+                LogException(nameof(GetNotificationsForArchitectureicon), ex, "GetNotificationsForArchitectureicon not working");
                 throw ex;
             }
         }
@@ -718,7 +718,7 @@ namespace CMS.Services.Services
             catch (Exception ex)
             {
 
-                LogException(nameof(CreateNotificationForGeneralManagerAsync), ex,"not working");
+                LogException(nameof(CreateNotificationForGeneralManagerAsync), ex, "CreateNotificationForGeneralManagerAsync not working");
                 throw ex;
             }
         }
@@ -760,7 +760,7 @@ namespace CMS.Services.Services
             catch (Exception ex)
             {
 
-                LogException(nameof(CreateInterviewNotificationForInterviewerAsync), ex,"not working");
+                LogException(nameof(CreateInterviewNotificationForInterviewerAsync), ex, "CreateInterviewNotificationForInterviewerAsync not working");
                 throw ex;
             }
         }
@@ -814,7 +814,7 @@ namespace CMS.Services.Services
             catch (Exception ex)
             {
 
-                LogException(nameof(CreateInterviewNotificationForHRInterview), ex,"not working");
+                LogException(nameof(CreateInterviewNotificationForHRInterview), ex, "CreateInterviewNotificationForHRInterview not working");
                 throw ex;
             }
         }
@@ -846,7 +846,7 @@ namespace CMS.Services.Services
             catch (Exception ex)
             {
 
-                LogException(nameof(CreateNotificationForInterviewer), ex,"not working");
+                LogException(nameof(CreateNotificationForInterviewer), ex, "CreateNotificationForInterviewer not working");
                 throw ex;
             }
         }
@@ -860,7 +860,7 @@ namespace CMS.Services.Services
             catch (Exception ex)
             {
 
-                LogException(nameof(GetLoggedInUserName), ex,"not working");
+                LogException(nameof(GetLoggedInUserName), ex, "GetLoggedInUserName not working");
                 throw ex;
             }
         }
@@ -883,7 +883,7 @@ namespace CMS.Services.Services
             catch (Exception ex)
             {
 
-                LogException(nameof(GetCandidateName), ex,"not working");
+                LogException(nameof(GetCandidateName), ex, "GetCandidateName not working");
                 throw ex;
             }
         }
@@ -907,7 +907,7 @@ namespace CMS.Services.Services
             catch (Exception ex)
             {
 
-                LogException(nameof(GetPositionName), ex,"not working");
+                LogException(nameof(GetPositionName), ex, "GetPositionName not working");
                 throw ex;
             }
         }

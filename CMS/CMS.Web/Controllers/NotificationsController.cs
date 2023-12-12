@@ -62,7 +62,7 @@ namespace CMS.Web.Controllers
             }
             catch (Exception ex)
             {
-                LogException(nameof(Index), ex,"not working");
+                LogException(nameof(Index), ex, "Index page for Notifications not working");
                 throw ex;
             }
         }
@@ -160,7 +160,7 @@ namespace CMS.Web.Controllers
             }
             catch (Exception ex)
             {
-                LogException(nameof(Create), ex,"not working");
+                LogException(nameof(Create), ex, "Can not load create Notification page");
                 throw ex;
             }
         }
@@ -196,7 +196,7 @@ namespace CMS.Web.Controllers
             }
             catch (Exception ex)
             {
-                LogException(nameof(Edit), ex,"not working");
+                LogException(nameof(Edit), ex, "Edit not working");
                 throw ex;
             }
         }
@@ -242,7 +242,7 @@ namespace CMS.Web.Controllers
             }
             catch (Exception ex)
             {
-                LogException(nameof(Delete), ex,"not working");
+                LogException(nameof(Delete), ex, "Delete page for Notification not working");
                 throw ex;
             }
         }

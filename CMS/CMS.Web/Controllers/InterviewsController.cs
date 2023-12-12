@@ -538,7 +538,7 @@ namespace CMS.Web.Controllers
             }
             catch (Exception ex)
             {
-                LogException(nameof(UpdateAttachment), ex,"not working");
+                LogException(nameof(UpdateAttachment), ex, "UpdateAttachment not working");
                 throw ex;
             }
         }
@@ -559,7 +559,7 @@ namespace CMS.Web.Controllers
             }
             catch (Exception ex)
             {
-                LogException(nameof(UpdateAfterInterview), ex,"not working");
+                LogException(nameof(UpdateAfterInterview), ex, "UpdateAfterInterview not working");
                 throw ex;
             }
         }

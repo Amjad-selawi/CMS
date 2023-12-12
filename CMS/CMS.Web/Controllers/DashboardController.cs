@@ -86,7 +86,7 @@ namespace CMS.Web.Controllers
             }
             catch (Exception ex)
             {
-                LogException(nameof(Index), ex,"not working");
+                LogException(nameof(Index), ex, "Index page for Dashboard not working");
                 throw ex;
             }
         }
@@ -132,7 +132,7 @@ namespace CMS.Web.Controllers
             }
             catch(Exception ex)
             {
-                LogException(nameof(IndexForTree), ex,"not working");
+                LogException(nameof(IndexForTree), ex, "IndexForTree not working");
                 throw ex;
             }
         }
@@ -263,7 +263,7 @@ namespace CMS.Web.Controllers
             }
             catch (Exception ex)
             {
-                LogException(nameof(GetDataFromDatabase), ex,"not working");
+                LogException(nameof(GetDataFromDatabase), ex, "GetDataFromDatabase not working");
                 throw ex;
             }
         }
