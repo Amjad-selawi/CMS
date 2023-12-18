@@ -1,9 +1,9 @@
-﻿@model CMS.Application.DTOs.InterviewsDTO
+﻿@using CMS.Domain.Enums
+@model CMS.Application.DTOs.InterviewsDTO
 
-<h2>Details</h2>
+<h2>Interviews Details</h2>
 
 <div>
-    <h4>Interview</h4>
     <hr />
     <dl class="row">
 
@@ -22,6 +22,7 @@
         <dt class="col-sm-2" style="margin-top: 15px;">
             First Interviewer Name:
         </dt>
+       
         <dd class="col-sm-10" style="margin-top: 15px;">
             @Model.InterviewerName
         </dd>
@@ -29,46 +30,60 @@
         <dt class="col-sm-2" style="margin-top: 15px;">
             Second Interviewer Name:
         </dt>
+        @if (@Model.SecondInterviewerId == null)
+        {
+            <dd class="col-sm-10" style="margin-top: 15px;">
+                There is no second interviewer
+                </dd>
+        }
+        else
+        {
+        
         <dd class="col-sm-10" style="margin-top: 15px;">
             @Model.SecondInterviewerName
         </dd>
+        }
         <dt class="col-sm-2" style="margin-top: 15px;">
-            Date:
+           Interview Date:
         </dt>
         <dd class="col-sm-10" style="margin-top: 15px;">
-            @Model.Date
+            @Model.Date.ToString("dd/MM/yyyy hh:mm tt")
         </dd>
         <dt class="col-sm-2" hidden>
             Parent ID
         </dt>
 
-        @if (@Model.Score != null)
-        {
-            <dt class="col-sm-2" style="margin-top: 15px;">
-                Score:
-            </dt>
-
-            <dd class="col-sm-10" style="margin-top: 15px;">
-                @Model.Score
-            </dd>
-        }
-        else
-        {
-            <dt class="col-sm-2" style="margin-top: 15px;">
-                Score:
-            </dt>
-
-            <dd class="col-sm-10" style="margin-top: 15px;">
-                There is no score here
-            </dd>
-        }
+        <dt class="col-sm-2" style="margin-top: 15px;">
+            First Interview Score:
+        </dt>
+        <dd class="col-sm-10" style="margin-top: 15px;">
+            @if (@Model.FirstInterviewScore != null)
+            {
+                @Model.FirstInterviewScore
+            }
+            else
+            {
+                <text>No score available from the first interview.</text>
+            }
+        </dd>
 
         <dt class="col-sm-2" style="margin-top: 15px;">
             Actual Experience:
         </dt>
-        <dd class="col-sm-10" style="margin-top: 15px;">
-            @Model.ActualExperience
-        </dd>
+        @if (!User.IsInRole("HR Manager"))
+        {
+            <dd style="margin-top: 15px;" class="col-sm-10">
+                @if (Model.StatusName == StatusCode.GetName("PND"))
+                {
+                    <span class="text-danger">Please Add Result</span>
+                }
+                else
+                {
+                    @Model.ActualExperience
+                }
+            </dd>
+        }
+
         <dt class="col-sm-2" style="margin-top: 15px;">
             Status:
         </dt>
@@ -117,8 +132,8 @@
             returnAction = "MyInterviews";
         }
     }
-   <a asp-action="Edit" asp-route-id="@Model.InterviewsId" class="btn btn-primary">Edit</a>
-    <a class="btn btn-secondary" asp-action="@returnAction">Back to List</a>
+@*    <a asp-action="Edit" asp-route-id="@Model.InterviewsId" class="btn btn-primary">Edit</a>
+ *@    <a class="btn btn-secondary" asp-action="@returnAction">Back to List</a>
 
     
 </div>

@@ -2,6 +2,7 @@
 using CMS.Application.DTOs;
 using CMS.Domain.Entities;
 using CMS.Services.Interfaces;
+using CMS.Web.Customes;
 using CMS.Web.Utils;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Hosting;
@@ -13,6 +14,7 @@ using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Reflection.Metadata;
+using System.Security.Claims;
 using System.Threading.Tasks;
 
 namespace CMS.Web.Controllers
@@ -26,11 +28,13 @@ namespace CMS.Web.Controllers
         private readonly ICompanyService _companyService;
         private readonly ICountryService _countryService;
         private readonly IAttachmentService _attachmentService;
+        private readonly IHttpContextAccessor _httpContextAccessor;
 
         public CandidatesController(ICandidateService candidateService,
             IWebHostEnvironment env,
             IPositionService positionService,
-            ICompanyService companyService, ICountryService countryService,IAttachmentService attachmentService)
+            ICompanyService companyService, ICountryService countryService,IAttachmentService attachmentService
+            ,IHttpContextAccessor httpContextAccessor)
         {
             _candidateService = candidateService;
             _attachmentStoragePath = Path.Combine(env.WebRootPath, "attachments");
@@ -43,58 +47,87 @@ namespace CMS.Web.Controllers
             _companyService = companyService;
             _countryService = countryService;
             _attachmentService = attachmentService;
+            _httpContextAccessor = httpContextAccessor;
         }
+
+        public void LogException(string methodName, Exception ex, string additionalInfo = null)
+        {
+            
+            _candidateService.LogException(methodName, ex, additionalInfo);
+        }
+  
 
         public async Task<IActionResult> Index(string FullName, string Phone)
         {
-            if (User.IsInRole("Admin") || User.IsInRole("HR Manager"))
+            try
             {
-                var candidates = await _candidateService.GetAllCandidatesAsync();
-
-                if (!string.IsNullOrEmpty(Phone))
+                if (User.IsInRole("Admin") || User.IsInRole("HR Manager"))
                 {
-                    // Filter by phone number containing the provided input
-                    candidates = candidates
-                        .Where(i => i.Phone.ToString().Contains(Phone))
-                        .ToList();
-                }
+                    var candidates = await _candidateService.GetAllCandidatesAsync();
 
-                if (!string.IsNullOrEmpty(FullName))
+                    if (!string.IsNullOrEmpty(Phone))
+                    {
+                        candidates = candidates
+                            .Where(i => i.Phone.ToString().Contains(Phone))
+                            .ToList();
+                    }
+
+                    if (!string.IsNullOrEmpty(FullName))
+                    {
+                        candidates = candidates
+                            .Where(i => i.FullName.Contains(FullName, StringComparison.OrdinalIgnoreCase))
+                            .ToList();
+                    }
+
+                    return View(candidates);
+                }
+                else
                 {
-                    candidates = candidates
-                        .Where(i => i.FullName.Contains(FullName, StringComparison.OrdinalIgnoreCase))
-                        .ToList();
+                    return View("AccessDenied");
                 }
-
-                return View(candidates);
             }
-            else
+            catch (Exception ex)
             {
-                return View("AccessDenied");
+                LogException(nameof(Index), ex, "Error in CandidatesController.Index");
+                throw ex;
             }
         }
+
         public async Task<IActionResult> Details(int id)
         {
-            var Country = await _countryService.GetAll();
-            ViewBag.CountryDTOs = new SelectList(Country.Value, "Id", "Name");
-
-            var Position = await _positionService.GetAll();
-            ViewBag.positions = new SelectList(Position.Value, "Id", "Name");
-
-
-
-            var candidate = await _candidateService.GetCandidateByIdAsync(id);
-
-            if (candidate == null)
+            try
             {
-                return NotFound();
+                
+
+                var Country = await _countryService.GetAll();
+                ViewBag.CountryDTOs = new SelectList(Country.Value, "Id", "Name");
+
+                var Position = await _positionService.GetAll();
+                ViewBag.positions = new SelectList(Position.Value, "Id", "Name");
+
+                var candidate = await _candidateService.GetCandidateByIdAsync(id);
+
+                if (candidate == null)
+                {
+                    return NotFound();
+                }
+                return View(candidate);
             }
-            return View(candidate);
+            catch (Exception ex)
+            {
+                LogException(nameof(Details), ex, $"Error in CandidatesController.Details for ID: {id}");
+                throw ex;
+            }
         }
 
         public async Task<IActionResult> Create()
         {
-            var positions = await _positionService.GetAll();
+            try
+            {
+                
+
+
+                var positions = await _positionService.GetAll();
             ViewBag.positions = new SelectList(positions.Value, "Id", "Name");
 
             var CompaniesDTOs=await _companyService.GetAll();
@@ -104,6 +137,12 @@ namespace CMS.Web.Controllers
             ViewBag.CountryDTOs = new SelectList(Country.Value, "Id", "Name");
 
             return View();
+            }
+            catch (Exception ex)
+            {
+                LogException(nameof(Create), ex, "Error in CandidatesController.Create (GET)");
+                throw ex;
+            }
         }
 
 
@@ -112,7 +151,12 @@ namespace CMS.Web.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create(CandidateCreateDTO candidateDTO, IFormFile file)
         {
-            var positions = await _positionService.GetAll();
+            try
+            {
+                
+
+
+                var positions = await _positionService.GetAll();
             ViewBag.positions = new SelectList(positions.Value, "Id", "Name");
 
             var CompaniesDTOs = await _companyService.GetAll();
@@ -147,9 +191,10 @@ namespace CMS.Web.Controllers
             if (ModelState.IsValid)
             {
 
+                    candidateDTO.FullName = StringHelper.ToUpperFirstLetter(candidateDTO.FullName);
 
-                try
-                {
+                    try
+                    {
 
 
                     await _candidateService.CreateCandidateAsync(candidateDTO);
@@ -176,11 +221,22 @@ namespace CMS.Web.Controllers
             }
 
             return View(candidateDTO);
+            }
+            catch (Exception ex)
+            {
+                LogException(nameof(Create), ex, "Error in CandidatesController.Create (POST)");
+                throw ex;
+            }
         }
 
         public async Task<IActionResult> Edit(int id)
         {
-            var candidate = await _candidateService.GetCandidateByIdAsync(id);
+            try
+            {
+                
+
+
+                var candidate = await _candidateService.GetCandidateByIdAsync(id);
             if (candidate == null)
             {
                 return NotFound();
@@ -197,6 +253,12 @@ namespace CMS.Web.Controllers
             ViewBag.CountryDTOs = new SelectList(Country.Value, "Id", "Name");
 
             return View(candidate);
+            }
+            catch (Exception ex)
+            {
+                LogException(nameof(Edit), ex, $"Error in CandidatesController.Edit (GET) for ID: {id}");
+                throw ex;
+            }
         }
 
 
@@ -204,7 +266,12 @@ namespace CMS.Web.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Edit(int id, CandidateDTO candidateDTO, IFormFile file)
         {
-            if (id != candidateDTO.Id)
+            try
+            {
+                
+
+
+                if (id != candidateDTO.Id)
             {
                 return NotFound();
             }
@@ -258,12 +325,22 @@ namespace CMS.Web.Controllers
             }
 
             return RedirectToAction(nameof(Index));
+            }
+            catch (Exception ex)
+            {
+                LogException(nameof(Edit), ex, $"Error in CandidatesController.Edit (POST) for ID: {id}");
+                throw ex;
+            }
         }
 
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> UpdateAttachment(int id, IFormFile file)
         {
+            try
+            {
+
+            
             if (file == null || file.Length == 0)
             {
                 ModelState.AddModelError("File", "Please choose a file to upload.");
@@ -285,24 +362,50 @@ namespace CMS.Web.Controllers
                 
             }
             return RedirectToAction(nameof(Edit), new { id = id });
+            }
+            catch (Exception ex)
+            {
+                LogException(nameof(UpdateAttachment), ex, $"Error in CandidatesController.UpdateAttachment for ID: {id}");
+                throw ex;
+            }
         }
 
         public async Task<IActionResult> Delete(int id)
         {
+            try
+            {
+
+            
             var candidate = await _candidateService.GetCandidateByIdAsync(id);
             if (candidate == null)
             {
                 return NotFound();
             }
             return View(candidate);
+            }
+            catch (Exception ex)
+            {
+                LogException(nameof(DeleteConfirmed), ex, $"Error in CandidatesController.Delete (GET) for ID: {id}");
+                throw ex;
+            }
         }
 
         [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
+            try
+            {
+
+            
             await _candidateService.DeleteCandidateAsync(id);
             return RedirectToAction(nameof(Index));
+            }
+            catch (Exception ex)
+            {
+                LogException(nameof(DeleteConfirmed), ex, $"Error in CandidatesController.DeleteConfirmed (POST) for ID: {id}");
+                throw ex;
+            }
         }
     }
 }

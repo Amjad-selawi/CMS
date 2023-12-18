@@ -46,5 +46,11 @@ namespace CMS.Application.DTOs
         public Stream FileData { get; set; }
         public DateTime CreatedOn { get; set; }
         public List<InterviewsDTO> InterviewsDTO { get; set; }
+
+        public string LastInterviewStatus { get; set; } // Add this property
+
+        public string InterviewerName { get; set; } // Include InterviewerName
+
+
     }
 }

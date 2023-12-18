@@ -15,5 +15,8 @@ namespace CMS.Services.Interfaces
         Task DeleteAttachmentAsync(int id);
         Task<byte[]> GetAttachmentFileDataAsync(int id);
         Task UpdateAttachmentAsync(int id, AttachmentDTO attachmentDTO);
+        void LogException(string methodName, Exception ex = null, string additionalInfo = null);
+
+        
     }
 }

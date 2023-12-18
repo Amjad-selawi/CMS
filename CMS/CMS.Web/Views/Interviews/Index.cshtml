@@ -71,7 +71,7 @@
                                         <td>There is no Architecture Interviewer</td>
                                     }
                                     <td>@item.Date.ToString("dd-MM-yyyy")</td>
-                                    <td>@item.Date.ToString("HH:mm")</td>
+                                    <td>@item.Date.ToString("h:mm tt")</td>
                                     <td>@item.StatusName</td>
                                     <td hidden>@item.ParentId</td>
                                     <td>@item.Score</td>
@@ -86,13 +86,13 @@
                                         <td></td>
                                     }
                                     <td>
-                                        @if (item.InterviewerRole == "Interviewer" && item.StatusName == StatusCode.GetName("PND"))
+                                        <a class="bx bx-detail" style="font-size:x-large" asp-action="Details" asp-route-id="@item.InterviewsId" asp-route-previousAction="Index"></a>
+                                        @if ((item.InterviewerRole == "Interviewer" || item.InterviewerRole == "General Manager" || item.InterviewerRole == "Solution Architecture") && item.StatusName == StatusCode.GetName("PND"))
                                         {
                                             <a class="bx bxs-edit-alt" style="font-size:x-large" asp-action="Edit" asp-route-id="@item.InterviewsId" asp-route-idd="@item.StatusId"></a>
                                             <a class="ri-delete-bin-2-line text-danger" style="font-size:x-large" asp-action="Delete" asp-route-id="@item.InterviewsId"></a>
                                         }
 
-                                        <a class="bx bx-detail" style="font-size:x-large" asp-action="Details" asp-route-id="@item.InterviewsId" asp-route-previousAction="Index"></a> 
                                        
                                     </td>
 

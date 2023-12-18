@@ -26,10 +26,12 @@ namespace CMS.Services.Services
         private readonly SignInManager<IdentityUser> _signInManager;
         private readonly ApplicationDbContext _dbContext;
         private readonly RoleManager<IdentityRole> _roleManager;
+        private readonly IHttpContextAccessor _httpContextAccessor;
         private readonly IUserRepository _userRepository;
 
         public AccountService(UserManager<IdentityUser> userManager, SignInManager<IdentityUser> signInManager, ApplicationDbContext dbContext,
-            IUserRepository userRepository, RoleManager<IdentityRole> roleManager
+            IUserRepository userRepository, RoleManager<IdentityRole> roleManager,
+            IHttpContextAccessor httpContextAccessor
 
             )
         {
@@ -38,25 +40,26 @@ namespace CMS.Services.Services
             _dbContext = dbContext;
             _userRepository = userRepository;
             _roleManager = roleManager;
+            _httpContextAccessor = httpContextAccessor;
         }
 
-        public void LogException(string methodName, Exception ex, string createdByUserId, string additionalInfo)
+        public async void LogException(string methodName, Exception ex, string additionalInfo)
         {
+            var currentUser = await _userManager.GetUserAsync(_httpContextAccessor.HttpContext.User);
+            var userId = currentUser?.Id;
             _dbContext.Logs.Add(new Log
             {
                 MethodName = methodName,
                 ExceptionMessage = ex.Message,
-                StackTrace = ex.StackTrace,
+                StackTrace = ex.StackTrace,CreatedByUserId = userId,
                 LogTime = DateTime.Now,
-                CreatedByUserId = createdByUserId,
+                
                 AdditionalInfo = additionalInfo
             });
             _dbContext.SaveChanges();
         }
 
 
-
-    
         public async Task<List<Login>> GetAllUsersAsync()
         {
             try
@@ -76,7 +79,7 @@ namespace CMS.Services.Services
             }
            catch (Exception ex)
             {
-                LogException(nameof(GetAllUsersAsync), ex,null,null);
+                LogException(nameof(GetAllUsersAsync), ex,null);
                 throw ex;
             }
         }
@@ -101,12 +104,12 @@ namespace CMS.Services.Services
           
              catch (Exception ex)
             {
-                LogException(nameof(LoginAsync), ex, null, null);
+                LogException(nameof(LoginAsync), ex, "LoginAsync not working");
                 throw ex;
             }
         }
 
-        public async Task<bool> DeleteAccountAsync(string id, string ByUserId)
+        public async Task<bool> DeleteAccountAsync(string id)
         {
             try
             {
@@ -115,12 +118,12 @@ namespace CMS.Services.Services
             }
             catch (Exception ex)
             {
-                LogException(nameof(DeleteAccountAsync), ex,$"Deleted By :{ByUserId}",$"Error while deleting Account with id :{id}");
+                LogException(nameof(DeleteAccountAsync), ex,$"Error while deleting Account with id :{id}");
                 throw ex;
             }
         }
 
-        public async Task LogoutAsync(string ByUserId)
+        public async Task LogoutAsync()
         {
             try
             {
@@ -129,7 +132,7 @@ namespace CMS.Services.Services
             }
             catch (Exception ex)
             {
-                LogException(nameof(LogoutAsync), ex, ByUserId, $"Error while Logout");
+                LogException(nameof(LogoutAsync), ex, $"Error while Logout");
                 throw ex;
             }
         }
@@ -137,26 +140,66 @@ namespace CMS.Services.Services
         {
             try
             {
-                var interviewerRole = await _roleManager.FindByNameAsync("Interviewer");
-                if (interviewerRole == null)
-                {
-                    return Result<IList<IdentityUser>>.Failure(null, "Requested Role Not Found");
-                }
-                var interviewers = await _userManager.GetUsersInRoleAsync(interviewerRole.Name);
-                if (interviewers == null)
-                {
-                    return Result<IList<IdentityUser>>.Failure(null, "No Interviewers found");
-                }
-                return Result<IList<IdentityUser>>.Success(interviewers);
-            }
-           
+                // Get all users
+                var users = await _userManager.Users.ToListAsync();
 
-              catch (Exception ex)
+                if (users == null || users.Count == 0)
+                {
+                    return Result<IList<IdentityUser>>.Failure(null, "No users found");
+                }
+
+                // Get the HR Manager role
+                var hrManagerRole = await _roleManager.FindByNameAsync("HR Manager");
+                var adminRole = await _roleManager.FindByNameAsync("Admin");
+
+
+                if (hrManagerRole == null)
+                {
+                    return Result<IList<IdentityUser>>.Failure(null, "HR Manager Role Not Found");
+                }
+                if (adminRole == null)
+                {
+                    return Result<IList<IdentityUser>>.Failure(null, "Admin Role Not Found");
+                }
+
+                // Filter out users with the HR Manager role
+                var usersExcludingHRManager = users
+                    .Where(user => !(_userManager.IsInRoleAsync(user, hrManagerRole.Name).Result || _userManager.IsInRoleAsync(user, adminRole.Name).Result))
+                            .ToList();
+                return Result<IList<IdentityUser>>.Success(usersExcludingHRManager);
+            }
+            catch (Exception ex)
             {
-                LogException(nameof(GetAllInterviewers), ex,null, "Error while Getting All Interviewers");
+                LogException(nameof(GetAllInterviewers), ex, "Error while getting all users excluding HR Manager");
                 throw ex;
             }
         }
+
+        public async Task<Result<IList<IdentityUser>>> GetAllInterviewersGM()
+        {
+            try
+            {
+                var GMRole = await _roleManager.FindByNameAsync("General Manager");
+                if (GMRole == null)
+                {
+                    return Result<IList<IdentityUser>>.Failure(null, "Requested Role Not Found");
+                }
+                var interviewers = await _userManager.GetUsersInRoleAsync(GMRole.Name);
+                if (interviewers == null)
+                {
+                    return Result<IList<IdentityUser>>.Failure(null, "No General Manager found");
+                }
+                return Result<IList<IdentityUser>>.Success(interviewers);
+            }
+
+
+            catch (Exception ex)
+            {
+                LogException(nameof(GetAllInterviewersGM), ex, "Error while Getting All Interviewers");
+                throw ex;
+            }
+        }
+
         public async Task<Result<IList<IdentityUser>>> GetAllArchitectureInterviewers()
         {
             try
@@ -177,7 +220,7 @@ namespace CMS.Services.Services
 
             catch (Exception ex)
             {
-                LogException(nameof(GetAllArchitectureInterviewers), ex,null, "Error while Getting All Architecture");
+                LogException(nameof(GetAllArchitectureInterviewers), ex, "Error while Getting All Architecture");
                 throw ex;
             }
         }
@@ -192,7 +235,7 @@ namespace CMS.Services.Services
 
             catch (Exception ex)
             {
-                LogException(nameof(GetUserRoleAsync), ex, null, "Error while Getting user role");
+                LogException(nameof(GetUserRoleAsync), ex, "Error while Getting user role");
                 throw ex;
             }
         }
@@ -205,7 +248,7 @@ namespace CMS.Services.Services
             }
             catch (Exception ex)
             {
-                LogException(nameof(GetUserByEmailAsync), ex, null, "Error while Getting user by email");
+                LogException(nameof(GetUserByEmailAsync), ex, "Error while Getting user by email");
                 throw ex;
             }
         }
@@ -235,7 +278,7 @@ namespace CMS.Services.Services
 
               catch (Exception ex)
             {
-                LogException(nameof(GetAllUsersWithRoles), ex, null, "Error while Getting all users with roles");
+                LogException(nameof(GetAllUsersWithRoles), ex, "Error while Getting all users with roles");
                 throw ex;
             }
         }
@@ -265,7 +308,7 @@ namespace CMS.Services.Services
 
             catch (Exception ex)
             {
-                LogException(nameof(GetUsersById), ex, null, null);
+                LogException(nameof(GetUsersById), ex, "GetUsersById not working");
                 throw ex;
             }
         }
@@ -294,52 +337,45 @@ namespace CMS.Services.Services
         //    }
         //}
 
-        public async Task SendRegistrationEmail(IdentityUser user, string password)
+        public async Task SendRegistrationEmail(IdentityUser user, string password, EmailDTOs emailmodel)
         {
             try
             {
-                var smtp = new SmtpClient();
+                SmtpClient smtp = new SmtpClient();
                 smtp.Host = "mail.sssprocess.com";
                 smtp.Port = 587;
                 smtp.DeliveryMethod = SmtpDeliveryMethod.Network;
-                smtp.EnableSsl = true;
+                smtp.EnableSsl = false;
                 smtp.UseDefaultCredentials = true;
                 string UserName = "notifications@sss-process.org";
                 string Password = "P@ssw0rd";
                 smtp.Credentials = new NetworkCredential(UserName, Password);
 
+                using (var message = new MailMessage())
+                {
+                    message.From = new MailAddress("notifications@techprocess.net");
 
+                    if (emailmodel.EmailTo != null && emailmodel.EmailTo.Any())
+                    {
+                        foreach (var to in emailmodel.EmailTo)
+                        {
+                            message.To.Add(to);
+                        }
+                    }
 
+                    message.Body = emailmodel.EmailBody;
+                    message.Subject = emailmodel.Subject;
+                    message.IsBodyHtml = true;
 
-                var subject = "Welcome to Your Website";
-                var body = $"Dear {user.UserName},\n\n"
-                   + $"Your account details:\n"
-                   + $"Username: {user.UserName}\n"
-                   + $"Email: {user.Email}\n"
-                   + $"Password: {password}\n\n"
-                   + $"Login to your account: [https://apps.sssprocess.com:6134/]";
-
-        // Sender and recipient email addresses
-        var fromAddress = new MailAddress(UserName);
-        var toAddress = new MailAddress(user.Email, user.UserName);
-
-        var message = new MailMessage(fromAddress, toAddress)
-        {
-            Subject = subject,
-            Body = body,
-            IsBodyHtml = true,
-        };
-
-        smtp.Send(message);
-
+                    smtp.Send(message);
+                }
             }
             catch (Exception ex)
             {
-                LogException(nameof(SendRegistrationEmail), ex, null, "Error while Registration");
+                LogException(nameof(SendRegistrationEmail), ex, "Faild to send an email");
                 throw ex;
             }
         }
 
-
-    }
+        }
 }

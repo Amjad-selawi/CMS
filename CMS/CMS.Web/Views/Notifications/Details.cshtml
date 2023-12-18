@@ -24,9 +24,8 @@
     @if (User.IsInRole("HR Manager"))
     {
         <div class="">
-        <a class="btn btn-primary" asp-action="Index">Back to main list</a>
-        <a class="btn btn-secondary" asp-action="IndexHRnotification" style="margin-left: 12px;">Back to your Notification list</a>
-        </div>
+        <a class="btn btn-secondary" asp-action="IndexHRnotification" style="margin-left: 12px;">Back to List</a>
+    </div>
     }
     else if (User.IsInRole("Interviewer"))
     {
@@ -35,6 +34,10 @@
     else if (User.IsInRole("General Manager"))
     {
         <a class="btn btn-secondary" asp-action="IndexGMnotification">Back to List</a>
+    }
+    else if (User.IsInRole("Solution Architecture"))
+    {
+        <a class="btn btn-secondary" asp-action="IndexArchinotification">Back to List</a>
     }
     else
     {

@@ -35,6 +35,20 @@
 
 
     <div class="form-group" style="margin-top: 15px;">
+
+        <label asp-for="PositionId" class="control-label"><span class="text-danger">*</span> Position</label>
+        @if (ViewBag.positions != null)
+        {
+            <select style="width: 30%;" asp-for="PositionId" asp-items="@(ViewBag.positions)" class="form-control">
+                <option value="">-- Select a position --</option>
+
+            </select>
+        }
+
+        <span asp-validation-for="PositionId" class="text-danger"></span>
+    </div>
+
+    <div class="form-group" style="margin-top: 15px;">
         <label asp-for="Experience" class="control-label"><span class="text-danger">*</span> Experience</label>
         <input style="width: 30%;" asp-for="Experience" class="form-control" />
         <span asp-validation-for="Experience" class="text-danger"></span>
@@ -47,7 +61,7 @@
     <!-- Add other fields similarly -->
    
     <div class="form-group " style="margin-top:15px;">
-        <input type="submit" value="Save" class="btn btn-primary" />
+        <input type="submit" value="Submit" class="btn btn-primary" />
         <a class="btn btn-secondary" asp-action="Index">Back to List</a>
 
     </div>

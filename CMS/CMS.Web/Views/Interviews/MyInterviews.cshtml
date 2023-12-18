@@ -50,7 +50,10 @@
                             {
                                 <th>Score</th>
                             }
-                            <th>Actual Experience</th>
+                            @if (!User.IsInRole("HR Manager"))
+                            {
+                                <th>Actual Experience</th>
+                            }
                           
                             <th>Status</th>
                             <th hidden>Notes</th>
@@ -72,13 +75,23 @@
                                 <td>@Html.DisplayFor(modelItem => item.Name)</td>
                                 <td hidden>@item.InterviewerName</td>
                                 <td>@item.Date.ToString("dd-MM-yyyy")</td>
-                                <td>@item.Date.ToString("HH:mm")</td>
+                                <td>@item.Date.ToString("h:mm tt")</td>
                                 <td hidden>@item.ParentId</td>
                                 @if (User.IsInRole("Interviewer"))
                                 {
                                     <td>@item.Score</td>
                                 }
-                                <td>@item.ActualExperience</td>
+                                @if (!User.IsInRole("HR Manager"))
+                                {
+                                    @if (item.StatusName == StatusCode.GetName("PND"))
+                                    {
+                                        <td class="text-danger">Please Add Result</td>
+                                    }
+                                    else
+                                    {
+                                        <td>@item.ActualExperience</td>
+                                    }
+                                }
                                 <td>@item.StatusName</td>
                                 <td hidden>@item.Notes</td>
                                 @if (User.IsInRole("Interviewer"))
@@ -98,7 +111,8 @@
                                 }
                                 else
                                 {
-                                    <td></td>
+                                    <td>CV not added for<br />
+                                        this candidate</td>
                                 }
                                 
                                 
@@ -112,7 +126,7 @@
                                 }
                                 else{
                                     
-                                    if (item.isUpdated == false || User.IsInRole("HR Manager"))
+                                    if ((item.isUpdated == false || User.IsInRole("HR Manager"))  && item.StatusName == StatusCode.GetName("PND"))
                                     {
                                 <td>
                                         <a class="bx bx-plus" style="font-size:x-large" asp-action="UpdateAfterInterview" asp-route-id="@item.InterviewsId" asp-route-idd="@item.InterviewerId" asp-route-iddd="@item.EvalutaionFormId"> </a>

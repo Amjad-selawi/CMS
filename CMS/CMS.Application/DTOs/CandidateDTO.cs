@@ -51,10 +51,10 @@ namespace CMS.Application.DTOs
         public string Status { get; set; }
         public double? Score { get; set; }
 
+        public string LastInterviewStatus { get; set; } // Add this property
 
 
-
-
+        public string InterviewerName { get; set; } // Include InterviewerName
 
     }
 }

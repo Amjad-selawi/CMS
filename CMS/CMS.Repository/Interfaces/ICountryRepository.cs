@@ -8,16 +8,16 @@ namespace CMS.Repository.Interfaces
 {
     public interface ICountryRepository
     {
-        Task<int> Insert(Country entity, string UserId);
-        Task<int> Update(Country entity, string UserId);
-        int Delete(int id, string UserId);
+        Task<int> Insert(Country entity);
+        Task<int> Update(Country entity);
+        int Delete(int id);
         //Task<int> Delete(int id);
-        Task<Country> GetById(int id, string UserId);
+        Task<Country> GetById(int id);
         Task<List<Country>> GetAll();
 
         bool DoesCountryNameExist(string name);
         Task<IEnumerable<Country>> GetAllCountriesAsync();
 
-        void LogException(string methodName, Exception ex, string createdByUserId, string additionalInfo);
+        void LogException(string methodName, Exception ex, string additionalInfo);
     }
 }

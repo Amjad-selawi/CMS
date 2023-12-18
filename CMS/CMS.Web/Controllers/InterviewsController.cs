@@ -27,6 +27,7 @@ using Habanero.Util;
 using CMS.Repository.Interfaces;
 using Hangfire;
 using System.Security.Claims;
+using CMS.Domain.Migrations;
 
 namespace CMS.Web.Controllers
 {
@@ -42,16 +43,19 @@ namespace CMS.Web.Controllers
         private readonly IInterviewsRepository _interviewsRepository;
         private readonly string _attachmentStoragePath;
         private readonly IHttpContextAccessor _httpContextAccessor;
+        private readonly UserManager<IdentityUser> _userManager;
 
         public InterviewsController(IInterviewsService interviewsService, ICandidateService candidateService,
             IPositionService positionService, IStatusService statusService, IWebHostEnvironment env,
-            IAccountService accountService, INotificationsService notificationsService, IInterviewsRepository interviewsRepository, IHttpContextAccessor httpContextAccessor)
+            IAccountService accountService, INotificationsService notificationsService, 
+            IInterviewsRepository interviewsRepository, IHttpContextAccessor httpContextAccessor, UserManager<IdentityUser> userManager)
         {
             _interviewsService = interviewsService;
             _candidateService = candidateService;
             _positionService = positionService;
             _StatusService = statusService;
             _httpContextAccessor = httpContextAccessor;
+            _userManager = userManager;
             _accountService = accountService;
             _notificationsService = notificationsService;
             _interviewsRepository = interviewsRepository;
@@ -63,16 +67,21 @@ namespace CMS.Web.Controllers
             }
         }
 
-
-        private string GetUserId()
+        public void LogException(string methodName, Exception ex, string additionalInfo = null)
         {
-            var userId = _httpContextAccessor.HttpContext.User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-            return userId;
+            
+            _interviewsService.LogException(methodName, ex, additionalInfo);
         }
+     
+      
 
 
         public async Task<ActionResult> MyInterviews(int? statusFilter)
         {
+            try
+            {
+
+            
             if (User.IsInRole("Interviewer") || User.IsInRole("General Manager") || User.IsInRole("HR Manager") || User.IsInRole("Solution Architecture"))
             { 
                 // Get all statuses
@@ -117,6 +126,12 @@ namespace CMS.Web.Controllers
             {
                 return View("AccessDenied");
             }
+            }
+            catch (Exception ex)
+            {
+                LogException(nameof(MyInterviews), ex, "Faild to load MyInterviews");
+                throw ex;
+            }
         }
 
 
@@ -124,7 +139,10 @@ namespace CMS.Web.Controllers
         // GET: InterviewsController
         public async Task<ActionResult> Index()
         {
+            try
+            {
 
+            
             if (User.IsInRole("Admin") || User.IsInRole("HR Manager"))
             {
 
@@ -145,13 +163,25 @@ namespace CMS.Web.Controllers
             {
                 return View("AccessDenied");
             }
+            }
+            catch (Exception ex)
+            {
+                LogException(nameof(Index), ex, "Faild to load Interviews index page");
+                throw ex;
+            }
         }
 
+    
         // GET: InterviewsController/Details/5
         public async Task<ActionResult> Details(int id, string previousAction)
         {
-            ViewBag.PreviousAction = previousAction;
-            var result = await _interviewsService.GetById(id, GetUserId());
+            try
+            {
+
+                
+
+                ViewBag.PreviousAction = previousAction;
+            var result = await _interviewsService.GetById(id);
 
             await LoadSelectionLists();
 
@@ -171,10 +201,20 @@ namespace CMS.Web.Controllers
                 ModelState.AddModelError("", result.Error);
                 return View();
             }
+            }
+            catch (Exception ex)
+            {
+                LogException(nameof(Details), ex, $"Faild to load Interview details with ID: {id} ");
+                throw ex;
+            }
         }
 
         public async Task<ActionResult> ShowHistory(int id)
         {
+            try
+            {
+
+            
             var result =await _interviewsService.ShowHistory(id);
 
             if (result.IsSuccess)
@@ -187,18 +227,37 @@ namespace CMS.Web.Controllers
                 ModelState.AddModelError("", result.Error);
                 return View();
             }
+            }
+            catch (Exception ex)
+            {
+                LogException(nameof(ShowHistory), ex, "Faild to load show history page");
+                throw ex;
+            }
         }
 
         //[Authorize(Roles = "General Manager")]
         // GET: InterviewsController/Create
         public async Task<ActionResult> Create()
         {
+            try
+            {
+
+            
             await LoadSelectionLists();
             return View();
+            }
+            catch (Exception ex)
+            {
+                LogException(nameof(Create), ex, "Faild to load interview create page");
+                throw ex;
+            }
         }
         private async Task LoadSelectionLists()
         {
-            var positions = await _positionService.GetAll();
+            try
+            {
+                
+                var positions = await _positionService.GetAll();
             ViewBag.positionList = new SelectList(positions.Value, "Id", "Name");
             var candidates = await _candidateService.GetAllCandidatesAsync();
             ViewBag.candidateList = new SelectList(candidates, "Id", "FullName");
@@ -208,6 +267,12 @@ namespace CMS.Web.Controllers
             ViewBag.architecturesList = new SelectList(architectures.Value, "Id", "UserName");
             var statuses = await _StatusService.GetAll();
             ViewBag.statusList = new SelectList(statuses.Value, "Id", "Name");
+            }
+            catch (Exception ex)
+            {
+                LogException(nameof(LoadSelectionLists), ex, "Faild to LoadSelectionLists");
+                throw ex;
+            }
         }
         // POST: InterviewsController/Create
 
@@ -215,73 +280,151 @@ namespace CMS.Web.Controllers
         [ValidateAntiForgeryToken]
         public async Task<ActionResult> Create(InterviewsDTO collection)
         {
-
-            await LoadSelectionLists();
-
-            if (ModelState.IsValid)
+            try
             {
-                var result = await _interviewsService.Insert(collection, GetUserId());
+                var firstInterviewerRoles = await _interviewsService.GetInterviewerRole(collection.InterviewerId);
+                var secondInterviewerRoles = await _interviewsService.GetInterviewerRole(collection.SecondInterviewerId);
 
+                await LoadSelectionLists();
 
-                if (result.IsSuccess)
+                if (ModelState.IsValid)
                 {
-                    if (User.IsInRole("HR Manager") || User.IsInRole("Admin"))
+                    var result = await _interviewsService.Insert(collection);
+
+                    if (result.IsSuccess)
                     {
-                        var selectedInterviewerId = collection.InterviewerId;
-                        HttpContext.Session.SetString("ArchitectureInterviewerId", collection.ArchitectureInterviewerId ?? "");
-
-                        await _notificationsService.CreateInterviewNotificationForInterviewerAsync(collection.Date, collection.CandidateId, collection.PositionId, selectedInterviewerId, isCanceled: false);
-
-                        ScheduleInterviewReminder(collection);
-
-                        var interviewerEmail = await GetInterviewerEmail(collection.InterviewerId);
-                        EmailDTOs emailModel = new EmailDTOs
+                        if (User.IsInRole("HR Manager") || User.IsInRole("Admin"))
                         {
-                            EmailTo = new List<string> { interviewerEmail },
-                            EmailBody = $"You have an interview scheduled on {collection.Date}. Please be prepared.",
-                            Subject = "Interview Invitation"
-                        };
+                            var selectedInterviewerId = collection.InterviewerId;
+                            var insertedInterview = result.Value;
+                            collection.InterviewsId = insertedInterview.InterviewsId;
 
-                        //Send an Email to the interviewer
-                        await SendEmailToInterviewer(interviewerEmail, collection, emailModel);
+                            HttpContext.Session.SetString($"SecondInterviewerId_{collection.InterviewsId}", collection.SecondInterviewerId ?? "");
+                            HttpContext.Session.SetString($"InterviewerId_{collection.InterviewsId}", collection.InterviewerId ?? "");
+                            HttpContext.Session.SetString("ArchitectureInterviewerId", collection.ArchitectureInterviewerId ?? "");
+                            // Get Candidate Name By Id
+                            var candidateName = await _candidateService.GetCandidateByIdAsync(collection.CandidateId);
+                            var candidateNameresult = candidateName.FullName;
 
-                        var reminderJobId = BackgroundJob.Schedule(() => ReminderJobAsync(selectedInterviewerId, collection), collection.Date.AddHours(16));
+                            // Get Position Name By Id
+                            var positionName = await _positionService.GetById(collection.PositionId);
+                            var positionNameresult = positionName.Value;
+                            var lastPositionName = positionNameresult.Name;
 
+                            string userName = GetLoggedInUserName();
 
-                        return RedirectToAction("Index");
+                            string userSecondInterviewer = null;
+
+                            var secondInterviewerEmail = await GetInterviewerEmail(collection.SecondInterviewerId);
+                            if (secondInterviewerEmail != null)
+                            {
+                                var userSecondInterviewerObj = await _userManager.FindByEmailAsync(secondInterviewerEmail);
+                                userSecondInterviewer = userSecondInterviewerObj.UserName;
+                            }
+
+                            var formattedDate = collection.Date.ToString("dd/MM/yyyy hh:mm tt");
+
+                            // Prepare the email model for the first interviewer
+                            var interviewerEmail = await GetInterviewerEmail(collection.InterviewerId);
+                            var userInterviewer = await _userManager.FindByEmailAsync(interviewerEmail);
+
+                            EmailDTOs emailModel = new EmailDTOs
+                            {
+                                EmailTo = new List<string> { interviewerEmail },
+                                Subject = "First Interview Invitation",
+                                EmailBody = $@"<html>
+                            <body style='font-family: Arial, sans-serif;'>
+                                <div style='background-color: #f5f5f5; padding: 20px; border-radius: 10px;'>
+                                    <p style='font-size: 18px; color: #333;'>
+                                        Dear {userInterviewer},
+                                    </p>
+                                    <p style='font-size: 16px; color: #555;'>
+                                {(collection.SecondInterviewerId != null ? $"You and {userSecondInterviewer} are" : "You are")} assigned to have a first interview for {candidateNameresult} scheduled on {formattedDate} for the {lastPositionName} position, kindly login to the system using the below link <a href='https://apps.sssprocess.com:6134/'>Click here</a>
+                                    </p>
+                                    <p style='font-size: 14px; color: #777;'>
+                                        Regards,
+                                    </p>
+                                </div>
+                            </body>
+                        </html>"
+                            };
+
+                            await _notificationsService.CreateInterviewNotificationForInterviewerAsync(collection.Date, collection.CandidateId, collection.PositionId, new List<string> { collection.InterviewerId, collection.SecondInterviewerId }, isCanceled: false);
+
+                            // Prepare the email model for the second interviewer if selected
+                            if (collection.SecondInterviewerId != null)
+                            {
+                              
+                                EmailDTOs emailModel2 = new EmailDTOs
+                                {
+                                    EmailTo = new List<string> { secondInterviewerEmail },
+                                    Subject = "First Interview Invitation",
+                                    EmailBody = $@"<html>
+                                <body style='font-family: Arial, sans-serif;'>
+                                    <div style='background-color: #f5f5f5; padding: 20px; border-radius: 10px;'>
+                                        <p style='font-size: 18px; color: #333;'>
+                                            Dear {userSecondInterviewer},
+                                        </p>
+                                        <p style='font-size: 16px; color: #555;'>
+                                            You and {userInterviewer} are assigned to have a first interview with {userInterviewer} for {candidateNameresult} scheduled on {collection.Date} for the {lastPositionName} position, kindly login to the system using the below link <a href='https://apps.sssprocess.com:6134/'>Click here</a>
+                                        </p>
+                                        <p style='font-size: 14px; color: #777;'>
+                                            Regards,
+                                        </p>
+                                    </div>
+                                </body>
+                            </html>"
+                                };
+
+                                // Send emails to both first and second interviewers
+                                await SendEmailToInterviewer(secondInterviewerEmail, collection, emailModel2);
+                                await SendEmailToInterviewer(interviewerEmail, collection, emailModel);
+                            }
+                            else
+                            {
+                                // Send email only to the first interviewer if the second interviewer is not selected
+                                await SendEmailToInterviewer(interviewerEmail, collection, emailModel);
+                            }
+
+                            return RedirectToAction("Index");
+                        }
+                        else
+                        {
+                            return RedirectToAction("Index");
+                        }
                     }
 
-
-                    else
-                    {
-                        return RedirectToAction("Index");
-                    }
-
-
+                    ModelState.AddModelError("", result.Error);
+                }
+                else
+                {
+                    ModelState.AddModelError("", "Error validating the model");
                 }
 
-                ModelState.AddModelError("", result.Error);
+                return View(collection);
             }
-            else
+            catch (Exception ex)
             {
-                ModelState.AddModelError("", "error validating the model");
+                LogException(nameof(Create), ex, "Failed to create interview");
+                throw ex;
             }
-
-            return View(collection);
-
-
         }
 
         // GET: InterviewsController/Edit/5
         public async Task<ActionResult> Edit(int id)
         {
-            if (id <= 0)
+            try
+            {
+                
+
+
+                if (id <= 0)
             {
                 return NotFound();
             }
             var StatusDTOs = await _StatusService.GetAll();
             ViewBag.StatusDTOs = new SelectList(StatusDTOs.Value, "Id", "Name");
-            var result = await _interviewsService.GetById(id, GetUserId());
+            var result = await _interviewsService.GetById(id);
             var interviewDTO = result.Value;
             if (interviewDTO == null)
             {
@@ -290,6 +433,12 @@ namespace CMS.Web.Controllers
             await LoadSelectionLists();
 
             return View(interviewDTO);
+            }
+            catch (Exception ex)
+            {
+                LogException(nameof(Edit), ex, "Faild to load edit interview page");
+                throw ex;
+            }
         }
 
         // POST: InterviewsController/Edit/5
@@ -297,7 +446,13 @@ namespace CMS.Web.Controllers
         [ValidateAntiForgeryToken]
         public async Task<ActionResult> Edit(int id, InterviewsDTO collection)
         {
-            if (collection == null)
+            try
+            {
+                
+
+
+
+                if (collection == null)
             {
                 ModelState.AddModelError("", $"the interview dto you are trying to update is null ");
                 return RedirectToAction("Index");
@@ -320,13 +475,13 @@ namespace CMS.Web.Controllers
             if (status.Code == Domain.Enums.StatusCode.Rejected)
             {
                 var selectedInterviewerId = collection.InterviewerId;
-                await _notificationsService.CreateInterviewNotificationForInterviewerAsync(collection.Date, collection.CandidateId, collection.PositionId, selectedInterviewerId, isCanceled: true);
-            }
+                    await _notificationsService.CreateInterviewNotificationForInterviewerAsync(collection.Date, collection.CandidateId, collection.PositionId, new List<string> { collection.InterviewerId, collection.SecondInterviewerId }, isCanceled: false);
+                }
 
 
-            if (ModelState.IsValid)
+                if (ModelState.IsValid)
             {
-                var result = await _interviewsService.Update(collection, GetUserId());
+                var result = await _interviewsService.Update(collection);
 
                 if (result.IsSuccess)
                 {
@@ -341,13 +496,24 @@ namespace CMS.Web.Controllers
                 ModelState.AddModelError("", $"");
             }
             return View(collection);
+            }
+            catch (Exception ex)
+            {
+                LogException(nameof(Edit), ex, "Faild to edit interview");
+                throw ex;
+            }
         }
 
 
         // GET: InterviewsController/Delete/5
         public async Task<ActionResult> Delete(int id)
         {
-            var result = await _interviewsService.GetById(id, GetUserId());
+            try
+            {
+                
+
+
+                var result = await _interviewsService.GetById(id);
             if (result.IsSuccess)
             {
                 var interviewDTO = result.Value;
@@ -365,6 +531,12 @@ namespace CMS.Web.Controllers
                 ModelState.AddModelError("", result.Error);
                 return View();
             }
+            }
+            catch (Exception ex)
+            {
+                LogException(nameof(Delete), ex, "Faild to load delete interview page");
+                throw ex;
+            }
         }
 
         // POST: InterviewsController/Delete/5
@@ -372,17 +544,28 @@ namespace CMS.Web.Controllers
         [ValidateAntiForgeryToken]
         public async Task<ActionResult> Delete(int id, InterviewsDTO collection)
         {
-            if (id <= 0)
+            try
+            {
+                
+
+
+                if (id <= 0)
             {
                 return BadRequest("invalid career offer id");
             }
-            var result = await _interviewsService.Delete(id, GetUserId());
+            var result = await _interviewsService.Delete(id);
             if (result.IsSuccess)
             {
                 return RedirectToAction("Index");
             }
             ModelState.AddModelError("", result.Error);
             return View();
+            }
+            catch (Exception ex)
+            {
+                LogException(nameof(Delete), ex, "Faild to delete interview");
+                throw ex;
+            }
         }
 
         [HttpPost]
@@ -390,8 +573,12 @@ namespace CMS.Web.Controllers
         public async Task<IActionResult> UpdateAttachment(int id, IFormFile file)
         {
 
+            try
+            {
+                
 
-            if (file == null || file.Length == 0)
+
+                if (file == null || file.Length == 0)
             {
                 ModelState.AddModelError("File", "Please choose a file to upload.");
                 return View();
@@ -401,7 +588,7 @@ namespace CMS.Web.Controllers
                 var stream = await AttachmentHelper.handleUpload(file, _attachmentStoragePath);
                 try
                 {
-                    await _interviewsService.UpdateInterviewAttachmentAsync(id, file.FileName, file.Length, stream, GetUserId());
+                    await _interviewsService.UpdateInterviewAttachmentAsync(id, file.FileName, file.Length, stream);
                     return RedirectToAction(nameof(Index));
                 }
                 finally
@@ -412,23 +599,56 @@ namespace CMS.Web.Controllers
 
             }
             return RedirectToAction(nameof(Index));
+            }
+            catch (Exception ex)
+            {
+                LogException(nameof(UpdateAttachment), ex, "UpdateAttachment not working");
+                throw ex;
+            }
         }
         public async Task<IActionResult> UpdateAfterInterview(int id)
         {
-            var StatusDTOs = await _StatusService.GetAll();
+            try
+            {
+                
+
+
+                var StatusDTOs = await _StatusService.GetAll();
             ViewBag.StatusDTOs = new SelectList(StatusDTOs.Value, "Id", "Name");
 
-            var result = await _interviewsService.GetById(id, GetUserId());
+            var result = await _interviewsService.GetById(id);
             var InterviewsDTO = result.Value;
 
             return View(InterviewsDTO);
+            }
+            catch (Exception ex)
+            {
+                LogException(nameof(UpdateAfterInterview), ex, "UpdateAfterInterview not working");
+                throw ex;
+            }
         }
      
 
         [HttpPost]
         public async Task<IActionResult> UpdateAfterInterview(InterviewsDTO interviewsDTO, IFormFile file)
         {
-            var StatusDTOs = await _StatusService.GetAll();
+            try
+            {
+
+                var firstInterviewerRoles = await _interviewsService.GetInterviewerRole(interviewsDTO.InterviewerId);
+                var secondInterviewerRoles = await _interviewsService.GetInterviewerRole(interviewsDTO.SecondInterviewerId);
+
+
+                //Get Candidate Name By Id
+                var candidateName = await _candidateService.GetCandidateByIdAsync(interviewsDTO.CandidateId);
+                var candidateNameresult = candidateName.FullName;
+
+                //Get Position Name By Id
+                var positionName = await _positionService.GetById(interviewsDTO.PositionId);
+                var positionNameresult = positionName.Value;
+                var lastPositionName = positionNameresult.Name;
+
+                var StatusDTOs = await _StatusService.GetAll();
             ViewBag.StatusDTOs = new SelectList(StatusDTOs.Value, "Id", "Name");
 
             var validationErrors = new List<string>();
@@ -438,10 +658,14 @@ namespace CMS.Web.Controllers
                 ModelState.AddModelError("AttachmentId", "Please choose a file to upload.");
             }
 
-            if (interviewsDTO.ActualExperience == null)
-            {
-                ModelState.AddModelError("ActualExperience", "Please add the actual experience.");
-            }
+                if (User.IsInRole("Interviewer") || User.IsInRole("General Manager") || User.IsInRole("Solution Architecture"))
+                {
+                    if (interviewsDTO.ActualExperience == null)
+                    {
+                        ModelState.AddModelError("ActualExperience", "Please add the actual experience.");
+                    }
+                }
+          
 
             if (!interviewsDTO.StatusId.HasValue)
             {
@@ -497,9 +721,56 @@ namespace CMS.Web.Controllers
             {
                 try
                 {
-                    await _interviewsService.ConductInterview(interviewsDTO, GetUserId());
+                        var currentUser = await _userManager.GetUserAsync(_httpContextAccessor.HttpContext.User);
 
-                    if (attachmentStream != null)
+                        if (await _userManager.IsInRoleAsync(currentUser, "General Manager"))
+                        {
+                            await _interviewsService.ConductInterviewForGm(interviewsDTO);
+
+                        }
+                        else if(await _userManager.IsInRoleAsync(currentUser, "Interviewer"))
+                        {
+                            var secondInterviewerId = HttpContext.Session.GetString($"SecondInterviewerId_{interviewsDTO.InterviewsId}");
+                            var interviewerId = HttpContext.Session.GetString($"InterviewerId_{interviewsDTO.InterviewsId}");
+
+
+                            await _interviewsService.ConductInterview(interviewsDTO, interviewerId, secondInterviewerId);
+                        }
+                        else
+                        {
+                            var firstinterviewer = await _userManager.FindByIdAsync(interviewsDTO.InterviewerId);
+
+                            var secondInterviewerId = HttpContext.Session.GetString($"SecondInterviewerId_{interviewsDTO.InterviewsId}");
+                            var secondInterviewer = await _userManager.FindByIdAsync(secondInterviewerId);
+                            var interviewerId = HttpContext.Session.GetString($"InterviewerId_{interviewsDTO.InterviewsId}");
+
+                            if (secondInterviewer !=null)
+                            {
+                                var isInterviewerGMCombo = await IsUserInRolesAsync(firstinterviewer.Id, secondInterviewer.Id, "Solution Architecture", "General Manager");
+                                var isGMInterviewerCombo = await IsUserInRolesAsync(firstinterviewer.Id, secondInterviewer.Id, "General Manager", "Solution Architecture");
+                            
+
+
+
+
+                            if (isInterviewerGMCombo || isGMInterviewerCombo)
+                            {
+                                await _interviewsService.ConductInterviewForArchi(interviewsDTO);
+                            }
+                                else
+                                {
+                                    await _interviewsService.ConductInterview(interviewsDTO, interviewerId, secondInterviewerId);
+
+                                }
+                            }
+                            else
+                            {
+                                await _interviewsService.ConductInterview(interviewsDTO, interviewerId, secondInterviewerId);
+
+                            }
+                        }
+
+                        if (attachmentStream != null)
                     {
                         // Close the file stream and release the file
                         attachmentStream.Close();
@@ -516,7 +787,6 @@ namespace CMS.Web.Controllers
 
                         if (status.Code == Domain.Enums.StatusCode.Rejected || status.Code == Domain.Enums.StatusCode.Approved)
                         {
-                            await _notificationsService.CreateNotificationForGeneralManagerAsync(interviewsDTO.StatusId.Value, interviewsDTO.Notes, interviewsDTO.CandidateId, interviewsDTO.PositionId);
 
                             var architectureInterviewerId = HttpContext.Session.GetString("ArchitectureInterviewerId");
                             if(architectureInterviewerId != "")
@@ -532,75 +802,270 @@ namespace CMS.Web.Controllers
                                 var HREmail = await GetHREmail();
                                 var ArchiEmail = await GetArchiEmail();
 
-                                EmailDTOs emailModel = new EmailDTOs
+                                    var userGM = await _userManager.FindByEmailAsync(GMEmail);
+                                    var userHR = await _userManager.FindByEmailAsync(HREmail);
+
+                                    var firstinterviewer = await _userManager.FindByIdAsync(interviewsDTO.InterviewerId);
+
+                                    var secondInterviewerId = HttpContext.Session.GetString($"SecondInterviewerId_{interviewsDTO.InterviewsId}");
+                                    var secondInterviewer = await _userManager.FindByIdAsync(secondInterviewerId);
+
+                                    if (secondInterviewer != null)
+                                    {
+
+                                   
+                                    var isInterviewerGMCombo = await IsUserInRolesAsync(firstinterviewer.Id, secondInterviewer.Id, "Interviewer", "General Manager");
+                                    var isGMInterviewerCombo = await IsUserInRolesAsync(firstinterviewer.Id, secondInterviewer.Id, "General Manager", "Interviewer");
+
+
+                                    if (isInterviewerGMCombo || isGMInterviewerCombo)
+                                    {
+                                        await _notificationsService.CreateInterviewNotificationForHRInterview(interviewsDTO.StatusId.Value, interviewsDTO.Notes, interviewsDTO.CandidateId, interviewsDTO.PositionId);
+                                        EmailDTOs emailModels = new EmailDTOs
+                                        {
+                                            EmailTo = new List<string> { HREmail },
+                                            Subject = "Second Interview Invitation",
+                                            EmailBody = $@"<html>
+                                       <body style='font-family: Arial, sans-serif;'>
+                                           <div style='background-color: #f5f5f5; padding: 20px; border-radius: 10px;'>
+                                               <p style='font-size: 18px; color: #333;'>
+                                                   Dear {userHR},
+                                               </p>
+                                               <p style='font-size: 16px; color: #555;'>
+                                               You are assigned to have a second interview for {candidateNameresult} with {lastPositionName} position, kindly login to the system using the below link <a href='https://apps.sssprocess.com:6134/'>Click here</a>
+                                               </p>
+                                               <p style='font-size: 14px; color: #777;'>
+                                                   Regards,
+                                               </p>
+                                           </div>
+                                       </body>
+                                    </html>"
+                                        };
+
+                                            EmailDTOs emailModelToHR = new EmailDTOs
+                                            {
+                                                EmailTo = new List<string> { HREmail },
+                                                Subject = $"First Interview Approval",
+                                                EmailBody = $@"<html>
+                                       <body style='font-family: Arial, sans-serif;'>
+                                           <div style='background-color: #f5f5f5; padding: 20px; border-radius: 10px;'>
+                                               <p style='font-size: 18px; color: #333;'>
+                                                   Dear HR,
+                                               </p>
+                                               <p style='font-size: 16px; color: #555;'>
+                                                    The first interview with {candidateNameresult} Approved by {userName}
+                                               </p>
+                                               <p style='font-size: 14px; color: #777;'>
+                                                   Regards,
+                                               </p>
+                                           </div>
+                                       </body>
+                                    </html>"
+                                            };
+
+                                            if (!string.IsNullOrEmpty(HREmail))
+                                        {
+                                            await SendEmailToInterviewer(HREmail, interviewsDTO, emailModels);
+                                        }
+                                            if (!string.IsNullOrEmpty(HREmail))
+                                            {
+                                                await SendEmailToInterviewer(HREmail, interviewsDTO, emailModelToHR);
+                                            }
+                                        }
+                                        else
+                                        {
+                                            await _notificationsService.CreateNotificationForGeneralManagerAsync(interviewsDTO.StatusId.Value, interviewsDTO.Notes, interviewsDTO.CandidateId, interviewsDTO.PositionId);
+
+                                            //from interviewer to GM
+                                            EmailDTOs emailModel = new EmailDTOs
+                                            {
+                                                EmailTo = new List<string> { GMEmail },
+                                                Subject = "Second Interview Invitation",
+                                                EmailBody = $@"<html>
+                                       <body style='font-family: Arial, sans-serif;'>
+                                           <div style='background-color: #f5f5f5; padding: 20px; border-radius: 10px;'>
+                                               <p style='font-size: 18px; color: #333;'>
+                                                   Dear {userGM},
+                                               </p>
+                                               <p style='font-size: 16px; color: #555;'>
+                                               You are assigned to have a second interview for {candidateNameresult} with {lastPositionName} position, kindly login to the system using the below link <a href='https://apps.sssprocess.com:6134/'>Click here</a>
+                                               </p>
+                                               <p style='font-size: 14px; color: #777;'>
+                                                   Regards,
+                                               </p>
+                                           </div>
+                                       </body>
+                                    </html>"
+                                            };
+
+
+                                            EmailDTOs emailModelToHR = new EmailDTOs
+                                            {
+                                                EmailTo = new List<string> { HREmail },
+                                                Subject = $"First Interview Approval",
+                                                EmailBody = $@"<html>
+                                       <body style='font-family: Arial, sans-serif;'>
+                                           <div style='background-color: #f5f5f5; padding: 20px; border-radius: 10px;'>
+                                               <p style='font-size: 18px; color: #333;'>
+                                                   Dear HR,
+                                               </p>
+                                               <p style='font-size: 16px; color: #555;'>
+                                                    The first interview with {candidateNameresult} Approved by {userName}
+                                               </p>
+                                               <p style='font-size: 14px; color: #777;'>
+                                                   Regards,
+                                               </p>
+                                           </div>
+                                       </body>
+                                    </html>"
+                                            };
+                                            if (!string.IsNullOrEmpty(GMEmail))
+                                            {
+                                                await SendEmailToInterviewer(GMEmail, interviewsDTO, emailModel);
+                                            }
+
+                                            if (!string.IsNullOrEmpty(HREmail))
+                                            {
+                                                await SendEmailToInterviewer(HREmail, interviewsDTO, emailModelToHR);
+                                            }
+
+                                        }
+                                    }
+                                    else
+                                    {
+                                        await _notificationsService.CreateNotificationForGeneralManagerAsync(interviewsDTO.StatusId.Value, interviewsDTO.Notes, interviewsDTO.CandidateId, interviewsDTO.PositionId);
+
+                                        //from interviewer to GM
+                                        EmailDTOs emailModel = new EmailDTOs
                                 {
                                     EmailTo = new List<string> { GMEmail },
-                                    EmailBody = $"You have a second interview, Check the system. Please be prepared.",
-                                    Subject = "Interview Invitation"
+                                    Subject = "Second Interview Invitation",
+                                    EmailBody = $@"<html>
+                                       <body style='font-family: Arial, sans-serif;'>
+                                           <div style='background-color: #f5f5f5; padding: 20px; border-radius: 10px;'>
+                                               <p style='font-size: 18px; color: #333;'>
+                                                   Dear {userGM},
+                                               </p>
+                                               <p style='font-size: 16px; color: #555;'>
+                                               You are assigned to have a second interview for {candidateNameresult} with {lastPositionName} position, kindly login to the system using the below link <a href='https://apps.sssprocess.com:6134/'>Click here</a>
+                                               </p>
+                                               <p style='font-size: 14px; color: #777;'>
+                                                   Regards,
+                                               </p>
+                                           </div>
+                                       </body>
+                                    </html>"
                                 };
 
 
                                 EmailDTOs emailModelToHR = new EmailDTOs
                                 {
                                     EmailTo = new List<string> { HREmail },
-                                    EmailBody = $"The first interview Approved by {userName}.",
-                                    Subject = "Interview Approval"
+                                    Subject = $"First Interview Approval",
+                                    EmailBody = $@"<html>
+                                       <body style='font-family: Arial, sans-serif;'>
+                                           <div style='background-color: #f5f5f5; padding: 20px; border-radius: 10px;'>
+                                               <p style='font-size: 18px; color: #333;'>
+                                                   Dear HR,
+                                               </p>
+                                               <p style='font-size: 16px; color: #555;'>
+                                                    The first interview with {candidateNameresult} Approved by {userName}
+                                               </p>
+                                               <p style='font-size: 14px; color: #777;'>
+                                                   Regards,
+                                               </p>
+                                           </div>
+                                       </body>
+                                    </html>"
                                 };
 
 
                                 if (architectureInterviewerId != "" && status.Code == Domain.Enums.StatusCode.Approved)
                                 {
-                                    EmailDTOs architectureEmailModel = new EmailDTOs
+                                        var userArchi = await _userManager.FindByEmailAsync(ArchiEmail);
+
+                                        EmailDTOs architectureEmailModel = new EmailDTOs
                                     {
                                         EmailTo = new List<string> { ArchiEmail },
-                                        EmailBody = $"An interview has been scheduled with Saeed, and you are assigned as the Architecture Interviewer. Please chech the system.",
-                                        Subject = "Architecture Interview Assignment"
+                                        Subject = "Second Interview Invitation",
+                                        EmailBody = $@"<html>
+                                           <body style='font-family: Arial, sans-serif;'>
+                                               <div style='background-color: #f5f5f5; padding: 20px; border-radius: 10px;'>
+                                                   <p style='font-size: 18px; color: #333;'>
+                                                       Dear {userArchi},
+                                                   </p>
+                                                   <p style='font-size: 16px; color: #555;'>
+                                                       An interview has been scheduled with Saeed, and you are assigned as the Architecture Interviewer for the {candidateNameresult} with position: {lastPositionName}. kindly login to the system using the below link.<a href='https://apps.sssprocess.com:6134/'>Click here</a>”
+                                                   </p>
+                                                   <p style='font-size: 14px; color: #777;'>
+                                                       Regards,
+                                                   </p>
+                                               </div>
+                                           </body>
+                                        </html>"
+                                       
                                     };
                                     if (!string.IsNullOrEmpty(ArchiEmail))
                                     {
-                                        //Send an Email to the Archi if it was selceted
-                                        //await SendEmailToInterviewer(ArchiEmail, interviewsDTO, architectureEmailModel);
+                                            //Send an Email to the Archi if it was selceted
+                                            await SendEmailToInterviewer(ArchiEmail, interviewsDTO, architectureEmailModel);
+                                        }
                                     }
+
+                                    //var reminderJobId = BackgroundJob.Schedule(() => ReminderJobAsync(GMEmail, interviewsDTO), TimeSpan.FromHours(hoursUntil3PM));
+
+                                    if (!string.IsNullOrEmpty(GMEmail))
+                                    {
+                                        await SendEmailToInterviewer(GMEmail, interviewsDTO, emailModel);
+                                    }
+
+                                    if (!string.IsNullOrEmpty(HREmail))
+                                    {
+                                        await SendEmailToInterviewer(HREmail, interviewsDTO, emailModelToHR);
+                                    }
+
+
+                                    return RedirectToAction(nameof(MyInterviews));
+                            }
                                 }
 
-                                //var reminderJobId = BackgroundJob.Schedule(() => ReminderJobAsync(GMEmail, interviewsDTO), interviewsDTO.Date.AddHours(16));
-
-
-                                //if (!string.IsNullOrEmpty(GMEmail))
-                                //{
-                                //    await SendEmailToInterviewer(GMEmail, interviewsDTO, emailModel);
-                                //}
-
-                                //if (!string.IsNullOrEmpty(HREmail))
-                                //{
-                                //    await SendEmailToInterviewer(HREmail, interviewsDTO, emailModelToHR);
-                                //}
-                               
-
-                                return RedirectToAction(nameof(MyInterviews));
-                            }
-
-                            else if (status.Code == Domain.Enums.StatusCode.Rejected)
+                                else if (status.Code == Domain.Enums.StatusCode.Rejected)
                             {
                                 string userName = GetLoggedInUserName();
                                 var HREmail = await GetHREmail();
-                                EmailDTOs emailModel = new EmailDTOs
+
+                                    EmailDTOs emailModel = new EmailDTOs
                                 {
                                     EmailTo = new List<string> { HREmail },
-                                    EmailBody = $"The first interview was rejected by {userName} .",
-                                    Subject = "Interview Rejection"
+                                    Subject = "First Interview Rejection",
+                                    EmailBody = $@"<html>
+                                       <body style='font-family: Arial, sans-serif;'>
+                                           <div style='background-color: #f5f5f5; padding: 20px; border-radius: 10px;'>
+                                               <p style='font-size: 18px; color: #333;'>
+                                                   Dear HR,
+                                               </p>
+                                               <p style='font-size: 16px; color: #555;'>
+                                                    The first interview with {candidateNameresult} Rejected by {userName}
+                                               </p>
+                                               <p style='font-size: 14px; color: #777;'>
+                                                   Regards,
+                                               </p>
+                                           </div>
+                                       </body>
+                                    </html>"
+
                                 };
 
 
-                                //if (!string.IsNullOrEmpty(HREmail))
-                                //{
-                                //    await SendEmailToInterviewer(HREmail, interviewsDTO, emailModel);
-                                //}
+                                    if (!string.IsNullOrEmpty(HREmail))
+                                    {
+                                        await SendEmailToInterviewer(HREmail, interviewsDTO, emailModel);
+                                    }
 
-                                return RedirectToAction(nameof(MyInterviews));
-                            }
+                                    return RedirectToAction(nameof(MyInterviews));
+                                }
 
-                            else
+                                else
                             {
                                 return RedirectToAction(nameof(MyInterviews));
 
@@ -628,28 +1093,60 @@ namespace CMS.Web.Controllers
                             {
                                 string userName = GetLoggedInUserName();
                                 var HREmail = await GetHREmail();
-                                EmailDTOs emailModel = new EmailDTOs
+                                    var userHR = await _userManager.FindByEmailAsync(HREmail);
+                                    EmailDTOs emailModel = new EmailDTOs
                                 {
                                     EmailTo = new List<string> { HREmail },
-                                    EmailBody = $"You have a thierd interview, Check the system. Please be prepared.",
-                                    Subject = "Interview Invitation"
+                                    Subject = "Thierd Interview Invitation",
+                                    EmailBody = $@"<html>
+                                           <body style='font-family: Arial, sans-serif;'>
+                                               <div style='background-color: #f5f5f5; padding: 20px; border-radius: 10px;'>
+                                                   <p style='font-size: 18px; color: #333;'>
+                                                       Dear {userHR},
+                                                   </p>
+                                                   <p style='font-size: 16px; color: #555;'>
+                                                       You are assigned to have a thierd interview for candidate: {candidateNameresult} with position: {lastPositionName}, kindly login to the system using the below link <a href='https://apps.sssprocess.com:6134/'>Click here</a>.
+                                                   </p>
+                                                   <p style='font-size: 14px; color: #777;'>
+                                                       Regards,
+                                                   </p>
+                                               </div>
+                                           </body>
+                                        </html>"
                                 };
 
                                 EmailDTOs emailModelApproval = new EmailDTOs
                                 {
                                     EmailTo = new List<string> { HREmail },
-                                    EmailBody = $"The Second Interview Approved by {userName}.",
-                                    Subject = "Interview Approval"
+                                    Subject = "Second Interview Approval",
+                                    EmailBody = $@"<html>
+                                       <body style='font-family: Arial, sans-serif;'>
+                                           <div style='background-color: #f5f5f5; padding: 20px; border-radius: 10px;'>
+                                               <p style='font-size: 18px; color: #333;'>
+                                                   Dear HR,
+                                               </p>
+                                               <p style='font-size: 16px; color: #555;'>
+                                                    The Second interview with {candidateNameresult} Approved by {userName}
+                                               </p>
+                                               <p style='font-size: 14px; color: #777;'>
+                                                   Regards,
+                                               </p>
+                                           </div>
+                                       </body>
+                                    </html>"
+                                    
                                 };
 
-                                //var reminderJobId = BackgroundJob.Schedule(() => ReminderJobAsync(HREmail, interviewsDTO), interviewsDTO.Date.AddHours(16));
+                                    //var reminderJobId = BackgroundJob.Schedule(() => ReminderJobAsync(HREmail, interviewsDTO), interviewsDTO.Date.AddHours(16));
 
-                                //if (!string.IsNullOrEmpty(HREmail))
-                                //{
-                                //    await SendEmailToInterviewer(HREmail, interviewsDTO, emailModel);
-                                //}
+                                    if (!string.IsNullOrEmpty(HREmail))
+                                    {
+                                        await SendEmailToInterviewer(HREmail, interviewsDTO, emailModel);
+                                        await SendEmailToInterviewer(HREmail, interviewsDTO, emailModelApproval);
 
-                                return RedirectToAction(nameof(MyInterviews));
+                                    }
+
+                                    return RedirectToAction(nameof(MyInterviews));
                             }
 
                             else if (status.Code == Domain.Enums.StatusCode.Rejected)
@@ -659,18 +1156,32 @@ namespace CMS.Web.Controllers
                                 EmailDTOs emailModel = new EmailDTOs
                                 {
                                     EmailTo = new List<string> { HREmail },
-                                    EmailBody = $"The second interview was rejected by {userName} .",
-                                    Subject = "Interview Rejection"
+                                    Subject = "Second Interview Rejection",
+                                    EmailBody = $@"<html>
+                                       <body style='font-family: Arial, sans-serif;'>
+                                           <div style='background-color: #f5f5f5; padding: 20px; border-radius: 10px;'>
+                                               <p style='font-size: 18px; color: #333;'>
+                                                   Dear HR,
+                                               </p>
+                                               <p style='font-size: 16px; color: #555;'>
+                                                    The Second interview with {candidateNameresult} Rejected by {userName}
+                                               </p>
+                                               <p style='font-size: 14px; color: #777;'>
+                                                   Regards,
+                                               </p>
+                                           </div>
+                                       </body>
+                                    </html>"
                                 };
-                                //if (!string.IsNullOrEmpty(HREmail))
-                                //{
-                                //    await SendEmailToInterviewer(HREmail, interviewsDTO, emailModel);
-                                //}
+                                    if (!string.IsNullOrEmpty(HREmail))
+                                    {
+                                        await SendEmailToInterviewer(HREmail, interviewsDTO, emailModel);
+                                    }
 
-                                return RedirectToAction(nameof(MyInterviews));
-                            }
+                                    return RedirectToAction(nameof(MyInterviews));
+                                }
 
-                            else
+                                else
                             {
                                 return RedirectToAction(nameof(MyInterviews));
 
@@ -682,38 +1193,262 @@ namespace CMS.Web.Controllers
                     {
                         var statusResult = await _StatusService.GetById(interviewsDTO.StatusId.Value);
                         var status = statusResult.Value;
+                      
 
-                        if ((status.Code == Domain.Enums.StatusCode.Rejected || status.Code == Domain.Enums.StatusCode.Approved))
+
+                            if ((status.Code == Domain.Enums.StatusCode.Rejected || status.Code == Domain.Enums.StatusCode.Approved))
                         {
-                            await _notificationsService.CreateInterviewNotificationForHRInterview(interviewsDTO.StatusId.Value, interviewsDTO.Notes, interviewsDTO.CandidateId, interviewsDTO.PositionId);
+                                var firstinterviewer = await _userManager.FindByIdAsync(interviewsDTO.InterviewerId);
+
+                                var secondInterviewerId = HttpContext.Session.GetString($"SecondInterviewerId_{interviewsDTO.InterviewsId}");
+                                var secondInterviewer = await _userManager.FindByIdAsync(secondInterviewerId);
+
+                               
 
 
-                            if (status.Code == Domain.Enums.StatusCode.Approved)
+
+                                if (status.Code == Domain.Enums.StatusCode.Approved)
                             {
                                 string userName = GetLoggedInUserName();
                                 var HREmail = await GetHREmail();
-                                EmailDTOs emailModel = new EmailDTOs
-                                {
-                                    EmailTo = new List<string> { HREmail },
-                                    EmailBody = $"You have a thierd interview, Check the system. Please be prepared.",
-                                    Subject = "Interview Invitation"
-                                };
+                                 var GMEmail = await GetGMEmail();
 
-                                EmailDTOs emailModelApproval = new EmailDTOs
-                                {
-                                    EmailTo = new List<string> { HREmail },
-                                    EmailBody = $"The Second Interview Approved by {userName}.",
-                                    Subject = "Interview Approval"
-                                };
 
-                                //var reminderJobId = BackgroundJob.Schedule(() => ReminderJobAsync(HREmail, interviewsDTO), interviewsDTO.Date.AddHours(16));
+                                 var userHR = await _userManager.FindByEmailAsync(HREmail);
+                                 var userGM = await _userManager.FindByEmailAsync(GMEmail);
 
-                                //if (!string.IsNullOrEmpty(HREmail))
-                                //{
-                                //    await SendEmailToInterviewer(HREmail, interviewsDTO, emailModel);
-                                //}
+                                    if (secondInterviewer !=null)
+                                    {
 
-                                return RedirectToAction(nameof(MyInterviews));
+                                    
+                                    var isInterviewerGMCombo = await IsUserInRolesAsync(firstinterviewer.Id, secondInterviewer.Id, "Solution Architecture", "Interviewer");
+                                    var isGMInterviewerCombo = await IsUserInRolesAsync(firstinterviewer.Id, secondInterviewer.Id, "Interviewer", "Solution Architecture");
+
+
+                                    if (isInterviewerGMCombo || isGMInterviewerCombo)
+                                    {
+
+                                        await _notificationsService.CreateNotificationForGeneralManagerAsync(interviewsDTO.StatusId.Value, interviewsDTO.Notes, interviewsDTO.CandidateId, interviewsDTO.PositionId);
+
+                                            EmailDTOs emailModels = new EmailDTOs
+                                        {
+                                            EmailTo = new List<string> { GMEmail },
+                                            Subject = "Second Interview Invitation",
+                                            EmailBody = $@"<html>
+                                           <body style='font-family: Arial, sans-serif;'>
+                                               <div style='background-color: #f5f5f5; padding: 20px; border-radius: 10px;'>
+                                                   <p style='font-size: 18px; color: #333;'>
+                                                       Dear {userGM},
+                                                   </p>
+                                                   <p style='font-size: 16px; color: #555;'>
+                                                       You are assigned to have a Second interview for candidate : {candidateNameresult} with position: {lastPositionName}, kindly login to the system using the below link <a href='https://apps.sssprocess.com:6134/'>Click here</a>.
+                                                   </p>
+                                                   <p style='font-size: 14px; color: #777;'>
+                                                       Regards,
+                                                   </p>
+                                               </div>
+                                           </body>
+                                        </html>"
+                                        };
+                                            EmailDTOs emailModelApproval = new EmailDTOs
+                                            {
+                                                EmailTo = new List<string> { HREmail },
+                                                Subject = "First Interview Approval",
+                                                EmailBody = $@"<html>
+                                       <body style='font-family: Arial, sans-serif;'>
+                                           <div style='background-color: #f5f5f5; padding: 20px; border-radius: 10px;'>
+                                               <p style='font-size: 18px; color: #333;'>
+                                                   Dear HR,
+                                               </p>
+                                               <p style='font-size: 16px; color: #555;'>
+                                                    The First interview with {candidateNameresult} Approved by {userName}
+                                               </p>
+                                               <p style='font-size: 14px; color: #777;'>
+                                                   Regards,
+                                               </p>
+                                           </div>
+                                       </body>
+                                    </html>"
+                                            };
+                                            if (!string.IsNullOrEmpty(GMEmail))
+                                                {
+                                                    await SendEmailToInterviewer(GMEmail, interviewsDTO, emailModels);
+                                                }
+
+                                            if (!string.IsNullOrEmpty(HREmail))
+                                            {
+                                                await SendEmailToInterviewer(HREmail, interviewsDTO, emailModelApproval);
+
+                                            }
+
+                                        }
+
+
+                                        var isInterviewersolCombo = await IsUserInRolesAsync(firstinterviewer.Id, secondInterviewer.Id, "Solution Architecture", "General Manager");
+                                    var isGMMInterviewerCombo = await IsUserInRolesAsync(firstinterviewer.Id, secondInterviewer.Id, "General Manager", "Solution Architecture");
+
+                                    if (isInterviewersolCombo || isGMMInterviewerCombo)
+                                    {
+                                            await _notificationsService.CreateInterviewNotificationForHRInterview(interviewsDTO.StatusId.Value, interviewsDTO.Notes, interviewsDTO.CandidateId, interviewsDTO.PositionId);
+                                            //from Archi to HR
+                                            EmailDTOs emailModel = new EmailDTOs
+                                        {
+                                            EmailTo = new List<string> { HREmail },
+                                            Subject = "Final Interview Invitation",
+                                            EmailBody = $@"<html>
+                                           <body style='font-family: Arial, sans-serif;'>
+                                               <div style='background-color: #f5f5f5; padding: 20px; border-radius: 10px;'>
+                                                   <p style='font-size: 18px; color: #333;'>
+                                                       Dear {userHR},
+                                                   </p>
+                                                   <p style='font-size: 16px; color: #555;'>
+                                                       You are assigned to have a Final interview for candidate : {candidateNameresult} with position: {lastPositionName}, kindly login to the system using the below link <a href='https://apps.sssprocess.com:6134/'>Click here</a>.
+                                                   </p>
+                                                   <p style='font-size: 14px; color: #777;'>
+                                                       Regards,
+                                                   </p>
+                                               </div>
+                                           </body>
+                                        </html>"
+                                        };
+
+                                        EmailDTOs emailModelApproval = new EmailDTOs
+                                        {
+                                            EmailTo = new List<string> { HREmail },
+                                            Subject = "First Interview Approval",
+                                            EmailBody = $@"<html>
+                                       <body style='font-family: Arial, sans-serif;'>
+                                           <div style='background-color: #f5f5f5; padding: 20px; border-radius: 10px;'>
+                                               <p style='font-size: 18px; color: #333;'>
+                                                   Dear HR,
+                                               </p>
+                                               <p style='font-size: 16px; color: #555;'>
+                                                    The First interview with {candidateNameresult} Approved by {userName}
+                                               </p>
+                                               <p style='font-size: 14px; color: #777;'>
+                                                   Regards,
+                                               </p>
+                                           </div>
+                                       </body>
+                                    </html>"
+                                        };
+
+                                        if (!string.IsNullOrEmpty(HREmail))
+                                        {
+                                            await SendEmailToInterviewer(HREmail, interviewsDTO, emailModel);
+                                            await SendEmailToInterviewer(HREmail, interviewsDTO, emailModelApproval);
+
+                                        }
+                                        }
+                                       
+                                    }
+                                    else
+                                    {
+
+                                        if (secondInterviewer == null)
+                                        {
+                                            if (interviewsDTO.ArchitectureInterviewerId != null)
+                                            {
+                                                await _notificationsService.CreateNotificationForGeneralManagerAsync(interviewsDTO.StatusId.Value, interviewsDTO.Notes, interviewsDTO.CandidateId, interviewsDTO.PositionId);
+
+                                                EmailDTOs emailModels = new EmailDTOs
+                                                {
+                                                    EmailTo = new List<string> { GMEmail },
+                                                    Subject = "Second Interview Invitation",
+                                                    EmailBody = $@"<html>
+                                                       <body style='font-family: Arial, sans-serif;'>
+                                                           <div style='background-color: #f5f5f5; padding: 20px; border-radius: 10px;'>
+                                                               <p style='font-size: 18px; color: #333;'>
+                                                                   Dear {userGM},
+                                                               </p>
+                                                               <p style='font-size: 16px; color: #555;'>
+                                                                   You are assigned to have a Second interview for candidate : {candidateNameresult} with position: {lastPositionName}, kindly login to the system using the below link <a href='https://apps.sssprocess.com:6134/'>Click here</a>.
+                                                               </p>
+                                                               <p style='font-size: 14px; color: #777;'>
+                                                                   Regards,
+                                                               </p>
+                                                           </div>
+                                                       </body>
+                                                    </html>"
+                                                };
+                                                if (!string.IsNullOrEmpty(GMEmail))
+                                                {
+                                                    await SendEmailToInterviewer(GMEmail, interviewsDTO, emailModels);
+                                                }
+                                            }
+                                            else
+                                            {
+                                                await _notificationsService.CreateInterviewNotificationForHRInterview(interviewsDTO.StatusId.Value, interviewsDTO.Notes, interviewsDTO.CandidateId, interviewsDTO.PositionId);
+
+                                                EmailDTOs emailModels = new EmailDTOs
+                                                {
+                                                    EmailTo = new List<string> { HREmail },
+                                                    Subject = "Thierd Interview Invitation",
+                                                    EmailBody = $@"<html>
+                                                       <body style='font-family: Arial, sans-sexrif;'>
+                                                           <div style='background-color: #f5f5f5; padding: 20px; border-radius: 10px;'>
+                                                               <p style='font-size: 18px; color: #333;'>
+                                                                   Dear {userHR},
+                                                               </p>
+                                                               <p style='font-size: 16px; color: #555;'>
+                                                                   You are assigned to have a thierd interview for candidate : {candidateNameresult} with position: {lastPositionName}, kindly login to the system using the below link <a href='https://apps.sssprocess.com:6134/'>Click here</a>.
+                                                               </p>
+                                                               <p style='font-size: 14px; color: #777;'>
+                                                                   Regards,
+                                                               </p>
+                                                           </div>
+                                                       </body>
+                                                    </html>"
+                                                };
+                                                if (!string.IsNullOrEmpty(HREmail))
+                                                {
+                                                    await SendEmailToInterviewer(HREmail, interviewsDTO, emailModels);
+                                                }
+                                            }
+
+                                            
+                                            
+                                        }
+                                        else
+                                        {
+
+                                        
+                                        await _notificationsService.CreateInterviewNotificationForHRInterview(interviewsDTO.StatusId.Value, interviewsDTO.Notes, interviewsDTO.CandidateId, interviewsDTO.PositionId);
+                                        //from Archi to HR
+                                        EmailDTOs emailModel = new EmailDTOs
+                                        {
+                                            EmailTo = new List<string> { HREmail },
+                                            Subject = "Final Interview Invitation",
+                                            EmailBody = $@"<html>
+                                           <body style='font-family: Arial, sans-serif;'>
+                                               <div style='background-color: #f5f5f5; padding: 20px; border-radius: 10px;'>
+                                                   <p style='font-size: 18px; color: #333;'>
+                                                       Dear {userHR},
+                                                   </p>
+                                                   <p style='font-size: 16px; color: #555;'>
+                                                       You are assigned to have a Final interview for candidate : {candidateNameresult} with position: {lastPositionName}, kindly login to the system using the below link <a href='https://apps.sssprocess.com:6134/'>Click here</a>.
+                                                   </p>
+                                                   <p style='font-size: 14px; color: #777;'>
+                                                       Regards,
+                                                   </p>
+                                               </div>
+                                           </body>
+                                        </html>"
+                                        };
+                                        if (!string.IsNullOrEmpty(HREmail))
+                                        {
+                                            await SendEmailToInterviewer(HREmail, interviewsDTO, emailModel);
+
+                                        }
+                                        }
+
+                                    }
+
+
+                                    //var reminderJobId = BackgroundJob.Schedule(() => ReminderJobAsync(HREmail, interviewsDTO), interviewsDTO.Date.AddHours(16));
+
+
+                                    return RedirectToAction(nameof(MyInterviews));
                             }
 
                             else if (status.Code == Domain.Enums.StatusCode.Rejected)
@@ -723,16 +1458,30 @@ namespace CMS.Web.Controllers
                                 EmailDTOs emailModel = new EmailDTOs
                                 {
                                     EmailTo = new List<string> { HREmail },
-                                    EmailBody = $"The second interview was rejected by {userName} .",
-                                    Subject = "Interview Rejection"
+                                    Subject = "Second Interview Rejection",
+                                    EmailBody = $@"<html>
+                                       <body style='font-family: Arial, sans-serif;'>
+                                           <div style='background-color: #f5f5f5; padding: 20px; border-radius: 10px;'>
+                                               <p style='font-size: 18px; color: #333;'>
+                                                   Dear HR,
+                                               </p>
+                                               <p style='font-size: 16px; color: #555;'>
+                                                    The Second interview with {candidateNameresult} rejected by {userName}
+                                               </p>
+                                               <p style='font-size: 14px; color: #777;'>
+                                                   Regards,
+                                               </p>
+                                           </div>
+                                       </body>
+                                    </html>"
                                 };
-                                //if (!string.IsNullOrEmpty(HREmail))
-                                //{
-                                //    await SendEmailToInterviewer(HREmail, interviewsDTO, emailModel);
-                                //}
+                                    if (!string.IsNullOrEmpty(HREmail))
+                                    {
+                                        await SendEmailToInterviewer(HREmail, interviewsDTO, emailModel);
+                                    }
 
-                                return RedirectToAction(nameof(MyInterviews));
-                            }
+                                    return RedirectToAction(nameof(MyInterviews));
+                                }
 
                             else
                             {
@@ -757,10 +1506,31 @@ namespace CMS.Web.Controllers
             }
 
             return View(interviewsDTO);
+            }
+            catch (Exception ex)
+            {
+                LogException(nameof(UpdateAfterInterview), ex, "Faild to save a status");
+                throw ex;
+            }
         }
 
 
+        public async Task<bool> IsUserInRolesAsync(string firstUserId, string secondUserId, string firstRole, string secondRole)
+        {
+            var firstUser = await _userManager.FindByIdAsync(firstUserId);
+            var secondUser = await _userManager.FindByIdAsync(secondUserId);
 
+            if (firstUser == null || secondUser == null)
+            {
+                // Handle the case when the user is not found
+                return false;
+            }
+
+            var isFirstUserInRoles = await _userManager.IsInRoleAsync(firstUser, firstRole);
+            var isSecondUserInRoles = await _userManager.IsInRoleAsync(secondUser, secondRole);
+
+            return isFirstUserInRoles && isSecondUserInRoles;
+        }
 
         public async Task SendEmailToInterviewer(string interviewerEmail, InterviewsDTO interview,EmailDTOs emailmodel)
         {
@@ -798,17 +1568,61 @@ namespace CMS.Web.Controllers
             }
             catch (Exception ex)
             {
-                ModelState.AddModelError("", "Failed to send email: " + ex.Message);
+                LogException(nameof(SendEmailToInterviewer), ex, "Faild to send an email");
+                throw ex;
             }
 
+        }
+        public async Task SendEmailToInterviewers(List<string> interviewersEmails, InterviewsDTO interview, EmailDTOs emailModel)
+        {
+            try
+            {
+                SmtpClient smtp = new SmtpClient();
+                smtp.Host = "mail.sssprocess.com";
+                smtp.Port = 587;
+                smtp.DeliveryMethod = SmtpDeliveryMethod.Network;
+                smtp.EnableSsl = false;
+                smtp.UseDefaultCredentials = true;
+                string UserName = "notifications@sss-process.org";
+                string Password = "P@ssw0rd";
+                smtp.Credentials = new NetworkCredential(UserName, Password);
+
+                using (var message = new MailMessage())
+                {
+                    message.From = new MailAddress("notifications@techprocess.net");
+
+                    if (emailModel.EmailTo != null && emailModel.EmailTo.Any())
+                    {
+                        foreach (var to in interviewersEmails)
+                        {
+                            message.To.Add(to);
+                        }
+                    }
+
+                    message.Body = emailModel.EmailBody;
+                    message.Subject = emailModel.Subject;
+                    message.IsBodyHtml = true;
+
+                    smtp.Send(message);
+                }
+            }
+            catch (Exception ex)
+            {
+                LogException(nameof(SendEmailToInterviewers), ex, "Failed to send an email");
+                throw ex;
+            }
         }
 
 
 
         public async Task<string> GetInterviewerEmail(string interviewerId)
         {
+            try
+            {
+                
 
-            var email = await _interviewsRepository.GetInterviewerEmail(interviewerId, GetUserId());
+
+                var email = await _interviewsRepository.GetInterviewerEmail(interviewerId );
 
             if (email != null)
             {
@@ -818,26 +1632,47 @@ namespace CMS.Web.Controllers
             {
                 return null;
             }
-         
+            }
+            catch (Exception ex)
+            {
+                LogException(nameof(GetInterviewerEmail), ex, "Faild to get interviewer email");
+                throw ex;
+            }
         }
 
 
         public async Task<string> GetHREmail()
         {
-            var email = await _interviewsRepository.GetHREmail(GetUserId());
+            try
+            {
+                
 
-            if (email != null)
-            {
-                return email;
+
+                var email = await _interviewsRepository.GetHREmail();
+
+                if (email != null)
+                {
+                    return email;
+                }
+                else
+                {
+                    return null;
+                }
             }
-            else
+            catch (Exception ex)
             {
-                return null;
+                LogException(nameof(GetHREmail), ex, "Faild to get hr email");
+                throw ex;
             }
         }
         public async Task<string> GetArchiEmail()
         {
-            var email = await _interviewsRepository.GetArchiEmail(GetUserId());
+            try
+            {
+                
+
+
+                var email = await _interviewsRepository.GetArchiEmail();
 
             if (email != null)
             {
@@ -846,6 +1681,12 @@ namespace CMS.Web.Controllers
             else
             {
                 return null;
+            }
+            }
+            catch (Exception ex)
+            {
+                LogException(nameof(GetHREmail), ex, "Faild to get archi email");
+                throw ex;
             }
         }
 
@@ -853,7 +1694,12 @@ namespace CMS.Web.Controllers
 
         public async Task<string> GetGMEmail()
         {
-            var email = await _interviewsRepository.GetGeneralManagerEmail(GetUserId());
+            try
+            {
+                
+
+
+                var email = await _interviewsRepository.GetGeneralManagerEmail();
 
             if (email != null)
             {
@@ -863,19 +1709,40 @@ namespace CMS.Web.Controllers
             {
                 return null;
             }
+            }
+            catch (Exception ex)
+            {
+                LogException(nameof(GetGMEmail), ex, "Faild to get genetal manager email");
+                throw ex;
+            }
         }
 
 
         public string GetLoggedInUserName()
         {
-            return _httpContextAccessor.HttpContext.User.Identity.Name;
+            try
+            {
+                
+
+                return _httpContextAccessor.HttpContext.User.Identity.Name;
+            }
+            catch (Exception ex)
+            {
+                LogException(nameof(GetLoggedInUserName), ex, "Faild to get Logged In UserName");
+                throw ex;
+            }
         }
 
 
         public async Task ReminderJobAsync(string interviewerId, InterviewsDTO collection)
         {
-            // Check if the interviewer has given a score, and if not, send a reminder email
-            bool hasGivenScore = await _interviewsRepository.HasGivenStatusAsync(interviewerId, collection.InterviewsId, GetUserId());
+            try
+            {
+
+                
+
+                // Check if the interviewer has given a score, and if not, send a reminder email
+                bool hasGivenScore = await _interviewsRepository.HasGivenStatusAsync(interviewerId, collection.InterviewsId);
 
             if (!hasGivenScore)
             {
@@ -887,50 +1754,24 @@ namespace CMS.Web.Controllers
                     Subject = "Interview Score Reminder"
                 };
 
-               await SendEmailToInterviewer(interviewerEmail2, collection, emailModel);
+                    await SendEmailToInterviewer(interviewerEmail2, collection, emailModel);
+                }
             }
-        }
-
-        public async Task ReminderJobAsyncForGM(string interviewerId, InterviewsDTO collection)
-        {
-            // Check if the interviewer has given a score, and if not, send a reminder email
-            bool hasGivenScore = await _interviewsRepository.HasGivenStatusAsync(interviewerId, collection.InterviewsId, GetUserId());
-
-            if (!hasGivenScore)
+            catch (Exception ex)
             {
-                var interviewerEmail2 = await GetInterviewerEmail(collection.InterviewerId);
-                EmailDTOs emailModel = new EmailDTOs
-                {
-                    EmailTo = new List<string> { interviewerEmail2 },
-                    EmailBody = "You haven't provided a score for the interview. Please provide a score.",
-                    Subject = "Interview Score Reminder"
-                };
-
-                await SendEmailToInterviewer(interviewerEmail2, collection, emailModel);
+                LogException(nameof(ReminderJobAsync), ex, "Faild to send a reminder email");
+                throw ex;
             }
         }
 
-        public async Task ReminderJobAsyncForHR(string interviewerId, InterviewsDTO collection)
-        {
-            // Check if the interviewer has given a score, and if not, send a reminder email
-            bool hasGivenScore = await _interviewsRepository.HasGivenStatusAsync(interviewerId, collection.InterviewsId, GetUserId());
-
-            if (!hasGivenScore)
-            {
-                var interviewerEmail2 = await GetInterviewerEmail(collection.InterviewerId);
-                EmailDTOs emailModel = new EmailDTOs
-                {
-                    EmailTo = new List<string> { interviewerEmail2 },
-                    EmailBody = "You haven't provided a score for the interview. Please provide a score.",
-                    Subject = "Interview Score Reminder"
-                };
-
-                await SendEmailToInterviewer(interviewerEmail2, collection, emailModel);
-            }
-        }
+   
 
         public void ScheduleInterviewReminder(InterviewsDTO collection)
         {
+            try
+            {
+
+           
             var reminderTime = collection.Date.AddMinutes(-15);
 
             if (DateTime.UtcNow < reminderTime)
@@ -940,10 +1781,19 @@ namespace CMS.Web.Controllers
                     reminderTime
                 );
             }
+            }
+            catch (Exception ex)
+            {
+                LogException(nameof(ScheduleInterviewReminder), ex, "Faild to Schedule Interview Reminder");
+                throw ex;
+            }
         }
 
         public async Task SendInterviewReminderEmail(InterviewsDTO collection)
         {
+            try
+            {
+
             
             string interviewerEmail = await GetInterviewerEmail(collection.InterviewerId);
 
@@ -956,10 +1806,15 @@ namespace CMS.Web.Controllers
                     Subject = "Interview Reminder"
                 };
 
-                await SendEmailToInterviewer(interviewerEmail, collection, emailModel);
+                    await SendEmailToInterviewer(interviewerEmail, collection, emailModel);
+                }
+            }
+            catch (Exception ex)
+            {
+                LogException(nameof(ScheduleInterviewReminder), ex, "Faild to Send Interview Reminder Email");
+                throw ex;
             }
         }
-
 
 
 

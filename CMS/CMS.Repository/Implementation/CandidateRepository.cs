@@ -3,6 +3,8 @@ using CMS.Domain;
 using CMS.Domain.Entities;
 using CMS.Domain.Enums;
 using CMS.Repository.Interfaces;
+using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
@@ -17,22 +19,27 @@ namespace CMS.Repository.Implementation
     public class CandidateRepository : ICandidateRepository
     {
         private readonly ApplicationDbContext _dbContext;
+        private readonly UserManager<IdentityUser> _userManager;
+        private readonly IHttpContextAccessor _httpContextAccessor;
 
-        public CandidateRepository(ApplicationDbContext dbContext)
+        public CandidateRepository(ApplicationDbContext dbContext,UserManager<IdentityUser> userManager, IHttpContextAccessor httpContextAccessor)
         {
             _dbContext = dbContext;
+            _userManager = userManager;
+            _httpContextAccessor = httpContextAccessor;
         }
 
-        public void LogException(string methodName, Exception ex, string createdByUserId, string additionalInfo)
+        public async void LogException(string methodName, Exception ex, string additionalInfo)
         {
-
+            var currentUser = await _userManager.GetUserAsync(_httpContextAccessor.HttpContext.User);
+            var userId = currentUser?.Id;
             _dbContext.Logs.Add(new Log
             {
                 MethodName = methodName,
                 ExceptionMessage = ex.Message,
-                StackTrace = ex.StackTrace,
+                StackTrace = ex.StackTrace,CreatedByUserId = userId,
                 LogTime = DateTime.Now,
-                CreatedByUserId = createdByUserId,
+                
                 AdditionalInfo = additionalInfo
             });
             _dbContext.SaveChanges();
@@ -55,12 +62,12 @@ namespace CMS.Repository.Implementation
             }
             catch (Exception ex)
             {
-                LogException(nameof(GetAllCandidatesAsync), ex,null, null );
+                LogException(nameof(GetAllCandidatesAsync), ex, "Enable to Get All Candidates");
                 throw ex;
             }
         }
 
-        public async Task<Candidate> GetCandidateByIdAsync(int id, string createdByUserId)
+        public async Task<Candidate> GetCandidateByIdAsync(int id)
         {
             try
             {
@@ -74,12 +81,12 @@ namespace CMS.Repository.Implementation
             }
             catch (Exception ex)
             {
-                LogException(nameof(GetCandidateByIdAsync), ex, $"Done by : {createdByUserId}", $"Error retrieving candidate with ID: {id}");
+                LogException(nameof(GetCandidateByIdAsync), ex, $"Error retrieving candidate with ID: {id}");
                 throw ex;
             }
         }
 
-        public async Task CreateCandidateAsync(Candidate candidate, string createdByUserId)
+        public async Task CreateCandidateAsync(Candidate candidate)
         {
             try
             {
@@ -90,12 +97,12 @@ namespace CMS.Repository.Implementation
  }
              catch (Exception ex)
             {
-                LogException(nameof(CreateCandidateAsync), ex, $"Created by : {createdByUserId}", $"Candiate inserted with ID: {candidate.Id}");
+                LogException(nameof(CreateCandidateAsync), ex,  $"Candiate inserted with ID: {candidate.Id}");
                 throw ex;
             }
         }
 
-        public async Task UpdateCandidateAsync(Candidate candidate,string modifiedByUserId)
+        public async Task UpdateCandidateAsync(Candidate candidate)
         {
             try
             {
@@ -106,13 +113,13 @@ namespace CMS.Repository.Implementation
 
             catch (Exception ex)
             {
-                LogException(nameof(UpdateCandidateAsync), ex, $"Modified by : {modifiedByUserId}", $"Error updating candiate with ID: {candidate.Id}");
+                LogException(nameof(UpdateCandidateAsync), ex,  $"Error updating candiate with ID: {candidate.Id}");
                 throw ex;
             }
         }
 
 
-        public async Task DeleteCandidateAsync(Candidate candidate, string deletedByUserId)
+        public async Task DeleteCandidateAsync(Candidate candidate)
         {
 
             try
@@ -124,7 +131,7 @@ namespace CMS.Repository.Implementation
 
             catch (Exception ex)
             {
-                LogException(nameof(DeleteCandidateAsync), null, $"Deleted by : {deletedByUserId}", $"Candidate deleted with ID: {candidate.Id}");
+                LogException(nameof(DeleteCandidateAsync), null, $"Candidate deleted with ID: {candidate.Id}");
                 throw ex;
             }
         }
@@ -138,34 +145,42 @@ namespace CMS.Repository.Implementation
 
             catch (Exception ex)
             {
-                LogException(nameof(CountAllAsync), ex,null,null);
+                LogException(nameof(CountAllAsync), ex,null);
                 throw ex;
             }
 
         }
-    
+
 
         public async Task<int> CountAcceptedAsync()
         {
             try
             {
+                int candidateCounts = await _dbContext.Candidates
+                    .Include(a => a.Interviews)
+                    .ThenInclude(a => a.Status)
+                    .Where(a => (a.Interviews.Count == 3 || a.Interviews.Count == 4) && a.Interviews.All(a => a.Status.Code == StatusCode.Approved))
+                    .CountAsync();
 
-            int candidateCounts = await _dbContext.Candidates
-             .Include(a => a.Interviews)
-             .ThenInclude(a => a.Status)
-             .Where(a => (a.Interviews.Count == 3 || a.Interviews.Count == 4) && a.Interviews.All(a => a.Status.Code == StatusCode.Approved))
-             .CountAsync();
+                int candidateCountsWithTwoAccepted = await _dbContext.Candidates
+                    .Include(a => a.Interviews)
+                    .ThenInclude(a => a.Status)
+                    .Where(a => a.Interviews.Count == 2 && a.Interviews.Skip(1).All(i => i.Status.Code == StatusCode.Approved))
+                    .CountAsync();
 
-            return candidateCounts;
+                return candidateCounts + candidateCountsWithTwoAccepted;
             }
-
             catch (Exception ex)
             {
-                LogException(nameof(CountAcceptedAsync), ex, null, null);
+                LogException(nameof(CountAcceptedAsync), ex, "Unable to count the accepted interviews");
                 throw ex;
             }
-
         }
+
+
+
+
+
         public async Task<int> CountRejectedAsync()
         {
             try
@@ -182,7 +197,7 @@ namespace CMS.Repository.Implementation
 
             catch (Exception ex)
             {
-                LogException(nameof(CountRejectedAsync), ex, null, null);
+                LogException(nameof(CountRejectedAsync), ex, "Enable to count the rejected interviews");
                 throw ex;
             }
         }
@@ -205,7 +220,7 @@ namespace CMS.Repository.Implementation
 
             catch (Exception ex)
             {
-                LogException(nameof(CountPendingAsync), ex, null, null);
+                LogException(nameof(CountPendingAsync), ex, "Enable to count the pending interviews");
                 throw ex;
             }
 
@@ -229,7 +244,7 @@ namespace CMS.Repository.Implementation
             }
             catch (Exception ex)
             {
-                LogException(nameof(GetCVAttachmentIdByCandidateId), ex, null, null);
+                LogException(nameof(GetCVAttachmentIdByCandidateId), ex, "Enable to Get CVAttachmentId By CandidateId");
                 throw ex;
             }
         }

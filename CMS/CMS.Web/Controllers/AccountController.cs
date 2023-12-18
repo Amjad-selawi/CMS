@@ -2,6 +2,7 @@
 using CMS.Domain;
 using CMS.Domain.Entities;
 using CMS.Services.Interfaces;
+using CMS.Services.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
@@ -38,18 +39,21 @@ namespace CMS.Web.Controllers
             _httpContextAccessor = httpContextAccessor;
         }
 
-
-        private string GetUserId()
+        public void LogException(string methodName, Exception ex, string additionalInfo = null)
         {
-            var userId = _httpContextAccessor.HttpContext.User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-            return userId;
+            
+            _accountService.LogException(methodName, ex, additionalInfo);
         }
-
+       
 
 
         //GET
         public async Task<ActionResult> Login()
         {
+            try
+            {
+
+            
             if (_signInManager.IsSignedIn(User))
             {
 
@@ -70,6 +74,12 @@ namespace CMS.Web.Controllers
             else
             {
                 return View();
+            }
+            }
+            catch (Exception ex)
+            {
+                LogException(nameof(Login), ex, "Faild to went to the Login Page");
+                throw ex;
             }
         }
 
@@ -131,9 +141,10 @@ namespace CMS.Web.Controllers
                 }
             }
 
-            catch
+            catch (Exception ex)
             {
-                return View();
+                LogException(nameof(Login), ex, "Faild to Login ");
+                throw ex;
             }
         }
 
@@ -143,8 +154,12 @@ namespace CMS.Web.Controllers
 
         public async Task<ActionResult> DeleteAccount(string id)
         {
+            try
+            {
+                
 
-            var result = await _accountService.DeleteAccountAsync(id, GetUserId());
+
+                var result = await _accountService.DeleteAccountAsync(id);
             if (result)
             {
                 return RedirectToAction(nameof(Index));
@@ -154,18 +169,38 @@ namespace CMS.Web.Controllers
                 // Handle user not found or deletion failure
                 return View("Index");
             }
-
+}
+            catch (Exception ex)
+            {
+                LogException(nameof(DeleteAccount), ex, $"Faild to delete User ID: {id}");
+                throw ex;
+            }
         }
 
         //GET
         public async Task<ActionResult> Logout()
         {
-            await _accountService.LogoutAsync(GetUserId());
+            try
+            {
+
+                
+
+                await _accountService.LogoutAsync();
             return RedirectToAction("Login", "Account");
+            }
+            catch (Exception ex)
+            {
+                LogException(nameof(Logout), ex, "Faild to Logout");
+                throw ex;
+            }
         }
 
         public IActionResult Index()
         {
+            try
+            {
+
+            
             if (User.IsInRole("Admin") ||  User.IsInRole("HR Manager") )
             {
                 // User is in the Admin role
@@ -176,6 +211,13 @@ namespace CMS.Web.Controllers
             {
                 return View("AccessDenied");
             }
+            }
+            catch (Exception ex)
+            {
+                LogException(nameof(Index), ex, "Faild to Load the Index Page");
+                throw ex;
+            }
+
         }
 
 
@@ -183,9 +225,20 @@ namespace CMS.Web.Controllers
 
         public async Task<IActionResult> Details(string id)
         {
+            try
+            {
+
+            
             var userDetails =  _accountService.GetUsersById(id);
 
             return View(userDetails);
+            }
+            catch (Exception ex)
+            {
+                LogException(nameof(Details), ex, "Faild to Load the Details of the users");
+                throw ex;
+            }
+
         }
 
 
@@ -193,6 +246,10 @@ namespace CMS.Web.Controllers
         // GET: Register/Create
         public IActionResult Create()
         {
+            try
+            {
+
+            
             var roles = _roleManager.Roles.Select(r => r.Name).ToList();
 
             var model = new Register
@@ -203,22 +260,32 @@ namespace CMS.Web.Controllers
             ViewBag.Roles = new SelectList(roles);
 
             return View(model);
+            }
+            catch (Exception ex)
+            {
+                LogException(nameof(Create), ex, "Faild to load the Create page");
+                throw ex;
+            }
         }
 
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create(Register collection)
         {
+            try
+            {
+
+            
             if (ModelState.IsValid)
             {
-                var existingUser = await _userManager.FindByEmailAsync(collection.Email);
-                if (existingUser != null)
-                {
-                    ModelState.AddModelError(string.Empty, "Email is already in use.");
-                    var roless = _roleManager.Roles.Select(r => r.Name).ToList();
-                    ViewBag.Roles = new SelectList(roless);
-                    return View(collection);
-                }
+                //var existingUser = await _userManager.FindByEmailAsync(collection.Email);
+                //if (existingUser != null)
+                //{
+                //    ModelState.AddModelError(string.Empty, "Email is already in use.");
+                //    var roless = _roleManager.Roles.Select(r => r.Name).ToList();
+                //    ViewBag.Roles = new SelectList(roless);
+                //    return View(collection);
+                //}
 
                 var user = new IdentityUser
                 {
@@ -235,9 +302,24 @@ namespace CMS.Web.Controllers
                         await _userManager.AddToRoleAsync(user, collection.SelectedRole);
                     }
 
-                    
-                    //Send an Email to the user after creted it
-                   //await _accountService.SendRegistrationEmail(user, collection.Password);
+
+                        var emailModel = new EmailDTOs
+                        {
+                            EmailTo = new List<string> { user.Email },
+                            Subject = "Welcome to CMS System",
+                            EmailBody = $"<p>Dear {user.UserName},</p>\n\n" +
+                                    "<p>Your account details:</p>\n" +
+                                    $"<ul>\n" +
+                                    $"  <li>Username: {user.UserName}</li>\n" +
+                                    $"  <li>Email: {user.Email}</li>\n" +
+                                    $"  <li>Password: {collection.Password}</li>\n" +
+                                    $"</ul>\n\n" +
+                                    $"<p>Login to your account: <a href='https://apps.sssprocess.com:6134/'>Click here</a></p>"
+                                   };
+
+
+                        //Send an Email to the user after creted it
+                        await _accountService.SendRegistrationEmail(user, collection.Password, emailModel);
 
                     // Your registration success logic here
                     return RedirectToAction("Index");
@@ -255,11 +337,20 @@ namespace CMS.Web.Controllers
             ViewBag.Roles = new SelectList(roles);
 
             return View(collection);
+            }
+            catch (Exception ex)
+            {
+                LogException(nameof(Create), ex, "Faild to Create a new user");
+                throw ex;
+            }
         }
 
         public async Task<IActionResult> Edit(string id)
         {
+            try
+            {
 
+            
             var user = await _userManager.FindByIdAsync(id);
 
             var roles = _roleManager.Roles.Select(r => r.Name).ToList();
@@ -276,6 +367,12 @@ namespace CMS.Web.Controllers
 
             ViewBag.Roles = new SelectList(roles);
             return View(model);
+            }
+            catch (Exception ex)
+            {
+                LogException(nameof(Edit), ex, $"faild to load the edit page for the users");
+                throw ex;
+            }
         }
 
 
@@ -284,6 +381,10 @@ namespace CMS.Web.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Edit(Register collection)
         {
+            try
+            {
+
+            
             if (ModelState.IsValid)
             {
                 var user = await _userManager.FindByIdAsync(collection.RegisterrId);
@@ -333,12 +434,22 @@ namespace CMS.Web.Controllers
             ViewBag.Roles = new SelectList(roles);
 
             return View(collection);
+            }
+             catch (Exception ex)
+            {
+                LogException(nameof(Edit), ex, $"User ID: {collection.RegisterrId}");
+                throw ex;
+            }
         }
 
 
 
         public async Task<IActionResult> Delete(string id)
         {
+            try
+            {
+
+            
             if (string.IsNullOrEmpty(id))
             {
                 return NotFound();
@@ -364,6 +475,12 @@ namespace CMS.Web.Controllers
             ViewBag.Roles = new SelectList(roles);
 
             return View(model);
+            }
+            catch (Exception ex)
+            {
+                LogException(nameof(Delete), ex, "faild to load the delete page for the users");
+                throw ex;
+            }
         }
 
 
@@ -373,6 +490,10 @@ namespace CMS.Web.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(string id)
         {
+            try
+            {
+
+            
             var user = await _userManager.FindByIdAsync(id);
 
             if (user == null)
@@ -394,12 +515,28 @@ namespace CMS.Web.Controllers
                 }
                 return View(user);
             }
+            }
+            catch (Exception ex)
+            {
+                LogException(nameof(DeleteConfirmed), ex, $"Faild to delete User ID: {id}");
+                throw ex;
+            }
         }
 
 
         public IActionResult AccessDenied()
         {
+            try
+            {
+
             return View();
+            }
+
+            catch(Exception ex) {
+                LogException(nameof(AccessDenied), ex, "Faild to load the AccessDenied page");
+                throw ex;
+
+            }
         }
 
 

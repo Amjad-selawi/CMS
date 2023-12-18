@@ -1,6 +1,8 @@
 ﻿using CMS.Domain;
 using CMS.Domain.Entities;
 using CMS.Repository.Interfaces;
+using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
@@ -13,26 +15,32 @@ namespace CMS.Repository.Implementation
     public class PositionRepository : IPositionRepository
     {
         readonly ApplicationDbContext _context;
-        public PositionRepository(ApplicationDbContext context)
+        private readonly UserManager<IdentityUser> _userManager;
+        private readonly IHttpContextAccessor _httpContextAccessor;
+
+        public PositionRepository(ApplicationDbContext context, UserManager<IdentityUser> userManager, IHttpContextAccessor httpContextAccessor)
         {
             _context = context;
+            _userManager = userManager;
+            _httpContextAccessor = httpContextAccessor;
         }
-        public void LogException(string methodName, Exception ex, string createdByUserId, string additionalInfo)
+        public async void LogException(string methodName, Exception ex, string additionalInfo)
         {
+            var currentUser = await _userManager.GetUserAsync(_httpContextAccessor.HttpContext.User);
+            var userId = currentUser?.Id;
             _context.Logs.Add(new Log
             {
                 MethodName = methodName,
                 ExceptionMessage = ex.Message,
-                StackTrace = ex.StackTrace,
+                StackTrace = ex.StackTrace,CreatedByUserId = userId,
                 LogTime = DateTime.Now,
-                CreatedByUserId = createdByUserId,
                 AdditionalInfo = additionalInfo
             });
             _context.SaveChanges();
         }
 
 
-        public async Task<int> Delete(int id, string deletedByUserId)
+        public async Task<int> Delete(int id)
         {
             try
             {
@@ -53,7 +61,7 @@ namespace CMS.Repository.Implementation
             }
             catch (Exception ex)
             {
-                LogException(nameof(Delete), ex,$"Deleted by : {deletedByUserId}", $"Position deleted with ID: {id}");
+                LogException(nameof(Delete), ex, $"Position deleted with ID: {id}");
                 throw ex;
             }
         }
@@ -68,12 +76,12 @@ namespace CMS.Repository.Implementation
             }
             catch (Exception ex)
             {
-                LogException(nameof(GetAll), ex, null, null);
+                LogException(nameof(GetAll), ex,"Enable to get all the positions");
                 throw ex;
             }
         }
 
-        public async Task<Position> GetById(int id, string createdByUserId)
+        public async Task<Position> GetById(int id)
         {
             try
             {
@@ -85,13 +93,13 @@ namespace CMS.Repository.Implementation
             }
             catch (Exception ex)
             {
-                LogException(nameof(GetById), ex,$"Done by : {createdByUserId}", $"Error retrieving position with ID: {id}");
+                LogException(nameof(GetById), ex, $"Error retrieving position with ID: {id}");
                 throw ex;
             }
 
         }
 
-        public async Task<int> Insert(Position entity, string createdByUserId)
+        public async Task<int> Insert(Position entity)
         {
             try
             {
@@ -101,12 +109,12 @@ namespace CMS.Repository.Implementation
             }
             catch (Exception ex)
             {
-                LogException(nameof(Insert), ex, $"Created by : {createdByUserId}", $"Position inserted with ID: {entity.Id}");
+                LogException(nameof(Insert), ex, $"Position inserted with ID: {entity.Id}");
                 throw ex;
             }
         }
 
-        public async Task<int> Update(Position entity, string modifiedByUserId)
+        public async Task<int> Update(Position entity)
         {
             try
             {
@@ -118,7 +126,7 @@ namespace CMS.Repository.Implementation
             }
             catch (Exception ex)
             {
-                LogException(nameof(Update), ex, $"Modified by : {modifiedByUserId}", $"Error updating position with ID: {entity.Id}");
+                LogException(nameof(Update), ex, $"Error updating position with ID: {entity.Id}");
                 throw ex;
             }
         }
@@ -132,7 +140,7 @@ namespace CMS.Repository.Implementation
             }
             catch(Exception ex)
             {
-                LogException(nameof(DoesPositionNameExist), ex, null, null);
+                LogException(nameof(DoesPositionNameExist), ex, "DoesPositionNameExist not working ");
                 throw ex;
             }
         }

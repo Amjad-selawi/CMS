@@ -7,31 +7,39 @@ using System.Collections.Generic;
 using System.Text;
 using System.Threading.Tasks;
 using System.Linq;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Http;
 
 namespace CMS.Repository.Implementation
 {
     public class CompanyRepository : ICompanyRepository
     {
        private readonly ApplicationDbContext _context;
-        public CompanyRepository(ApplicationDbContext context)
+        private readonly UserManager<IdentityUser> _userManager;
+        private readonly IHttpContextAccessor _httpContextAccessor;
+
+        public CompanyRepository(ApplicationDbContext context, UserManager<IdentityUser> userManager, IHttpContextAccessor httpContextAccessor)
         {
             _context = context;
+            _userManager = userManager;
+            _httpContextAccessor = httpContextAccessor;
         }
 
-        public void LogException(string methodName, Exception ex, string createdByUserId, string additionalInfo)
+        public async void LogException(string methodName, Exception ex, string additionalInfo)
         {
+            var currentUser = await _userManager.GetUserAsync(_httpContextAccessor.HttpContext.User);
+            var userId = currentUser?.Id;
             _context.Logs.Add(new Log
             {
                 MethodName = methodName,
                 ExceptionMessage = ex.Message,
-                StackTrace = ex.StackTrace,
+                StackTrace = ex.StackTrace,CreatedByUserId = userId,
                 LogTime = DateTime.Now,
-                CreatedByUserId = createdByUserId,
                 AdditionalInfo = additionalInfo
             });
             _context.SaveChanges();
         }
-        public async Task<int> Delete(int id, string deletedByUserId)
+        public async Task<int> Delete(int id)
         {
             try
             {
@@ -52,7 +60,7 @@ namespace CMS.Repository.Implementation
             }
             catch(Exception ex)
             {
-                LogException(nameof(Delete), ex, $"Deleted by : {deletedByUserId}", $"Company deleted with ID: {id}");
+                LogException(nameof(Delete), ex, $"Company deleted with ID: {id}");
                 throw ex;
             }
         }
@@ -71,12 +79,12 @@ namespace CMS.Repository.Implementation
             }
             catch(Exception ex)
             {
-                LogException(nameof(GetAll), ex,null,null);
+                LogException(nameof(GetAll), ex,null);
                 throw ex;
             }
         }
 
-        public async Task<Company> GetById(int id, string createdByUserId)
+        public async Task<Company> GetById(int id)
         {
             try
             {
@@ -88,12 +96,12 @@ namespace CMS.Repository.Implementation
                 return company;
             }
             catch (Exception ex) {
-                LogException(nameof(GetById), ex, $"Done by : {createdByUserId}", $"Error retrieving company with ID: {id}");
+                LogException(nameof(GetById), ex, $"Error retrieving company with ID: {id}");
                 throw ex;
             }
         }
 
-        public async Task<int> Insert(Company entity, string createdByUserId)
+        public async Task<int> Insert(Company entity)
         {
             try
             {
@@ -104,12 +112,12 @@ namespace CMS.Repository.Implementation
             }
             catch (Exception ex)
             {
-                LogException(nameof(Insert), ex, $"Created by : {createdByUserId}", $"Company inserted with ID: {entity.Id}");
+                LogException(nameof(Insert), ex, $"Company inserted with ID: {entity.Id}");
                 throw ex;
             }
         }
 
-        public async Task<int> Update(Company entity,string modifiedByUserId)
+        public async Task<int> Update(Company entity)
         {
             try
             {
@@ -123,7 +131,7 @@ namespace CMS.Repository.Implementation
             }
             catch (Exception ex)
             {
-                LogException(nameof(Update), ex, $"Modified by : {modifiedByUserId}", $"Error updating company with ID: {entity.Id}");
+                LogException(nameof(Update), ex, $"Error updating company with ID: {entity.Id}");
                 throw ex;
             }
         }
@@ -138,7 +146,7 @@ namespace CMS.Repository.Implementation
 
             catch (Exception ex)
             {
-                LogException(nameof(DoesCompanyNameExist), ex, null, null);
+                LogException(nameof(DoesCompanyNameExist), ex, "DoesCompanyNameExist not working");
                 throw ex;
             }
 

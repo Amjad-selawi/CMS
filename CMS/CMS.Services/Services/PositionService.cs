@@ -34,23 +34,21 @@ namespace CMS.Services.Services
             _attachmentService = attachmentService;
         }
 
-        public void LogException(string methodName, Exception ex, string createdByUserId = null, string additionalInfo = null)
+        public void LogException(string methodName, Exception ex = null, string additionalInfo = null)
         {
-            _repository.LogException(methodName, ex, createdByUserId, additionalInfo);
+            _repository.LogException(methodName, ex, additionalInfo);
         }
 
-        private string GetUserId()
-        {
-            var userId = _httpContextAccessor.HttpContext.User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-            return userId;
-        }
+     
 
 
         public async Task<Result<PositionDTO>> Delete(int id)
         {
             try
             {
-                var pos = await _repository.GetById(id, GetUserId())
+                
+
+                var pos = await _repository.GetById(id)
 ;
 
                 if (pos != null)
@@ -61,7 +59,7 @@ namespace CMS.Services.Services
                         attachmentToRemove = (int)pos.EvaluationId;
                     }
 
-                    await _repository.Delete(id, GetUserId())
+                    await _repository.Delete(id)
 ;
                     if (attachmentToRemove != 0)
                     {
@@ -121,7 +119,9 @@ namespace CMS.Services.Services
             }
             try
             {
-                var position = await _repository.GetById(id, GetUserId());
+                
+
+                var position = await _repository.GetById(id);
                 var positionDTO = new PositionDTO
                 {
                     Id = position.Id,
@@ -151,6 +151,8 @@ namespace CMS.Services.Services
             var currentUser = await _userManager.GetUserAsync(_httpContextAccessor.HttpContext.User);
             try
             {
+                
+
                 var position = new Position
                 {
                     Name = data.Name,
@@ -158,7 +160,7 @@ namespace CMS.Services.Services
                     CreatedOn=DateTime.Now,
                     EvaluationId=data.EvaluationId,
                 };
-                await _repository.Insert(position, GetUserId());
+                await _repository.Insert(position);
                 return Result<PositionDTO>.Success(data);
             }
             catch (Exception ex)
@@ -170,14 +172,18 @@ namespace CMS.Services.Services
 
         public async Task<Result<PositionDTO>> Update(PositionDTO data)
         {
-            if (data == null)
+            try
+            {
+                
+
+                if (data == null)
             {
                 return Result<PositionDTO>.Failure(null, "can not update a null object");
             }
             var currentUser = await _userManager.GetUserAsync(_httpContextAccessor.HttpContext.User);
-            var previouePos = await _repository.GetById(data.Id, GetUserId());
-            try
-            {
+            var previouePos = await _repository.GetById(data.Id);
+            
+
                 var position = new Position
                 {
                     Id = data.Id,
@@ -188,7 +194,7 @@ namespace CMS.Services.Services
                     CreatedBy = previouePos.CreatedBy,
                     CreatedOn=previouePos.CreatedOn,
                 };
-                await _repository.Update(position, GetUserId());
+                await _repository.Update(position);
                 return Result<PositionDTO>.Success(data);
             }
             catch (Exception ex)
@@ -202,8 +208,9 @@ namespace CMS.Services.Services
             try
             {
 
+                
 
-                var position = await _repository.GetById(id,GetUserId());
+                var position = await _repository.GetById(id);
                 int attachmentId = await _attachmentService.CreateAttachmentAsync(fileName, fileSize, fileStream);
 
                 int attachmentToRemove = 0;
@@ -215,7 +222,7 @@ namespace CMS.Services.Services
 
                 position.EvaluationId = attachmentId;
 
-                await _repository.Update(position, GetUserId());
+                await _repository.Update(position);
                 if (attachmentToRemove != 0)
                 {
                     await _attachmentService.DeleteAttachmentAsync(attachmentToRemove);

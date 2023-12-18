@@ -4,6 +4,8 @@ using CMS.Domain;
 using CMS.Domain.Entities;
 using CMS.Repository.Interfaces;
 using CMS.Services.Interfaces;
+using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Identity;
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -17,22 +19,30 @@ namespace CMS.Services.Services
         ICarrerOfferRepository _carrerOfferRepository;
         ICandidateRepository _candidateRepository;
         private ICountryService _countryService;
+        private readonly UserManager<IdentityUser> _userManager;
+        private readonly IHttpContextAccessor _httpContextAccessor;
 
-
-        public ReportingService(ApplicationDbContext dbContext,ICarrerOfferRepository carrerOfferRepository, ICandidateRepository candidateRepository, ICountryService countryService)
+        public ReportingService(ApplicationDbContext dbContext,
+            ICarrerOfferRepository carrerOfferRepository,
+            ICandidateRepository candidateRepository, ICountryService countryService
+            , UserManager<IdentityUser> userManager, IHttpContextAccessor httpContextAccessor)
         {
             _dbContext = dbContext;
             _carrerOfferRepository = carrerOfferRepository;
             _candidateRepository = candidateRepository;
             _countryService = countryService;
+            _userManager = userManager;
+            _httpContextAccessor = httpContextAccessor;
         }
-        public void LogException(string methodName, Exception ex)
+        public async void LogException(string methodName, Exception ex)
         {
+            var currentUser = await _userManager.GetUserAsync(_httpContextAccessor.HttpContext.User);
+            var userId = currentUser?.Id;
             _dbContext.Logs.Add(new Log
             {
                 MethodName = methodName,
                 ExceptionMessage = ex.Message,
-                StackTrace = ex.StackTrace,
+                StackTrace = ex.StackTrace,CreatedByUserId = userId,
                 LogTime = DateTime.Now
             });
             _dbContext.SaveChanges();

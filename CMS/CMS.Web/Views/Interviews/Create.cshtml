@@ -8,8 +8,8 @@
 
 
 <form asp-action="Create" id="createForm">
-@*     <div asp-validation-summary="ModelOnly" class="text-danger"></div>
- *@
+    @*     <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+    *@
 
     <div class="form-group">
         <label asp-for="CandidateId" class="control-label"><span class="text-danger">*</span> Candidate</label>
@@ -40,50 +40,56 @@
 
 
 
-    <div class="form-group" style="margin-top: 20px; display: flex; justify-content: space-between; align-items: baseline;">
+    <div class="card" style="width: 400px; margin-top: 20px; padding: 20px;">
 
-        <div style="flex-grow: 1;">
-            <label asp-for="InterviewerId" class="control-label"><span class="text-danger">*</span> First Interviewer</label>
-            @if (ViewBag.interviewersList != null)
-            {
-                <select style="width: 100%;" asp-for="InterviewerId" asp-items="@(ViewBag.interviewersList)" class="form-control">
-                    <option value="">-- Select an Interviewer --</option>
-                </select>
-            }
-            <span asp-validation-for="InterviewerId" class="text-danger"></span>
+        <div class="form-group">
+            <label style="font-size: medium;">First Interview</label>
+            <div style="width: 78%;">
+                <label asp-for="InterviewerId" class="control-label">#1 <span class="text-danger">*</span></label>
+                @if (ViewBag.interviewersList != null)
+                {
+                    <select style="width: 100%;" asp-for="InterviewerId" asp-items="@(ViewBag.interviewersList)" class="form-control">
+                        <option value="">-- Select an Interviewer --</option>
+                    </select>
+                }
+                <span asp-validation-for="InterviewerId" class="text-danger"></span>
+            </div>
         </div>
 
-        <div style="flex-grow: 1; margin-left: 10px;">
-            <label asp-for="SecondInterviewerId" class="control-label">Second Interviewer <span>(optional)</span></label>
-            @if (ViewBag.interviewersList != null)
-            {
-                <select style="width: 100%;" asp-for="SecondInterviewerId" asp-items="@(ViewBag.interviewersList)" class="form-control">
-                    <option value="">-- Select Second Interviewer --</option>
-                </select>
-            }
-            <span asp-validation-for="SecondInterviewerId" class="text-danger"></span>
+        <div class="form-group" style="margin-top: 20px;">
+            <label asp-for="SecondInterviewerId" class="control-label">#2 <span>(optional)</span></label>
+            <div style="width: 78%;">
+                @if (ViewBag.interviewersList != null)
+                {
+                    <select style="width: 100%;" asp-for="SecondInterviewerId" asp-items="@(ViewBag.interviewersList)" class="form-control">
+                        <option value="">-- Select Second Interviewer --</option>
+                    </select>
+                }
+                <span asp-validation-for="SecondInterviewerId" class="text-danger"></span>
+            </div>
         </div>
 
     </div>
 
 
+    
     <div class="form-group" style="margin-top: 30px;">
-        <label asp-for="ArchitectureInterviewerId" class="control-label">Architecture Interviewers <span>(optional)</span></label>
-        @if (ViewBag.architecturesList != null)
-        {
-            <select style="width: 30%;" asp-for="ArchitectureInterviewerId" asp-items="@(ViewBag.architecturesList)" class="form-control">
-                <option value="">-- Select Architecture Interviewer --</option>
-            </select>
-        }
-        <span asp-validation-for="ArchitectureInterviewerId" class="text-danger"></span>
+    <label asp-for="ArchitectureInterviewerId" class="control-label">Architecture Interviewers <span>(optional)</span></label>
+    @if (ViewBag.architecturesList != null)
+    {
+    <select style="width: 30%;" asp-for="ArchitectureInterviewerId" asp-items="@(ViewBag.architecturesList)" class="form-control">
+    <option value="">-- Select Architecture Interviewer --</option>
+    </select>
+    }
+    <span asp-validation-for="ArchitectureInterviewerId" class="text-danger"></span>
     </div>
+   
 
 
-
-  @*   <div class="form-group">
-        <label asp-for="InterviewerId" class="control-label">Interviewer</label>
-        @Html.DropDownListFor(model => model.InterviewerId, (SelectList)ViewBag.interviewersList, "Select an Interviewer", new { @class = "form-control" })
-        <span asp-validation-for="InterviewerId" class="text-danger"></span>
+    @*   <div class="form-group">
+    <label asp-for="InterviewerId" class="control-label">Interviewer</label>
+    @Html.DropDownListFor(model => model.InterviewerId, (SelectList)ViewBag.interviewersList, "Select an Interviewer", new { @class = "form-control" })
+    <span asp-validation-for="InterviewerId" class="text-danger"></span>
 
     </div> *@
     <div class="form-group" style="margin-top: 30px;">
@@ -91,14 +97,14 @@
         <input style="width: 30%;" asp-for="Date" class="form-control" />
         <span asp-validation-for="Date" class="text-danger" id="dateValidationMessage"></span>
     </div>
-    <div class="form-group"  hidden>
+    <div class="form-group" hidden>
         <label asp-for="ParentId" class="control-label"></label>
         <input asp-for="ParentId" class="form-control" />
         <span asp-validation-for="ParentId" class="text-danger"></span>
     </div>
 
 
-   
+
 
     <div class="form-group " style="margin-top: 10px;">
         <input type="submit" value="Create" class="btn btn-primary" />
@@ -109,7 +115,7 @@
 </form>
 @* <p>@Html.ValidationSummary()</p> *@
 <script>
-    
+
     document.getElementById("createForm").onsubmit = function () {
         return validateDate();
     };
@@ -122,10 +128,10 @@
         if (date <= currentDate) {
             var dateValidationMessage = document.getElementById("dateValidationMessage");
             dateValidationMessage.textContent = "Date must be in the future";
-            return false; 
+            return false;
         }
 
-        return true; 
+        return true;
     }
 </script>
 

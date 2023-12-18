@@ -11,20 +11,21 @@ namespace CMS.Repository.Interfaces
 
 
         Task<IEnumerable<Candidate>> GetAllCandidatesAsync();
-        Task<Candidate> GetCandidateByIdAsync(int id, string userId);
-        Task CreateCandidateAsync(Candidate candidate,string userId);
-        Task UpdateCandidateAsync(Candidate candidate, string userId);
+        Task<Candidate> GetCandidateByIdAsync(int id);
+        Task CreateCandidateAsync(Candidate candidate);
+        Task UpdateCandidateAsync(Candidate candidate);
 
         //Task<int> DeleteCandidateAsync(int id);
-        Task DeleteCandidateAsync(Candidate candidate, string userId);
+        Task DeleteCandidateAsync(Candidate candidate);
         Task<int> CountAllAsync();
         Task<int> CountAcceptedAsync();
+
         Task<int> CountPendingAsync();
         Task<int> CountRejectedAsync();
 
         Task<int?> GetCVAttachmentIdByCandidateId(int candidateId);
 
-        void LogException(string methodName, Exception ex, string createdByUserId, string additionalInfo);
+        void LogException(string methodName, Exception ex, string additionalInfo);
 
 
         //Task<Dictionary<string, int>> CountCandidatesPerCompanyAsync();

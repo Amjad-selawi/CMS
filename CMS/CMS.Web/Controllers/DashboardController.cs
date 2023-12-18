@@ -14,6 +14,8 @@ using CMS.Domain.Entities;
 using CMS.Services.Services;
 using System.Net.Mail;
 using System.Net;
+using System.Security.Claims;
+using Microsoft.AspNetCore.Http;
 
 namespace CMS.Web.Controllers
 {
@@ -22,18 +24,34 @@ namespace CMS.Web.Controllers
         private readonly IReportingService _reportingService;
         private readonly ApplicationDbContext _context;
         private ICountryService _countryService;
+        private readonly IHttpContextAccessor _httpContextAccessor;
 
-        public DashboardController(IReportingService reportingService, ApplicationDbContext context, ICountryService countryService)
+        public DashboardController(IReportingService reportingService, 
+            ApplicationDbContext context, ICountryService countryService,IHttpContextAccessor httpContextAccessor)
         {
             _reportingService = reportingService;
             _context = context;
             _countryService = countryService;
+            _httpContextAccessor = httpContextAccessor;
         }
+
+          public void LogException(string methodName, Exception ex, string additionalInfo = null)
+        {
+            
+            _countryService.LogException(methodName, ex, additionalInfo);
+        }
+    
         public async Task<IActionResult> Index()
         {
-            if (User.IsInRole("Admin") || User.IsInRole("General Manager") || User.IsInRole("HR Manager"))
+            try
             {
-                var report = (await _reportingService.GetBusinessPerformanceReport()).Value;
+
+            
+            if (User.IsInRole("Admin") || User.IsInRole("General Manager") || User.IsInRole("HR Manager"))
+                {
+                    
+
+                    var report = (await _reportingService.GetBusinessPerformanceReport()).Value;
                 double percentageFloat = ((double)report.NumberOfAccepted / report.NumberOfCandidates) * 100;
                 int acceptedPercentage = (int)percentageFloat;
                 ViewBag.AcceptedPercentage = acceptedPercentage;
@@ -65,160 +83,153 @@ namespace CMS.Web.Controllers
                 // User is not in the Admin role, handle accordingly (redirect or show an error message)
                 return View("AccessDenied");
             }
+            }
+            catch (Exception ex)
+            {
+                LogException(nameof(Index), ex, "Index page for Dashboard not working");
+                throw ex;
+            }
         }
         private static string ArrayToString(string[] array)
         {
-            StringBuilder sb = new StringBuilder();
-            sb.Append("[");
-            for (int i = 0; i < array.Length; i++)
+            try
             {
-                sb.Append("'");
-                sb.Append(array[i]);
-                sb.Append("'");
 
-                if (i < array.Length - 1)
+
+                StringBuilder sb = new StringBuilder();
+                sb.Append("[");
+                for (int i = 0; i < array.Length; i++)
                 {
-                    sb.Append(",");
+                    sb.Append("'");
+                    sb.Append(array[i]);
+                    sb.Append("'");
+
+                    if (i < array.Length - 1)
+                    {
+                        sb.Append(",");
+                    }
                 }
+                sb.Append("]");
+                return sb.ToString();
             }
-            sb.Append("]");
-            return sb.ToString();
+            catch (Exception ex)
+            {
+                throw ex;
+            }
         }
 
 
 
         public IActionResult IndexForTree()
         {
+            try
+            {
+
+            
             var treeData = GetDataFromDatabase(); // Retrieve data from the database
 
             return View(treeData);
+            }
+            catch(Exception ex)
+            {
+                LogException(nameof(IndexForTree), ex, "IndexForTree not working");
+                throw ex;
+            }
         }
 
 
 
         private List<PerformanceReportDTO> GetDataFromDatabase()
         {
-            //    var candidateData = (from candidate in _context.Candidates
-            //                         join interview in _context.Interviews on candidate.Id equals interview.CandidateId
-            //                         select new
-            //                         {
-            //                             PositionId = interview.Position.Id,
-            //                             PositionName = interview.Position.Name,
-            //                             CountryId = candidate.Company.Country.Id,
-            //                             CountryName = candidate.Company.Country.Name,
-            //                             CandidateName = candidate.FullName,
-            //                             StatusName = interview.Status.Name,
-            //                             Score = interview.Score
-            //                         }).Distinct().ToList();
+            try
+            {
+                var candidateData = (from candidate in _context.Candidates
+                                     join interview in _context.Interviews on candidate.Id equals interview.CandidateId
+                                     orderby interview.ModifiedOn descending
+                                     select new
+                                     {
+                                         PositionId = interview.Position.Id,
+                                         PositionName = interview.Position.Name,
+                                         CountryId = candidate.Company.Country.Id,
+                                         CountryName = candidate.Company.Country.Name,
+                                         CandidateName = candidate.FullName,
+                                         StatusName = interview.Status.Name,
+                                         Score = interview.Score,
+                                         InterviewDate = interview.Date,
+                                         ModifiedOn = interview.ModifiedOn,
+                                         InterviewerName = interview.Interviewer.UserName // Include InterviewerName
+                                     }).ToList();
 
 
-            //    var positionsGroups = candidateData.GroupBy(x => new
-            //    {
-            //        x.PositionId,
-            //        x.PositionName,
-            //        x.CountryId,
-            //        x.CountryName
-
-            //    }).Select(group => new PositionDTO
-            //    {
-            //        Id = group.Key.PositionId,
-            //        Name = group.Key.PositionName,
-            //        CountryId = group.Key.CountryId,
-            //        CountryName = group.Key.CountryName,
-
-            //        Candidates = group.Select(c => new CandidateDTO
-            //        {
-            //            Name = c.CandidateName,
-            //            Status = c.StatusName,
-            //            Score = c.Score
-            //        }).ToList()
-
-            //    }).ToList();
-
-            //    var result = positionsGroups.GroupBy(g => new
-            //    {
-            //        g.CountryId,
-            //        g.CountryName
-
-            //    }).Select(g => new PerformanceReportDTO()
-            //    {
-            //        Name = g.Key.CountryName,
-            //        Positions = g.ToList()
-
-            //    }).ToList();
-
-            //    return result;
-            //}
-
-            var candidateData = (from candidate in _context.Candidates
-                                 join interview in _context.Interviews on candidate.Id equals interview.CandidateId
-                                 select new
-                                 {
-                                     PositionId = interview.Position.Id,
-                                     PositionName = interview.Position.Name,
-                                     CountryId = candidate.Company.Country.Id,
-                                     CountryName = candidate.Company.Country.Name,
-                                     CandidateName = candidate.FullName,
-                                     StatusName = interview.Status.Name,
-                                     Score = interview.Score,
-                                     InterviewDate = interview.Date  
-                                 }).ToList();  
-
-            var latestInterviews = candidateData
-                .GroupBy(x => new
-                {
-                    x.PositionId,
-                    x.PositionName,
-                    x.CountryId,
-                    x.CountryName,
-                    x.CandidateName
-                })
-                .Select(group => group
-                    .OrderByDescending(c => c.InterviewDate)
-                    .FirstOrDefault())  
-                .ToList();
-
-            var positionsGroups = latestInterviews
-                .GroupBy(x => new
-                {
-                    x.PositionId,
-                    x.PositionName,
-                    x.CountryId,
-                    x.CountryName
-                })
-                .Select(group => new PositionDTO
-                {
-                    Id = group.Key.PositionId,
-                    Name = group.Key.PositionName,
-                    CountryId = group.Key.CountryId,
-                    CountryName = group.Key.CountryName,
-                    Candidates = group.Select(c => new CandidateDTO
+                var latestInterviews = candidateData
+                    .GroupBy(x => new
                     {
-                        Name = c.CandidateName,
-                        Status = c.StatusName,
-                        Score = c.Score,
-                    }).ToList()
+                        x.PositionId,
+                        x.PositionName,
+                        x.CountryId,
+                        x.CountryName,
+                        x.CandidateName
+                    })
+                    .Select(group => group.FirstOrDefault()) // Select the first interview for each candidate
+                    .ToList();
+
+                var positionsGroups = latestInterviews
+                    .GroupBy(x => new
+                    {
+                        x.PositionId,
+                        x.PositionName,
+                        x.CountryId,
+                        x.CountryName
+                    })
+                    .Select(group => new PositionDTO
+                    {
+                        Id = group.Key.PositionId,
+                        Name = group.Key.PositionName,
+                        CountryId = group.Key.CountryId,
+                        CountryName = group.Key.CountryName,
+                        Candidates = group.Select(c => new CandidateDTO
+                        {
+                            Name = c.CandidateName,
+                            Status = c.StatusName,
+                            InterviewerName = c.InterviewerName,
+                            Score = c.Score,
+                        }).ToList()
+                    })
+                    .ToList();
+
+                var result = positionsGroups.GroupBy(g => new
+                {
+                    g.CountryId,
+                    g.CountryName
+                })
+                .Select(g => new PerformanceReportDTO()
+                {
+                    Name = g.Key.CountryName,
+                    Positions = g.ToList()
                 })
                 .ToList();
 
-            var result = positionsGroups.GroupBy(g => new
+                return result;
+            }
+            catch (Exception ex)
             {
-                g.CountryId,
-                g.CountryName
-            })
-            .Select(g => new PerformanceReportDTO()
-            {
-                Name = g.Key.CountryName,
-                Positions = g.ToList()
-            })
-            .ToList();
-
-            return result;
+                LogException(nameof(GetDataFromDatabase), ex, "GetDataFromDatabase not working");
+                throw ex;
+            }
         }
 
         public IActionResult AccessDenied()
         {
+            try
+            {
+
             return View();
+            }
+            catch (Exception ex)
+            {
+                LogException(nameof(AccessDenied), ex, "Faild to load AccessDenied page");
+                throw ex;
+            }
         }
 
 

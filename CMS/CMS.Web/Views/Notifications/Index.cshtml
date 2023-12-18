@@ -23,7 +23,9 @@
                             <tr>
                                 <td>
                                     <a href="@Url.Action("Details", "Notifications", new { id = notification.NotificationsId })">
-                                        @Html.Raw(notification.Title)
+                                        <span style="@(notification.IsRead ? "color: blue;" : "font-weight: bold; color: black;")">
+                                            @Html.Raw(notification.Title)
+                                        </span>
                                     </a>
                                 </td>
                                 <td>@notification.SendDate</td>
