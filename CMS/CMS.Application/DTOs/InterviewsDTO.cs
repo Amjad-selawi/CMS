@@ -15,6 +15,8 @@ namespace CMS.Application.DTOs
         [Range(0, 5, ErrorMessage = "Score must be between 0 and 5.")]
         public double? Score { get; set; }
 
+        [Range(0, 5, ErrorMessage = "Score must be between 0 and 5.")]
+        public double? FirstInterviewScore { get; set; }
 
         [Required(ErrorMessage = "Please select a Date.")]
         public DateTime Date { get; set; }
@@ -63,6 +65,8 @@ namespace CMS.Application.DTOs
         public string? ArchitectureInterviewerName { get; set; }
 
         public bool isArchitectureUpdated { get; set; }
+
+
 
     }
 }

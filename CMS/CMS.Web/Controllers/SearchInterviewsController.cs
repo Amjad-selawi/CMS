@@ -71,7 +71,7 @@ namespace CMS.Web.Controllers
             ViewBag.fromDate = fromDate;
             ViewBag.toDate = toDate;
 
-            if (User.IsInRole("Admin") || User.IsInRole("HR Manager"))
+            if (User.IsInRole("Admin") || User.IsInRole("HR Manager") || User.IsInRole("General Manager"))
             {
                 var positionsDTO = await _positionService.GetAll();
                 ViewBag.PositionList = new SelectList(positionsDTO.Value, "Id", "Name");

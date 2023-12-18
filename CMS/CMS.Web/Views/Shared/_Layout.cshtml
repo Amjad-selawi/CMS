@@ -357,7 +357,25 @@
                         <div class="dropdown ms-sm-3 header-item topbar-user">
                             <button type="button" class="btn" id="page-header-user-dropdown" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                                 <span class="d-flex align-items-center">
-                                    <img class="rounded-circle header-profile-user" src="~/theme/images/users/avatar-1.jpg" alt="Header Avatar">
+                                    @if(User.IsInRole("HR Manager")){
+                                        <img class="rounded-circle header-profile-user" src="~/theme/images/users/HR.png" alt="Header Avatar">
+                                    }
+                                    else if (User.IsInRole("Admin"))
+                                    {
+                                        <img class="rounded-circle header-profile-user" src="~/theme/images/users/user-dummy-img.jpg" alt="Header Avatar">
+                                    }
+                                    else if (User.IsInRole("Interviewer"))
+                                    {
+                                        <img class="rounded-circle header-profile-user" src="~/theme/images/users/avatar-3.jpg" alt="Header Avatar">
+                                    }
+                                    else if (User.IsInRole("General Manager"))
+                                    {
+                                        <img class="rounded-circle header-profile-user" src="~/theme/images/users/General_Manager.png" alt="Header Avatar">
+                                    }
+                                    else if (User.IsInRole("Solution Architecture"))
+                                    {
+                                        <img class="rounded-circle header-profile-user" src="~/theme/images/users/avatar-3.jpg" alt="Header Avatar">
+                                    }
                                     <span class="text-start ms-xl-2">
                                         <span class="d-none d-xl-inline-block ms-1 fw-medium user-name-text">@User.Identity.Name</span>
                                         <span class="d-none d-xl-block ms-1 fs-12 user-name-sub-text"></span>
@@ -453,6 +471,14 @@
                     Label = "Interviews",
                     Roles = new[] {"Admin","HR Manager"}
                     },
+                    // new
+                    // {
+                    // Controller =  "InterviewsGM",
+                    // Action = "Index",
+                    // Icon = "ri-team-fill",
+                    // Label = "Interviews for GM",
+                    // Roles = new[] {"Admin","HR Manager"}
+                    // },
                     new
                     {
                     Controller =  "Interviews",
@@ -477,14 +503,7 @@
                     Label = "Candidates",
                     Roles = new[] {"Admin","HR Manager"}
                     },
-                    new
-                    {
-                    Controller =  "Notifications",
-                    Action = "Index",
-                    Icon = "ri-tv-fill",
-                    Label = "Notifications",
-                    Roles = new[] {"HR Manager"}
-                    },
+                    
                     // new
                     // {
                     //     Controller =  "Templates",
@@ -539,7 +558,7 @@
                     Action = "Index",
                     Icon = "bx bx-search-alt-2",
                     Label = "Interviews Filter",
-                    Roles = new[] {"Admin","HR Manager"}
+                    Roles = new[] {"Admin","HR Manager","General Manager"}
                     }
                     // new
                     // {

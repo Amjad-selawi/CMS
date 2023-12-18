@@ -9,6 +9,7 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
+using System.Data;
 using System.Linq;
 using System.Security.Claims;
 using System.Threading.Tasks;
@@ -40,12 +41,14 @@ namespace CMS.Repository.Repositories
                 MethodName = methodName,
                 ExceptionMessage = ex.Message,
                 StackTrace = ex.StackTrace,
-                CreatedByUserId = userId,
+                CreatedByUserId = null,
                 LogTime = DateTime.Now,
+
                 AdditionalInfo = additionalInfo
             });
             _context.SaveChanges();
         }
+
 
 
         public async Task<int> Delete(int id)
@@ -100,6 +103,26 @@ namespace CMS.Repository.Repositories
             }
       
         }
+        public async Task<string> GetRoleById(string id)
+        {
+            try
+            {
+                var role = await _roleManager.FindByIdAsync(id);
+
+                if (role != null)
+                {
+                    return role.Name;
+                }
+
+                return null; // Handle the case when the user is not found
+            }
+            catch (Exception ex)
+            {
+                LogException(nameof(GetRoleById), ex, $"Error retrieving role for user with ID: {id}");
+                throw ex;
+            }
+        }
+
 
         public async Task<Interviews> GetByIdForEdit(int id)
         {
@@ -127,7 +150,7 @@ namespace CMS.Repository.Repositories
                      .Include(c => c.Candidate)
                      .Include(c => c.Status)
                      // .Include(c=>c.Interviewer)
-                     .Where(c => c.InterviewerId == id)
+                     .Where(c => c.InterviewerId == id || c.SecondInterviewerId == id)
                      .AsNoTracking().ToListAsync();
 
 
@@ -368,6 +391,34 @@ namespace CMS.Repository.Repositories
                 throw ex;
             }
         }
+
+        public async Task<Interviews> GetinterviewerInterviewForCandidate(int candidateId)
+        {
+            try
+            {
+                var archiRoleId = (await _roleManager.FindByNameAsync("Interviewer"))?.Id;
+
+                if (!string.IsNullOrEmpty(archiRoleId))
+                {
+                    var archiId = (await _userManager.GetUsersInRoleAsync("Interviewer")).FirstOrDefault()?.Id;
+
+                    if (!string.IsNullOrEmpty(archiId))
+                    {
+                        return await _context.Interviews
+                            .Where(i => i.CandidateId == candidateId && i.InterviewerId == archiId)
+                            .FirstOrDefaultAsync();
+                    }
+                }
+
+                return null;
+            }
+            catch (Exception ex)
+            {
+                LogException(nameof(GetGeneralManagerInterviewForCandidate), ex, $"Error retrieving General Manager interview for candidate with ID: {candidateId}");
+                throw ex;
+            }
+        }
+
 
     }
 }

@@ -2,6 +2,7 @@
 using CMS.Application.DTOs;
 using CMS.Domain.Entities;
 using CMS.Services.Interfaces;
+using CMS.Web.Customes;
 using CMS.Web.Utils;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Hosting;
@@ -190,9 +191,10 @@ namespace CMS.Web.Controllers
             if (ModelState.IsValid)
             {
 
+                    candidateDTO.FullName = StringHelper.ToUpperFirstLetter(candidateDTO.FullName);
 
-                try
-                {
+                    try
+                    {
 
 
                     await _candidateService.CreateCandidateAsync(candidateDTO);

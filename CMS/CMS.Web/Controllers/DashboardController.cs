@@ -141,64 +141,11 @@ namespace CMS.Web.Controllers
 
         private List<PerformanceReportDTO> GetDataFromDatabase()
         {
-            //    var candidateData = (from candidate in _context.Candidates
-            //                         join interview in _context.Interviews on candidate.Id equals interview.CandidateId
-            //                         select new
-            //                         {
-            //                             PositionId = interview.Position.Id,
-            //                             PositionName = interview.Position.Name,
-            //                             CountryId = candidate.Company.Country.Id,
-            //                             CountryName = candidate.Company.Country.Name,
-            //                             CandidateName = candidate.FullName,
-            //                             StatusName = interview.Status.Name,
-            //                             Score = interview.Score
-            //                         }).Distinct().ToList();
-
-
-            //    var positionsGroups = candidateData.GroupBy(x => new
-            //    {
-            //        x.PositionId,
-            //        x.PositionName,
-            //        x.CountryId,
-            //        x.CountryName
-
-            //    }).Select(group => new PositionDTO
-            //    {
-            //        Id = group.Key.PositionId,
-            //        Name = group.Key.PositionName,
-            //        CountryId = group.Key.CountryId,
-            //        CountryName = group.Key.CountryName,
-
-            //        Candidates = group.Select(c => new CandidateDTO
-            //        {
-            //            Name = c.CandidateName,
-            //            Status = c.StatusName,
-            //            Score = c.Score
-            //        }).ToList()
-
-            //    }).ToList();
-
-            //    var result = positionsGroups.GroupBy(g => new
-            //    {
-            //        g.CountryId,
-            //        g.CountryName
-
-            //    }).Select(g => new PerformanceReportDTO()
-            //    {
-            //        Name = g.Key.CountryName,
-            //        Positions = g.ToList()
-
-            //    }).ToList();
-
-            //    return result;
-            //}
             try
             {
-
-
-
                 var candidateData = (from candidate in _context.Candidates
                                      join interview in _context.Interviews on candidate.Id equals interview.CandidateId
+                                     orderby interview.ModifiedOn descending
                                      select new
                                      {
                                          PositionId = interview.Position.Id,
@@ -209,59 +156,58 @@ namespace CMS.Web.Controllers
                                          StatusName = interview.Status.Name,
                                          Score = interview.Score,
                                          InterviewDate = interview.Date,
-                                         ModifiedOn = interview.ModifiedOn
+                                         ModifiedOn = interview.ModifiedOn,
+                                         InterviewerName = interview.Interviewer.UserName // Include InterviewerName
                                      }).ToList();
 
+
                 var latestInterviews = candidateData
-                 .GroupBy(x => new
-                 {
-                     x.PositionId,
-                     x.PositionName,
-                     x.CountryId,
-                     x.CountryName,
-                     x.CandidateName
-                 })
-                 .Select(group => group
-                    .OrderByDescending(c => c.ModifiedOn)  // Order by ModifiedOn to get the latest
-         .FirstOrDefault())
-                 .ToList();
-
-                
-            var positionsGroups = latestInterviews
-                .GroupBy(x => new
-                {
-                    x.PositionId,
-                    x.PositionName,
-                    x.CountryId,
-                    x.CountryName
-                })
-                .Select(group => new PositionDTO
-                {
-                    Id = group.Key.PositionId,
-                    Name = group.Key.PositionName,
-                    CountryId = group.Key.CountryId,
-                    CountryName = group.Key.CountryName,
-                    Candidates = group.Select(c => new CandidateDTO
+                    .GroupBy(x => new
                     {
-                        Name = c.CandidateName,
-                        Status = c.StatusName,
-                        Score = c.Score,
-                    }).ToList()
-                })
-                .ToList();
+                        x.PositionId,
+                        x.PositionName,
+                        x.CountryId,
+                        x.CountryName,
+                        x.CandidateName
+                    })
+                    .Select(group => group.FirstOrDefault()) // Select the first interview for each candidate
+                    .ToList();
 
+                var positionsGroups = latestInterviews
+                    .GroupBy(x => new
+                    {
+                        x.PositionId,
+                        x.PositionName,
+                        x.CountryId,
+                        x.CountryName
+                    })
+                    .Select(group => new PositionDTO
+                    {
+                        Id = group.Key.PositionId,
+                        Name = group.Key.PositionName,
+                        CountryId = group.Key.CountryId,
+                        CountryName = group.Key.CountryName,
+                        Candidates = group.Select(c => new CandidateDTO
+                        {
+                            Name = c.CandidateName,
+                            Status = c.StatusName,
+                            InterviewerName = c.InterviewerName,
+                            Score = c.Score,
+                        }).ToList()
+                    })
+                    .ToList();
 
                 var result = positionsGroups.GroupBy(g => new
                 {
                     g.CountryId,
                     g.CountryName
                 })
-          .Select(g => new PerformanceReportDTO()
-          {
-              Name = g.Key.CountryName,
-              Positions = g.ToList()
-          })
-          .ToList();
+                .Select(g => new PerformanceReportDTO()
+                {
+                    Name = g.Key.CountryName,
+                    Positions = g.ToList()
+                })
+                .ToList();
 
                 return result;
             }

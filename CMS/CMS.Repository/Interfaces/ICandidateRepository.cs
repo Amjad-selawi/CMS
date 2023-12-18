@@ -19,6 +19,7 @@ namespace CMS.Repository.Interfaces
         Task DeleteCandidateAsync(Candidate candidate);
         Task<int> CountAllAsync();
         Task<int> CountAcceptedAsync();
+
         Task<int> CountPendingAsync();
         Task<int> CountRejectedAsync();
 

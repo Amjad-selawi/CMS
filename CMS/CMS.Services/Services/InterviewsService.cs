@@ -187,10 +187,8 @@ namespace CMS.Services.Services
             }
         }
 
-       public async Task<Result<List<InterviewsDTO>>>ShowHistory(int id){
-
-            
-
+       public async Task<Result<List<InterviewsDTO>>>ShowHistory(int id)
+        {
             List<InterviewsDTO> interviewsDTOs = new List<InterviewsDTO>();
             try
             {
@@ -216,6 +214,10 @@ namespace CMS.Services.Services
 
 
         }
+
+  
+      
+
 
         public async Task<Result<List<InterviewsDTO>>> GetAll()
         {
@@ -276,6 +278,63 @@ namespace CMS.Services.Services
             }
         }
 
+        public async Task<Result<List<InterviewsDTO>>> GetAllForGeneralManager()
+        {
+            try
+            {
+                var interviews = await _interviewsRepository.GetAll();
+                if (interviews == null)
+                {
+                    return Result<List<InterviewsDTO>>.Failure(null, "No interviews found");
+                }
+
+                var interviewsDTO = new List<InterviewsDTO>();
+                foreach (var c in interviews)
+                {
+                    string userName = await GetInterviewerName(c.InterviewerId);
+                    string SeconduserName = await GetInterviewerName(c.SecondInterviewerId);
+                    string archiName = await GetArchitectureName(c.ArchitectureInterviewerId);
+
+                    string interviewerRole = await GetInterviewerRole(c.InterviewerId);
+
+                    // Add filtering logic here
+                    if (interviewerRole.Equals("General Manager", StringComparison.OrdinalIgnoreCase))
+                    {
+                        var com = new InterviewsDTO
+                        {
+                            InterviewsId = c.InterviewsId,
+                            Score = c.Score,
+                            StatusId = c.StatusId,
+                            StatusName = c.Status.Name,
+                            Date = c.Date,
+                            PositionId = c.PositionId,
+                            Name = c.Position.Name,
+                            EvalutaionFormId = c.Position.EvaluationId,
+                            Notes = c.Notes,
+                            ParentId = c.ParentId,
+                            InterviewerId = c.InterviewerId,
+                            InterviewerName = userName,
+                            CandidateId = c.CandidateId,
+                            FullName = c.Candidate.FullName,
+                            CandidateCVAttachmentId = c.Candidate.CVAttachmentId,
+                            AttachmentId = c.AttachmentId,
+                            InterviewerRole = interviewerRole,
+                            ActualExperience = c.ActualExperience,
+                        };
+                        interviewsDTO.Add(com);
+                    }
+                }
+
+                return Result<List<InterviewsDTO>>.Success(interviewsDTO);
+            }
+            catch (Exception ex)
+            {
+                LogException(nameof(GetAllForGeneralManager), ex, null);
+                return Result<List<InterviewsDTO>>.Failure(null, $"Unable to get Interview: {ex.InnerException.Message}");
+            }
+        }
+
+
         public async Task<Result<InterviewsDTO>> GetById(int id)
         {
             if (id <= 0)
@@ -292,10 +351,15 @@ namespace CMS.Services.Services
                 string archiName = await GetArchitectureName(interview.ArchitectureInterviewerId);
 
                 string interviewerRole = await GetInterviewerRole(interview.InterviewerId);
+
+                var firstInterview = await _interviewsRepository.GetById(interview.ParentId ?? 0);
+
+
                 var interviewDTO = new InterviewsDTO
                 {
                     InterviewsId = interview.InterviewsId,
                     Score = interview.Score,
+                    FirstInterviewScore = firstInterview?.Score, // Include the first interview score
                     StatusId = interview.StatusId,
                     StatusName = interview.Status.Name,
                     Date = interview.Date,
@@ -339,6 +403,14 @@ namespace CMS.Services.Services
                 }
                 var status = await _statusRepository.GetByCode(StatusCode.Pending);
                 var currentUser = await _userManager.GetUserAsync(_httpContextAccessor.HttpContext.User);
+
+                var candidateArchitectureKey = $"ArchitectureInterviewerId_{data.CandidateId}";
+                if (!string.IsNullOrEmpty(data.ArchitectureInterviewerId) && string.IsNullOrEmpty(_httpContextAccessor.HttpContext.Session.GetString(candidateArchitectureKey)))
+                {
+                    _httpContextAccessor.HttpContext.Session.SetString(candidateArchitectureKey, data.ArchitectureInterviewerId);
+                }
+
+
                 var interview = new Interviews
                 {
                     PositionId = data.PositionId,
@@ -356,11 +428,18 @@ namespace CMS.Services.Services
                     ArchitectureInterviewerId = data.ArchitectureInterviewerId,
 
                 };
+
                 await _interviewsRepository.Insert(interview);
 
-                _httpContextAccessor.HttpContext.Session.SetString("ArchitectureInterviewerId", data.ArchitectureInterviewerId ?? "");
+                // Get the inserted interview from the repository (including its generated InterviewsId)
+                var insertedInterview = await _interviewsRepository.GetById(interview.InterviewsId);
 
-                return Result<InterviewsDTO>.Success(data);
+                var insertedInterviewDTO = new InterviewsDTO
+                {
+                    InterviewsId = insertedInterview.InterviewsId,
+                };
+                return Result<InterviewsDTO>.Success(insertedInterviewDTO);
+
 
             }
             catch (Exception ex)
@@ -447,11 +526,336 @@ namespace CMS.Services.Services
         }
 
 
-        public async Task ConductInterview(InterviewsDTO completedDTO)
+        public async Task ConductInterview(InterviewsDTO completedDTO,string firstinterviewer,string secondinterviewer)
         {
             try
             {
-                
+                var firstInterviewerRoles = await GetInterviewerRole(firstinterviewer);
+                var secondInterviewerRoles = await GetInterviewerRole(secondinterviewer);
+
+
+                var currentUserrGM = await _userManager.GetUserAsync(_httpContextAccessor.HttpContext.User);
+
+                var hrManagerIDRole = "226cca69-f046-4d15-8b81-9b9ba34f2214";
+
+                var createdbyRole = await _interviewsRepository.GetRoleById(hrManagerIDRole);
+
+                if (createdbyRole == "HR Manager" && await _userManager.IsInRoleAsync(currentUserrGM, "General Manager"))
+                {
+
+                    var currentUserr = await _userManager.GetUserAsync(_httpContextAccessor.HttpContext.User);
+
+                    var intervieww = await _interviewsRepository.GetById(completedDTO.InterviewsId);
+                    if (completedDTO.FileData != null)
+                    {
+                        int attachmentId = await _attachmentService.CreateAttachmentAsync(completedDTO.FileName, (long)completedDTO.FileSize, completedDTO.FileData);
+                        completedDTO.AttachmentId = attachmentId;
+                    }
+
+                    Debug.Assert(intervieww != null, "No Interview Provided for Conduct Interview Method");
+                    // Step 1: Update Completed Interview
+                    intervieww.StatusId = (int)completedDTO.StatusId;
+                    intervieww.Score = completedDTO.Score;
+                    intervieww.Notes = completedDTO.Notes;
+                    intervieww.ActualExperience = completedDTO.ActualExperience;
+                    intervieww.AttachmentId = completedDTO.AttachmentId;
+                    intervieww.ModifiedBy = currentUserr.Id;
+                    intervieww.ModifiedOn = DateTime.Now;
+                    intervieww.IsUpdated = true;
+                    await _interviewsRepository.Update(intervieww);
+                    // Step 2: Create Next Interview if Needed.
+
+                    var isHRr = await _userManager.IsInRoleAsync(currentUserr, "HR Manager");
+                    if (!isHRr)
+                    {
+                        var generalManagerInterview = await _interviewsRepository.GetGeneralManagerInterviewForCandidate(intervieww.CandidateId);
+                        if (generalManagerInterview != null)
+                        {
+                            generalManagerInterview.StatusId = (int)completedDTO.StatusId;
+                            generalManagerInterview.Score = completedDTO.Score;
+                            generalManagerInterview.Notes = completedDTO.Notes;
+                            generalManagerInterview.ActualExperience = completedDTO.ActualExperience;
+                            generalManagerInterview.AttachmentId = completedDTO.AttachmentId;
+                            generalManagerInterview.ModifiedBy = currentUserr.Id;
+                            generalManagerInterview.ModifiedOn = DateTime.Now;
+                            generalManagerInterview.IsUpdated = true;
+                            await _interviewsRepository.Update(generalManagerInterview);
+                        }
+                        var archiInterview = await _interviewsRepository.GetArchiInterviewForCandidate(intervieww.CandidateId);
+                        if (archiInterview != null)
+                        {
+                            archiInterview.StatusId = (int)completedDTO.StatusId;
+                            archiInterview.Score = completedDTO.Score;
+                            archiInterview.Notes = completedDTO.Notes;
+                            archiInterview.ActualExperience = completedDTO.ActualExperience;
+                            archiInterview.AttachmentId = completedDTO.AttachmentId;
+                            archiInterview.ModifiedBy = currentUserr.Id;
+                            archiInterview.ModifiedOn = DateTime.Now;
+                            archiInterview.IsUpdated = true;
+                            await _interviewsRepository.Update(archiInterview);
+                        }
+                    }
+
+
+                    var Completedstatuss = await _statusRepository.GetById((int)completedDTO.StatusId);
+                    bool isApprovedd = Completedstatuss.Code == StatusCode.Approved;
+                    bool isLastInterviewerAnHRr = await _userManager.IsInRoleAsync(intervieww.Interviewer, "HR Manager");
+                    if (isApprovedd && !isLastInterviewerAnHRr) // There is a next interview
+                    {
+                        bool isFirstMeeting = intervieww.ParentId == null;
+                        var PendeingStatus = await _statusRepository.GetByCode(StatusCode.Pending);
+                        var newInterview1 = new Interviews
+                        {
+                            StatusId = PendeingStatus.Id,
+                            Date = intervieww.Date,
+                            CandidateId = intervieww.CandidateId,
+                            PositionId = intervieww.PositionId,
+                            ParentId = completedDTO.InterviewsId,
+                            CreatedOn = DateTime.Now,
+                            CreatedBy = currentUserr.Id,
+                        };
+                        if (isFirstMeeting) // Second Interview Needed which done by General Manager and Solution Architecture
+                        {
+                            var hr = (await _userManager.GetUsersInRoleAsync("HR Manager")).FirstOrDefault();
+
+                            var architectureInterviewerId = _httpContextAccessor.HttpContext.Session.GetString("ArchitectureInterviewerId");
+                            var archiId = architectureInterviewerId;
+
+                            Debug.Assert(hr != null, "There is No Valid HR Manager in The System");
+
+                            // Create an interview for the General Manager
+                            var hrInterview = new Interviews
+                            {
+                                StatusId = PendeingStatus.Id,
+                                Date = intervieww.Date,
+                                CandidateId = intervieww.CandidateId,
+                                PositionId = intervieww.PositionId,
+                                ParentId = completedDTO.InterviewsId,
+                                CreatedOn = DateTime.Now,
+                                CreatedBy = currentUserr.Id,
+                                InterviewerId = hr.Id,
+                                SecondInterviewerId = completedDTO.SecondInterviewerId,
+                            };
+
+                            await _interviewsRepository.Insert(hrInterview);
+                            // Create an interview for the Solution Architecture
+                            if (!string.IsNullOrEmpty(archiId))
+                            {
+                                var archi = await _userManager.FindByIdAsync(archiId);
+                                Debug.Assert(archi != null, "There is No Valid Solution Architecture in The System");
+
+                                var newArchiInterview = new Interviews
+                                {
+                                    StatusId = PendeingStatus.Id,
+                                    Date = hrInterview.Date,
+                                    CandidateId = hrInterview.CandidateId,
+                                    PositionId = hrInterview.PositionId,
+                                    ParentId = completedDTO.InterviewsId,
+                                    CreatedOn = DateTime.Now,
+                                    CreatedBy = currentUserr.Id,
+                                    InterviewerId = archi.Id,
+                                    SecondInterviewerId = completedDTO.SecondInterviewerId,
+                                };
+
+                                await _interviewsRepository.Insert(newArchiInterview);
+                            }
+
+                       
+                        var hrs = (await _userManager.GetUsersInRoleAsync("HR Manager")).FirstOrDefault();
+
+                        //var hrInterviewnew = new Interviews
+                        //{
+                        //    StatusId = PendeingStatus.Id,
+                        //    Date = intervieww.Date,
+                        //    CandidateId = intervieww.CandidateId,
+                        //    PositionId = intervieww.PositionId,
+                        //    ParentId = completedDTO.InterviewsId,
+                        //    CreatedOn = DateTime.Now,
+                        //    CreatedBy = currentUserr.Id,
+                        //    InterviewerId = hrs.Id
+                        //};
+                        Debug.Assert(hrs != null, "There is No Valid HR Manager in The System");
+                        hrInterview.InterviewerId = hrs.Id;
+                        await _interviewsRepository.Insert(hrInterview);
+                        }
+
+                    }
+
+                }
+                else
+                {
+
+
+
+                    var currentUser = await _userManager.GetUserAsync(_httpContextAccessor.HttpContext.User);
+
+                    var interview = await _interviewsRepository.GetById(completedDTO.InterviewsId);
+                    if (completedDTO.FileData != null)
+                    {
+                        int attachmentId = await _attachmentService.CreateAttachmentAsync(completedDTO.FileName, (long)completedDTO.FileSize, completedDTO.FileData);
+                        completedDTO.AttachmentId = attachmentId;
+                    }
+
+                    Debug.Assert(interview != null, "No Interview Provided for Conduct Interview Method");
+                    // Step 1: Update Completed Interview
+                    interview.StatusId = (int)completedDTO.StatusId;
+                    interview.Score = completedDTO.Score;
+                    interview.Notes = completedDTO.Notes;
+                    interview.ActualExperience = completedDTO.ActualExperience;
+                    interview.AttachmentId = completedDTO.AttachmentId;
+                    interview.ModifiedBy = currentUser.Id;
+                    interview.ModifiedOn = DateTime.Now;
+                    interview.IsUpdated = true;
+                    await _interviewsRepository.Update(interview);
+                    // Step 2: Create Next Interview if Needed.
+
+                    var isHR = await _userManager.IsInRoleAsync(currentUser, "HR Manager");
+                    if (!isHR)
+                    {
+                        var generalManagerInterview = await _interviewsRepository.GetGeneralManagerInterviewForCandidate(interview.CandidateId);
+                        if (generalManagerInterview != null)
+                        {
+                            generalManagerInterview.StatusId = (int)completedDTO.StatusId;
+                            generalManagerInterview.Score = completedDTO.Score;
+                            generalManagerInterview.Notes = completedDTO.Notes;
+                            generalManagerInterview.ActualExperience = completedDTO.ActualExperience;
+                            generalManagerInterview.AttachmentId = completedDTO.AttachmentId;
+                            generalManagerInterview.ModifiedBy = currentUser.Id;
+                            generalManagerInterview.ModifiedOn = DateTime.Now;
+                            generalManagerInterview.IsUpdated = true;
+                            await _interviewsRepository.Update(generalManagerInterview);
+                        }
+                        var archiInterview = await _interviewsRepository.GetArchiInterviewForCandidate(interview.CandidateId);
+                        if (archiInterview != null)
+                        {
+                            archiInterview.StatusId = (int)completedDTO.StatusId;
+                            archiInterview.Score = completedDTO.Score;
+                            archiInterview.Notes = completedDTO.Notes;
+                            archiInterview.ActualExperience = completedDTO.ActualExperience;
+                            archiInterview.AttachmentId = completedDTO.AttachmentId;
+                            archiInterview.ModifiedBy = currentUser.Id;
+                            archiInterview.ModifiedOn = DateTime.Now;
+                            archiInterview.IsUpdated = true;
+                            await _interviewsRepository.Update(archiInterview);
+                        }
+                        var interviewerInterview = await _interviewsRepository.GetArchiInterviewForCandidate(interview.CandidateId);
+                        if (interviewerInterview != null)
+                        {
+                            interviewerInterview.StatusId = (int)completedDTO.StatusId;
+                            interviewerInterview.Score = completedDTO.Score;
+                            interviewerInterview.Notes = completedDTO.Notes;
+                            interviewerInterview.ActualExperience = completedDTO.ActualExperience;
+                            interviewerInterview.AttachmentId = completedDTO.AttachmentId;
+                            interviewerInterview.ModifiedBy = currentUser.Id;
+                            interviewerInterview.ModifiedOn = DateTime.Now;
+                            interviewerInterview.IsUpdated = true;
+                            await _interviewsRepository.Update(interviewerInterview);
+                        }
+
+                    }
+
+
+                    var Completedstatus = await _statusRepository.GetById((int)completedDTO.StatusId);
+                    bool isApproved = Completedstatus.Code == StatusCode.Approved;
+                    bool isLastInterviewerAnHR = await _userManager.IsInRoleAsync(interview.Interviewer, "HR Manager");
+                    if (isApproved && !isLastInterviewerAnHR) // There is a next interview
+                    {
+                        bool isFirstMeeting = interview.ParentId == null;
+                        var PendeingStatus = await _statusRepository.GetByCode(StatusCode.Pending);
+                        var newInterview2 = new Interviews
+                        {
+                            StatusId = PendeingStatus.Id,
+                            Date = interview.Date,
+                            CandidateId = interview.CandidateId,
+                            PositionId = interview.PositionId,
+                            ParentId = completedDTO.InterviewsId,
+                            CreatedOn = DateTime.Now,
+                            CreatedBy = currentUser.Id,
+                        };
+
+
+                        if ((firstInterviewerRoles == "General Manager" && secondInterviewerRoles == "Interviewer") || (firstInterviewerRoles == "Interviewer" && secondInterviewerRoles == "General Manager"))
+                        {
+                            var hr = (await _userManager.GetUsersInRoleAsync("HR Manager")).FirstOrDefault();
+                            Debug.Assert(hr != null, "There is No Valid HR Manager in The System");
+                            newInterview2.InterviewerId = hr.Id;
+                            await _interviewsRepository.Insert(newInterview2);
+                        }
+                        else
+                        {
+                            if (isFirstMeeting) // Second Interview Needed which done by General Manager and Solution Architecture
+                            {
+                                var manager = (await _userManager.GetUsersInRoleAsync("General Manager")).FirstOrDefault();
+
+                                var candidateArchitectureKey = $"ArchitectureInterviewerId_{interview.CandidateId}";
+                                var architectureInterviewerId = _httpContextAccessor.HttpContext.Session.GetString(candidateArchitectureKey);
+
+                                // Use architectureInterviewerId in your new interview creation logic.
+                                var archiId = architectureInterviewerId;
+
+                                Debug.Assert(manager != null, "There is No Valid General Manager in The System");
+
+                                // Create an interview for the General Manager
+                                var managerInterview = new Interviews
+                                {
+                                    StatusId = PendeingStatus.Id,
+                                    Date = interview.Date,
+                                    CandidateId = interview.CandidateId,
+                                    PositionId = interview.PositionId,
+                                    ParentId = completedDTO.InterviewsId,
+                                    CreatedOn = DateTime.Now,
+                                    CreatedBy = currentUser.Id,
+                                    InterviewerId = manager.Id,
+                                    SecondInterviewerId = completedDTO.SecondInterviewerId,
+                                };
+
+                                await _interviewsRepository.Insert(managerInterview);
+
+                                // Create an interview for the Solution Architecture
+                                if (!string.IsNullOrEmpty(archiId))
+                                {
+                                    var archi = await _userManager.FindByIdAsync(archiId);
+                                    Debug.Assert(archi != null, "There is No Valid Solution Architecture in The System");
+
+                                    var newArchiInterview = new Interviews
+                                    {
+                                        StatusId = PendeingStatus.Id,
+                                        Date = interview.Date,
+                                        CandidateId = interview.CandidateId,
+                                        PositionId = interview.PositionId,
+                                        ParentId = completedDTO.InterviewsId,
+                                        CreatedOn = DateTime.Now,
+                                        CreatedBy = currentUser.Id,
+                                        InterviewerId = archi.Id,
+                                        SecondInterviewerId = completedDTO.SecondInterviewerId,
+                                    };
+
+                                    await _interviewsRepository.Insert(newArchiInterview);
+                                }
+                            }
+                            else // Third Interview Needed which done by HR Manager
+                            {
+                                var hr = (await _userManager.GetUsersInRoleAsync("HR Manager")).FirstOrDefault();
+                                Debug.Assert(hr != null, "There is No Valid HR Manager in The System");
+                                newInterview2.InterviewerId = hr.Id;
+                                await _interviewsRepository.Insert(newInterview2);
+                            }
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                LogException(nameof(ConductInterview), ex, "Error while interviwing");
+                throw ex;
+            }
+        }
+
+        public async Task ConductInterviewForGm(InterviewsDTO completedDTO)
+        {
+            try
+            {
+
 
                 var currentUser = await _userManager.GetUserAsync(_httpContextAccessor.HttpContext.User);
 
@@ -461,7 +865,7 @@ namespace CMS.Services.Services
                     int attachmentId = await _attachmentService.CreateAttachmentAsync(completedDTO.FileName, (long)completedDTO.FileSize, completedDTO.FileData);
                     completedDTO.AttachmentId = attachmentId;
                 }
-                
+
                 Debug.Assert(interview != null, "No Interview Provided for Conduct Interview Method");
                 // Step 1: Update Completed Interview
                 interview.StatusId = (int)completedDTO.StatusId;
@@ -504,8 +908,21 @@ namespace CMS.Services.Services
                         archiInterview.IsUpdated = true;
                         await _interviewsRepository.Update(archiInterview);
                     }
+                    var interviewerInterview = await _interviewsRepository.GetinterviewerInterviewForCandidate(interview.CandidateId);
+                    if (interviewerInterview != null)
+                    {
+                        interviewerInterview.StatusId = (int)completedDTO.StatusId;
+                        interviewerInterview.Score = completedDTO.Score;
+                        interviewerInterview.Notes = completedDTO.Notes;
+                        interviewerInterview.ActualExperience = completedDTO.ActualExperience;
+                        interviewerInterview.AttachmentId = completedDTO.AttachmentId;
+                        interviewerInterview.ModifiedBy = currentUser.Id;
+                        interviewerInterview.ModifiedOn = DateTime.Now;
+                        interviewerInterview.IsUpdated = true;
+                        await _interviewsRepository.Update(interviewerInterview);
+                    }
                 }
-               
+
 
                 var Completedstatus = await _statusRepository.GetById((int)completedDTO.StatusId);
                 bool isApproved = Completedstatus.Code == StatusCode.Approved;
@@ -517,7 +934,7 @@ namespace CMS.Services.Services
                     var newInterview = new Interviews
                     {
                         StatusId = PendeingStatus.Id,
-                        Date =interview.Date,
+                        Date = interview.Date,
                         CandidateId = interview.CandidateId,
                         PositionId = interview.PositionId,
                         ParentId = completedDTO.InterviewsId,
@@ -526,15 +943,15 @@ namespace CMS.Services.Services
                     };
                     if (isFirstMeeting) // Second Interview Needed which done by General Manager and Solution Architecture
                     {
-                        var manager = (await _userManager.GetUsersInRoleAsync("General Manager")).FirstOrDefault();
+                        var hr = (await _userManager.GetUsersInRoleAsync("HR Manager")).FirstOrDefault();
 
                         var architectureInterviewerId = _httpContextAccessor.HttpContext.Session.GetString("ArchitectureInterviewerId");
                         var archiId = architectureInterviewerId;
 
-                        Debug.Assert(manager != null, "There is No Valid General Manager in The System");
+                        Debug.Assert(hr != null, "There is No Valid HR Manager in The System");
 
                         // Create an interview for the General Manager
-                        var managerInterview = new Interviews
+                        var hrInterview = new Interviews
                         {
                             StatusId = PendeingStatus.Id,
                             Date = interview.Date,
@@ -543,33 +960,15 @@ namespace CMS.Services.Services
                             ParentId = completedDTO.InterviewsId,
                             CreatedOn = DateTime.Now,
                             CreatedBy = currentUser.Id,
-                            InterviewerId = manager.Id
+                            InterviewerId = hr.Id
                         };
 
-                        await _interviewsRepository.Insert(managerInterview);
+                        await _interviewsRepository.Insert(hrInterview);
 
-                        // Create an interview for the Solution Architecture
-                        if (!string.IsNullOrEmpty(archiId))
-                        {
-                            var archi = await _userManager.FindByIdAsync(archiId);
-                            Debug.Assert(archi != null, "There is No Valid Solution Architecture in The System");
-
-                            var newArchiInterview = new Interviews
-                            {
-                                StatusId = PendeingStatus.Id,
-                                Date = interview.Date,
-                                CandidateId = interview.CandidateId,
-                                PositionId = interview.PositionId,
-                                ParentId = completedDTO.InterviewsId,
-                                CreatedOn = DateTime.Now,
-                                CreatedBy = currentUser.Id,
-                                InterviewerId = archi.Id
-                            };
-
-                            await _interviewsRepository.Insert(newArchiInterview);
-                        }
+                       
                     }
-                    else // Third Interview Needed which done by HR Manager
+
+                    else
                     {
                         var hr = (await _userManager.GetUsersInRoleAsync("HR Manager")).FirstOrDefault();
                         Debug.Assert(hr != null, "There is No Valid HR Manager in The System");
@@ -577,13 +976,150 @@ namespace CMS.Services.Services
                         await _interviewsRepository.Insert(newInterview);
                     }
                 }
+               
             }
             catch (Exception ex)
             {
-                LogException(nameof(ConductInterview), ex,"Error while interviwing");
+                LogException(nameof(ConductInterview), ex, "Error while interviwing");
                 throw ex;
             }
         }
+
+
+        public async Task ConductInterviewForArchi(InterviewsDTO completedDTO)
+        {
+            try
+            {
+
+
+                var currentUser = await _userManager.GetUserAsync(_httpContextAccessor.HttpContext.User);
+
+                var interview = await _interviewsRepository.GetById(completedDTO.InterviewsId);
+                if (completedDTO.FileData != null)
+                {
+                    int attachmentId = await _attachmentService.CreateAttachmentAsync(completedDTO.FileName, (long)completedDTO.FileSize, completedDTO.FileData);
+                    completedDTO.AttachmentId = attachmentId;
+                }
+
+                Debug.Assert(interview != null, "No Interview Provided for Conduct Interview Method");
+                // Step 1: Update Completed Interview
+                interview.StatusId = (int)completedDTO.StatusId;
+                interview.Score = completedDTO.Score;
+                interview.Notes = completedDTO.Notes;
+                interview.ActualExperience = completedDTO.ActualExperience;
+                interview.AttachmentId = completedDTO.AttachmentId;
+                interview.ModifiedBy = currentUser.Id;
+                interview.ModifiedOn = DateTime.Now;
+                interview.IsUpdated = true;
+                await _interviewsRepository.Update(interview);
+                // Step 2: Create Next Interview if Needed.
+
+                var isHR = await _userManager.IsInRoleAsync(currentUser, "HR Manager");
+                if (!isHR)
+                {
+                    var generalManagerInterview = await _interviewsRepository.GetGeneralManagerInterviewForCandidate(interview.CandidateId);
+                    if (generalManagerInterview != null)
+                    {
+                        generalManagerInterview.StatusId = (int)completedDTO.StatusId;
+                        generalManagerInterview.Score = completedDTO.Score;
+                        generalManagerInterview.Notes = completedDTO.Notes;
+                        generalManagerInterview.ActualExperience = completedDTO.ActualExperience;
+                        generalManagerInterview.AttachmentId = completedDTO.AttachmentId;
+                        generalManagerInterview.ModifiedBy = currentUser.Id;
+                        generalManagerInterview.ModifiedOn = DateTime.Now;
+                        generalManagerInterview.IsUpdated = true;
+                        await _interviewsRepository.Update(generalManagerInterview);
+                    }
+                    var archiInterview = await _interviewsRepository.GetArchiInterviewForCandidate(interview.CandidateId);
+                    if (archiInterview != null)
+                    {
+                        archiInterview.StatusId = (int)completedDTO.StatusId;
+                        archiInterview.Score = completedDTO.Score;
+                        archiInterview.Notes = completedDTO.Notes;
+                        archiInterview.ActualExperience = completedDTO.ActualExperience;
+                        archiInterview.AttachmentId = completedDTO.AttachmentId;
+                        archiInterview.ModifiedBy = currentUser.Id;
+                        archiInterview.ModifiedOn = DateTime.Now;
+                        archiInterview.IsUpdated = true;
+                        await _interviewsRepository.Update(archiInterview);
+                    }
+                    var interviewerInterview = await _interviewsRepository.GetinterviewerInterviewForCandidate(interview.CandidateId);
+                    if (interviewerInterview != null)
+                    {
+                        interviewerInterview.StatusId = (int)completedDTO.StatusId;
+                        interviewerInterview.Score = completedDTO.Score;
+                        interviewerInterview.Notes = completedDTO.Notes;
+                        interviewerInterview.ActualExperience = completedDTO.ActualExperience;
+                        interviewerInterview.AttachmentId = completedDTO.AttachmentId;
+                        interviewerInterview.ModifiedBy = currentUser.Id;
+                        interviewerInterview.ModifiedOn = DateTime.Now;
+                        interviewerInterview.IsUpdated = true;
+                        await _interviewsRepository.Update(interviewerInterview);
+                    }
+                }
+
+
+                var Completedstatus = await _statusRepository.GetById((int)completedDTO.StatusId);
+                bool isApproved = Completedstatus.Code == StatusCode.Approved;
+                bool isLastInterviewerAnHR = await _userManager.IsInRoleAsync(interview.Interviewer, "HR Manager");
+                if (isApproved && !isLastInterviewerAnHR) // There is a next interview
+                {
+                    bool isFirstMeeting = interview.ParentId == null;
+                    var PendeingStatus = await _statusRepository.GetByCode(StatusCode.Pending);
+                    var newInterview = new Interviews
+                    {
+                        StatusId = PendeingStatus.Id,
+                        Date = interview.Date,
+                        CandidateId = interview.CandidateId,
+                        PositionId = interview.PositionId,
+                        ParentId = completedDTO.InterviewsId,
+                        CreatedOn = DateTime.Now,
+                        CreatedBy = currentUser.Id,
+                    };
+                    if (isFirstMeeting) // Second Interview Needed which done by General Manager and Solution Architecture
+                    {
+                        var hr = (await _userManager.GetUsersInRoleAsync("HR Manager")).FirstOrDefault();
+
+                        var architectureInterviewerId = _httpContextAccessor.HttpContext.Session.GetString("ArchitectureInterviewerId");
+                        var archiId = architectureInterviewerId;
+
+                        Debug.Assert(hr != null, "There is No Valid HR Manager in The System");
+
+                        // Create an interview for the General Manager
+                        var hrInterview = new Interviews
+                        {
+                            StatusId = PendeingStatus.Id,
+                            Date = interview.Date,
+                            CandidateId = interview.CandidateId,
+                            PositionId = interview.PositionId,
+                            ParentId = completedDTO.InterviewsId,
+                            CreatedOn = DateTime.Now,
+                            CreatedBy = currentUser.Id,
+                            InterviewerId = hr.Id
+                        };
+
+                        await _interviewsRepository.Insert(hrInterview);
+
+
+                    }
+
+                    else
+                    {
+                        var hr = (await _userManager.GetUsersInRoleAsync("HR Manager")).FirstOrDefault();
+                        Debug.Assert(hr != null, "There is No Valid HR Manager in The System");
+                        newInterview.InterviewerId = hr.Id;
+                        await _interviewsRepository.Insert(newInterview);
+                    }
+                }
+
+            }
+            catch (Exception ex)
+            {
+                LogException(nameof(ConductInterview), ex, "Error while interviwing");
+                throw ex;
+            }
+        }
+
 
         public async Task<Result<List<InterviewsDTO>>> MyInterviews()
         {
@@ -652,7 +1188,7 @@ namespace CMS.Services.Services
             }
         }
 
-      
+
 
 
     }

@@ -12,6 +12,7 @@ namespace CMS.Repository.Interfaces
         Task<int> Update(Interviews entity);
         Task<int> Delete(int id);
         Task<Interviews> GetById(int id);
+        Task<string> GetRoleById(string id);
         Task<Interviews> GetByIdForEdit(int id);
         Task<List<Interviews>> GetAll();
         
@@ -29,6 +30,7 @@ namespace CMS.Repository.Interfaces
         Task<Interviews> GetGeneralManagerInterviewForCandidate(int candidateId);
 
         Task<Interviews> GetArchiInterviewForCandidate(int candidateId);
+        Task<Interviews> GetinterviewerInterviewForCandidate(int candidateId);
 
     }
 }

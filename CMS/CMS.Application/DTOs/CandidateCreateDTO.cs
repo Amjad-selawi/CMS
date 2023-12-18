@@ -49,5 +49,8 @@ namespace CMS.Application.DTOs
 
         public string LastInterviewStatus { get; set; } // Add this property
 
+        public string InterviewerName { get; set; } // Include InterviewerName
+
+
     }
 }

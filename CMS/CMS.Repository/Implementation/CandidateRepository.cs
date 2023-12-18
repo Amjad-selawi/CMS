@@ -150,29 +150,37 @@ namespace CMS.Repository.Implementation
             }
 
         }
-    
+
 
         public async Task<int> CountAcceptedAsync()
         {
             try
             {
+                int candidateCounts = await _dbContext.Candidates
+                    .Include(a => a.Interviews)
+                    .ThenInclude(a => a.Status)
+                    .Where(a => (a.Interviews.Count == 3 || a.Interviews.Count == 4) && a.Interviews.All(a => a.Status.Code == StatusCode.Approved))
+                    .CountAsync();
 
-            int candidateCounts = await _dbContext.Candidates
-             .Include(a => a.Interviews)
-             .ThenInclude(a => a.Status)
-             .Where(a => (a.Interviews.Count == 3 || a.Interviews.Count == 4) && a.Interviews.All(a => a.Status.Code == StatusCode.Approved))
-             .CountAsync();
+                int candidateCountsWithTwoAccepted = await _dbContext.Candidates
+                    .Include(a => a.Interviews)
+                    .ThenInclude(a => a.Status)
+                    .Where(a => a.Interviews.Count == 2 && a.Interviews.Skip(1).All(i => i.Status.Code == StatusCode.Approved))
+                    .CountAsync();
 
-            return candidateCounts;
+                return candidateCounts + candidateCountsWithTwoAccepted;
             }
-
             catch (Exception ex)
             {
-                LogException(nameof(CountAcceptedAsync), ex,"Enable to count the accepted interviews");
+                LogException(nameof(CountAcceptedAsync), ex, "Unable to count the accepted interviews");
                 throw ex;
             }
-
         }
+
+
+
+
+
         public async Task<int> CountRejectedAsync()
         {
             try

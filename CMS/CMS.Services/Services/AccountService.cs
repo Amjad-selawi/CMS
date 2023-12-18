@@ -140,26 +140,66 @@ namespace CMS.Services.Services
         {
             try
             {
-                var interviewerRole = await _roleManager.FindByNameAsync("Interviewer");
-                if (interviewerRole == null)
-                {
-                    return Result<IList<IdentityUser>>.Failure(null, "Requested Role Not Found");
-                }
-                var interviewers = await _userManager.GetUsersInRoleAsync(interviewerRole.Name);
-                if (interviewers == null)
-                {
-                    return Result<IList<IdentityUser>>.Failure(null, "No Interviewers found");
-                }
-                return Result<IList<IdentityUser>>.Success(interviewers);
-            }
-           
+                // Get all users
+                var users = await _userManager.Users.ToListAsync();
 
-              catch (Exception ex)
+                if (users == null || users.Count == 0)
+                {
+                    return Result<IList<IdentityUser>>.Failure(null, "No users found");
+                }
+
+                // Get the HR Manager role
+                var hrManagerRole = await _roleManager.FindByNameAsync("HR Manager");
+                var adminRole = await _roleManager.FindByNameAsync("Admin");
+
+
+                if (hrManagerRole == null)
+                {
+                    return Result<IList<IdentityUser>>.Failure(null, "HR Manager Role Not Found");
+                }
+                if (adminRole == null)
+                {
+                    return Result<IList<IdentityUser>>.Failure(null, "Admin Role Not Found");
+                }
+
+                // Filter out users with the HR Manager role
+                var usersExcludingHRManager = users
+                    .Where(user => !(_userManager.IsInRoleAsync(user, hrManagerRole.Name).Result || _userManager.IsInRoleAsync(user, adminRole.Name).Result))
+                            .ToList();
+                return Result<IList<IdentityUser>>.Success(usersExcludingHRManager);
+            }
+            catch (Exception ex)
             {
-                LogException(nameof(GetAllInterviewers), ex, "Error while Getting All Interviewers");
+                LogException(nameof(GetAllInterviewers), ex, "Error while getting all users excluding HR Manager");
                 throw ex;
             }
         }
+
+        public async Task<Result<IList<IdentityUser>>> GetAllInterviewersGM()
+        {
+            try
+            {
+                var GMRole = await _roleManager.FindByNameAsync("General Manager");
+                if (GMRole == null)
+                {
+                    return Result<IList<IdentityUser>>.Failure(null, "Requested Role Not Found");
+                }
+                var interviewers = await _userManager.GetUsersInRoleAsync(GMRole.Name);
+                if (interviewers == null)
+                {
+                    return Result<IList<IdentityUser>>.Failure(null, "No General Manager found");
+                }
+                return Result<IList<IdentityUser>>.Success(interviewers);
+            }
+
+
+            catch (Exception ex)
+            {
+                LogException(nameof(GetAllInterviewersGM), ex, "Error while Getting All Interviewers");
+                throw ex;
+            }
+        }
+
         public async Task<Result<IList<IdentityUser>>> GetAllArchitectureInterviewers()
         {
             try

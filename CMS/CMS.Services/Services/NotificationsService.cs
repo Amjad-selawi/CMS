@@ -307,7 +307,9 @@ namespace CMS.Services.Services
                     SendDate = notification.SendDate,
                     Title = notification.Title,
                     BodyDesc = notification.BodyDesc,
-                    IsReceived = true
+                    IsReceived = true,
+                    IsRead=notification.IsRead,
+                    
                 })
                 .ToList();
 
@@ -373,7 +375,8 @@ namespace CMS.Services.Services
                     SendDate = notification.SendDate,
                     Title = notification.Title,
                     BodyDesc = notification.BodyDesc,
-                    IsReceived = true
+                    IsReceived = true,
+                    IsRead = notification.IsRead,
                 })
                 .ToList();
 
@@ -439,7 +442,8 @@ namespace CMS.Services.Services
                     SendDate = notification.SendDate,
                     Title = notification.Title,
                     BodyDesc = notification.BodyDesc,
-                    IsReceived = true
+                    IsReceived = true,
+                    IsRead = notification.IsRead,
                 })
                 .ToList();
 
@@ -515,7 +519,8 @@ namespace CMS.Services.Services
                         SendDate = notification.SendDate,
                         Title = notification.Title,
                         BodyDesc = notification.BodyDesc,
-                        IsReceived = true
+                        IsReceived = true,
+                        IsRead = notification.IsRead,
                     })
                     .ToList();
 
@@ -651,7 +656,7 @@ namespace CMS.Services.Services
             try
             {
 
-                
+
 
                 var archiId = "";
                 var HrId = "";
@@ -723,47 +728,82 @@ namespace CMS.Services.Services
             }
         }
 
-        public async Task CreateInterviewNotificationForInterviewerAsync(DateTime interviewDate, int candidateId, int positionId, string selectedInterviewerId, bool isCanceled)
+        public async Task CreateInterviewNotificationForInterviewerAsync(DateTime interviewDate, int candidateId, int positionId, List<string> selectedInterviewerIds, bool isCanceled)
         {
             try
             {
-                
-
+                var formattedDate = interviewDate.ToString("dd/MM/yyyy hh:mm tt");
 
                 var currentUser = await _userManager.GetUserAsync(_httpContextAccessor.HttpContext.User);
                 var candidateName = await GetCandidateName(candidateId);
                 var positionName = await GetPositionName(positionId);
 
-                var notification = new Notifications
+                foreach (var selectedInterviewerId in selectedInterviewerIds)
                 {
-                    ReceiverId = selectedInterviewerId,
-                    SendDate = DateTime.Now,
-                    IsReceived = true,
-                    IsRead = false,
-                    CreatedBy = currentUser.Id,
-                    CreatedOn = DateTime.Now
-                };
+                    var notification = new Notifications
+                    {
+                        ReceiverId = selectedInterviewerId,
+                        SendDate = DateTime.Now,
+                        IsReceived = true,
+                        IsRead = false,
+                        CreatedBy = currentUser.Id,
+                        CreatedOn = DateTime.Now
+                    };
 
-                if (isCanceled)
-                {
-                    notification.Title = $"Interview Cancellation for {candidateName}";
-                    notification.BodyDesc = $"The interview with {candidateName} for the {positionName} position, scheduled on {interviewDate}, has been canceled by HR.";
-                }
-                else
-                {
-                    notification.Title = $"New interview invitation for {candidateName}";
-                    notification.BodyDesc = $"You've been selected for a First Interview with {candidateName} for the {positionName} position on {interviewDate}. Get ready to shine! 💼🚀";
-                }
+                    if (isCanceled)
+                    {
+                        notification.Title = $"Interview Cancellation for {candidateName}";
+                        notification.BodyDesc = $"The interview with {candidateName} for the {positionName} position, scheduled on {formattedDate}, has been canceled by HR.";
+                    }
+                    else
+                    {
+                        var secondInterviewerName = await GetInterviewerName(selectedInterviewerIds[1]);
 
-                await _notificationsRepository.Create(notification);
+                        if (selectedInterviewerIds.Count == 2 && secondInterviewerName != "Unknown Interviewer")
+                        {
+
+                            if (selectedInterviewerId == selectedInterviewerIds[0] )
+                            {
+                                notification.Title = $"New interview invitation for {candidateName}";
+                                notification.BodyDesc = $"You and {secondInterviewerName} have been selected for a First Interview with {candidateName} for the {positionName} position on {formattedDate}. Get ready to shine! 💼🚀";
+
+                            }
+                            else
+                            {
+                                var firstInterviewerName = await GetInterviewerName(selectedInterviewerIds[0]);
+                                notification.Title = $"New interview invitation for {candidateName}";
+                                notification.BodyDesc = $"You and {firstInterviewerName} have been selected for a First Interview with {candidateName} for the {positionName} position on {formattedDate}. Get ready to shine! 💼🚀";
+                            }
+                        }
+                        else
+                        {
+                            notification.Title = $"New interview invitation for {candidateName}";
+                            notification.BodyDesc = $"You've been selected for a First Interview with {candidateName} for the {positionName} position on {formattedDate}. Get ready to shine! 💼🚀";
+                        }
+                    }
+
+                    await _notificationsRepository.Create(notification);
+                }
             }
             catch (Exception ex)
             {
-
                 LogException(nameof(CreateInterviewNotificationForInterviewerAsync), ex, "CreateInterviewNotificationForInterviewerAsync not working");
                 throw ex;
             }
         }
+        public async Task<string> GetInterviewerName(string interviewerId)
+        {
+            var interviewer = await _userManager.FindByIdAsync(interviewerId);
+
+            if (interviewer != null)
+            {
+                return interviewer.UserName; // Replace 'Name' with the actual property name in your IdentityUser model
+            }
+
+            // Return a default name or handle the case when the user is not found
+            return "Unknown Interviewer";
+        }
+
 
         public async Task CreateInterviewNotificationForHRInterview(int status, string notes, int CandidateId, int positionId)
         {
@@ -808,6 +848,22 @@ namespace CMS.Services.Services
                 {
                     notification.Title = $"{candidateName} Rejected by {userName} for position {positionName}";
                 }
+                if (statusstatus.Code == Domain.Enums.StatusCode.Approved)
+                {
+                    var hrNotification = new Notifications
+                    {
+                        ReceiverId = HrId,
+                        SendDate = DateTime.Now,
+                        IsReceived = true,
+                        IsRead = false,
+                        Title = $"{candidateName} Approved by {userName} for position {positionName}",
+                        BodyDesc = $"The candidate has been approved by the {userName} for the {positionName} position.",
+                        CreatedBy = currentUser.Id,
+                        CreatedOn = DateTime.Now
+                    };
+
+                    await _notificationsRepository.Create(hrNotification);
+                }
 
                 await _notificationsRepository.Create(notification);
             }
@@ -818,7 +874,61 @@ namespace CMS.Services.Services
                 throw ex;
             }
         }
-       
+
+        public async Task CreateInterviewNotificationForHRInterviewfromGM(int status, string notes, int CandidateId, int positionId)
+        {
+            try
+            {
+
+
+
+                var statusResult = await _statusService.GetById(status);
+                var statusstatus = statusResult.Value;
+
+
+                var HrId = "";
+
+                var Hr = await _roleManager.FindByNameAsync("HR Manager");
+
+                HrId = (await _userManager.GetUsersInRoleAsync(Hr.Name)).FirstOrDefault().Id;
+
+                string userName = GetLoggedInUserName();
+                var currentUser = await _userManager.GetUserAsync(_httpContextAccessor.HttpContext.User);
+
+                var candidateName = await GetCandidateName(CandidateId);
+                var positionName = await GetPositionName(positionId);
+
+                var notification = new Notifications
+                {
+                    ReceiverId = HrId,
+                    SendDate = DateTime.Now,
+                    IsReceived = true,
+                    IsRead = false,
+                    Title = "",
+                    BodyDesc = notes,
+                    CreatedOn = DateTime.Now,
+                    CreatedBy = currentUser.Id,
+                };
+
+                if (statusstatus.Code == Domain.Enums.StatusCode.Approved)
+                {
+                    notification.Title = $"You have a second Interview with {candidateName} for the {positionName} position. Get ready to shine! 💼🚀 ";
+                }
+                else
+                {
+                    notification.Title = $"{candidateName} Rejected by {userName} for position {positionName}";
+                }
+
+                await _notificationsRepository.Create(notification);
+            }
+            catch (Exception ex)
+            {
+
+                LogException(nameof(CreateInterviewNotificationForHRInterview), ex, "CreateInterviewNotificationForHRInterview not working");
+                throw ex;
+            }
+        }
+
         public async Task CreateNotificationForInterviewer(int CandidateId, string selectedInterviewerId)
         {
             try

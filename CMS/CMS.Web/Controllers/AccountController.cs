@@ -278,14 +278,14 @@ namespace CMS.Web.Controllers
             
             if (ModelState.IsValid)
             {
-                var existingUser = await _userManager.FindByEmailAsync(collection.Email);
-                if (existingUser != null)
-                {
-                    ModelState.AddModelError(string.Empty, "Email is already in use.");
-                    var roless = _roleManager.Roles.Select(r => r.Name).ToList();
-                    ViewBag.Roles = new SelectList(roless);
-                    return View(collection);
-                }
+                //var existingUser = await _userManager.FindByEmailAsync(collection.Email);
+                //if (existingUser != null)
+                //{
+                //    ModelState.AddModelError(string.Empty, "Email is already in use.");
+                //    var roless = _roleManager.Roles.Select(r => r.Name).ToList();
+                //    ViewBag.Roles = new SelectList(roless);
+                //    return View(collection);
+                //}
 
                 var user = new IdentityUser
                 {

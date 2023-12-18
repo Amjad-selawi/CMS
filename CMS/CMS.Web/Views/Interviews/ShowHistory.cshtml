@@ -27,7 +27,14 @@
                         {
                             <tr>
                                 <td>@Html.DisplayFor(modelItem => item.FullName)</td>
-                                <td >@item.InterviewerName</td>
+                                @if (item.SecondInterviewerId != null)
+                                {
+                                    <td>@item.InterviewerName & @item.SecondInterviewerName</td>
+                                }
+                                else
+                                {
+                                    <td>@item.InterviewerName</td>
+                                }
                                 <td>@item.Score</td>
                                 <td>@item.ActualExperience</td>
                                 <td>@item.Notes</td>

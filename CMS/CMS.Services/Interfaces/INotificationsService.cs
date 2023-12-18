@@ -36,10 +36,11 @@ namespace CMS.Services.Interfaces
         Task CreateNotificationForGeneralManagerAsync(int status, string notes, int CandidateId, int positionId);
         Task CreateNotificationForArchiAsync(int status, string notes, int CandidateId, int positionId);
 
-        Task CreateInterviewNotificationForInterviewerAsync(DateTime interviewDate, int CandidateId, int positionId, string selectedInterviewerId, bool isCanceled);
+        Task CreateInterviewNotificationForInterviewerAsync(DateTime interviewDate, int CandidateId, int positionId, List<string> selectedInterviewerId, bool isCanceled);
 
 
         Task CreateInterviewNotificationForHRInterview(int status, string notes, int CandidateId, int positionId);
+        Task CreateInterviewNotificationForHRInterviewfromGM(int status, string notes, int CandidateId, int positionId);
 
         Task CreateNotificationForInterviewer(int CandidateId, string selectedInterviewerId);
         Task<NotificationsDTO> GetNotificationByIdforDetails(int notificationsId);

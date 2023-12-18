@@ -90,6 +90,7 @@ namespace CMS.Services.Services
                     FullName = candidate.FullName,
                     Phone = candidate.Phone,
                     PositionId = candidate.PositionId,
+                    PositionName = candidate.Position.Name,
                     Name = candidate.Position.Name,
                     CompanyId = candidate.CompanyId,
                     CompanyName = candidate.Company.Name,
