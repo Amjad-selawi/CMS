@@ -70,6 +70,48 @@ namespace CMS.Services.Services
             _db.SaveChanges();
         }
 
+        public async Task<List<UsersDTO>> GetAllInterviewers()
+        {
+            try
+            {
+                // Get all roles
+                var allRoles = await _roleManager.Roles.ToListAsync();
+
+                // Initialize a list to store all users
+                var allUsers = new List<UsersDTO>();
+
+                // Iterate through each role
+                foreach (var role in allRoles)
+                {
+                    // Check if the current role is not the "Admin" role
+                    if (!string.Equals(role.Name, "Admin", StringComparison.OrdinalIgnoreCase))
+                    {
+                        // Get users for the current role
+                        var usersInRole = await _userManager.GetUsersInRoleAsync(role.Name);
+
+                        // Convert users to UsersDTO and add to the list
+                        var usersDtoList = usersInRole.Select(user => new UsersDTO
+                        {
+                            Id = user.Id,
+                            Name = user.UserName,
+                            Email = user.Email,
+                        }).ToList();
+
+                        allUsers.AddRange(usersDtoList);
+                    }
+                }
+
+                return allUsers;
+            }
+            catch (Exception ex)
+            {
+                LogException(nameof(GetAllInterviewers), ex, "Error while getting all users by role");
+                throw ex;
+            }
+        }
+
+
+
         public async Task<List<UsersDTO>> GetInterviewers()
         {
             try
