@@ -63,7 +63,13 @@ namespace CMS.Web.Controllers
                 ViewBag.PendingCount = report.NumberOfPending; // Add the pending count to the ViewBag
                                                                //var countries = await _countryService.GetAllCountriesAsync();
 
-                var countries = await _countryService.GetAllCountriesAsync(); // Assuming you have a countryService instance
+
+                    double onHoldPercentageFloat = ((double)report.NumberOfOnHold / report.NumberOfCandidates) * 100;
+                    int onHoldPercentage = (int)onHoldPercentageFloat;
+                    ViewBag.OnHoldPercentage = onHoldPercentage;
+
+
+                    var countries = await _countryService.GetAllCountriesAsync(); // Assuming you have a countryService instance
 
                 // Convert the list of countries to a JSON array for use in JavaScript
                 var countriesJson = JsonSerializer.Serialize(countries.Select(c => c.Name).ToList());

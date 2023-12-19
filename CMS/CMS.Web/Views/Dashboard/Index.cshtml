@@ -3,13 +3,13 @@
     ViewData["Title"] = "Dashboard";
     ViewData["additionalJS"] = new[]
     {
-        "/CMS/theme/libs/apexcharts/apexcharts.min.js",
-        "/CMS/dashboard-js/jobx.js",
-        "/CMS/dashboard-js/rejected-chart.js",
-        "/CMS/theme/libs/jsvectormap/js/jsvectormap.min.js",
-        "/CMS/theme/libs/jsvectormap/maps/world-merc.js",
-        "/CMS/dashboard-js/countries-hash.js",
-        "/CMS/dashboard-js/candidate-sources-map.js"
+        "/theme/libs/apexcharts/apexcharts.min.js",
+        "/dashboard-js/jobx.js",
+        "/dashboard-js/rejected-chart.js",
+        "/theme/libs/jsvectormap/js/jsvectormap.min.js",
+        "/theme/libs/jsvectormap/maps/world-merc.js",
+        "/dashboard-js/countries-hash.js",
+        "/dashboard-js/candidate-sources-map.js"
     };
 }
 
@@ -58,35 +58,6 @@
             </div><!-- end card body -->
         </div><!-- end card -->
     </div>
-    @* <div class="col-xl-4 col-md-4">
-    <div class="card card-animate overflow-hidden">
-    <div class="position-absolute start-0" style="z-index: 0;">
-    <svg version="1.2" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 120" width="200" height="120">
-    <style>
-    .s0 {
-    opacity: .05;
-    fill: var(--vz-success)
-    }
-    </style>
-    <path id="Shape 8" class="s0" d="m189.5-25.8c0 0 20.1 46.2-26.7 71.4 0 0-60 15.4-62.3 65.3-2.2 49.8-50.6 59.3-57.8 61.5-7.2 2.3-60.8 0-60.8 0l-11.9-199.4z"></path>
-    </svg>
-    </div>
-    <div class="card-body" style="z-index:1 ;">
-    <div class="d-flex align-items-center">
-    <div class="flex-grow-1 overflow-hidden">
-    <p class="text-uppercase fw-medium text-muted text-truncate mb-3"> Pending</p>
-    <h4 class="fs-22 fw-semibold ff-secondary mb-0"><span class="counter-value" data-target="@Model.NumberOfPending">0</span></h4>
-    </div>
-
-    <!-- Add your chart or visualization for pending candidates here if needed -->
-    </div>
-    </div><!-- end card body -->
-    </div><!-- end card -->
-    </div>*@
-
-
-
-
 
 
 
@@ -117,28 +88,6 @@
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
     <div class="col-xl-4 col-md-4">
         <div class="card card-animate overflow-hidden">
             <div class="position-absolute start-0" style="z-index: 0;">
@@ -164,6 +113,32 @@
         </div><!-- end card -->
     </div>
 
+
+    <div class="col-xl-4 col-md-4">
+        <div class="card card-animate overflow-hidden">
+            <div class="position-absolute start-0" style="z-index: 0;">
+                <svg version="1.2" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 120" width="200" height="120">
+                    <style>
+                        .s0 {
+                            opacity: .05;
+                            fill: var(--vz-success)
+                        }
+                    </style>
+                    <path id="Shape 8" class="s0" d="m189.5-25.8c0 0 20.1 46.2-26.7 71.4 0 0-60 15.4-62.3 65.3-2.2 49.8-50.6 59.3-57.8 61.5-7.2 2.3-60.8 0-60.8 0l-11.9-199.4z"></path>
+                </svg>
+            </div>
+            <div class="card-body" style="z-index:1 ;">
+                <div class="d-flex align-items-center">
+                    <div class="flex-grow-1 overflow-hidden">
+                        <p class="text-uppercase fw-medium text-muted text-truncate mb-3"> On Hold</p>
+                        <h4 class="fs-22 fw-semibold ff-secondary mb-0"><span class="counter-value" data-target="@Model.NumberOfOnHold">0</span></h4>
+                    </div>
+                    <div id="rejected-chart" data-percent="@ViewBag.OnHoldPercentage"></div>
+                </div>
+            </div><!-- end card body -->
+        </div><!-- end card -->
+    </div>
+
 </div>
 <div class="row">
     <div class="col-xxl-4">
@@ -177,181 +152,11 @@
             <div class="card-body">
                 <div id="candidate-sources-map"
                      data-locations="@ViewBag.CountriesList"></div>
-                @* <table class="table table-nowrap dt-responsive table-bordered display" style="width:100%">
-                <thead>
-                <tr>
-                <th>Country Name</th>
-                <th>Num of Candidates</th>
-
-                </tr>
-                </thead>
-                <tbody>
-                @foreach (var item in Model.CandidatesPerCountry)
-                {
-                <tr>
-                <td>@item.Key</td>
-                <td>@item.Value</td>
-                </tr>
-                }
-                </tbody>
-                </table>*@
             </div>
             <!-- end card body -->
         </div>
         <!-- end card -->
     </div>
-
-
-
-
-
-    @* <div class="card card-height-100">
-    <div class="card">
-    <div class="card-header">
-    <h4 class="card-title mb-0">Tree Chart</h4>
-    </div><!-- end card header -->
-
-    <div class="card-body">
-    <div class="container">
-    <div class="accordion" id="countryAccordion">
-    @foreach (var country in ViewBag.TreeData)
-    {
-    @if (country.Positions != null && country.Positions.Count > 0) // Check if the country has any positions
-    {
-    <div class="accordion-item">
-    <h2 class="accordion-header" id="countryheading-@country.Id">
-    <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#countrycollapse-@country.Id">
-    @country.Name
-    </button>
-    </h2>
-    <div id="countrycollapse-@country.Id" class="accordion-collapse collapse">
-    <div class="accordion-body">
-    <ul class="list-group">
-    @foreach (var position in country.Positions)
-    {
-    <li class="list-group-item">
-    <button class="btn btn-link" data-bs-toggle="collapse" data-bs-target="#positioncollapse-@position.Id">
-    @position.Name
-    </button>
-    <div id="positioncollapse-@position.Id" class="collapse">
-    <ul class="list-group">
-    @foreach (var candidate in position.Candidates)
-    {
-    <li class="list-group-item">@candidate.FullName</li>
-    }
-    </ul>
-    </div>
-    </li>
-    }
-    </ul>
-    </div>
-    </div>
-    </div>
-    }
-    }
-    </div>
-    </div>
-    </div><!-- end card-body -->
-    </div><!-- end card -->
-    </div>*@
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-    @*<div class="card card-height-100">
-    <div class="card">
-    <div class="card-header">
-    <h4 class="card-title mb-0">Tree Chart</h4>
-    </div><!-- end card header -->
-
-    <div class="card-body">
-    <div class="container">
-    <div class="accordion" id="countryAccordion">
-    @foreach (var country in ViewBag.TreeData)
-    {
-    @if (country.Positions != null && country.Positions.Count > 0) // Check if the country has any positions
-    {
-    <div class="accordion-item">
-    <h2 class="accordion-header" id="countryheading-@country.Id">
-    <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#countrycollapse-@country.Id">
-    @country.Name
-    </button>
-    </h2>
-    <div id="countrycollapse-@country.Id" class="accordion-collapse collapse">
-    <div class="accordion-body">
-    <ul class="list-group">
-    @foreach (var position in country.Positions)
-    {
-    <li class="list-group-item">
-    <div class="d-flex justify-content-between align-items-center">
-    <div>
-    <button class="btn btn-link" data-bs-toggle="collapse" data-bs-target="#positioncollapse-@position.Id">
-    @position.Name
-    </button>
-    </div>
-    <div>
-    <span class="badge bg-primary rounded-pill">@position.Candidates.Count</span>
-    </div>
-    </div>
-    <div id="positioncollapse-@position.Id" class="collapse">
-    <ul class="list-group">
-    @for (int i = 0; i < Math.Min(position.Candidates.Count, 15); i++)
-    {
-    <li class="list-group-item">@position.Candidates[i].Name</li>
-    }
-    </ul>
-    </div>
-    </li>
-    }
-    </ul>
-    </div>
-    </div>
-    </div>
-    }
-    }
-    </div>
-    </div>
-    </div><!-- end card-body -->
-    </div><!-- end card -->
-    </div>*@
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 

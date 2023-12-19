@@ -91,7 +91,7 @@ namespace CMS.Web.Controllers
                 ViewBag.CandidateList = new SelectList(candidatesDTO, "Id", "FullName");
 
                 // Get all interviewers
-                var interviewersDTO = await _searchInterviewsService.GetInterviewers();
+                var interviewersDTO = await _searchInterviewsService.GetAllInterviewers();
                 ViewBag.InterviewerList = new SelectList(interviewersDTO, "Id", "Name");
 
 

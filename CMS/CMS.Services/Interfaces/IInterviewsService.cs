@@ -31,5 +31,7 @@ namespace CMS.Services.Interfaces
         Task <Result<List<InterviewsDTO>>> ShowHistory(int id);
         void LogException(string methodName, Exception ex = null, string additionalInfo = null);
 
+        Task<bool> IsSolutionArchitect(string userId);
+
     }
 }

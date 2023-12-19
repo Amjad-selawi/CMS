@@ -18,6 +18,7 @@ namespace CMS.Services.Interfaces
         Task UpdateInterviewAttachmentAsync(int id, string fileName, long fileSize, Stream fileStream);
         Task ConductInterview(InterviewsDTO interviewsDTO);
         Task<List<UsersDTO>> GetInterviewers();
+        Task<List<UsersDTO>> GetAllInterviewers();
         Task<Result<List<InterviewsDTO>>> MyInterviews();
 
         Task<string> GetInterviewerName(string id);

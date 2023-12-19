@@ -519,6 +519,16 @@ namespace CMS.Domain.Migrations
                             IsDelete = false,
                             ModifiedOn = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
                             Name = "Rejected"
+                        },
+                        new
+                        {
+                            Id = 4,
+                            Code = "HOLD",
+                            CreatedOn = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            IsActive = false,
+                            IsDelete = false,
+                            ModifiedOn = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            Name = "On hold"
                         });
                 });
 
@@ -591,35 +601,35 @@ namespace CMS.Domain.Migrations
                         new
                         {
                             Id = "b024cbbe-f64e-4d1b-9c6e-05ac0f0e3ebb",
-                            ConcurrencyStamp = "a5f57a1e-21e6-4162-b272-fdacb0da7476",
+                            ConcurrencyStamp = "7e2bf0b1-ada6-444d-bcd8-8ddfebad9d75",
                             Name = "Admin",
                             NormalizedName = "ADMIN"
                         },
                         new
                         {
                             Id = "1eecb40c-c701-4445-89d4-d1aa7d70460d",
-                            ConcurrencyStamp = "8d6d19f9-ddef-4fdd-b87d-22cfd72a43bb",
+                            ConcurrencyStamp = "7c5300af-1b15-4b67-8e20-6a52e6e3a778",
                             Name = "General Manager",
                             NormalizedName = "GENERAL MANAGER"
                         },
                         new
                         {
                             Id = "226cca69-f046-4d15-8b81-9b9ba34f2214",
-                            ConcurrencyStamp = "8dfea779-8302-477b-9f1c-9594bff248ae",
+                            ConcurrencyStamp = "e8955e37-e4d5-4e78-8956-f66b84a377c2",
                             Name = "HR Manager",
                             NormalizedName = "HR MANAGERF"
                         },
                         new
                         {
                             Id = "91c3461a-7da3-4033-b907-b104b903d793",
-                            ConcurrencyStamp = "8f4aeebd-629a-4bcf-9aab-e5b28b3ddb7a",
+                            ConcurrencyStamp = "2772a6a8-75e8-40ed-bb52-ab70f5ce1081",
                             Name = "Interviewer",
                             NormalizedName = "INTERVIEWER"
                         },
                         new
                         {
                             Id = "3F476A40-97F4-42C6-A226-602AED74A4BC",
-                            ConcurrencyStamp = "7a373d25-e88c-4c69-b38b-1ed69a1d401d",
+                            ConcurrencyStamp = "8ca323a9-476c-4896-a3ee-304f1549cfb6",
                             Name = "Solution Architecture",
                             NormalizedName = "SOLUTION ARCHITECTURE"
                         });
@@ -718,15 +728,15 @@ namespace CMS.Domain.Migrations
                         {
                             Id = "c6585ab9-8b5f-4332-a174-92429db8add2",
                             AccessFailedCount = 0,
-                            ConcurrencyStamp = "6c7f61fb-29c5-47f5-9ca2-6aaf037d9214",
+                            ConcurrencyStamp = "3b37c1ba-1bd2-4383-a1b8-0370a7c1d8c7",
                             Email = "admin@admin.com",
                             EmailConfirmed = true,
                             LockoutEnabled = false,
                             NormalizedEmail = "ADMIN@ADMIN.COM",
                             NormalizedUserName = "ADMIN",
-                            PasswordHash = "AQAAAAEAACcQAAAAEHdbX6SvEFHBNia2aA8xXVaK6IIWvTD6vRjhskE9l7/vu2Ra2k4JsWL5gwMr/+CaZA==",
+                            PasswordHash = "AQAAAAEAACcQAAAAEKXFlrvUu9mMLMwqdSrjYah7vM8QJgWNwNCtkqp42BaxvmWd7waX6uB1W0s9m79lPA==",
                             PhoneNumberConfirmed = false,
-                            SecurityStamp = "fc4af5d1-3e2f-4362-9b7d-e8716fa8032c",
+                            SecurityStamp = "9bfb80ac-96b3-4184-9f35-d06fc71de324",
                             TwoFactorEnabled = false,
                             UserName = "admin"
                         });

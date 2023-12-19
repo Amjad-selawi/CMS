@@ -60,6 +60,7 @@ namespace CMS.Services.Services
             int rejectedCount = await _candidateRepository.CountRejectedAsync();
             int pendingCount = await _candidateRepository.CountPendingAsync(); // New line to count pending candidates
             //Dictionary<string, int> candidatesPerCompany = await _candidateRepository.CountCandidatesPerCompanyAsync();
+            int onHold = await _candidateRepository.CountOnHoldAsync();
 
             PerformanceReportDTO report = new PerformanceReportDTO
             {
@@ -68,6 +69,7 @@ namespace CMS.Services.Services
                 NumberOfCandidates = candidatesCount,
                 NumberOfRejected = rejectedCount,
                 NumberOfPending = pendingCount, // Add the pending count to the report
+                NumberOfOnHold = onHold,
             };
             return Result<PerformanceReportDTO>.Success(report);
             }

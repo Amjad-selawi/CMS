@@ -212,7 +212,8 @@ namespace CMS.Repository.Implementation
         .Where(candidate =>
             candidate.Interviews.Any(interview => interview.Status.Code == StatusCode.Pending) ||
            candidate.Interviews.All(interview => interview.Status.Code != StatusCode.Rejected) &&
-           candidate.Interviews.All(interview => interview.Status.Code != StatusCode.Approved))
+           candidate.Interviews.All(interview => interview.Status.Code != StatusCode.Approved) &&
+           candidate.Interviews.All(interview => interview.Status.Code != StatusCode.OnHold))
         .CountAsync();
 
             return candidateCounts;
@@ -224,6 +225,26 @@ namespace CMS.Repository.Implementation
                 throw ex;
             }
 
+        }
+
+        public async Task<int> CountOnHoldAsync()
+        {
+            try
+            {
+                int onHoldCount = await _dbContext.Candidates
+                    .Include(a => a.Interviews)
+                    .ThenInclude(a => a.Status)
+                    .Where(candidate =>
+                        candidate.Interviews.Any(interview => interview.Status.Code == StatusCode.OnHold))
+                    .CountAsync();
+
+                return onHoldCount;
+            }
+            catch (Exception ex)
+            {
+                LogException(nameof(CountOnHoldAsync), ex, "Unable to count the on hold interviews");
+                throw ex;
+            }
         }
 
 

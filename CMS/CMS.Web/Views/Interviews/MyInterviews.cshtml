@@ -65,6 +65,8 @@
                             <th>Details</th>
                             <th>Add Result</th>
                             <th> History</th>
+                            <th>Edit</th>
+
                         </tr>
                     </thead>
                     <tbody>
@@ -79,7 +81,15 @@
                                 <td hidden>@item.ParentId</td>
                                 @if (User.IsInRole("Interviewer"))
                                 {
-                                    <td>@item.Score</td>
+                                    if (item.Score != null)
+                                    {
+                                        <td>@item.Score</td>
+                                    }
+                                    else
+                                    {
+                                       <td class="text-danger">Please Add Result</td>
+                                    }
+
                                 }
                                 @if (!User.IsInRole("HR Manager"))
                                 {
@@ -102,7 +112,7 @@
                                     }
                                     else
                                     {
-                                        <td> </td>
+                                        <td class="text-danger">Please Add Result</td>
                                     }
                                 }
                                 @if (item.CandidateCVAttachmentId != null)
@@ -139,6 +149,8 @@
                                    
                                 }
                                 <td><a class="bx bx-history" style="font-size:x-large" asp-action="ShowHistory" asp-route-id="@item.InterviewsId"></a></td>
+                                <td><a class="bx bxs-edit-alt" style="font-size:x-large" asp-action="UpdateAfterInterviewForEdit" asp-route-id="@item.InterviewsId" asp-route-idd="@item.StatusId"></a></td>
+
                             </tr>
                         }
                     </tbody>

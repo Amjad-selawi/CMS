@@ -22,7 +22,7 @@ namespace CMS.Repository.Interfaces
 
         Task<int> CountPendingAsync();
         Task<int> CountRejectedAsync();
-
+        Task<int> CountOnHoldAsync();
         Task<int?> GetCVAttachmentIdByCandidateId(int candidateId);
 
         void LogException(string methodName, Exception ex, string additionalInfo);

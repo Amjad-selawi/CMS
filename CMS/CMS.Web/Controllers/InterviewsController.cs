@@ -28,6 +28,7 @@ using CMS.Repository.Interfaces;
 using Hangfire;
 using System.Security.Claims;
 using CMS.Domain.Migrations;
+using CMS.Repository.Implementation;
 
 namespace CMS.Web.Controllers
 {
@@ -366,7 +367,7 @@ namespace CMS.Web.Controllers
                                             Dear {userSecondInterviewer},
                                         </p>
                                         <p style='font-size: 16px; color: #555;'>
-                                            You and {userInterviewer} are assigned to have a first interview with {userInterviewer} for {candidateNameresult} scheduled on {collection.Date} for the {lastPositionName} position, kindly login to the system using the below link <a href='https://apps.sssprocess.com:6134/'>Click here</a>
+                                            You and {userInterviewer} are assigned to have a first interview with {candidateNameresult} for the {lastPositionName} position scheduled on {collection.Date} , kindly login to the system using the below link <a href='https://apps.sssprocess.com:6134/'>Click here</a>
                                         </p>
                                         <p style='font-size: 14px; color: #777;'>
                                             Regards,
@@ -409,6 +410,8 @@ namespace CMS.Web.Controllers
                 throw ex;
             }
         }
+
+
 
         // GET: InterviewsController/Edit/5
         public async Task<ActionResult> Edit(int id)
@@ -606,6 +609,29 @@ namespace CMS.Web.Controllers
                 throw ex;
             }
         }
+
+        public async Task<IActionResult> UpdateAfterInterviewForEdit(int id)
+        {
+            try
+            {
+
+
+
+                var StatusDTOs = await _StatusService.GetAll();
+                ViewBag.StatusDTOs = new SelectList(StatusDTOs.Value, "Id", "Name");
+
+                var result = await _interviewsService.GetById(id);
+                var InterviewsDTO = result.Value;
+
+                return View(InterviewsDTO);
+            }
+            catch (Exception ex)
+            {
+                LogException(nameof(UpdateAfterInterview), ex, "UpdateAfterInterview not working");
+                throw ex;
+            }
+        }
+
         public async Task<IActionResult> UpdateAfterInterview(int id)
         {
             try
@@ -634,6 +660,32 @@ namespace CMS.Web.Controllers
         {
             try
             {
+                var newStatusResult = await _StatusService.GetById(interviewsDTO.StatusId.Value);
+                if (newStatusResult.IsSuccess)
+                {
+                    var newStatus = newStatusResult.Value;
+                    if (newStatus.Code == Domain.Enums.StatusCode.OnHold)
+                    {
+                        var interviewCount = await _interviewsRepository.GetInterviewCountForCandidate(interviewsDTO.CandidateId);
+                        if ((interviewCount > 1 && interviewCount <= 2) || ((interviewCount == 3 || interviewCount == 4) && User.IsInRole("General Manager")))
+                        {
+                            var interviewsDeleted = await _interviewsRepository.DeletePendingInterviews(interviewsDTO.CandidateId, interviewsDTO.PositionId, userId: User.FindFirstValue(ClaimTypes.NameIdentifier));
+                            if (!interviewsDeleted)
+                            {
+                                // Show a pop-up or handle the case where there are no pending interviews to delete
+                                ModelState.AddModelError("StatusId", "Cannot put this interview on hold.");
+                                return View(interviewsDTO);
+                            }
+                        }
+                        else
+                        {
+                            // Show a pop-up or handle the case where there's only one interview
+                            ModelState.AddModelError("StatusId", "Cannot put this interview on hold.");
+                            return View(interviewsDTO);
+                        }
+                    }
+                }
+
 
                 var firstInterviewerRoles = await _interviewsService.GetInterviewerRole(interviewsDTO.InterviewerId);
                 var secondInterviewerRoles = await _interviewsService.GetInterviewerRole(interviewsDTO.SecondInterviewerId);
@@ -820,11 +872,11 @@ namespace CMS.Web.Controllers
 
                                     if (isInterviewerGMCombo || isGMInterviewerCombo)
                                     {
-                                        await _notificationsService.CreateInterviewNotificationForHRInterview(interviewsDTO.StatusId.Value, interviewsDTO.Notes, interviewsDTO.CandidateId, interviewsDTO.PositionId);
+                                        await _notificationsService.CreateInterviewNotificationForFinalHRInterview(interviewsDTO.StatusId.Value, interviewsDTO.Notes, interviewsDTO.CandidateId, interviewsDTO.PositionId);
                                         EmailDTOs emailModels = new EmailDTOs
                                         {
                                             EmailTo = new List<string> { HREmail },
-                                            Subject = "Second Interview Invitation",
+                                            Subject = "Final Interview Invitation",
                                             EmailBody = $@"<html>
                                        <body style='font-family: Arial, sans-serif;'>
                                            <div style='background-color: #f5f5f5; padding: 20px; border-radius: 10px;'>
@@ -832,7 +884,7 @@ namespace CMS.Web.Controllers
                                                    Dear {userHR},
                                                </p>
                                                <p style='font-size: 16px; color: #555;'>
-                                               You are assigned to have a second interview for {candidateNameresult} with {lastPositionName} position, kindly login to the system using the below link <a href='https://apps.sssprocess.com:6134/'>Click here</a>
+                                               You are assigned to have a Final interview for {candidateNameresult} with {lastPositionName} position, kindly login to the system using the below link <a href='https://apps.sssprocess.com:6134/'>Click here</a>
                                                </p>
                                                <p style='font-size: 14px; color: #777;'>
                                                    Regards,
@@ -1569,7 +1621,7 @@ namespace CMS.Web.Controllers
             catch (Exception ex)
             {
                 LogException(nameof(SendEmailToInterviewer), ex, "Faild to send an email");
-                throw ex;
+                
             }
 
         }

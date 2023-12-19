@@ -1189,6 +1189,30 @@ namespace CMS.Services.Services
         }
 
 
+        // Inside your _interviewsService class
+
+        public async Task<bool> IsSolutionArchitect(string userId)
+        {
+            try
+            {
+
+            
+            var user = await _userManager.FindByIdAsync(userId);
+
+            if (user == null)
+            {
+                // Handle the case where the user is not found
+                return false;
+            }
+
+            return await _userManager.IsInRoleAsync(user, "Solution Architecture");
+            }
+            catch (Exception ex)
+            {
+                LogException(nameof(IsSolutionArchitect), ex, "Error while checking the Architect role");
+                throw ex;
+            }
+        }
 
 
     }
