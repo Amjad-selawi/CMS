@@ -1621,7 +1621,7 @@ namespace CMS.Web.Controllers
             catch (Exception ex)
             {
                 LogException(nameof(SendEmailToInterviewer), ex, "Faild to send an email");
-                throw ex;
+                
             }
 
         }
