@@ -40,6 +40,7 @@ namespace CMS.Services.Interfaces
 
 
         Task CreateInterviewNotificationForHRInterview(int status, string notes, int CandidateId, int positionId);
+        Task CreateInterviewNotificationForFinalHRInterview(int status, string notes, int CandidateId, int positionId);
         Task CreateInterviewNotificationForHRInterviewfromGM(int status, string notes, int CandidateId, int positionId);
 
         Task CreateNotificationForInterviewer(int CandidateId, string selectedInterviewerId);

@@ -857,7 +857,76 @@ namespace CMS.Services.Services
                         IsReceived = true,
                         IsRead = false,
                         Title = $"{candidateName} Approved by {userName} for position {positionName}",
-                        BodyDesc = $"The candidate has been approved by the {userName} for the {positionName} position.",
+                        BodyDesc = $"{candidateName} has been approved by the {userName} for the {positionName} position.",
+                        CreatedBy = currentUser.Id,
+                        CreatedOn = DateTime.Now
+                    };
+
+                    await _notificationsRepository.Create(hrNotification);
+                }
+
+                await _notificationsRepository.Create(notification);
+            }
+            catch (Exception ex)
+            {
+
+                LogException(nameof(CreateInterviewNotificationForHRInterview), ex, "CreateInterviewNotificationForHRInterview not working");
+                throw ex;
+            }
+        }
+        public async Task CreateInterviewNotificationForFinalHRInterview(int status, string notes, int CandidateId, int positionId)
+        {
+            try
+            {
+
+
+
+                var statusResult = await _statusService.GetById(status);
+                var statusstatus = statusResult.Value;
+
+
+                var HrId = "";
+
+                var Hr = await _roleManager.FindByNameAsync("HR Manager");
+
+                HrId = (await _userManager.GetUsersInRoleAsync(Hr.Name)).FirstOrDefault().Id;
+
+                string userName = GetLoggedInUserName();
+                var currentUser = await _userManager.GetUserAsync(_httpContextAccessor.HttpContext.User);
+
+                var candidateName = await GetCandidateName(CandidateId);
+                var positionName = await GetPositionName(positionId);
+
+                var notification = new Notifications
+                {
+                    ReceiverId = HrId,
+                    SendDate = DateTime.Now,
+                    IsReceived = true,
+                    IsRead = false,
+                    Title = "",
+                    BodyDesc = notes,
+                    CreatedOn = DateTime.Now,
+                    CreatedBy = currentUser.Id,
+                };
+
+                if (statusstatus.Code == Domain.Enums.StatusCode.Approved)
+                {
+                    notification.Title = $"You have a Final Interview with {candidateName} for the {positionName} position. Get ready to shine! 💼🚀 ";
+                }
+                else
+                {
+                    notification.Title = $"{candidateName} Rejected by {userName} for position {positionName}";
+                }
+                if (statusstatus.Code == Domain.Enums.StatusCode.Approved)
+                {
+                    var hrNotification = new Notifications
+                    {
+                        ReceiverId = HrId,
+                        SendDate = DateTime.Now,
+                        IsReceived = true,
+                        IsRead = false,
+                        Title = $"{candidateName} Approved by {userName} for position {positionName}",
+                        BodyDesc = $"{candidateName} has been approved by the {userName} for the {positionName} position.",
                         CreatedBy = currentUser.Id,
                         CreatedOn = DateTime.Now
                     };

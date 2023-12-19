@@ -14,7 +14,8 @@ namespace CMS.Domain.DataSeeds
             builder.HasData(
                 new Status { Id = 1, Name = "Pending",  Code = "PND" },
                 new Status { Id = 2, Name = "Approved", Code = "APR" },
-                new Status { Id = 3, Name = "Rejected", Code = "REJ" }
+                new Status { Id = 3, Name = "Rejected", Code = "REJ" },
+                new Status { Id = 4, Name = "On hold", Code = "HOLD" }
             );
         }
     }

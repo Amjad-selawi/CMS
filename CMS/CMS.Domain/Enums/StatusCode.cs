@@ -9,6 +9,7 @@ namespace CMS.Domain.Enums
         public static string Pending = "PND";
         public static string Approved = "APR";
         public static string Rejected = "REJ";
+        public static string OnHold = "HOLD";
 
 
         public static string GetName(string code)
@@ -21,6 +22,9 @@ namespace CMS.Domain.Enums
                     return "Approved";
                 case "REJ":
                     return "Rejected";
+                case "HOLD":
+                    return "On hold";
+
                 default:
                     return "Unknown"; 
             }

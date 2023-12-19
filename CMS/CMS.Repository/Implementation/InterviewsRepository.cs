@@ -420,5 +420,76 @@ namespace CMS.Repository.Repositories
         }
 
 
+        public async Task<int> GetInterviewCountForCandidate(int candidateId)
+        {
+            try
+            {
+
+            
+            var interviewCount = await _context.Interviews
+                .Where(i => i.CandidateId == candidateId)
+                .CountAsync();
+
+            return interviewCount;
+            }
+            catch (Exception ex) {
+                LogException(nameof(GetInterviewCountForCandidate), ex, $"Error while counting interviews for candidate with ID: {candidateId}");
+                throw ex;
+            }
+        }
+
+        public async Task<bool> DeletePendingInterviews(int candidateId, int positionId, string userId)
+        {
+            try
+            {
+
+            
+            // Assuming you have an "Interviews" DbSet in your DbContext
+            var approvedInterviewsCreatedByUser = await _context.Interviews
+                 .Where(i => i.CandidateId == candidateId && i.PositionId == positionId && i.Status.Code == Domain.Enums.StatusCode.Approved && i.InterviewerId == userId)
+                 .Select(i => i.InterviewerId)
+                 .Distinct()
+                 .ToListAsync();
+
+            // Exclude the interviews created by the current user
+            var pendingInterviews = await _context.Interviews
+                .Where(i => i.CandidateId == candidateId && i.PositionId == positionId && i.Status.Code == Domain.Enums.StatusCode.Pending && i.CreatedBy == userId)
+                .ToListAsync();
+
+            if (pendingInterviews.Count > 0)
+            {
+                // Delete pending interviews
+                _context.Interviews.RemoveRange(pendingInterviews);
+
+                // Delete associated notifications created by the user who approved the interview
+                foreach (var createdByUser in approvedInterviewsCreatedByUser)
+                {
+                    var notificationsToDelete = _context.Notifications
+                       .Where(n =>  n.CreatedBy == createdByUser)
+                       .ToList();
+
+                    if (notificationsToDelete.Count > 0)
+                    {
+                        _context.Notifications.RemoveRange(notificationsToDelete);
+                    }
+                }
+
+                await _context.SaveChangesAsync();
+                return true;
+            }
+
+            return false;
+            }
+
+            catch (Exception ex) {
+                LogException(nameof(DeletePendingInterviews), ex, $"Error while deleting Pending Interviews and Notification for candidate with ID: {candidateId}");
+                throw ex;
+            }
+        }
+
+
+
+
+
     }
 }
