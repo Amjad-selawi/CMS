@@ -94,3 +94,63 @@
         </div>
     </p>
 </form>
+
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script>
+    $(document).ready(function () {
+        $('#updateForm').submit(function (e) {
+            // Clear previous error messages
+            $(".text-danger").text("");
+
+            // Validate ActualExperience
+            var actualExperienceValue = $('[name="ActualExperience"]').val();
+            if (!actualExperienceValue) {
+                $('#ActualExperience').next(".text-danger").text("Actual Experience is required.");
+                e.preventDefault();
+                return;
+            }
+
+            // Validate if ActualExperience is a valid number
+            if (!isNumeric(actualExperienceValue)) {
+                $('#ActualExperience').next(".text-danger").text("Actual Experience must be a valid number.");
+                e.preventDefault();
+                return;
+            }
+
+            // Additional validations can be added here for other fields if needed
+
+            // Validate Score (if user is Interviewer)
+            if ($('[name="Score"]').is(":visible")) {
+                if (!$('[name="Score"]').val()) {
+                    $('#Score').next(".text-danger").text("Score is required.");
+                    e.preventDefault();
+                    return;
+                }
+            }
+
+            // Validate Notes (if StatusId is 3)
+            if ($('[name="StatusId"]').val() === "3" && !$('[name="Notes"]').val()) {
+                $('#Notes').next(".text-danger").text("Please add a note for why it was rejected.");
+                e.preventDefault();
+                return;
+            }
+
+            // Validate StatusId
+            if (!$('[name="StatusId"]').val()) {
+                $('#StatusId').next(".text-danger").text("Status is required.");
+                e.preventDefault();
+                return;
+            }
+        });
+
+        // Function to check if a value is numeric
+        function isNumeric(value) {
+            return !isNaN(value) && isFinite(value);
+        }
+    });
+
+    // Additional function to validate file format (assuming it's used elsewhere)
+    function validateFileFormat(input) {
+        // Add file format validation logic here if needed
+    }
+</script>

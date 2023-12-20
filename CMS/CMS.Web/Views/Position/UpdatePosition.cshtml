@@ -62,3 +62,44 @@
         }
     }
 </script>
+<script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
+
+@* <script>
+    $(document).ready(function () {
+        $('form').submit(function (e) {
+            var name = $('#Name').val();
+            var fileInput = $('#file');
+
+            // Validate Name
+            if (!name.trim()) {
+                $('#errorMessage').text('Name is required.');
+                e.preventDefault(); // Prevent form submission
+            } else {
+                $('#errorMessage').text('');
+            }
+
+            // Validate File
+            var allowedExtensions = /\.(docx|xlsx|png|jpg)$/i; // Allow DOCX, XLSX, PNG, and JPG
+            if (fileInput.val() && !allowedExtensions.exec(fileInput.val())) {
+                $('#fileError').text('Only DOCX, XLSX, PNG, and JPG files are allowed.');
+                e.preventDefault(); // Prevent form submission
+            } else {
+                $('#fileError').text('');
+            }
+        });
+
+        // Additional function to validate file format on change
+        function validateFileFormat(input) {
+            var fileInput = $(input);
+            var allowedExtensions = /\.(docx|xlsx|png|jpg)$/i; // Allow DOCX, XLSX, PNG, and JPG
+
+            if (!allowedExtensions.exec(fileInput.val())) {
+                $('#fileError').text('Only DOCX, XLSX, PNG, and JPG files are allowed.');
+                fileInput.val(''); // Clear the file input
+            } else {
+                $('#fileError').text('');
+            }
+        }
+    });
+</script>
+ *@

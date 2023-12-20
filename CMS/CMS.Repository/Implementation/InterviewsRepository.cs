@@ -446,14 +446,14 @@ namespace CMS.Repository.Repositories
             
             // Assuming you have an "Interviews" DbSet in your DbContext
             var approvedInterviewsCreatedByUser = await _context.Interviews
-                 .Where(i => i.CandidateId == candidateId && i.PositionId == positionId && i.Status.Code == Domain.Enums.StatusCode.Approved && i.InterviewerId == userId)
+                 .Where(i => i.CandidateId == candidateId && i.PositionId == positionId && i.Status.Code == Domain.Enums.StatusCode.Approved && (i.InterviewerId == userId || i.SecondInterviewerId == userId))
                  .Select(i => i.InterviewerId)
                  .Distinct()
                  .ToListAsync();
 
             // Exclude the interviews created by the current user
             var pendingInterviews = await _context.Interviews
-                .Where(i => i.CandidateId == candidateId && i.PositionId == positionId && i.Status.Code == Domain.Enums.StatusCode.Pending && i.CreatedBy == userId)
+                .Where(i => i.CandidateId == candidateId && i.PositionId == positionId && i.Status.Code == Domain.Enums.StatusCode.Pending )
                 .ToListAsync();
 
             if (pendingInterviews.Count > 0)
@@ -464,8 +464,15 @@ namespace CMS.Repository.Repositories
                 // Delete associated notifications created by the user who approved the interview
                 foreach (var createdByUser in approvedInterviewsCreatedByUser)
                 {
-                    var notificationsToDelete = _context.Notifications
-                       .Where(n =>  n.CreatedBy == createdByUser)
+                        var HrId = "";
+
+                        var Hr = await _roleManager.FindByNameAsync("HR Manager");
+
+                        HrId = (await _userManager.GetUsersInRoleAsync(Hr.Name)).FirstOrDefault().Id;
+
+
+                        var notificationsToDelete = _context.Notifications
+                       .Where(n =>  n.CreatedBy == createdByUser && n.ReceiverId != HrId)
                        .ToList();
 
                     if (notificationsToDelete.Count > 0)

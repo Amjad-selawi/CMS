@@ -47,3 +47,21 @@
         });
     });
 </script>
+
+<script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
+
+<script>
+    $(document).ready(function () {
+        $('form').submit(function (e) {
+            var name = $('#Name').val();
+
+            // Validate Name
+            if (!name.trim()) {
+                $('#errorMessage').text('Name is required.');
+                e.preventDefault(); // Prevent form submission
+            } else {
+                $('#errorMessage').text('');
+            }
+        });
+    });
+</script>

@@ -782,7 +782,14 @@ namespace CMS.Services.Services
                         }
                     }
 
-                    await _notificationsRepository.Create(notification);
+                    if(selectedInterviewerId == null)
+                    {
+                        
+                    }
+                    else
+                    {
+                        await _notificationsRepository.Create(notification);
+                    }
                 }
             }
             catch (Exception ex)
@@ -935,6 +942,71 @@ namespace CMS.Services.Services
                 }
 
                 await _notificationsRepository.Create(notification);
+            }
+            catch (Exception ex)
+            {
+
+                LogException(nameof(CreateInterviewNotificationForHRInterview), ex, "CreateInterviewNotificationForHRInterview not working");
+                throw ex;
+            }
+        }
+        public async Task CreateInterviewNotificationtoHrForOnHold(int status, string notes, int CandidateId, int positionId)
+        {
+            try
+            {
+
+
+
+                var statusResult = await _statusService.GetById(status);
+                var statusstatus = statusResult.Value;
+
+
+                var HrId = "";
+
+                var Hr = await _roleManager.FindByNameAsync("HR Manager");
+
+                HrId = (await _userManager.GetUsersInRoleAsync(Hr.Name)).FirstOrDefault().Id;
+
+                string userName = GetLoggedInUserName();
+                var currentUser = await _userManager.GetUserAsync(_httpContextAccessor.HttpContext.User);
+
+                var candidateName = await GetCandidateName(CandidateId);
+                var positionName = await GetPositionName(positionId);
+
+                var notification = new Notifications
+                {
+                    ReceiverId = HrId,
+                    SendDate = DateTime.Now,
+                    IsReceived = true,
+                    IsRead = false,
+                    Title = "",
+                    BodyDesc = notes,
+                    CreatedOn = DateTime.Now,
+                    CreatedBy = currentUser.Id,
+                };
+
+               
+                 if(statusstatus.Code == Domain.Enums.StatusCode.Rejected)
+                {
+                    notification.Title = $"{candidateName} Rejected by {userName} for position {positionName}";
+                }
+                if (statusstatus.Code == Domain.Enums.StatusCode.OnHold)
+                {
+                    var hrNotification = new Notifications
+                    {
+                        ReceiverId = HrId,
+                        SendDate = DateTime.Now,
+                        IsReceived = true,
+                        IsRead = false,
+                        Title = $"{candidateName} On Hold by {userName}",
+                        BodyDesc = $"{candidateName} has been put on hold by {userName} for the {positionName} position.",
+                        CreatedBy = currentUser.Id,
+                        CreatedOn = DateTime.Now
+                    };
+
+                    await _notificationsRepository.Create(hrNotification);
+                }
+
             }
             catch (Exception ex)
             {
@@ -1114,6 +1186,7 @@ namespace CMS.Services.Services
                 throw ex;
             }
         }
+
 
 
     }

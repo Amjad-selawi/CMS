@@ -8,11 +8,15 @@
         <label asp-for="FullName" class="control-label"><span class="text-danger">*</span> Full Name</label>
         <input style="width: 30%;" asp-for="FullName" class="form-control" autocomplete="off" />
         <span asp-validation-for="FullName" class="text-danger"></span>
+        <span id="fullNameError" class="text-danger"></span>
+
     </div>
     <div class="form-group" style="margin-top: 15px;">
         <label asp-for="Phone" class="control-label"><span class="text-danger">*</span> Phone</label>
         <input style="width: 30%;" asp-for="Phone" class="form-control" autocomplete="off" />
         <span asp-validation-for="Phone" class="text-danger"></span>
+        <span id="phoneError" class="text-danger"></span>
+
     </div>
 
 
@@ -28,6 +32,8 @@
         }
 
         <span asp-validation-for="CompanyId" class="text-danger"></span>
+        <span id="companyIdError" class="text-danger"></span>
+
     </div>
 
     <div class="form-group" style="margin-top: 15px;">
@@ -42,12 +48,16 @@
         }
 
         <span asp-validation-for="PositionId" class="text-danger"></span>
+        <span id="positionIdError" class="text-danger"></span>
+
     </div>
 
     <div class="form-group" style="margin-top: 15px;">
         <label asp-for="Experience" class="control-label"><span class="text-danger">*</span> Experience</label>
         <input style="width: 30%;" asp-for="Experience" class="form-control" autocomplete="off" />
         <span asp-validation-for="Experience" class="text-danger"></span>
+        <span id="experienceError" class="text-danger"></span>
+
     </div>
 
 
@@ -84,4 +94,62 @@
             }
         }
     }
+</script>
+
+<script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
+
+<script>
+    $(document).ready(function () {
+        $('form').submit(function (e) {
+            var fullName = $('#FullName').val();
+            var phone = $('#Phone').val();
+            var companyId = $('#CompanyId').val();
+            var positionId = $('#PositionId').val();
+            var experience = $('#Experience').val();
+            var fileInput = $('#file')[0];
+
+            // Validate Full Name
+            if (!fullName.trim()) {
+                $('#fullNameError').text('Full Name is required.');
+                e.preventDefault(); // Prevent form submission
+            } else {
+                $('#fullNameError').text('');
+            }
+
+            // Validate Phone
+            if (!phone.trim()) {
+                $('#phoneError').text('Phone is required.');
+                e.preventDefault(); // Prevent form submission
+            } else {
+                $('#phoneError').text('');
+            }
+
+            // Validate CV Provider name (CompanyId)
+            if (!companyId) {
+                $('#companyIdError').text('Please select a CV Provider name.');
+                e.preventDefault(); // Prevent form submission
+            } else {
+                $('#companyIdError').text('');
+            }
+
+            // Validate Position
+            if (!positionId) {
+                $('#positionIdError').text('Please select a Position.');
+                e.preventDefault(); // Prevent form submission
+            } else {
+                $('#positionIdError').text('');
+            }
+
+            // Validate Experience
+            if (!experience.trim()) {
+                $('#experienceError').text('Experience is required.');
+                e.preventDefault(); // Prevent form submission
+            } else {
+                $('#experienceError').text('');
+            }
+
+        });
+
+        // Function to validate file format
+    });
 </script>

@@ -22,6 +22,7 @@
             <p>No countries available.</p>
         }
         <span asp-validation-for="CountryId" class="text-danger"></span>
+        <span id="CountryError" class="text-danger"></span> 
     </div>
 
     <h2 style="margin-top: 50px;font-size: 27px;">Contact Person</h2>
@@ -77,5 +78,37 @@
                 }
             });
         });
+    });
+</script>
+
+<script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
+
+<!-- Add this script block after your existing script -->
+<script>
+    $(document).ready(function () {
+        $('form').submit(function (e) {
+            var name = $('#Name').val();
+            var countryId = $('#CountryId').val();
+
+            // Validate Name
+            if (!name.trim()) {
+                $('#errorMessage').text('Name is required.');
+                e.preventDefault(); // Prevent form submission
+            } else {
+                $('#errorMessage').text('');
+            }
+
+            // Validate Country
+            if (!countryId) {
+                $('#CountryError').text('Please select a country.');
+                e.preventDefault(); // Prevent form submission
+            } else {
+                $('#CountryError').text('');
+            }
+
+       
+        });
+
+    
     });
 </script>
