@@ -10,6 +10,7 @@
         <label asp-for="Name" class="control-label"></label>
         <input style="width: 30%;" asp-for="Name" class="form-control" />
         <span asp-validation-for="Name" class="text-danger"></span>
+        <span id="NameError" class="text-danger"></span>
     </div>
 
     <div class="form-group" style="margin-top: 15px;">
@@ -29,6 +30,8 @@
             <p>No countries available.</p>
         }
         <span asp-validation-for="CountryId" class="text-danger"></span>
+        <span id="CountryError" class="text-danger"></span>
+
     </div>
 
     <h2 style="margin-top: 50px;font-size: 27px;">Contact Person</h2>
@@ -57,3 +60,35 @@
 
     </div>
 </form>
+
+<script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
+
+<!-- Add this script block after your existing script -->
+<script>
+    $(document).ready(function () {
+        $('form').submit(function (e) {
+            var name = $('#Name').val();
+            var countryId = $('#CountryId').val();
+
+            // Validate Name
+            if (!name.trim()) {
+                $('#NameError').text('Name is required.');
+                e.preventDefault(); // Prevent form submission
+            } else {
+                $('#NameError').text('');
+            }
+
+            // Validate Country
+            if (!countryId) {
+                $('#CountryError').text('Please select a country.');
+                e.preventDefault(); // Prevent form submission
+            } else {
+                $('#CountryError').text('');
+            }
+
+
+        });
+
+
+    });
+</script>

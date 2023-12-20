@@ -139,7 +139,9 @@
                                     if ((item.isUpdated == false || User.IsInRole("HR Manager"))  && item.StatusName == StatusCode.GetName("PND"))
                                     {
                                 <td>
-                                        <a class="bx bx-plus" style="font-size:x-large" asp-action="UpdateAfterInterview" asp-route-id="@item.InterviewsId" asp-route-idd="@item.InterviewerId" asp-route-iddd="@item.EvalutaionFormId"> </a>
+                                            <input type="hidden" name="InterviewerId" value="@item.InterviewerId" />
+
+                                        <a class="bx bx-plus" style="font-size:x-large" asp-action="UpdateAfterInterview" asp-route-id="@item.InterviewsId"  asp-route-iddd="@item.EvalutaionFormId"> </a>
                                     </td>
                                 }
                                 else
@@ -149,7 +151,11 @@
                                    
                                 }
                                 <td><a class="bx bx-history" style="font-size:x-large" asp-action="ShowHistory" asp-route-id="@item.InterviewsId"></a></td>
-                                <td><a class="bx bxs-edit-alt" style="font-size:x-large" asp-action="UpdateAfterInterviewForEdit" asp-route-id="@item.InterviewsId" asp-route-idd="@item.StatusId"></a></td>
+
+                                <td>
+                                    <input type="hidden" name="StatusId" value="@item.StatusId" />
+                                    <a class="bx bxs-edit-alt" style="font-size:x-large" asp-action="UpdateAfterInterviewForEdit" asp-route-id="@item.InterviewsId"></a>
+                                </td>
 
                             </tr>
                         }

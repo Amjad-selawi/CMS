@@ -307,7 +307,7 @@ namespace CMS.Web.Controllers
                         {
                             EmailTo = new List<string> { user.Email },
                             Subject = "Welcome to CMS System",
-                            EmailBody = $"<p>Dear {user.UserName},</p>\n\n" +
+                            EmailBody = $"<p>Dear {user.UserName.Replace("_", " ")},</p>\n\n" +
                                     "<p>Your account details:</p>\n" +
                                     $"<ul>\n" +
                                     $"  <li>Username: {user.UserName}</li>\n" +

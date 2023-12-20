@@ -8,52 +8,58 @@
     }
 </style>
 
-<form asp-action="Edit" asp-route-id="@Model.InterviewsId">
+<form asp-action="Edit" asp-route-id="@Model.InterviewsId" id="editForm">
     <div asp-validation-summary="ModelOnly" class="text-danger"></div>
     <div class="form-group">  <input type="hidden" asp-for="InterviewsId" /> </div>
 
-  @*  <div class="form-group">  <input type="hidden" asp-for="StatusId" /> </div>*@
+   <div class="form-group">  <input type="hidden" asp-for="StatusId" /> </div>
     <div class="form-group" style="margin-top: 15px;">
         <label asp-for="CandidateId" class="control-label">Candidate Name</label>
         @Html.DropDownListFor(model => model.CandidateId, (SelectList)ViewBag.candidateList, "Select a Name", new { @class = "form-control custom-dropdown" })
-        <span asp-validation-for="CandidateId" class="text-danger"></span>
+        <span asp-validation-for="CandidateId" class="text-danger" id="candidateIdError"></span>
     </div>
 
     <div class="form-group" style="margin-top: 15px;">
         <label asp-for="PositionId" class="control-label">Position</label>
         @Html.DropDownListFor(model => model.PositionId, (SelectList)ViewBag.positionList, "Select a Position", new { @class = "form-control custom-dropdown" })
-        <span asp-validation-for="PositionId" class="text-danger"></span>
+        <span asp-validation-for="PositionId" class="text-danger" id="positionIdError"></span>
     </div>
 
-    <div class="form-group" style="margin-top: 20px; display: flex; justify-content: space-between; align-items: baseline;">
+    <div class="card" style="width: 400px; margin-top: 20px; padding: 20px;">
 
-        <div style="flex-grow: 1;">
-            <label asp-for="InterviewerId" class="control-label">First Interviewer</label>
-            @if (ViewBag.interviewersList != null)
-            {
-                <select style="width: 100%;" asp-for="InterviewerId" asp-items="@(ViewBag.interviewersList)" class="form-control">
-                    <option value="">-- Select an Interviewer --</option>
-                </select>
-            }
-            <span asp-validation-for="InterviewerId" class="text-danger"></span>
+        <div class="form-group">
+            <label style="font-size: medium;">First Interview</label>
+            <div style="width: 78%;">
+                <label asp-for="InterviewerId" class="control-label">#1 <span class="text-danger">*</span></label>
+                @if (ViewBag.interviewersList != null)
+                {
+                    <select style="width: 100%;" asp-for="InterviewerId" asp-items="@(ViewBag.interviewersList)" class="form-control">
+                        <option value="">-- Select an Interviewer --</option>
+                    </select>
+                }
+                <span asp-validation-for="InterviewerId" class="text-danger" id="interviewerIdError"></span>
+            </div>
         </div>
 
-        <div style="flex-grow: 1; margin-left: 10px;">
-            <label asp-for="SecondInterviewerId" class="control-label">Second Interviewer</label>
-            @if (ViewBag.interviewersList != null)
-            {
-                <select style="width: 100%;" asp-for="SecondInterviewerId" asp-items="@(ViewBag.interviewersList)" class="form-control">
-                    <option value="">-- Select Second Interviewer --</option>
-                </select>
-            }
-            <span asp-validation-for="SecondInterviewerId" class="text-danger"></span>
+        <div class="form-group" style="margin-top: 20px;">
+            <label asp-for="SecondInterviewerId" class="control-label">#2 <span>(optional)</span></label>
+            <div style="width: 78%;">
+                @if (ViewBag.interviewersList != null)
+                {
+                    <select style="width: 100%;" asp-for="SecondInterviewerId" asp-items="@(ViewBag.interviewersList)" class="form-control">
+                        <option value="">-- Select Second Interviewer --</option>
+                    </select>
+                }
+                <span asp-validation-for="SecondInterviewerId" class="text-danger"></span>
+            </div>
         </div>
 
     </div>
 
 
-    @*  <div class="form-group" style="margin-top: 30px;">
-        <label asp-for="ArchitectureInterviewerId" class="control-label">Architecture Interviewers</label>
+
+    <div class="form-group" style="margin-top: 30px;">
+        <label asp-for="ArchitectureInterviewerId" class="control-label">Architecture Interviewers <span>(optional)</span></label>
         @if (ViewBag.architecturesList != null)
         {
             <select style="width: 30%;" asp-for="ArchitectureInterviewerId" asp-items="@(ViewBag.architecturesList)" class="form-control">
@@ -62,50 +68,14 @@
         }
         <span asp-validation-for="ArchitectureInterviewerId" class="text-danger"></span>
     </div>
- *@
-
 
     <div class="form-group" style="margin-top: 15px;">
         <label asp-for="Date" class="control-label"></label>
         <input style="width:30%;" asp-for="Date" class="form-control" />
-        <span asp-validation-for="Date" class="text-danger"></span>
+        <span asp-validation-for="Date" class="text-danger" id="dateValidationMessage"></span>
     </div>
 
-    <div class="form-group" style="margin-top: 15px;">
-        <label asp-for="Notes">Notes:</label>
-        <textarea style="width:30%;" asp-for="Notes" class="form-control"></textarea>
-        <span asp-validation-for="Notes" class="text-danger"></span>
-    </div>
 
-    <div class="form-group" style="margin-top: 15px;">
-
-        <label asp-for="StatusId" class="control-label">Status</label>
-        @if (ViewBag.StatusDTOs != null)
-        {
-            @*  <select asp-for="StatusId" asp-items="@(ViewBag.StatusDTOs)" class="form-control">
-        <option value="">Select a Status</option>
-
-        </select>*@
-
-            <select style="width:30%;" asp-for="StatusId" class="form-control">
-                <option value="">Select a Status</option>
-                @foreach (var sta in ViewBag.StatusDTOs)
-                {
-                    if (sta.Text != StatusCode.GetName("APR"))
-                    {
-                        <option value="@sta.Value" selected="@(sta.Value == Model.StatusId.ToString())">@sta.Text</option>
-                    }
-                }
-
-            </select>
-        }
-        else
-        {
-            <p>No statuses available.</p>
-        }
-        <span asp-validation-for="StatusId" class="text-danger"></span>
-
-    </div>
 
 
     @*  @if ((User.IsInRole("HR Manager") || User.IsInRole("Admin")) && Model.StatusName == "Pending")
@@ -157,17 +127,49 @@
     </div>
 
 </form>
-@*<p>@Html.ValidationSummary()</p>*@
-@*
-<form asp-action="UpdateAttachment" asp-route-id="@Model.InterviewsId" enctype="multipart/form-data">
-    <div class="form-group">
-        <label for="file">Upload Attachment:</label>
-        <input type="file" id="file" name="file" class="form-control-file" required />
-    </div>
-    <!-- Add other fields similarly -->
-    <div class="form-group">
-        <input type="submit" value="upload" class="btn btn-primary" />
-    </div>
 
-</form>
-*@
+
+<script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
+
+<script>
+    $(document).ready(function () {
+        $('#editForm').submit(function (e) {
+            var candidateId = $('#CandidateId').val();
+            var positionId = $('#PositionId').val();
+            var interviewerId = $('#InterviewerId').val();
+            var date = $('#Date').val();
+
+            // Validate Candidate
+            if (!candidateId) {
+                $('#candidateIdError').text('Candidate is required.');
+                e.preventDefault(); // Prevent form submission
+            } else {
+                $('#candidateIdError').text('');
+            }
+
+            // Validate Position
+            if (!positionId) {
+                $('#positionIdError').text('Position is required.');
+                e.preventDefault(); // Prevent form submission
+            } else {
+                $('#positionIdError').text('');
+            }
+
+            // Validate #1 (InterviewerId)
+            if (!interviewerId) {
+                $('#interviewerIdError').text('First Interviewer is required.');
+                e.preventDefault(); // Prevent form submission
+            } else {
+                $('#interviewerIdError').text('');
+            }
+
+            // Validate Date
+            if (!date) {
+                $('#dateValidationMessage').text('Date is required.');
+                e.preventDefault(); // Prevent form submission
+            } else {
+                $('#dateValidationMessage').text('');
+            }
+        });
+    });
+</script>

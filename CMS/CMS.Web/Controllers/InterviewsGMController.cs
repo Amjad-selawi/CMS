@@ -237,12 +237,12 @@ namespace CMS.Web.Controllers
                             EmailDTOs emailModel = new EmailDTOs
                             {
                                 EmailTo = new List<string> { interviewerEmail },
-                                Subject = "PM Interview Invitation",
+                                Subject = $"Interview Invitation ( {candidateNameresult} )",
                                 EmailBody = $@"<html>
                                  <body style='font-family: Arial, sans-serif;'>
                                      <div style='background-color: #f5f5f5; padding: 20px; border-radius: 10px;'>
                                          <p style='font-size: 18px; color: #333;'>
-                                             Dear {userName},
+                                             Dear {userName.Replace("_", " ")},
                                          </p>
                                          <p style='font-size: 16px; color: #555;'>
                                            You have an interview scheduled on {collection.Date} for candidate: {candidateNameresult} with position: {lastPositionName}. Please be prepared.

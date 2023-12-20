@@ -16,10 +16,10 @@
         @if (ViewBag.candidateList != null)
         {
             <select style="width: 30%;" asp-for="CandidateId" asp-items="@(ViewBag.candidateList)" class="form-control" id="candidate-dropdown" name="CandidateId" data-selectize="true">
-                <option value="">-- Select a Name --</option>
+                <option value="">-- Select Name --</option>
             </select>
         }
-        <span asp-validation-for="CandidateId" class="text-danger"></span>
+        <span asp-validation-for="CandidateId" class="text-danger" ></span>
     </div>
 
 
@@ -35,7 +35,7 @@
             </select>
         }
 
-        <span asp-validation-for="PositionId" class="text-danger"></span>
+        <span asp-validation-for="PositionId" class="text-danger" id="positionIdError"></span>
     </div>
 
 
@@ -52,7 +52,7 @@
                         <option value="">-- Select an Interviewer --</option>
                     </select>
                 }
-                <span asp-validation-for="InterviewerId" class="text-danger"></span>
+                <span asp-validation-for="InterviewerId" class="text-danger" id="interviewerIdError"></span>
             </div>
         </div>
 
@@ -143,5 +143,43 @@
 <script>
     $(document).ready(function () {
         $('#candidate-dropdown').selectize();
+    });
+</script>
+
+
+<script>
+    $(document).ready(function () {
+        $('#createForm').submit(function (e) {
+            var candidateId = $('#CandidateId').val();
+            var positionId = $('#PositionId').val();
+            var interviewerId = $('#InterviewerId').val();
+            var date = $('#Date').val();
+
+            
+
+            // Validate Position
+            if (!positionId) {
+                $('#positionIdError').text('Position is required.');
+                e.preventDefault(); // Prevent form submission
+            } else {
+                $('#positionIdError').text('');
+            }
+
+            // Validate #1 (InterviewerId)
+            if (!interviewerId) {
+                $('#interviewerIdError').text('First Interviewer is required.');
+                e.preventDefault(); // Prevent form submission
+            } else {
+                $('#interviewerIdError').text('');
+            }
+
+            // Validate Date
+            if (!date) {
+                $('#dateValidationMessage').text('Date is required.');
+                e.preventDefault(); // Prevent form submission
+            } else {
+                $('#dateValidationMessage').text('');
+            }
+        });
     });
 </script>

@@ -15,6 +15,7 @@ namespace CMS.Application.DTOs
         public string? Email { get; set; }
         public string PersonName { get; set; }
 
+            [RegularExpression(@"^(\+[0-9]{1,})?[0-9]+$", ErrorMessage = "Phone must start with '+' and then contain numeric digits.")]
         public string PhoneNumber { set; get; }
         [Required(ErrorMessage = "Please select a country")]
         public int CountryId { set; get; }
