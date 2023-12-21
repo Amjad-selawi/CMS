@@ -219,8 +219,12 @@ namespace CMS.Web.Controllers
             {
                 ModelState.AddModelError("", "");
             }
-
-            return View(candidateDTO);
+                if (attachmentStream != null)
+                {
+                    attachmentStream.Close();
+                    attachmentStream.Dispose();
+                }
+                return View(candidateDTO);
             }
             catch (Exception ex)
             {

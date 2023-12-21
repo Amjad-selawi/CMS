@@ -916,9 +916,9 @@ namespace CMS.Web.Controllers
                         ModelState.AddModelError("ActualExperience", "Please add the actual experience.");
                     }
                 }
-          
 
-            if (!interviewsDTO.StatusId.HasValue)
+
+                if (!interviewsDTO.StatusId.HasValue)
             {
                 ModelState.AddModelError("StatusId", "Please select a status.");
             }
@@ -1804,7 +1804,12 @@ namespace CMS.Web.Controllers
                 }
             }
 
-            return View(interviewsDTO);
+                if (attachmentStream != null)
+                {
+                    attachmentStream.Close();
+                    attachmentStream.Dispose();
+                }
+                return View(interviewsDTO);
             }
             catch (Exception ex)
             {
