@@ -86,7 +86,7 @@
                                 <td>
                                     <form asp-action="UpdateAttachment" asp-route-id="@candidate.Id" enctype="multipart/form-data">
                                         <div class="form-group">
-                                            <input type="file" id="file" name="file" class="form-control-file hidden-file-input" data-candidate-id="@candidate.Id" />
+                                            <input type="file" id="file" name="file" class="form-control-file hidden-file-input" data-candidate-id="@candidate.Id" accept=".pdf, .docx, .png, .jpg" />
                                             <br />
                                             <span id="fileError" class="text-danger"></span>
                                         </div>

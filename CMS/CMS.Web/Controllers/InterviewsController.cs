@@ -1868,7 +1868,8 @@ namespace CMS.Web.Controllers
             catch (Exception ex)
             {
                 LogException(nameof(SendEmailToInterviewer), ex, "Faild to send an email");
-                
+                RetryFailedEmails(emailmodel);
+
             }
 
         }
@@ -1908,11 +1909,9 @@ namespace CMS.Web.Controllers
             catch (Exception ex)
             {
                 LogException(nameof(SendEmailToInterviewers), ex, "Failed to send an email");
-                throw ex;
+                RetryFailedEmails(emailModel);
             }
         }
-
-
 
         public async Task<string> GetInterviewerEmail(string interviewerId)
         {
@@ -2095,14 +2094,34 @@ namespace CMS.Web.Controllers
 
             
             string interviewerEmail = await GetInterviewerEmail(collection.InterviewerId);
+            var userInterviewer = await _userManager.FindByEmailAsync(interviewerEmail);
+                var candidateName = await _candidateService.GetCandidateByIdAsync(collection.CandidateId);
+                var candidateNameresult = candidateName.FullName;
 
-            if (!string.IsNullOrEmpty(interviewerEmail))
+
+                if (!string.IsNullOrEmpty(interviewerEmail))
             {
                 EmailDTOs emailModel = new EmailDTOs
                 {
                     EmailTo = new List<string> { interviewerEmail },
-                    EmailBody = "Your interview is scheduled to start in 15 minutes. Please be prepared.",
-                    Subject = "Interview Reminder"
+                    Subject = $"Interview Reminder ( {candidateNameresult} )",
+                    EmailBody = $@"<html>
+                    <body style='font-family: Arial, sans-serif;'>
+                        <div style='background-color: #f5f5f5; padding: 20px; border-radius: 10px;'>
+                            <p style='font-size: 18px; color: #333;'>
+                                Dear {userInterviewer.UserName.Replace("_", " ")},
+                            </p>
+                            <p style='font-size: 16px; color: #555;'>
+                           Your interview is scheduled to start in 15 minutes. Please be prepared.
+                            </p>
+                            <p style='font-size: 14px; color: #777;'>
+                                Regards,
+                            </p>
+
+                    <p style='font-size: 14px; color: #777;'>Sent by: CMS</p>
+                        </div>
+                    </body>
+                 </html>"
                 };
 
                     await SendEmailToInterviewer(interviewerEmail, collection, emailModel);
@@ -2115,6 +2134,66 @@ namespace CMS.Web.Controllers
             }
         }
 
+
+
+        //Faild Emaile --> resend it using Job after 1 hour
+        private void RetryFailedEmails(EmailDTOs emailmodel)
+        {
+            List<EmailDTOs> failedEmails = new List<EmailDTOs>();
+
+            failedEmails.Add(emailmodel);
+
+            var emailsToResend = failedEmails.Take(10).ToList();
+            foreach (var emailToResend in emailsToResend)
+            {
+                BackgroundJob.Schedule(() => ResendFailedEmail(emailToResend), TimeSpan.FromMinutes(20));
+
+
+                // Remove the resent email from the list of failed emails
+                failedEmails.Remove(emailToResend);
+            }
+
+
+        }
+        private async Task ResendFailedEmail(EmailDTOs emailToResend)
+        {
+            try
+            {
+                SmtpClient smtp = new SmtpClient();
+                smtp.Host = "mail.sssprocess.com";
+                smtp.Port = 587;
+                smtp.DeliveryMethod = SmtpDeliveryMethod.Network;
+                smtp.EnableSsl = false;
+                smtp.UseDefaultCredentials = true;
+                string UserName = "notifications@sss-process.org";
+                string Password = "P@ssw0rd";
+                smtp.Credentials = new NetworkCredential(UserName, Password);
+
+                using (var message = new MailMessage())
+                {
+                    message.From = new MailAddress("notifications@techprocess.net");
+
+                    if (emailToResend.EmailTo != null && emailToResend.EmailTo.Any())
+                    {
+                        foreach (var to in emailToResend.EmailTo)
+                        {
+                            message.To.Add(to);
+                        }
+                    }
+
+                    message.Body = emailToResend.EmailBody;
+                    message.Subject = emailToResend.Subject;
+                    message.IsBodyHtml = true;
+
+                    await smtp.SendMailAsync(message);
+
+                }
+            }
+            catch (Exception ex)
+            {
+                LogException(nameof(ResendFailedEmail), ex, "Failed to resend an email");
+            }
+        }
 
 
     }

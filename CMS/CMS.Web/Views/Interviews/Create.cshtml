@@ -19,7 +19,7 @@
                 <option value="">-- Select Name --</option>
             </select>
         }
-        <span asp-validation-for="CandidateId" class="text-danger" ></span>
+        <span asp-validation-for="CandidateId" class="text-danger" id="candidateIdError"></span>
     </div>
 
 
@@ -155,7 +155,15 @@
             var interviewerId = $('#InterviewerId').val();
             var date = $('#Date').val();
 
-            
+            // // Validate Candidate
+            // if (!candidateId || candidateId <= 0) {
+            //     $('#candidateIdError').text('Candidate is required.');
+            //     e.preventDefault(); // Prevent form submission
+            // } else {
+            //     $('#candidateIdError').text('');
+            // }
+
+
 
             // Validate Position
             if (!positionId) {
