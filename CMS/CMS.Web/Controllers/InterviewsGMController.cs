@@ -572,13 +572,13 @@ namespace CMS.Web.Controllers
                 smtp.DeliveryMethod = SmtpDeliveryMethod.Network;
                 smtp.EnableSsl = false;
                 smtp.UseDefaultCredentials = true;
-                string UserName = "notifications@sss-process.org";
-                string Password = "P@ssw0rd";
+                string UserName = "CMS@sss-process.org";
+                string Password = "P@ssw0rd2023";
                 smtp.Credentials = new NetworkCredential(UserName, Password);
 
                 using (var message = new MailMessage())
                 {
-                    message.From = new MailAddress("notifications@techprocess.net");
+                    message.From = new MailAddress("cms@techprocess.net");
 
                     if (emailmodel.EmailTo != null && emailmodel.EmailTo.Any())
                     {

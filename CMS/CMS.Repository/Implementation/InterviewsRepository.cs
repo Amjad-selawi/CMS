@@ -34,8 +34,8 @@ namespace CMS.Repository.Repositories
 
         public async void LogException(string methodName, Exception ex, string additionalInfo)
         {
-            var currentUser = await _userManager.GetUserAsync(_httpContextAccessor.HttpContext.User);
-            var userId = currentUser?.Id;
+            //var currentUser = await _userManager.GetUserAsync(_httpContextAccessor.HttpContext.User);
+            //var userId = currentUser?.Id;
             _context.Logs.Add(new Log
             {
                 MethodName = methodName,

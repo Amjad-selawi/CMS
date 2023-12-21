@@ -855,11 +855,11 @@ namespace CMS.Web.Controllers
                         var currentInterview = await _interviewsRepository.GetById(interviewsDTO.InterviewsId); // Assuming you have a method to get the interview by its ID
 
                         // Check if the current interview status is not pending
-                        if (currentInterview.Status.Code != Domain.Enums.StatusCode.Pending)
+                        if (currentInterview.Status.Code != Domain.Enums.StatusCode.Pending && currentInterview.Status.Code != Domain.Enums.StatusCode.Rejected)
                         {
                             // Continue with the logic only if the current interview status is not pending
                             var interviewCount = await _interviewsRepository.GetInterviewCountForCandidate(interviewsDTO.CandidateId);
-                            if ((interviewCount > 1 && interviewCount <= 2) || ((interviewCount == 3 || interviewCount == 4) && User.IsInRole("General Manager")))
+                            if ((interviewCount >= 1 && interviewCount <= 2) || ((interviewCount == 3 || interviewCount == 4) && User.IsInRole("General Manager")))
                             {
                                 var interviewsDeleted = await _interviewsRepository.DeletePendingInterviews(interviewsDTO.CandidateId, interviewsDTO.PositionId, userId: User.FindFirstValue(ClaimTypes.NameIdentifier));
                                 if (!interviewsDeleted)
@@ -1886,13 +1886,13 @@ namespace CMS.Web.Controllers
                 smtp.DeliveryMethod = SmtpDeliveryMethod.Network;
                 smtp.EnableSsl = false;
                 smtp.UseDefaultCredentials = true;
-                string UserName = "notifications@sss-process.org";
-                string Password = "P@ssw0rd";
+                string UserName = "CMS@sss-process.org";
+                string Password = "P@ssw0rd2023";
                 smtp.Credentials = new NetworkCredential(UserName, Password);
 
                 using (var message = new MailMessage())
                 {
-                    message.From = new MailAddress("notifications@techprocess.net");
+                    message.From = new MailAddress("cms@techprocess.net");
 
                     if (emailModel.EmailTo != null && emailModel.EmailTo.Any())
                     {
@@ -2169,13 +2169,13 @@ namespace CMS.Web.Controllers
                 smtp.DeliveryMethod = SmtpDeliveryMethod.Network;
                 smtp.EnableSsl = false;
                 smtp.UseDefaultCredentials = true;
-                string UserName = "notifications@sss-process.org";
-                string Password = "P@ssw0rd";
+                string UserName = "CMS@sss-process.org";
+                string Password = "P@ssw0rd2023";
                 smtp.Credentials = new NetworkCredential(UserName, Password);
 
                 using (var message = new MailMessage())
                 {
-                    message.From = new MailAddress("notifications@techprocess.net");
+                    message.From = new MailAddress("cms@techprocess.net");
 
                     if (emailToResend.EmailTo != null && emailToResend.EmailTo.Any())
                     {

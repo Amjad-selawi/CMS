@@ -98,13 +98,16 @@
             // Clear previous error messages
             $(".text-danger").text("");
 
-            // Validate ActualExperience
-            var actualExperienceValue = $('[name="ActualExperience"]').val();
-            if (!actualExperienceValue) {
-                $('#ActualExperience').next(".text-danger").text("Actual Experience is required.");
-                e.preventDefault();
-                return;
+            if (!User.IsInRole("HR Manager")) {
+                // Validate ActualExperience
+                var actualExperienceValue = $('[name="ActualExperience"]').val();
+                if (!actualExperienceValue) {
+                    $('#ActualExperience').next(".text-danger").text("Actual Experience is required.");
+                    e.preventDefault();
+                    return;
+                }
             }
+            
 
             // Validate if ActualExperience is a valid number
             if (!isNumeric(actualExperienceValue)) {
