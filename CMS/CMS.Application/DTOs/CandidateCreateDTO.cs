@@ -13,7 +13,7 @@ namespace CMS.Application.DTOs
         public string FullName { get; set; }
 
         [Required(ErrorMessage = "Phone is required.")]
-        [RegularExpression(@"^(\+[0-9]{1,})?[0-9]+$", ErrorMessage = "Phone must start with '+' and then contain numeric digits.")]
+        [RegularExpression(@"^(\+[0-9]{1,})?[0-9]+$", ErrorMessage = "Please enter a valid format")]
 
         public string Phone { get; set; }
 

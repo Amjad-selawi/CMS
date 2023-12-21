@@ -78,7 +78,7 @@
 
 
 
-<script>
+@* <script>
     function validateFileFormat(input) {
         const allowedExtensions = [".pdf", ".docx", ".png", ".jpg"];
         const file = input.files[0];
@@ -95,7 +95,7 @@
         }
     }
 </script>
-
+ *@
 <script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
 
 <script>
@@ -148,8 +148,50 @@
                 $('#experienceError').text('');
             }
 
-        });
+            // Validate File if a file is selected
+            if (fileInput.files.length > 0) {
+                var allowedExtensions = [".pdf", ".docx", ".png", ".jpg"];
+                var fileName = fileInput.files[0].name;
+                var fileSize = fileInput.files[0].size;
 
-        // Function to validate file format
+                var fileExtension = fileName.substr((fileName.lastIndexOf('.') + 1));
+                if ($.inArray("." + fileExtension, allowedExtensions) === -1) {
+                    $('#fileError').text('Invalid file extension. Allowed extensions: ' + allowedExtensions.join(', '));
+                    e.preventDefault(); // Prevent form submission
+                } else {
+                    $('#fileError').text('');
+                }
+
+                if (fileSize > 4 * 1024 * 1024) {
+                    $('#fileError').text('File size exceeds 4 MB limit.');
+                    e.preventDefault(); // Prevent form submission
+                } else {
+                    $('#fileError').text('');
+                }
+            }
+        });
     });
+
+    function validateFileFormat(fileInput) {
+        var allowedExtensions = [".pdf", ".docx", ".png", ".jpg"];
+        var fileName = fileInput.files[0] ? fileInput.files[0].name : null;
+
+        if (fileName) {
+            var fileExtension = fileName.substr((fileName.lastIndexOf('.') + 1));
+            if ($.inArray("." + fileExtension, allowedExtensions) === -1) {
+                $('#fileError').text('Invalid file extension. Allowed extensions: ' + allowedExtensions.join(', '));
+                fileInput.value = ''; // Clear the file input
+            } else {
+                $('#fileError').text('');
+            }
+
+            var fileSize = fileInput.files[0].size;
+            if (fileSize > 4 * 1024 * 1024) {
+                $('#fileError').text('File size exceeds 4 MB limit.');
+                fileInput.value = ''; // Clear the file input
+            } else {
+                $('#fileError').text('');
+            }
+        }
+    }
 </script>
