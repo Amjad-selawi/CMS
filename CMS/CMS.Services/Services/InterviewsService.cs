@@ -401,6 +401,11 @@ namespace CMS.Services.Services
                 {
                     return Result<InterviewsDTO>.Failure(data, "the interview  DTO is null");
                 }
+                if (data.FileData != null)
+                {
+                    int attachmentId = await _attachmentService.CreateAttachmentAsync(data.FileName, (long)data.FileSize, data.FileData);
+                    data.AttachmentId = attachmentId;
+                }
                 var status = await _statusRepository.GetByCode(StatusCode.Pending);
                 var currentUser = await _userManager.GetUserAsync(_httpContextAccessor.HttpContext.User);
 

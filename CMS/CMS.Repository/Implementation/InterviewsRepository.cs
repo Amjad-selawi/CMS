@@ -196,15 +196,26 @@ namespace CMS.Repository.Repositories
         }
 
 
-        public async Task<string> GetInterviewerEmail(string interviewerId)
+        public async Task<string> GetRoleEmail(string roleName)
         {
             try
             {
-                var interviewer = await _context.Users.FindAsync(interviewerId);
+                var roleId = await _context.Roles
+                    .Where(r => r.Name == roleName)
+                    .Select(r => r.Id)
+                    .FirstOrDefaultAsync();
 
-                if (interviewer != null)
+                if (roleId != null)
                 {
-                    return interviewer.Email;
+                    var userEmail = await _context.UserRoles
+                        .Where(ur => ur.RoleId == roleId)
+                        .Join(_context.Users,
+                            ur => ur.UserId,
+                            user => user.Id,
+                            (ur, user) => user.Email)
+                        .FirstOrDefaultAsync();
+
+                    return userEmail;
                 }
                 else
                 {
@@ -213,105 +224,7 @@ namespace CMS.Repository.Repositories
             }
             catch (Exception ex)
             {
-                LogException(nameof(GetInterviewerEmail), ex,$"Error while getting Interviewer Email");
-                throw ex;
-            }
-        }
-
-
-        public async Task<string> GetGeneralManagerEmail()
-        {
-            try
-            {
-                var generalManagerRoleId = await _context.Roles
-                    .Where(r => r.Name == "General Manager")
-                    .Select(r => r.Id).FirstOrDefaultAsync();
-
-                if(generalManagerRoleId != null)
-                {
-                    var generalManagerEmail = await _context.UserRoles
-                        .Where(ur => ur.RoleId == generalManagerRoleId)
-                        .Join(_context.Users, ur => ur.UserId,user => user.Id,(ur, user) => user.Email)
-                        .FirstOrDefaultAsync(); 
-                    
-                    return generalManagerEmail;
-                }
-                else
-                {
-                    return null; 
-                }
-            }
-            catch (Exception ex)
-            {
-                LogException(nameof(GetGeneralManagerEmail), ex, $"Error while getting General Manager Email");
-                throw ex;
-
-            }
-        }
-
-
-        //Get HrManager Email
-        public async Task<string> GetHREmail()
-        {
-            try
-            {
-                var hrRoleId = await _context.Roles
-                    .Where(r => r.Name == "HR Manager")
-                    .Select(r => r.Id)
-                    .FirstOrDefaultAsync();
-
-                if (hrRoleId != null)
-                {
-                    var hrManagerEmail = await _context.UserRoles
-                        .Where(ur => ur.RoleId == hrRoleId)
-                        .Join(_context.Users,
-                            ur => ur.UserId,
-                            user => user.Id,
-                            (ur, user) => user.Email)
-                        .FirstOrDefaultAsync();
-
-                    return hrManagerEmail;
-                }
-                else
-                {
-                    return null; 
-                }
-            }
-            catch (Exception ex)
-            {
-                LogException(nameof(GetHREmail), ex, $"Error while getting HR Email");
-                throw ex;
-            }
-        }
-        public async Task<string> GetArchiEmail()
-        {
-            try
-            {
-                var archiRoleId = await _context.Roles
-                    .Where(r => r.Name == "Solution Architecture")
-                    .Select(r => r.Id)
-                    .FirstOrDefaultAsync();
-
-                if (archiRoleId != null)
-                {
-                    var archiEmail = await _context.UserRoles
-                        .Where(ur => ur.RoleId == archiRoleId)
-                        .Join(_context.Users,
-                            ur => ur.UserId,
-                            user => user.Id,
-                            (ur, user) => user.Email)
-                        .FirstOrDefaultAsync();
-
-                    return archiEmail;
-                }
-                else
-                {
-                    return null;
-                }
-            }
-            catch (Exception ex)
-            {
-                LogException(nameof(GetArchiEmail), ex, $"Error while getting Archi Email");
+                LogException(nameof(GetRoleEmail), ex, $"Error while getting {roleName} Email");
                 throw ex;
             }
         }
