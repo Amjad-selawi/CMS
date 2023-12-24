@@ -34,8 +34,8 @@ namespace CMS.Repository.Repositories
 
         public async void LogException(string methodName, Exception ex, string additionalInfo)
         {
-            var currentUser = await _userManager.GetUserAsync(_httpContextAccessor.HttpContext.User);
-            var userId = currentUser?.Id;
+            //var currentUser = await _userManager.GetUserAsync(_httpContextAccessor.HttpContext.User);
+            //var userId = currentUser?.Id;
             _context.Logs.Add(new Log
             {
                 MethodName = methodName,
@@ -196,6 +196,7 @@ namespace CMS.Repository.Repositories
         }
 
 
+
         public async Task<string> GetInterviewerEmail(string interviewerId)
         {
             try
@@ -213,7 +214,7 @@ namespace CMS.Repository.Repositories
             }
             catch (Exception ex)
             {
-                LogException(nameof(GetInterviewerEmail), ex,$"Error while getting Interviewer Email");
+                LogException(nameof(GetInterviewerEmail), ex, $"Error while getting Interviewer Email");
                 throw ex;
             }
         }
@@ -227,18 +228,18 @@ namespace CMS.Repository.Repositories
                     .Where(r => r.Name == "General Manager")
                     .Select(r => r.Id).FirstOrDefaultAsync();
 
-                if(generalManagerRoleId != null)
+                if (generalManagerRoleId != null)
                 {
                     var generalManagerEmail = await _context.UserRoles
                         .Where(ur => ur.RoleId == generalManagerRoleId)
-                        .Join(_context.Users, ur => ur.UserId,user => user.Id,(ur, user) => user.Email)
-                        .FirstOrDefaultAsync(); 
-                    
+                        .Join(_context.Users, ur => ur.UserId, user => user.Id, (ur, user) => user.Email)
+                        .FirstOrDefaultAsync();
+
                     return generalManagerEmail;
                 }
                 else
                 {
-                    return null; 
+                    return null;
                 }
             }
             catch (Exception ex)
@@ -274,7 +275,7 @@ namespace CMS.Repository.Repositories
                 }
                 else
                 {
-                    return null; 
+                    return null;
                 }
             }
             catch (Exception ex)

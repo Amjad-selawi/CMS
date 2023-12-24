@@ -99,19 +99,19 @@
             $(".text-danger").text("");
 
             // Validate ActualExperience
-            var actualExperienceValue = $('[name="ActualExperience"]').val();
-            if (!actualExperienceValue) {
-                $('#ActualExperience').next(".text-danger").text("Actual Experience is required.");
-                e.preventDefault();
-                return;
-            }
+            // if (!actualExperienceValue) {
+            //     $('#ActualExperience').next(".text-danger").text("Actual Experience is required.");
+            //     e.preventDefault();
+            //     return;
+            // }
 
             // Validate if ActualExperience is a valid number
-            if (!isNumeric(actualExperienceValue)) {
-                $('#ActualExperience').next(".text-danger").text("Actual Experience must be a valid number.");
-                e.preventDefault();
-                return;
-            }
+            // var actualExperienceValue = $('[name="ActualExperience"]').val();
+            // if (!isNumeric(actualExperienceValue)) {
+            //     $('#ActualExperience').next(".text-danger").text("Actual Experience must be a valid number.");
+            //     e.preventDefault();
+            //     return;
+            // }
 
             // Additional validations can be added here for other fields if needed
 

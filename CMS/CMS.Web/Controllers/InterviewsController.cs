@@ -45,11 +45,13 @@ namespace CMS.Web.Controllers
         private readonly string _attachmentStoragePath;
         private readonly IHttpContextAccessor _httpContextAccessor;
         private readonly UserManager<IdentityUser> _userManager;
+        private readonly IEmailService _emailService;
 
         public InterviewsController(IInterviewsService interviewsService, ICandidateService candidateService,
             IPositionService positionService, IStatusService statusService, IWebHostEnvironment env,
             IAccountService accountService, INotificationsService notificationsService, 
-            IInterviewsRepository interviewsRepository, IHttpContextAccessor httpContextAccessor, UserManager<IdentityUser> userManager)
+            IInterviewsRepository interviewsRepository, IHttpContextAccessor httpContextAccessor,
+            UserManager<IdentityUser> userManager,IEmailService emailService)
         {
             _interviewsService = interviewsService;
             _candidateService = candidateService;
@@ -57,6 +59,7 @@ namespace CMS.Web.Controllers
             _StatusService = statusService;
             _httpContextAccessor = httpContextAccessor;
             _userManager = userManager;
+            _emailService = emailService;
             _accountService = accountService;
             _notificationsService = notificationsService;
             _interviewsRepository = interviewsRepository;
@@ -70,12 +73,8 @@ namespace CMS.Web.Controllers
 
         public void LogException(string methodName, Exception ex, string additionalInfo = null)
         {
-            
             _interviewsService.LogException(methodName, ex, additionalInfo);
         }
-     
-      
-
 
         public async Task<ActionResult> MyInterviews(int? statusFilter)
         {
@@ -360,11 +359,11 @@ namespace CMS.Web.Controllers
                             var positionNameresult = positionName.Value;
                             var lastPositionName = positionNameresult.Name;
 
-                            string userName = GetLoggedInUserName();
+                            string userName = _emailService.GetLoggedInUserName();
 
                             string userSecondInterviewer = null;
 
-                            var secondInterviewerEmail = await GetInterviewerEmail(collection.SecondInterviewerId);
+                            var secondInterviewerEmail = await _emailService.GetInterviewerEmail(collection.SecondInterviewerId);
                             if (secondInterviewerEmail != null)
                             {
                                 var userSecondInterviewerObj = await _userManager.FindByEmailAsync(secondInterviewerEmail);
@@ -374,7 +373,7 @@ namespace CMS.Web.Controllers
                             var formattedDate = collection.Date.ToString("dd/MM/yyyy hh:mm tt");
 
                             // Prepare the email model for the first interviewer
-                            var interviewerEmail = await GetInterviewerEmail(collection.InterviewerId);
+                            var interviewerEmail = await _emailService.GetInterviewerEmail(collection.InterviewerId);
                             var userInterviewer = await _userManager.FindByEmailAsync(interviewerEmail);
                             EmailDTOs emailModel = new EmailDTOs
                             {
@@ -416,7 +415,7 @@ namespace CMS.Web.Controllers
                                             Dear {userSecondInterviewer.Replace("_", " ")},
                                         </p>
                                         <p style='font-size: 16px; color: #555;'>
-                                            You and {userInterviewer} are assigned to have a first interview with {candidateNameresult} for the {lastPositionName} position scheduled on {collection.Date} ,,<br><br>kindly <a href='https://apps.sssprocess.com:6134/'>Click here</a> to see the invitation details.
+                                            You and {userInterviewer} are assigned to have a first interview with {candidateNameresult} for the {lastPositionName} position scheduled on {collection.Date},<br><br>kindly <a href='https://apps.sssprocess.com:6134/'>Click here</a> to see the invitation details.
                                         </p>
                                         <p style='font-size: 14px; color: #777;'>
                                             Regards,
@@ -429,13 +428,13 @@ namespace CMS.Web.Controllers
                                 };
 
                                 // Send emails to both first and second interviewers
-                                await SendEmailToInterviewer(secondInterviewerEmail, collection, emailModel2);
-                                await SendEmailToInterviewer(interviewerEmail, collection, emailModel);
+                                await _emailService.SendEmailToInterviewer(secondInterviewerEmail, collection, emailModel2);
+                                await _emailService.SendEmailToInterviewer(interviewerEmail, collection, emailModel);
                             }
                             else
                             {
                                 // Send email only to the first interviewer if the second interviewer is not selected
-                                await SendEmailToInterviewer(interviewerEmail, collection, emailModel);
+                                await _emailService.SendEmailToInterviewer(interviewerEmail, collection, emailModel);
                             }
 
                             return RedirectToAction("Index");
@@ -577,11 +576,11 @@ namespace CMS.Web.Controllers
                             var positionNameresult = positionName.Value;
                             var lastPositionName = positionNameresult.Name;
 
-                            string userName = GetLoggedInUserName();
+                            string userName = _emailService.GetLoggedInUserName();
 
                             string userSecondInterviewer = null;
 
-                            var secondInterviewerEmail = await GetInterviewerEmail(collection.SecondInterviewerId);
+                            var secondInterviewerEmail = await _emailService.GetInterviewerEmail(collection.SecondInterviewerId);
                             if (secondInterviewerEmail != null)
                             {
                                 var userSecondInterviewerObj = await _userManager.FindByEmailAsync(secondInterviewerEmail);
@@ -591,7 +590,7 @@ namespace CMS.Web.Controllers
                             var formattedDate = collection.Date.ToString("dd/MM/yyyy hh:mm tt");
 
                             // Prepare the email model for the first interviewer
-                            var interviewerEmail = await GetInterviewerEmail(collection.InterviewerId);
+                            var interviewerEmail = await _emailService.GetInterviewerEmail(collection.InterviewerId);
                             var userInterviewer = await _userManager.FindByEmailAsync(interviewerEmail);
 
                             EmailDTOs emailModel = new EmailDTOs
@@ -648,13 +647,13 @@ namespace CMS.Web.Controllers
                                 };
 
                                 // Send emails to both first and second interviewers
-                                await SendEmailToInterviewer(secondInterviewerEmail, collection, emailModel2);
-                                await SendEmailToInterviewer(interviewerEmail, collection, emailModel);
+                                await _emailService.SendEmailToInterviewer(secondInterviewerEmail, collection, emailModel2);
+                                await _emailService.SendEmailToInterviewer(interviewerEmail, collection, emailModel);
                             }
                             else
                             {
                                 // Send email only to the first interviewer if the second interviewer is not selected
-                                await SendEmailToInterviewer(interviewerEmail, collection, emailModel);
+                                await _emailService.SendEmailToInterviewer(interviewerEmail, collection, emailModel);
                             }
 
                             return RedirectToAction("Index");
@@ -842,49 +841,7 @@ namespace CMS.Web.Controllers
                     ModelState.AddModelError("StatusId", "Please select a status.");
                 }
             
-                var newStatusResult = await _StatusService.GetById(interviewsDTO.StatusId.Value);
-                if (newStatusResult.IsSuccess)
-                {
-                    var newStatus = newStatusResult.Value;
-                    // Check if the new status is On Hold
-                    if (newStatus.Code == Domain.Enums.StatusCode.OnHold)
-                    {
-                        await _notificationsService.CreateInterviewNotificationtoHrForOnHold(interviewsDTO.StatusId.Value, interviewsDTO.Notes, interviewsDTO.CandidateId, interviewsDTO.PositionId);
-
-                        // Get the current interview status
-                        var currentInterview = await _interviewsRepository.GetById(interviewsDTO.InterviewsId); // Assuming you have a method to get the interview by its ID
-
-                        // Check if the current interview status is not pending
-                        if (currentInterview.Status.Code != Domain.Enums.StatusCode.Pending)
-                        {
-                            // Continue with the logic only if the current interview status is not pending
-                            var interviewCount = await _interviewsRepository.GetInterviewCountForCandidate(interviewsDTO.CandidateId);
-                            if ((interviewCount > 1 && interviewCount <= 2) || ((interviewCount == 3 || interviewCount == 4) && User.IsInRole("General Manager")))
-                            {
-                                var interviewsDeleted = await _interviewsRepository.DeletePendingInterviews(interviewsDTO.CandidateId, interviewsDTO.PositionId, userId: User.FindFirstValue(ClaimTypes.NameIdentifier));
-                                if (!interviewsDeleted)
-                                {
-                                    // Show a pop-up or handle the case where there are no pending interviews to delete
-                                    ModelState.AddModelError("StatusId", "Cannot put this interview on hold.");
-                                    return View(interviewsDTO);
-                                }
-                            }
-                            else
-                            {
-                                // Show a pop-up or handle the case where there's only one interview
-                                ModelState.AddModelError("StatusId", "Cannot put this interview on hold.");
-                                return View(interviewsDTO);
-                            }
-                        }
-                        //else
-                        //{
-                        //    // Handle the case where the current interview status is pending
-                        //    ModelState.AddModelError("StatusId", "Cannot put a pending interview on hold.");
-                        //    return View(interviewsDTO);
-                        //}
-                    }
-                }
-
+         
 
                 var firstInterviewerRoles = await _interviewsService.GetInterviewerRole(interviewsDTO.InterviewerId);
                 var secondInterviewerRoles = await _interviewsService.GetInterviewerRole(interviewsDTO.SecondInterviewerId);
@@ -916,9 +873,9 @@ namespace CMS.Web.Controllers
                         ModelState.AddModelError("ActualExperience", "Please add the actual experience.");
                     }
                 }
-          
 
-            if (!interviewsDTO.StatusId.HasValue)
+
+                if (!interviewsDTO.StatusId.HasValue)
             {
                 ModelState.AddModelError("StatusId", "Please select a status.");
             }
@@ -973,6 +930,50 @@ namespace CMS.Web.Controllers
             {
                 try
                 {
+                        var newStatusResult = await _StatusService.GetById(interviewsDTO.StatusId.Value);
+                        if (newStatusResult.IsSuccess)
+                        {
+                            var newStatus = newStatusResult.Value;
+                            // Check if the new status is On Hold
+                            if (newStatus.Code == Domain.Enums.StatusCode.OnHold)
+                            {
+                                await _notificationsService.CreateInterviewNotificationtoHrForOnHold(interviewsDTO.StatusId.Value, interviewsDTO.Notes, interviewsDTO.CandidateId, interviewsDTO.PositionId);
+
+                                // Get the current interview status
+                                var currentInterview = await _interviewsRepository.GetById(interviewsDTO.InterviewsId); // Assuming you have a method to get the interview by its ID
+
+                                // Check if the current interview status is not pending
+                                if (currentInterview.Status.Code != Domain.Enums.StatusCode.Pending && currentInterview.Status.Code != Domain.Enums.StatusCode.Rejected)
+                                {
+                                    // Continue with the logic only if the current interview status is not pending
+                                    var interviewCount = await _interviewsRepository.GetInterviewCountForCandidate(interviewsDTO.CandidateId);
+                                    if ((interviewCount >= 1 && interviewCount <= 2) || ((interviewCount == 3 || interviewCount == 4) && User.IsInRole("General Manager")))
+                                    {
+                                        var interviewsDeleted = await _interviewsRepository.DeletePendingInterviews(interviewsDTO.CandidateId, interviewsDTO.PositionId, userId: User.FindFirstValue(ClaimTypes.NameIdentifier));
+                                        if (!interviewsDeleted)
+                                        {
+                                            // Show a pop-up or handle the case where there are no pending interviews to delete
+                                            ModelState.AddModelError("StatusId", "Cannot put this interview on hold.");
+                                            return View(interviewsDTO);
+                                        }
+                                    }
+                                    else
+                                    {
+                                        // Show a pop-up or handle the case where there's only one interview
+                                        ModelState.AddModelError("StatusId", "Cannot put this interview on hold.");
+                                        return View(interviewsDTO);
+                                    }
+                                }
+                                //else
+                                //{
+                                //    // Handle the case where the current interview status is pending
+                                //    ModelState.AddModelError("StatusId", "Cannot put a pending interview on hold.");
+                                //    return View(interviewsDTO);
+                                //}
+                            }
+                        }
+
+
                         var currentUser = await _userManager.GetUserAsync(_httpContextAccessor.HttpContext.User);
 
                         if (await _userManager.IsInRoleAsync(currentUser, "General Manager"))
@@ -1050,10 +1051,10 @@ namespace CMS.Web.Controllers
 
                             if (status.Code == Domain.Enums.StatusCode.Approved)
                             {
-                                string userName = GetLoggedInUserName();
-                                var GMEmail = await GetGMEmail();
-                                var HREmail = await GetHREmail();
-                                var ArchiEmail = await GetArchiEmail();
+                                string userName = _emailService.GetLoggedInUserName();
+                                var GMEmail = await _emailService.GetGMEmail();
+                                var HREmail = await _emailService.GetHREmail();
+                                var ArchiEmail = await _emailService.GetArchiEmail();
 
                                     var userGM = await _userManager.FindByEmailAsync(GMEmail);
                                     var userHR = await _userManager.FindByEmailAsync(HREmail);
@@ -1122,11 +1123,11 @@ namespace CMS.Web.Controllers
 
                                             if (!string.IsNullOrEmpty(HREmail))
                                         {
-                                            await SendEmailToInterviewer(HREmail, interviewsDTO, emailModels);
+                                            await _emailService.SendEmailToInterviewer(HREmail, interviewsDTO, emailModels);
                                         }
                                             if (!string.IsNullOrEmpty(HREmail))
                                             {
-                                                await SendEmailToInterviewer(HREmail, interviewsDTO, emailModelToHR);
+                                                await _emailService.SendEmailToInterviewer(HREmail, interviewsDTO, emailModelToHR);
                                             }
                                         }
                                         else
@@ -1182,12 +1183,12 @@ namespace CMS.Web.Controllers
                                             };
                                             if (!string.IsNullOrEmpty(GMEmail))
                                             {
-                                                await SendEmailToInterviewer(GMEmail, interviewsDTO, emailModel);
+                                                await _emailService.SendEmailToInterviewer(GMEmail, interviewsDTO, emailModel);
                                             }
 
                                             if (!string.IsNullOrEmpty(HREmail))
                                             {
-                                                await SendEmailToInterviewer(HREmail, interviewsDTO, emailModelToHR);
+                                                await _emailService.SendEmailToInterviewer(HREmail, interviewsDTO, emailModelToHR);
                                             }
 
                                         }
@@ -1275,7 +1276,7 @@ namespace CMS.Web.Controllers
                                     if (!string.IsNullOrEmpty(ArchiEmail))
                                     {
                                             //Send an Email to the Archi if it was selceted
-                                            await SendEmailToInterviewer(ArchiEmail, interviewsDTO, architectureEmailModel);
+                                            await _emailService.SendEmailToInterviewer(ArchiEmail, interviewsDTO, architectureEmailModel);
                                         }
                                     }
 
@@ -1283,12 +1284,12 @@ namespace CMS.Web.Controllers
 
                                     if (!string.IsNullOrEmpty(GMEmail))
                                     {
-                                        await SendEmailToInterviewer(GMEmail, interviewsDTO, emailModel);
+                                        await _emailService.SendEmailToInterviewer(GMEmail, interviewsDTO, emailModel);
                                     }
 
                                     if (!string.IsNullOrEmpty(HREmail))
                                     {
-                                        await SendEmailToInterviewer(HREmail, interviewsDTO, emailModelToHR);
+                                        await _emailService.SendEmailToInterviewer(HREmail, interviewsDTO, emailModelToHR);
                                     }
 
 
@@ -1298,8 +1299,8 @@ namespace CMS.Web.Controllers
 
                                 else if (status.Code == Domain.Enums.StatusCode.Rejected)
                             {
-                                string userName = GetLoggedInUserName();
-                                var HREmail = await GetHREmail();
+                                string userName = _emailService.GetLoggedInUserName();
+                                var HREmail = await _emailService.GetHREmail();
 
                                     EmailDTOs emailModel = new EmailDTOs
                                 {
@@ -1328,7 +1329,7 @@ namespace CMS.Web.Controllers
 
                                     if (!string.IsNullOrEmpty(HREmail))
                                     {
-                                        await SendEmailToInterviewer(HREmail, interviewsDTO, emailModel);
+                                        await _emailService.SendEmailToInterviewer(HREmail, interviewsDTO, emailModel);
                                     }
 
                                     return RedirectToAction(nameof(MyInterviews));
@@ -1360,8 +1361,8 @@ namespace CMS.Web.Controllers
 
                             if (status.Code == Domain.Enums.StatusCode.Approved)
                             {
-                                string userName = GetLoggedInUserName();
-                                var HREmail = await GetHREmail();
+                                string userName = _emailService.GetLoggedInUserName();
+                                var HREmail = await _emailService.GetHREmail();
                                     var userHR = await _userManager.FindByEmailAsync(HREmail);
                                     EmailDTOs emailModel = new EmailDTOs
                                 {
@@ -1414,8 +1415,8 @@ namespace CMS.Web.Controllers
 
                                     if (!string.IsNullOrEmpty(HREmail))
                                     {
-                                        await SendEmailToInterviewer(HREmail, interviewsDTO, emailModel);
-                                        await SendEmailToInterviewer(HREmail, interviewsDTO, emailModelApproval);
+                                        await _emailService.SendEmailToInterviewer(HREmail, interviewsDTO, emailModel);
+                                        await _emailService.SendEmailToInterviewer(HREmail, interviewsDTO, emailModelApproval);
 
                                     }
 
@@ -1424,8 +1425,8 @@ namespace CMS.Web.Controllers
 
                             else if (status.Code == Domain.Enums.StatusCode.Rejected)
                             {
-                                string userName = GetLoggedInUserName();
-                                var HREmail = await GetHREmail();
+                                string userName = _emailService.GetLoggedInUserName();
+                                var HREmail = await _emailService.GetHREmail();
                                 EmailDTOs emailModel = new EmailDTOs
                                 {
                                     EmailTo = new List<string> { HREmail },
@@ -1450,7 +1451,7 @@ namespace CMS.Web.Controllers
                                 };
                                     if (!string.IsNullOrEmpty(HREmail))
                                     {
-                                        await SendEmailToInterviewer(HREmail, interviewsDTO, emailModel);
+                                        await _emailService.SendEmailToInterviewer(HREmail, interviewsDTO, emailModel);
                                     }
 
                                     return RedirectToAction(nameof(MyInterviews));
@@ -1485,9 +1486,9 @@ namespace CMS.Web.Controllers
 
                                 if (status.Code == Domain.Enums.StatusCode.Approved)
                             {
-                                string userName = GetLoggedInUserName();
-                                var HREmail = await GetHREmail();
-                                 var GMEmail = await GetGMEmail();
+                                string userName = _emailService.GetLoggedInUserName();
+                                var HREmail = await _emailService.GetHREmail();
+                                 var GMEmail = await _emailService.GetGMEmail();
 
 
                                  var userHR = await _userManager.FindByEmailAsync(HREmail);
@@ -1552,12 +1553,12 @@ namespace CMS.Web.Controllers
                                             };
                                             if (!string.IsNullOrEmpty(GMEmail))
                                                 {
-                                                    await SendEmailToInterviewer(GMEmail, interviewsDTO, emailModels);
+                                                    await _emailService.SendEmailToInterviewer(GMEmail, interviewsDTO, emailModels);
                                                 }
 
                                             if (!string.IsNullOrEmpty(HREmail))
                                             {
-                                                await SendEmailToInterviewer(HREmail, interviewsDTO, emailModelApproval);
+                                                await _emailService.SendEmailToInterviewer(HREmail, interviewsDTO, emailModelApproval);
 
                                             }
 
@@ -1619,8 +1620,8 @@ namespace CMS.Web.Controllers
 
                                         if (!string.IsNullOrEmpty(HREmail))
                                         {
-                                            await SendEmailToInterviewer(HREmail, interviewsDTO, emailModel);
-                                            await SendEmailToInterviewer(HREmail, interviewsDTO, emailModelApproval);
+                                            await _emailService.SendEmailToInterviewer(HREmail, interviewsDTO, emailModel);
+                                            await _emailService.SendEmailToInterviewer(HREmail, interviewsDTO, emailModelApproval);
 
                                         }
                                             
@@ -1663,7 +1664,7 @@ namespace CMS.Web.Controllers
                                                 };
                                                 if (!string.IsNullOrEmpty(HREmail))
                                                 {
-                                                    await SendEmailToInterviewer(HREmail, interviewsDTO, emailModels);
+                                                    await _emailService.SendEmailToInterviewer(HREmail, interviewsDTO, emailModels);
                                                 }
                                             }
                                             else
@@ -1730,7 +1731,7 @@ namespace CMS.Web.Controllers
                                         };
                                         if (!string.IsNullOrEmpty(HREmail))
                                         {
-                                            await SendEmailToInterviewer(HREmail, interviewsDTO, emailModel);
+                                            await _emailService.SendEmailToInterviewer(HREmail, interviewsDTO, emailModel);
 
                                         }
                                         }
@@ -1750,8 +1751,8 @@ namespace CMS.Web.Controllers
                                     {
                                         await _notificationsService.CreateInterviewNotificationForHRInterview(interviewsDTO.StatusId.Value, interviewsDTO.Notes, interviewsDTO.CandidateId, interviewsDTO.PositionId);
 
-                                    string userName = GetLoggedInUserName();
-                                var HREmail = await GetHREmail();
+                                    string userName = _emailService.GetLoggedInUserName();
+                                var HREmail = await _emailService.GetHREmail();
                                 EmailDTOs emailModel = new EmailDTOs
                                 {
                                     EmailTo = new List<string> { HREmail },
@@ -1776,7 +1777,7 @@ namespace CMS.Web.Controllers
                                 };
                                     if (!string.IsNullOrEmpty(HREmail))
                                     {
-                                        await SendEmailToInterviewer(HREmail, interviewsDTO, emailModel);
+                                        await _emailService.SendEmailToInterviewer(HREmail, interviewsDTO, emailModel);
                                     }
                                     }
                                     return RedirectToAction(nameof(MyInterviews));
@@ -1804,7 +1805,12 @@ namespace CMS.Web.Controllers
                 }
             }
 
-            return View(interviewsDTO);
+                if (attachmentStream != null)
+                {
+                    attachmentStream.Close();
+                    attachmentStream.Dispose();
+                }
+                return View(interviewsDTO);
             }
             catch (Exception ex)
             {
@@ -1831,374 +1837,7 @@ namespace CMS.Web.Controllers
             return isFirstUserInRoles && isSecondUserInRoles;
         }
 
-        public async Task SendEmailToInterviewer(string interviewerEmail, InterviewsDTO interview,EmailDTOs emailmodel)
-        {
-            try
-            {
-                SmtpClient smtp = new SmtpClient();
-                smtp.Host = "mail.sssprocess.com";
-                smtp.Port = 587;
-                smtp.DeliveryMethod = SmtpDeliveryMethod.Network;
-                smtp.EnableSsl = false;
-                smtp.UseDefaultCredentials = true;
-                string UserName = "CMS@sss-process.org";
-                string Password = "P@ssw0rd2023";
-                smtp.Credentials = new NetworkCredential(UserName, Password);
-
-                using (var message = new MailMessage())
-                {
-                    message.From = new MailAddress("cms@techprocess.net");
-
-                    if (emailmodel.EmailTo != null && emailmodel.EmailTo.Any())
-                    {
-                        foreach (var to in emailmodel.EmailTo)
-                        {
-                            if (to.EndsWith("@techprocess.net"))
-                            {
-                                message.To.Add(to);
-                            }
-                        }
-                    }
-
-
-                    message.Body = emailmodel.EmailBody;
-                    message.Subject = emailmodel.Subject;
-                    message.IsBodyHtml = true;
-
-                    smtp.Send(message);
-                }
-            }
-            catch (Exception ex)
-            {
-                LogException(nameof(SendEmailToInterviewer), ex, "Faild to send an email");
-                RetryFailedEmails(emailmodel);
-
-            }
-
-        }
-        public async Task SendEmailToInterviewers(List<string> interviewersEmails, InterviewsDTO interview, EmailDTOs emailModel)
-        {
-            try
-            {
-                SmtpClient smtp = new SmtpClient();
-                smtp.Host = "mail.sssprocess.com";
-                smtp.Port = 587;
-                smtp.DeliveryMethod = SmtpDeliveryMethod.Network;
-                smtp.EnableSsl = false;
-                smtp.UseDefaultCredentials = true;
-                string UserName = "notifications@sss-process.org";
-                string Password = "P@ssw0rd";
-                smtp.Credentials = new NetworkCredential(UserName, Password);
-
-                using (var message = new MailMessage())
-                {
-                    message.From = new MailAddress("notifications@techprocess.net");
-
-                    if (emailModel.EmailTo != null && emailModel.EmailTo.Any())
-                    {
-                        foreach (var to in interviewersEmails)
-                        {
-                            message.To.Add(to);
-                        }
-                    }
-
-                    message.Body = emailModel.EmailBody;
-                    message.Subject = emailModel.Subject;
-                    message.IsBodyHtml = true;
-
-                    smtp.Send(message);
-                }
-            }
-            catch (Exception ex)
-            {
-                LogException(nameof(SendEmailToInterviewers), ex, "Failed to send an email");
-                RetryFailedEmails(emailModel);
-            }
-        }
-
-        public async Task<string> GetInterviewerEmail(string interviewerId)
-        {
-            try
-            {
-                
-
-
-                var email = await _interviewsRepository.GetInterviewerEmail(interviewerId );
-
-            if (email != null)
-            {
-                return email;
-            }
-            else
-            {
-                return null;
-            }
-            }
-            catch (Exception ex)
-            {
-                LogException(nameof(GetInterviewerEmail), ex, "Faild to get interviewer email");
-                throw ex;
-            }
-        }
-
-
-        public async Task<string> GetHREmail()
-        {
-            try
-            {
-                
-
-
-                var email = await _interviewsRepository.GetHREmail();
-
-                if (email != null)
-                {
-                    return email;
-                }
-                else
-                {
-                    return null;
-                }
-            }
-            catch (Exception ex)
-            {
-                LogException(nameof(GetHREmail), ex, "Faild to get hr email");
-                throw ex;
-            }
-        }
-        public async Task<string> GetArchiEmail()
-        {
-            try
-            {
-                
-
-
-                var email = await _interviewsRepository.GetArchiEmail();
-
-            if (email != null)
-            {
-                return email;
-            }
-            else
-            {
-                return null;
-            }
-            }
-            catch (Exception ex)
-            {
-                LogException(nameof(GetHREmail), ex, "Faild to get archi email");
-                throw ex;
-            }
-        }
-
-
-
-        public async Task<string> GetGMEmail()
-        {
-            try
-            {
-                
-
-
-                var email = await _interviewsRepository.GetGeneralManagerEmail();
-
-            if (email != null)
-            {
-                return email;
-            }
-            else
-            {
-                return null;
-            }
-            }
-            catch (Exception ex)
-            {
-                LogException(nameof(GetGMEmail), ex, "Faild to get genetal manager email");
-                throw ex;
-            }
-        }
-
-
-        public string GetLoggedInUserName()
-        {
-            try
-            {
-                
-
-                return _httpContextAccessor.HttpContext.User.Identity.Name;
-            }
-            catch (Exception ex)
-            {
-                LogException(nameof(GetLoggedInUserName), ex, "Faild to get Logged In UserName");
-                throw ex;
-            }
-        }
-
-
-        public async Task ReminderJobAsync(string interviewerId, InterviewsDTO collection)
-        {
-            try
-            {
-
-                
-
-                // Check if the interviewer has given a score, and if not, send a reminder email
-                bool hasGivenScore = await _interviewsRepository.HasGivenStatusAsync(interviewerId, collection.InterviewsId);
-
-            if (!hasGivenScore)
-            {
-                var interviewerEmail2 = await GetInterviewerEmail(collection.InterviewerId);
-                EmailDTOs emailModel = new EmailDTOs
-                {
-                    EmailTo = new List<string> { interviewerEmail2 },
-                    EmailBody = "You haven't provided a score for the interview. Please provide a score.",
-                    Subject = "Interview Score Reminder"
-                };
-
-                    await SendEmailToInterviewer(interviewerEmail2, collection, emailModel);
-                }
-            }
-            catch (Exception ex)
-            {
-                LogException(nameof(ReminderJobAsync), ex, "Faild to send a reminder email");
-                throw ex;
-            }
-        }
-
-   
-
-        public void ScheduleInterviewReminder(InterviewsDTO collection)
-        {
-            try
-            {
-
-           
-            var reminderTime = collection.Date.AddMinutes(-15);
-
-            if (DateTime.UtcNow < reminderTime)
-            {
-                var interviewReminderJobId = BackgroundJob.Schedule(
-                    () => SendInterviewReminderEmail(collection), 
-                    reminderTime
-                );
-            }
-            }
-            catch (Exception ex)
-            {
-                LogException(nameof(ScheduleInterviewReminder), ex, "Faild to Schedule Interview Reminder");
-                throw ex;
-            }
-        }
-
-        public async Task SendInterviewReminderEmail(InterviewsDTO collection)
-        {
-            try
-            {
-
-            
-            string interviewerEmail = await GetInterviewerEmail(collection.InterviewerId);
-            var userInterviewer = await _userManager.FindByEmailAsync(interviewerEmail);
-                var candidateName = await _candidateService.GetCandidateByIdAsync(collection.CandidateId);
-                var candidateNameresult = candidateName.FullName;
-
-
-                if (!string.IsNullOrEmpty(interviewerEmail))
-            {
-                EmailDTOs emailModel = new EmailDTOs
-                {
-                    EmailTo = new List<string> { interviewerEmail },
-                    Subject = $"Interview Reminder ( {candidateNameresult} )",
-                    EmailBody = $@"<html>
-                    <body style='font-family: Arial, sans-serif;'>
-                        <div style='background-color: #f5f5f5; padding: 20px; border-radius: 10px;'>
-                            <p style='font-size: 18px; color: #333;'>
-                                Dear {userInterviewer.UserName.Replace("_", " ")},
-                            </p>
-                            <p style='font-size: 16px; color: #555;'>
-                           Your interview is scheduled to start in 15 minutes. Please be prepared.
-                            </p>
-                            <p style='font-size: 14px; color: #777;'>
-                                Regards,
-                            </p>
-
-                    <p style='font-size: 14px; color: #777;'>Sent by: CMS</p>
-                        </div>
-                    </body>
-                 </html>"
-                };
-
-                    await SendEmailToInterviewer(interviewerEmail, collection, emailModel);
-                }
-            }
-            catch (Exception ex)
-            {
-                LogException(nameof(ScheduleInterviewReminder), ex, "Faild to Send Interview Reminder Email");
-                throw ex;
-            }
-        }
-
-
-
-        //Faild Emaile --> resend it using Job after 1 hour
-        public void RetryFailedEmails(EmailDTOs emailmodel)
-        {
-            List<EmailDTOs> failedEmails = new List<EmailDTOs>();
-
-            failedEmails.Add(emailmodel);
-
-            var emailsToResend = failedEmails.Take(10).ToList();
-            foreach (var emailToResend in emailsToResend)
-            {
-                BackgroundJob.Schedule(() => ResendFailedEmail(emailToResend), TimeSpan.FromMinutes(20));
-
-
-                // Remove the resent email from the list of failed emails
-                failedEmails.Remove(emailToResend);
-            }
-
-        }
-
-       
-        public async Task ResendFailedEmail(EmailDTOs emailToResend)
-        {
-            try
-            {
-                SmtpClient smtp = new SmtpClient();
-                smtp.Host = "mail.sssprocess.com";
-                smtp.Port = 587;
-                smtp.DeliveryMethod = SmtpDeliveryMethod.Network;
-                smtp.EnableSsl = false;
-                smtp.UseDefaultCredentials = true;
-                string UserName = "notifications@sss-process.org";
-                string Password = "P@ssw0rd";
-                smtp.Credentials = new NetworkCredential(UserName, Password);
-
-                using (var message = new MailMessage())
-                {
-                    message.From = new MailAddress("notifications@techprocess.net");
-
-                    if (emailToResend.EmailTo != null && emailToResend.EmailTo.Any())
-                    {
-                        foreach (var to in emailToResend.EmailTo)
-                        {
-                            message.To.Add(to);
-                        }
-                    }
-
-                    message.Body = emailToResend.EmailBody;
-                    message.Subject = emailToResend.Subject;
-                    message.IsBodyHtml = true;
-
-                    await smtp.SendMailAsync(message);
-
-                }
-            }
-            catch (Exception ex)
-            {
-                LogException(nameof(ResendFailedEmail), ex, "Failed to resend an email");
-            }
-        }
-
+ 
 
     }
 }

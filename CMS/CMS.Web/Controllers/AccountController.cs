@@ -388,8 +388,12 @@ namespace CMS.Web.Controllers
             if (ModelState.IsValid)
             {
                 var user = await _userManager.FindByIdAsync(collection.RegisterrId);
+                    var currentEmail = user.Email;
+                    var currentUsername = user.UserName;
+                    var currentUserRoles = await _userManager.GetRolesAsync(user);
+                    var currentPassowrd = collection.Password;
 
-                user.Email = collection.Email;
+                    user.Email = collection.Email;
                 user.UserName = collection.UserName;
 
                 if (!string.IsNullOrEmpty(collection.Password))
@@ -419,7 +423,31 @@ namespace CMS.Web.Controllers
                         await _userManager.RemoveFromRolesAsync(user, userRoles);
                         await _userManager.AddToRoleAsync(user, collection.SelectedRole);
                     }
-                    return RedirectToAction(nameof(Index));
+                        var token = await _userManager.GeneratePasswordResetTokenAsync(user);
+                        var passwordChangeResult = await _userManager.ResetPasswordAsync(user, token, collection.Password);
+
+
+                        if (currentEmail != collection.Email || currentUsername != collection.UserName || passwordChangeResult.Succeeded || !currentUserRoles.SequenceEqual(new[] { collection.SelectedRole }))
+                        {
+                            var emailModel = new EmailDTOs
+                            {
+                                EmailTo = new List<string> { user.Email },
+                                Subject = "Account Details Updated for CMS system",
+                                EmailBody = $"<p>Dear {user.UserName.Replace("_", " ")},</p>\n\n" +
+                                    "<p>Your account details have been updated:</p>\n" +
+                                    $"<ul>\n" +
+                                    $"  <li>Username: {user.UserName}</li>\n" +
+                                    $"  <li>Email: {user.Email}</li>\n" +
+                                    $"  <li>Password: {collection.Password}</li>\n" +
+                                    $"</ul>\n\n" +
+                                    $"<p>Login to your account: <a href='https://apps.sssprocess.com:6134/'>Click here</a></p>"
+                            };
+
+                            // Send an email only if there are changes
+                            await _accountService.SendRegistrationEmail(user,collection.Password, emailModel);
+                        }
+
+                        return RedirectToAction(nameof(Index));
                 }
                 else
                 {

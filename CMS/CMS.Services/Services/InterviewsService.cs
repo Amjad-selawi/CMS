@@ -401,6 +401,11 @@ namespace CMS.Services.Services
                 {
                     return Result<InterviewsDTO>.Failure(data, "the interview  DTO is null");
                 }
+                if (data.FileData != null)
+                {
+                    int attachmentId = await _attachmentService.CreateAttachmentAsync(data.FileName, (long)data.FileSize, data.FileData);
+                    data.AttachmentId = attachmentId;
+                }
                 var status = await _statusRepository.GetByCode(StatusCode.Pending);
                 var currentUser = await _userManager.GetUserAsync(_httpContextAccessor.HttpContext.User);
 
@@ -465,6 +470,14 @@ namespace CMS.Services.Services
                 //if (Enum.TryParse(data.Status, out InterviewStatus status))
                 // {
                 var previouseInterview = await _interviewsRepository.GetByIdForEdit(data.InterviewsId);
+
+                var candidateArchitectureKey = $"ArchitectureInterviewerId_{data.CandidateId}";
+                if (!string.IsNullOrEmpty(data.ArchitectureInterviewerId) && string.IsNullOrEmpty(_httpContextAccessor.HttpContext.Session.GetString(candidateArchitectureKey)))
+                {
+                    _httpContextAccessor.HttpContext.Session.SetString(candidateArchitectureKey, data.ArchitectureInterviewerId);
+                }
+
+
                 var interview = new Interviews
                 {
                     InterviewsId = data.InterviewsId,
@@ -795,21 +808,26 @@ namespace CMS.Services.Services
 
                                 Debug.Assert(manager != null, "There is No Valid General Manager in The System");
 
-                                // Create an interview for the General Manager
-                                var managerInterview = new Interviews
+                                if (manager.Id !=null && archiId == null)
                                 {
-                                    StatusId = PendeingStatus.Id,
-                                    Date = interview.Date,
-                                    CandidateId = interview.CandidateId,
-                                    PositionId = interview.PositionId,
-                                    ParentId = completedDTO.InterviewsId,
-                                    CreatedOn = DateTime.Now,
-                                    CreatedBy = currentUser.Id,
-                                    InterviewerId = manager.Id,
-                                    SecondInterviewerId = completedDTO.SecondInterviewerId,
-                                };
+                                    // Create an interview for the General Manager
+                                    var managerInterview = new Interviews
+                                    {
+                                        StatusId = PendeingStatus.Id,
+                                        Date = interview.Date,
+                                        CandidateId = interview.CandidateId,
+                                        PositionId = interview.PositionId,
+                                        ParentId = completedDTO.InterviewsId,
+                                        CreatedOn = DateTime.Now,
+                                        CreatedBy = currentUser.Id,
+                                        InterviewerId = manager.Id,
+                                        SecondInterviewerId = completedDTO.SecondInterviewerId,
+                                    };
 
-                                await _interviewsRepository.Insert(managerInterview);
+                                    await _interviewsRepository.Insert(managerInterview);
+                                }
+                                else
+                                {
 
                                 // Create an interview for the Solution Architecture
                                 if (!string.IsNullOrEmpty(archiId))
@@ -826,11 +844,12 @@ namespace CMS.Services.Services
                                         ParentId = completedDTO.InterviewsId,
                                         CreatedOn = DateTime.Now,
                                         CreatedBy = currentUser.Id,
-                                        InterviewerId = archi.Id,
-                                        SecondInterviewerId = completedDTO.SecondInterviewerId,
+                                        InterviewerId = manager.Id,
+                                        SecondInterviewerId = archiId,
                                     };
 
-                                    await _interviewsRepository.Insert(newArchiInterview);
+                                    await _interviewsRepository.Update(newArchiInterview);
+                                }
                                 }
                             }
                             else // Third Interview Needed which done by HR Manager

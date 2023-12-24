@@ -20,9 +20,8 @@ namespace CMS.Repository.Interfaces
         Task<bool> HasGivenStatusAsync(string interviewerId, int interviewId);
         Task<List<Interviews>> GetCurrentInterviews(string id);
 
-        Task<string> GetInterviewerEmail(string interviewerId);
         Task<string> GetGeneralManagerEmail();
-
+        Task<string> GetInterviewerEmail(string interviewerId);
         Task<string> GetHREmail();
         Task<string> GetArchiEmail();
         void LogException(string methodName, Exception ex, string additionalInfo);

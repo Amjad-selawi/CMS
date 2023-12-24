@@ -93,6 +93,8 @@ namespace CMS.Web
             services.AddScoped(typeof(INotificationsRepository), typeof(NotificationsRepository));
             services.AddTransient<INotificationsService, NotificationsService>();
 
+            services.AddTransient<IEmailService, EmailService>();
+
 
             services.AddScoped(typeof(ITemplatesRepository), typeof(TemplatesRepository));
             services.AddTransient<ITemplatesService, TemplatesService>();
