@@ -569,5 +569,71 @@ namespace CMS.Web.Controllers
 
 
 
+
+        [HttpGet]
+        public IActionResult ChangePassword()
+        {
+            return View();
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> ChangePassword(ChangePasswordDTO model)
+        {
+            try
+            {
+                if (ModelState.IsValid)
+                {
+                    var user = await _userManager.GetUserAsync(User);
+                    if (user == null)
+                    {
+                        return NotFound();
+                    }
+                    // Check if the current password is correct
+                    var isCurrentPasswordValid = await _userManager.CheckPasswordAsync(user, model.CurrentPassword);
+
+                    if (!isCurrentPasswordValid)
+                    {
+                        ModelState.AddModelError(string.Empty, "The current password is incorrect.");
+                        return View(model);
+                    }
+
+                    // Check if the new password is different from the current password
+                    if (model.CurrentPassword == model.NewPassword)
+                    {
+                        ModelState.AddModelError(string.Empty, "The new password must be different from the current password.");
+                        return View(model);
+                    }
+
+                    var changePasswordResult = await _userManager.ChangePasswordAsync(user, model.CurrentPassword, model.NewPassword);
+
+                    if (changePasswordResult.Succeeded)
+                    {
+                        // You may want to sign in the user again with the new password
+                        await _signInManager.SignInAsync(user, isPersistent: false);
+
+                        // Redirect to a success page or display a success message
+                        return RedirectToAction("Index", "Home");
+                    }
+                    else
+                    {
+                        foreach (var error in changePasswordResult.Errors)
+                        {
+                            ModelState.AddModelError(string.Empty, error.Description);
+                        }
+                    }
+                }
+
+                return View(model);
+            }
+            catch (Exception ex)
+            {
+                LogException(nameof(ChangePassword), ex, "Failed to change password");
+                throw ex;
+            }
+        }
+
+
+
     }
 }

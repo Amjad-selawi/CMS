@@ -16,6 +16,18 @@
 
 @using (Html.BeginForm("Index", "SearchInterviews", FormMethod.Get))
 {
+    <div class="col-md-3" style="margin-top: -11px;margin-bottom: 21px;margin-left: -8px;">
+        <label>&nbsp;</label>
+        <a style="" asp-action="ExportFilteredData"
+           asp-route-positionFilter="@ViewBag.positionFilter"
+           asp-route-scoreFilter="@ViewBag.scoreFilter"
+           asp-route-statusFilter="@ViewBag.statusFilter"
+           asp-route-candidateFilter="@ViewBag.candidateFilter"
+           asp-route-interviewerFilter="@ViewBag.interviewerFilter"
+           asp-route-fromDate="@ViewBag.fromDate"
+           asp-route-toDate="@ViewBag.toDate"
+           class="btn btn-success btn-block">Export to Excel</a>
+    </div>
 
     <div class="form-group">
         <div class="row">
@@ -59,19 +71,7 @@
             </div>
 
 
-            <div class="col-md-3" style="margin-left: 75%;margin-top: -38px;">
-                <label>&nbsp;</label>
-                <a style="margin-left: 80px;" asp-action="ExportFilteredData"
-                   asp-route-positionFilter="@ViewBag.positionFilter"
-                   asp-route-scoreFilter="@ViewBag.scoreFilter"
-                   asp-route-statusFilter="@ViewBag.statusFilter"
-                   asp-route-candidateFilter="@ViewBag.candidateFilter"
-                   asp-route-interviewerFilter="@ViewBag.interviewerFilter"
-                   asp-route-fromDate="@ViewBag.fromDate"
-                   asp-route-toDate="@ViewBag.toDate"
-                   class="btn btn-success btn-block">Export to Excel</a>
-            </div>
-
+      
 
 
         </div>
