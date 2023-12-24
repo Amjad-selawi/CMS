@@ -1,4 +1,5 @@
-﻿using CMS.Domain;
+﻿using CMS.Application.DTOs;
+using CMS.Domain;
 using CMS.Domain.Entities;
 using CMS.Repository.Interfaces;
 using Microsoft.EntityFrameworkCore;
@@ -71,6 +72,21 @@ namespace CMS.Repository.Implementation
             }
         }
 
+        //public async Task<List<CandidateDTO>> GetCandidatesByCode(string code)
+        //{
+        //    var candidates = await _context.Candidates
+        //        .Include(c => c.Interviews)
+        //        .ThenInclude(i => i.Status)
+        //        .Where(c => c.Interviews.Any(i => i.Status.Code == code))
+        //        .Select(candidate => new CandidateDTO
+        //        {
+        //            Name = candidate.FullName,
+        //            Status = code,
+        //        })
+        //        .ToListAsync();
+
+        //    return candidates;
+        //}
 
 
 

@@ -46,37 +46,72 @@ namespace CMS.Services.Services
         {
             try
             {
-                return await _interviewsRepository.GetRoleEmail("Solution Architecture");
+
+
+
+                var email = await _interviewsRepository.GetArchiEmail();
+
+                if (email != null)
+                {
+                    return email;
+                }
+                else
+                {
+                    return null;
+                }
             }
             catch (Exception ex)
             {
-                LogException(nameof(GetArchiEmail), ex, "Faild to get Archi email");
+                LogException(nameof(GetHREmail), ex, "Faild to get archi email");
                 throw ex;
             }
-        }
 
+        }
         public async Task<string> GetGMEmail()
         {
             try
             {
-                return await _interviewsRepository.GetRoleEmail("General Manager");
+
+
+
+                var email = await _interviewsRepository.GetGeneralManagerEmail();
+
+                if (email != null)
+                {
+                    return email;
+                }
+                else
+                {
+                    return null;
+                }
             }
             catch (Exception ex)
             {
-                LogException(nameof(GetGMEmail), ex, "Faild to get General Manager email");
+                LogException(nameof(GetGMEmail), ex, "Faild to get genetal manager email");
                 throw ex;
             }
         }
-
         public async Task<string> GetHREmail()
         {
             try
             {
-                return await _interviewsRepository.GetRoleEmail("HR Manager");
+
+
+
+                var email = await _interviewsRepository.GetHREmail();
+
+                if (email != null)
+                {
+                    return email;
+                }
+                else
+                {
+                    return null;
+                }
             }
             catch (Exception ex)
             {
-                LogException(nameof(GetHREmail), ex, "Faild to get HR email");
+                LogException(nameof(GetHREmail), ex, "Faild to get hr email");
                 throw ex;
             }
         }
@@ -84,7 +119,19 @@ namespace CMS.Services.Services
         {
             try
             {
-                return await _interviewsRepository.GetRoleEmail("Interviewer");
+
+
+
+                var email = await _interviewsRepository.GetInterviewerEmail(interviewerId);
+
+                if (email != null)
+                {
+                    return email;
+                }
+                else
+                {
+                    return null;
+                }
             }
             catch (Exception ex)
             {
@@ -92,7 +139,6 @@ namespace CMS.Services.Services
                 throw ex;
             }
         }
-
         public  string GetLoggedInUserName()
         {
             try
@@ -240,10 +286,7 @@ namespace CMS.Services.Services
                     {
                         foreach (var to in emailModel.EmailTo)
                         {
-                            if (to.EndsWith("@techprocess.net"))
-                            {
                                 message.To.Add(to);
-                            }
                         }
                     }
 

@@ -415,7 +415,7 @@ namespace CMS.Web.Controllers
                                             Dear {userSecondInterviewer.Replace("_", " ")},
                                         </p>
                                         <p style='font-size: 16px; color: #555;'>
-                                            You and {userInterviewer} are assigned to have a first interview with {candidateNameresult} for the {lastPositionName} position scheduled on {collection.Date} ,,<br><br>kindly <a href='https://apps.sssprocess.com:6134/'>Click here</a> to see the invitation details.
+                                            You and {userInterviewer} are assigned to have a first interview with {candidateNameresult} for the {lastPositionName} position scheduled on {collection.Date},<br><br>kindly <a href='https://apps.sssprocess.com:6134/'>Click here</a> to see the invitation details.
                                         </p>
                                         <p style='font-size: 14px; color: #777;'>
                                             Regards,

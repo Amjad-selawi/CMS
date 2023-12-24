@@ -1,4 +1,5 @@
-﻿using CMS.Domain.Entities;
+﻿using CMS.Application.DTOs;
+using CMS.Domain.Entities;
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -15,6 +16,7 @@ namespace CMS.Repository.Interfaces
         Task<Status> GetById(int id);
 
         Task<Status> GetStatusByNameAsync(string statusName);
+        //Task<List<CandidateDTO>> GetCandidatesByCode(string code);
 
     }
 }

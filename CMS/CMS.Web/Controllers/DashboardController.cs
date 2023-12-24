@@ -16,6 +16,8 @@ using System.Net.Mail;
 using System.Net;
 using System.Security.Claims;
 using Microsoft.AspNetCore.Http;
+using CMS.Repository.Interfaces;
+using CMS.Domain.Enums;
 
 namespace CMS.Web.Controllers
 {
@@ -25,14 +27,17 @@ namespace CMS.Web.Controllers
         private readonly ApplicationDbContext _context;
         private ICountryService _countryService;
         private readonly IHttpContextAccessor _httpContextAccessor;
+        private readonly IStatusRepository _statusRepository;
 
         public DashboardController(IReportingService reportingService, 
-            ApplicationDbContext context, ICountryService countryService,IHttpContextAccessor httpContextAccessor)
+            ApplicationDbContext context, ICountryService countryService,IHttpContextAccessor httpContextAccessor,
+            IStatusRepository statusRepository)
         {
             _reportingService = reportingService;
             _context = context;
             _countryService = countryService;
             _httpContextAccessor = httpContextAccessor;
+            _statusRepository = statusRepository;
         }
 
           public void LogException(string methodName, Exception ex, string additionalInfo = null)
@@ -237,6 +242,15 @@ namespace CMS.Web.Controllers
                 throw ex;
             }
         }
+
+
+
+        //public async Task<IActionResult> AcceptedCandidates()
+        //{
+        //    var acceptedCandidates = await _statusRepository.GetCandidatesByCode(CMS.Domain.Enums.StatusCode.Approved);
+
+        //    return View(acceptedCandidates);
+        //}
 
 
     }
