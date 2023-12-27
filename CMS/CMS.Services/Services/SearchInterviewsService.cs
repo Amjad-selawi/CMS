@@ -205,6 +205,8 @@ namespace CMS.Services.Services
                 foreach (var c in interviews)
                 {
                     string userName = await GetInterviewerName(c.InterviewerId);
+                    string SeconduserName = await GetInterviewerName(c.SecondInterviewerId);
+
                     var com = new InterviewsDTO
                     {
 
@@ -219,6 +221,8 @@ namespace CMS.Services.Services
                         ParentId = c.ParentId,
                         InterviewerId = c.InterviewerId,
                         InterviewerName = userName,
+                        SecondInterviewerId = c.SecondInterviewerId,
+                        SecondInterviewerName = SeconduserName,
                         CandidateId = c.CandidateId,
                         FullName = c.Candidate.FullName,
                         AttachmentId = c.AttachmentId,
@@ -261,6 +265,7 @@ namespace CMS.Services.Services
                     Notes = interview.Notes,
                     ParentId = interview.ParentId,
                     InterviewerId = interview.InterviewerId,
+                    SecondInterviewerId = interview.SecondInterviewerId,
                     CandidateId = interview.CandidateId,
                     FullName = interview.Candidate.FullName,
                     AttachmentId = interview.AttachmentId,

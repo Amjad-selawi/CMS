@@ -33,7 +33,7 @@ namespace CMS.Services.Interfaces
         Task<IEnumerable<NotificationsDTO>> GetNotificationsForArchitectureicon();
 
 
-        Task CreateNotificationForGeneralManagerAsync(int status, string notes, int CandidateId, int positionId);
+        Task CreateNotificationForGeneralManagerAsync(int status, string notes, int CandidateId, int positionId, string archiInterviewerId);
         Task CreateNotificationForArchiAsync(int status, string notes, int CandidateId, int positionId);
 
         Task CreateInterviewNotificationForInterviewerAsync(DateTime interviewDate, int CandidateId, int positionId, List<string> selectedInterviewerId, bool isCanceled);

@@ -27,10 +27,19 @@
                 @Html.DropDownList("statusFilter", ViewBag.StatusList as SelectList, "All Statuses", new { @class = "form-control" })
             </div>
          
+         
+              <div class="col-md-3">
+                @Html.Label("Filter by Candidate Name:")
+                <input type="text" id="candidateFilter" name="candidateFilter" class="form-control" placeholder="Search by Candidate Name">
+            </div>
+
             <div class="col-md-3" style="margin-top: 27px;">
                 <label>&nbsp;</label>
                 <button type="submit" class="btn btn-primary btn-block">Filter</button>
             </div>
+
+
+
         </div>
     </div>
 }
@@ -107,7 +116,7 @@
                                     }
                                     <td>
                                         <a class="bx bx-detail" style="font-size:x-large" asp-action="Details" asp-route-id="@item.InterviewsId" asp-route-previousAction="Index"></a>
-                                        @if ((item.InterviewerRole == "Interviewer" || item.InterviewerRole == "General Manager" || item.InterviewerRole == "Solution Architecture") && item.StatusName == StatusCode.GetName("PND"))
+                                        @if ((item.InterviewerRole == "Interviewer" || item.InterviewerRole == "General Manager" || item.InterviewerRole == "Solution Architecture") && item.StatusName == StatusCode.GetName("PND")  && item.ParentId ==null)
                                         {
                                             <input type="hidden" name="StatusId" value="@item.StatusId" />
                                             <a class="bx bxs-edit-alt" style="font-size:x-large" asp-action="Edit" asp-route-id="@item.InterviewsId"></a>

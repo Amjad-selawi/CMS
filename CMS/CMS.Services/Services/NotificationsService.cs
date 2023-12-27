@@ -185,7 +185,7 @@ namespace CMS.Services.Services
                 CreatedOn = DateTime.Now,
                 CreatedBy = currentUser.Id,
                 IsRead=entity.IsRead,
-
+                CandidateId = entity.CandidateId,
             };
             await _notificationsRepository.Create(notification);
             }
@@ -573,7 +573,7 @@ namespace CMS.Services.Services
         }
 
 
-        public async Task CreateNotificationForGeneralManagerAsync(int status, string notes, int CandidateId, int positionId)
+        public async Task CreateNotificationForGeneralManagerAsync(int status, string notes, int CandidateId, int positionId, string archiInterviewerId)
         {
             try
             {
@@ -602,7 +602,7 @@ namespace CMS.Services.Services
                 var notification = new Notifications
                 {
                     SendDate = DateTime.Now,
-
+                    CandidateId = CandidateId,
                     IsReceived = true,
                     IsRead = false,
                     Title = "",
@@ -627,6 +627,9 @@ namespace CMS.Services.Services
 
                 if (statusstatus.Code == Domain.Enums.StatusCode.Approved)
                 {
+                    if (archiInterviewerId == "" || archiInterviewerId == null)
+                    {
+                    
                     var hrNotification = new Notifications
                     {
                         ReceiverId = HrId,
@@ -636,10 +639,12 @@ namespace CMS.Services.Services
                         Title = $"{candidateName} Approved by {userName} for position {positionName}",
                         BodyDesc = $"The candidate has been approved by the {userName} for the {positionName} position.",
                         CreatedBy = currentUser.Id,
-                        CreatedOn = DateTime.Now
+                        CreatedOn = DateTime.Now,
+                        CandidateId = CandidateId,
                     };
 
                     await _notificationsRepository.Create(hrNotification);
+                    }
                 }
             }
             catch (Exception ex)
@@ -680,7 +685,7 @@ namespace CMS.Services.Services
                 var notification = new Notifications
                 {
                     SendDate = DateTime.Now,
-
+                    CandidateId = CandidateId,
                     IsReceived = true,
                     IsRead = false,
                     Title = "",
@@ -714,7 +719,8 @@ namespace CMS.Services.Services
                         Title = $"{candidateName} Approved by {userName} for position {positionName}",
                         BodyDesc = $"The candidate has been approved by the {userName} for the {positionName} position.",
                         CreatedBy = currentUser.Id,
-                        CreatedOn = DateTime.Now
+                        CreatedOn = DateTime.Now,
+                        CandidateId = CandidateId,
                     };
 
                     await _notificationsRepository.Create(hrNotification);
@@ -747,7 +753,8 @@ namespace CMS.Services.Services
                         IsReceived = true,
                         IsRead = false,
                         CreatedBy = currentUser.Id,
-                        CreatedOn = DateTime.Now
+                        CreatedOn = DateTime.Now,
+                        CandidateId = candidateId,
                     };
 
                     if (isCanceled)
@@ -845,6 +852,7 @@ namespace CMS.Services.Services
                     BodyDesc = notes,
                     CreatedOn = DateTime.Now,
                     CreatedBy = currentUser.Id,
+                    CandidateId = CandidateId,
                 };
 
                 if (statusstatus.Code == Domain.Enums.StatusCode.Approved)
@@ -866,7 +874,8 @@ namespace CMS.Services.Services
                         Title = $"{candidateName} Approved by {userName} for position {positionName}",
                         BodyDesc = $"{candidateName} has been approved by the {userName} for the {positionName} position.",
                         CreatedBy = currentUser.Id,
-                        CreatedOn = DateTime.Now
+                        CreatedOn = DateTime.Now,
+                        CandidateId = CandidateId,
                     };
 
                     await _notificationsRepository.Create(hrNotification);
@@ -914,6 +923,7 @@ namespace CMS.Services.Services
                     BodyDesc = notes,
                     CreatedOn = DateTime.Now,
                     CreatedBy = currentUser.Id,
+                    CandidateId = CandidateId,
                 };
 
                 if (statusstatus.Code == Domain.Enums.StatusCode.Approved)
@@ -935,7 +945,8 @@ namespace CMS.Services.Services
                         Title = $"{candidateName} Approved by {userName} for position {positionName}",
                         BodyDesc = $"{candidateName} has been approved by the {userName} for the {positionName} position.",
                         CreatedBy = currentUser.Id,
-                        CreatedOn = DateTime.Now
+                        CreatedOn = DateTime.Now,
+                        CandidateId = CandidateId,
                     };
 
                     await _notificationsRepository.Create(hrNotification);
@@ -983,6 +994,7 @@ namespace CMS.Services.Services
                     BodyDesc = notes,
                     CreatedOn = DateTime.Now,
                     CreatedBy = currentUser.Id,
+                    CandidateId = CandidateId,
                 };
 
                
@@ -1001,7 +1013,8 @@ namespace CMS.Services.Services
                         Title = $"{candidateName} On Hold by {userName}",
                         BodyDesc = $"{candidateName} has been put on hold by {userName} for the {positionName} position.",
                         CreatedBy = currentUser.Id,
-                        CreatedOn = DateTime.Now
+                        CreatedOn = DateTime.Now,
+                        CandidateId = CandidateId,
                     };
 
                     await _notificationsRepository.Create(hrNotification);
@@ -1049,6 +1062,7 @@ namespace CMS.Services.Services
                     BodyDesc = notes,
                     CreatedOn = DateTime.Now,
                     CreatedBy = currentUser.Id,
+                    CandidateId = CandidateId,
                 };
 
                 if (statusstatus.Code == Domain.Enums.StatusCode.Approved)
@@ -1089,7 +1103,8 @@ namespace CMS.Services.Services
                     Title = $"Your interview with {candidateName} cancelled",
                     BodyDesc = $"The HR has rejected this candidate for some reasons, so you don't have an interview for {candidateName}.",
                     CreatedBy = currentUser.Id,
-                    CreatedOn = DateTime.Now
+                    CreatedOn = DateTime.Now,
+                    CandidateId = CandidateId,
                 };
 
                 await _notificationsRepository.Create(notification);

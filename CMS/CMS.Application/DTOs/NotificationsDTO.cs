@@ -21,6 +21,7 @@ namespace CMS.Application.DTOs
         public string Title { get; set; }
         public string BodyDesc { get; set; }
         public bool IsRead { get; set; }
+        public int? CandidateId { get; set; }
 
 
     }

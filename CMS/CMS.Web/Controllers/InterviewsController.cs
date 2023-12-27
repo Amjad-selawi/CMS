@@ -46,12 +46,13 @@ namespace CMS.Web.Controllers
         private readonly IHttpContextAccessor _httpContextAccessor;
         private readonly UserManager<IdentityUser> _userManager;
         private readonly IEmailService _emailService;
+        private readonly IAttachmentService _attachmentService;
 
         public InterviewsController(IInterviewsService interviewsService, ICandidateService candidateService,
             IPositionService positionService, IStatusService statusService, IWebHostEnvironment env,
             IAccountService accountService, INotificationsService notificationsService, 
             IInterviewsRepository interviewsRepository, IHttpContextAccessor httpContextAccessor,
-            UserManager<IdentityUser> userManager,IEmailService emailService)
+            UserManager<IdentityUser> userManager,IEmailService emailService ,IAttachmentService attachmentService)
         {
             _interviewsService = interviewsService;
             _candidateService = candidateService;
@@ -60,6 +61,7 @@ namespace CMS.Web.Controllers
             _httpContextAccessor = httpContextAccessor;
             _userManager = userManager;
             _emailService = emailService;
+            _attachmentService = attachmentService;
             _accountService = accountService;
             _notificationsService = notificationsService;
             _interviewsRepository = interviewsRepository;
@@ -137,11 +139,12 @@ namespace CMS.Web.Controllers
 
 
         // GET: InterviewsController
-        public async Task<ActionResult> Index(int? statusFilter)
+        public async Task<ActionResult> Index(int? statusFilter, string candidateFilter)
         {
             try
             {
                 ViewBag.statusFilter = statusFilter;
+                ViewBag.candidateFilter = candidateFilter;
 
                 if (User.IsInRole("Admin") || User.IsInRole("HR Manager"))
                 {
@@ -156,8 +159,12 @@ namespace CMS.Web.Controllers
                     var statuses = statusesResult.Value;
                     ViewBag.StatusList = new SelectList(statuses, "Id", "Name");
 
+                    var candidatesDTO = await _candidateService.GetAllCandidatesAsync();
+                    ViewBag.CandidateList = new SelectList(candidatesDTO, "Id", "FullName");
+
+
                     // Apply filters and retrieve filtered interviews
-                    var filteredInterviews = await ApplyFiltersAndRetrieveData(statusFilter);
+                    var filteredInterviews = await ApplyFiltersAndRetrieveData(statusFilter,candidateFilter);
 
                     return View(filteredInterviews);
                 }
@@ -173,7 +180,7 @@ namespace CMS.Web.Controllers
             }
         }
 
-        private async Task<IEnumerable<InterviewsDTO>> ApplyFiltersAndRetrieveData(int? statusFilter)
+        private async Task<IEnumerable<InterviewsDTO>> ApplyFiltersAndRetrieveData(int? statusFilter, string candidateFilter)
         {
             try
             {
@@ -204,6 +211,14 @@ namespace CMS.Web.Controllers
                 {
                     filteredInterviews = filteredInterviews
                         .Where(i => i.StatusId == statusFilter.Value)
+                        .ToList();
+                }
+
+                // Filter by candidate if the candidateFilter parameter is provided
+                if (!string.IsNullOrEmpty(candidateFilter))
+                {
+                    filteredInterviews = filteredInterviews
+                        .Where(i => i.FullName.Contains(candidateFilter, StringComparison.OrdinalIgnoreCase))
                         .ToList();
                 }
 
@@ -349,7 +364,7 @@ namespace CMS.Web.Controllers
 
                             HttpContext.Session.SetString($"SecondInterviewerId_{collection.InterviewsId}", collection.SecondInterviewerId ?? "");
                             HttpContext.Session.SetString($"InterviewerId_{collection.InterviewsId}", collection.InterviewerId ?? "");
-                            HttpContext.Session.SetString("ArchitectureInterviewerId", collection.ArchitectureInterviewerId ?? "");
+                            HttpContext.Session.SetString($"ArchitectureInterviewerId_{collection.InterviewsId}", collection.ArchitectureInterviewerId ?? "");
                             // Get Candidate Name By Id
                             var candidateName = await _candidateService.GetCandidateByIdAsync(collection.CandidateId);
                             var candidateNameresult = candidateName.FullName;
@@ -799,6 +814,24 @@ namespace CMS.Web.Controllers
                 var result = await _interviewsService.GetById(id);
                 var InterviewsDTO = result.Value;
 
+                if (InterviewsDTO.AttachmentId != null)
+                {
+                    ViewBag.ExistingAttachmentId = InterviewsDTO.AttachmentId;
+                }
+
+                var existingAttachment = await _attachmentService.GetAttachmentByIdAsync(InterviewsDTO.AttachmentId.Value);
+
+                if (existingAttachment != null)
+                {
+                    var attachmentDTO = existingAttachment;
+                    InterviewsDTO.FileName = attachmentDTO.FileName;
+                    InterviewsDTO.FileSize = attachmentDTO.FileSize;
+
+                }
+                ViewBag.FileName = InterviewsDTO.FileName;
+                //ViewBag.FileSize = InterviewsDTO.FileSize;
+
+
                 return View(InterviewsDTO);
             }
             catch (Exception ex)
@@ -1042,7 +1075,7 @@ namespace CMS.Web.Controllers
                         if (status.Code == Domain.Enums.StatusCode.Rejected || status.Code == Domain.Enums.StatusCode.Approved)
                         {
 
-                            var architectureInterviewerId = HttpContext.Session.GetString("ArchitectureInterviewerId");
+                            var architectureInterviewerId = HttpContext.Session.GetString($"ArchitectureInterviewerId_{interviewsDTO.InterviewsId}");
                             if(architectureInterviewerId != "")
                             {
                                 await _notificationsService.CreateNotificationForArchiAsync(interviewsDTO.StatusId.Value, interviewsDTO.Notes, interviewsDTO.CandidateId, interviewsDTO.PositionId);
@@ -1132,7 +1165,7 @@ namespace CMS.Web.Controllers
                                         }
                                         else
                                         {
-                                            await _notificationsService.CreateNotificationForGeneralManagerAsync(interviewsDTO.StatusId.Value, interviewsDTO.Notes, interviewsDTO.CandidateId, interviewsDTO.PositionId);
+                                            await _notificationsService.CreateNotificationForGeneralManagerAsync(interviewsDTO.StatusId.Value, interviewsDTO.Notes, interviewsDTO.CandidateId, interviewsDTO.PositionId, architectureInterviewerId);
 
                                             //from interviewer to GM
                                             EmailDTOs emailModel = new EmailDTOs
@@ -1181,6 +1214,41 @@ namespace CMS.Web.Controllers
                                        </body>
                                     </html>"
                                             };
+
+
+                                            if (architectureInterviewerId != "")
+                                            {
+                                                var userArchi = await _userManager.FindByEmailAsync(ArchiEmail);
+
+                                                EmailDTOs architectureEmailModel = new EmailDTOs
+                                                {
+                                                    EmailTo = new List<string> { ArchiEmail },
+                                                    Subject = $"Interview Invitation ( {candidateNameresult} )",
+                                                    EmailBody = $@"<html>
+                                           <body style='font-family: Arial, sans-serif;'>
+                                               <div style='background-color: #f5f5f5; padding: 20px; border-radius: 10px;'>
+                                                   <p style='font-size: 18px; color: #333;'>
+                                                       Dear {userArchi.UserName.Replace("_", " ")},
+                                                   </p>
+                                                   <p style='font-size: 16px; color: #555;'>
+                                                       An interview has been scheduled with Saeed, and you are assigned as the Architecture Interviewer for the {candidateNameresult} with position: {lastPositionName},<br><br>kindly <a href='https://apps.sssprocess.com:6134/'>Click here</a> to see the invitation details.
+                                                   </p>
+                                                   <p style='font-size: 14px; color: #777;'>
+                                                       Regards,
+                                                   </p>
+
+                                       <p style='font-size: 14px; color: #777;'>Sent by: CMS</p>
+                                               </div>
+                                           </body>
+                                        </html>"
+
+                                                };
+                                                if (!string.IsNullOrEmpty(ArchiEmail))
+                                                {
+                                                    //Send an Email to the Archi if it was selceted
+                                                    await _emailService.SendEmailToInterviewer(ArchiEmail, interviewsDTO, architectureEmailModel);
+                                                }
+                                            }
                                             if (!string.IsNullOrEmpty(GMEmail))
                                             {
                                                 await _emailService.SendEmailToInterviewer(GMEmail, interviewsDTO, emailModel);
@@ -1195,7 +1263,7 @@ namespace CMS.Web.Controllers
                                     }
                                     else
                                     {
-                                        await _notificationsService.CreateNotificationForGeneralManagerAsync(interviewsDTO.StatusId.Value, interviewsDTO.Notes, interviewsDTO.CandidateId, interviewsDTO.PositionId);
+                                        await _notificationsService.CreateNotificationForGeneralManagerAsync(interviewsDTO.StatusId.Value, interviewsDTO.Notes, interviewsDTO.CandidateId, interviewsDTO.PositionId, architectureInterviewerId);
 
                                         //from interviewer to GM
                                         EmailDTOs emailModel = new EmailDTOs
@@ -1505,7 +1573,7 @@ namespace CMS.Web.Controllers
                                     if (isInterviewerGMCombo || isGMInterviewerCombo)
                                     {
 
-                                        await _notificationsService.CreateNotificationForGeneralManagerAsync(interviewsDTO.StatusId.Value, interviewsDTO.Notes, interviewsDTO.CandidateId, interviewsDTO.PositionId);
+                                        await _notificationsService.CreateNotificationForGeneralManagerAsync(interviewsDTO.StatusId.Value, interviewsDTO.Notes, interviewsDTO.CandidateId, interviewsDTO.PositionId, interviewsDTO.ArchitectureInterviewerId);
 
                                             EmailDTOs emailModels = new EmailDTOs
                                         {
@@ -1634,7 +1702,7 @@ namespace CMS.Web.Controllers
 
                                         if (secondInterviewer == null)
                                         {
-                                            var architectureInterviewerId = HttpContext.Session.GetString("ArchitectureInterviewerId");
+                                            var architectureInterviewerId = HttpContext.Session.GetString($"ArchitectureInterviewerId_{interviewsDTO.InterviewsId}");
 
                                             if (architectureInterviewerId != null)
                                             {
@@ -1670,7 +1738,7 @@ namespace CMS.Web.Controllers
                                             else
                                             {
                                                 await _notificationsService.CreateInterviewNotificationForHRInterview(interviewsDTO.StatusId.Value, interviewsDTO.Notes, interviewsDTO.CandidateId, interviewsDTO.PositionId);
-                                                await _notificationsService.CreateNotificationForGeneralManagerAsync(interviewsDTO.StatusId.Value, interviewsDTO.Notes, interviewsDTO.CandidateId, interviewsDTO.PositionId);
+                                                await _notificationsService.CreateNotificationForGeneralManagerAsync(interviewsDTO.StatusId.Value, interviewsDTO.Notes, interviewsDTO.CandidateId, interviewsDTO.PositionId, architectureInterviewerId);
 
                                                 //EmailDTOs emailModels = new EmailDTOs
                                                 //{

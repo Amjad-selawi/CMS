@@ -107,7 +107,14 @@
                     <tr>
                         <td>@Html.DisplayFor(modelItem => item.FullName)</td>
                         <td>@Html.DisplayFor(modelItem => item.Name)</td>
-                        <td>@item.InterviewerName</td>
+                        @if (item.SecondInterviewerName == "User not found")
+                        {
+                            <td>@item.InterviewerName</td>
+                        }
+                        else
+                        {
+                            <td>@item.InterviewerName && @item.SecondInterviewerName</td>
+                        }
                         <td>@item.Date.ToString("dd-MM-yyyy")</td>
                         <td>@item.Date.ToString("h:mm tt")</td>
                         <td>@item.StatusName</td>

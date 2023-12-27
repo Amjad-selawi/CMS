@@ -573,7 +573,15 @@ namespace CMS.Web.Controllers
         [HttpGet]
         public IActionResult ChangePassword()
         {
-            return View();
+            try
+            {
+                return View();
+            }
+            catch (Exception ex)
+            {
+                LogException(nameof(ChangePassword), ex, "Faild to load the ChangePassword page");
+                throw ex;
+            }
         }
 
         [HttpPost]

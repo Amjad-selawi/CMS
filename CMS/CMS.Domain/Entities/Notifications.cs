@@ -25,7 +25,7 @@ namespace CMS.Domain.Entities
 
         public bool IsRead { get; set; }
 
-
+        public int? CandidateId { get; set; }
 
     }
 }

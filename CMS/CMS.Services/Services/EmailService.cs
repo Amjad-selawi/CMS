@@ -12,6 +12,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Linq;
 using Hangfire;
+using Newtonsoft.Json;
 namespace CMS.Services.Services
 {
     public class EmailService : IEmailService
@@ -259,7 +260,7 @@ namespace CMS.Services.Services
             }
             catch (Exception ex)
             {
-                LogException(nameof(ScheduleInterviewReminder), ex, "Faild to Schedule Interview Reminder");
+                LogException(nameof(ScheduleInterviewReminder), ex, $"Faild to Schedule Interview Reminder {JsonConvert.SerializeObject(collection)}");
                 throw ex;
             }
         }
@@ -300,7 +301,14 @@ namespace CMS.Services.Services
             }
             catch (Exception ex)
             {
-                LogException(nameof(SendEmailToInterviewer), ex, "Faild to send an email");
+                var emailLogInfo = new
+                {
+                    To = string.Join(",", emailModel.EmailTo),
+                    Subject = emailModel.Subject,
+                    Body = emailModel.EmailBody
+                };
+
+                LogException(nameof(SendEmailToInterviewer), ex, $"Failed to send an email {JsonConvert.SerializeObject(emailLogInfo)}");
                 RetryFailedEmails(emailModel);
 
             }
@@ -341,7 +349,14 @@ namespace CMS.Services.Services
             }
             catch (Exception ex)
             {
-                LogException(nameof(SendEmailToInterviewers), ex, "Failed to send an email");
+                var emailLogInfo = new
+                {
+                    To = string.Join(",", emailModel.EmailTo),
+                    Subject = emailModel.Subject,
+                    Body = emailModel.EmailBody
+                };
+
+                LogException(nameof(SendEmailToInterviewers), ex, $"Failed to send an email {JsonConvert.SerializeObject(emailLogInfo)}");
                 RetryFailedEmails(emailModel);
             }
         }

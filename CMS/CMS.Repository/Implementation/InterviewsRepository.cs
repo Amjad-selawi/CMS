@@ -34,14 +34,14 @@ namespace CMS.Repository.Repositories
 
         public async void LogException(string methodName, Exception ex, string additionalInfo)
         {
-            //var currentUser = await _userManager.GetUserAsync(_httpContextAccessor.HttpContext.User);
-            //var userId = currentUser?.Id;
+            var currentUser = await _userManager.GetUserAsync(_httpContextAccessor.HttpContext.User);
+            var userId = currentUser?.Id;
             _context.Logs.Add(new Log
             {
                 MethodName = methodName,
                 ExceptionMessage = ex.Message,
                 StackTrace = ex.StackTrace,
-                CreatedByUserId = null,
+                CreatedByUserId = userId,
                 LogTime = DateTime.Now,
 
                 AdditionalInfo = additionalInfo
@@ -473,10 +473,10 @@ namespace CMS.Repository.Repositories
 
 
                         var notificationsToDelete = _context.Notifications
-                       .Where(n =>  n.CreatedBy == createdByUser && n.ReceiverId != HrId)
-                       .ToList();
+                      .Where(n => n.CreatedBy == createdByUser && n.ReceiverId != HrId && n.CandidateId == candidateId)
+                      .ToList();
 
-                    if (notificationsToDelete.Count > 0)
+                        if (notificationsToDelete.Count > 0)
                     {
                         _context.Notifications.RemoveRange(notificationsToDelete);
                     }

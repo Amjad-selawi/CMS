@@ -1,6 +1,7 @@
 ﻿using CMS.Application.DTOs;
 using CMS.Services.Interfaces;
 using CMS.Services.Services;
+using CMS.Web.Customes;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -99,6 +100,9 @@ namespace CMS.Web.Controllers
 
                 if (ModelState.IsValid)
                 {
+                    countryDTO.Name = StringHelper.ToUpperFirstLetter(countryDTO.Name);
+
+
                     if (_countryService.DoesCountryNameExist(countryDTO.Name))
                     {
                         ModelState.AddModelError("Name", "A country with the same name already exists.");
