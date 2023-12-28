@@ -1,6 +1,8 @@
 ﻿@using CMS.Domain.Enums;
 @model CMS.Application.DTOs.InterviewsDTO
 
+
+    
 <h2>Update Interview Result:   <span style="color:red;">@Model.FullName</span> </h2>
 
 <form asp-action="UpdateAfterInterview" id="updateForm" method="post" enctype="multipart/form-data">
@@ -80,7 +82,7 @@
 
         <div class="form-group" style="margin-top: 15px;">
             <label for="file"><span class="text-danger">*</span> Upload An evaluation:</label>
-            <input style="width:30%;" type="file" id="file" name="file" class="form-control" onchange="validateFileFormat(this)" value="@Model.FileName" />
+            <input style="width:30%;" type="file" id="file" name="file" class="form-control-file" onchange="validateFileFormat(this)"  />
 
             @if (Model.AttachmentId != null)
             {
@@ -151,6 +153,15 @@
                 e.preventDefault();
                 return;
             }
+
+             var fileInput = $('[name="file"]');
+
+            // if (!fileInput.val()) {
+            //     $('#fileError').text("Please choose a file.");
+            //     e.preventDefault();
+            //     return;
+            // }
+
         });
 
         // Function to check if a value is numeric

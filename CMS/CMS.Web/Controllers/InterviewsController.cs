@@ -47,12 +47,14 @@ namespace CMS.Web.Controllers
         private readonly UserManager<IdentityUser> _userManager;
         private readonly IEmailService _emailService;
         private readonly IAttachmentService _attachmentService;
+        private readonly SignInManager<IdentityUser> _signInManager;
 
         public InterviewsController(IInterviewsService interviewsService, ICandidateService candidateService,
             IPositionService positionService, IStatusService statusService, IWebHostEnvironment env,
             IAccountService accountService, INotificationsService notificationsService, 
             IInterviewsRepository interviewsRepository, IHttpContextAccessor httpContextAccessor,
-            UserManager<IdentityUser> userManager,IEmailService emailService ,IAttachmentService attachmentService)
+            UserManager<IdentityUser> userManager,IEmailService emailService ,IAttachmentService attachmentService,
+            SignInManager<IdentityUser> signInManager)
         {
             _interviewsService = interviewsService;
             _candidateService = candidateService;
@@ -62,6 +64,7 @@ namespace CMS.Web.Controllers
             _userManager = userManager;
             _emailService = emailService;
             _attachmentService = attachmentService;
+            _signInManager = signInManager;
             _accountService = accountService;
             _notificationsService = notificationsService;
             _interviewsRepository = interviewsRepository;
@@ -401,7 +404,7 @@ namespace CMS.Web.Controllers
                                         Dear {userInterviewer.UserName.Replace("_", " ")},
                                     </p>
                                     <p style='font-size: 16px; color: #555;'>
-                                {(collection.SecondInterviewerId != null ? $"You and {userSecondInterviewer} are" : "You are")} assigned to have a first interview for {candidateNameresult} scheduled on {formattedDate} for the {lastPositionName} position,<br><br>kindly <a href='https://apps.sssprocess.com:6134/'>Click here</a> to see the invitation details.
+                                {(collection.SecondInterviewerId != null ? $"You and {userSecondInterviewer} are" : "You are")} assigned to have a first interview for {candidateNameresult} scheduled on {formattedDate} for the {lastPositionName} position,<br><br>kindly <a href='https://apps.sssprocess.com:6134/Interviews/UpdateAfterInterview/{collection.InterviewsId}'>Click here</a> to see the invitation details.
                                     </p>
                                     <p style='font-size: 14px; color: #777;'>
                                         Regards,
@@ -430,7 +433,7 @@ namespace CMS.Web.Controllers
                                             Dear {userSecondInterviewer.Replace("_", " ")},
                                         </p>
                                         <p style='font-size: 16px; color: #555;'>
-                                            You and {userInterviewer} are assigned to have a first interview with {candidateNameresult} for the {lastPositionName} position scheduled on {collection.Date},<br><br>kindly <a href='https://apps.sssprocess.com:6134/'>Click here</a> to see the invitation details.
+                                            You and {userInterviewer} are assigned to have a first interview with {candidateNameresult} for the {lastPositionName} position scheduled on {collection.Date},<br><br>kindly <a href='https://apps.sssprocess.com:6134/Interviews/UpdateAfterInterview/{collection.InterviewsId}'>Click here</a> to see the invitation details.
                                         </p>
                                         <p style='font-size: 14px; color: #777;'>
                                             Regards,
@@ -818,19 +821,29 @@ namespace CMS.Web.Controllers
                 {
                     ViewBag.ExistingAttachmentId = InterviewsDTO.AttachmentId;
                 }
-
-                var existingAttachment = await _attachmentService.GetAttachmentByIdAsync(InterviewsDTO.AttachmentId.Value);
-
-                if (existingAttachment != null)
+                else
                 {
-                    var attachmentDTO = existingAttachment;
-                    InterviewsDTO.FileName = attachmentDTO.FileName;
-                    InterviewsDTO.FileSize = attachmentDTO.FileSize;
+
+                    if (InterviewsDTO.AttachmentId.HasValue)
+                    {
+                        var existingAttachment = await _attachmentService.GetAttachmentByIdAsync(InterviewsDTO.AttachmentId.Value);
+
+                        if (existingAttachment != null)
+                        {
+                            var attachmentDTO = existingAttachment;
+                            InterviewsDTO.FileName = attachmentDTO.FileName;
+                            InterviewsDTO.FileSize = attachmentDTO.FileSize;
+                        }
+                        ViewBag.FileName = InterviewsDTO.FileName;
+                        // ViewBag.FileSize = InterviewsDTO.FileSize;
+                    }
+
+                    return View(InterviewsDTO);
+
+
+
 
                 }
-                ViewBag.FileName = InterviewsDTO.FileName;
-                //ViewBag.FileSize = InterviewsDTO.FileSize;
-
 
                 return View(InterviewsDTO);
             }
@@ -845,8 +858,8 @@ namespace CMS.Web.Controllers
         {
             try
             {
-                
-
+                if (_signInManager.IsSignedIn(User))
+                {
 
                 var StatusDTOs = await _StatusService.GetAll();
             ViewBag.StatusDTOs = new SelectList(StatusDTOs.Value, "Id", "Name");
@@ -855,6 +868,13 @@ namespace CMS.Web.Controllers
             var InterviewsDTO = result.Value;
 
             return View(InterviewsDTO);
+            }
+                else
+                {
+                    // Redirect to a login page with a message
+                    TempData["ErrorMessage"] = "You must log in first.";
+                    return RedirectToAction("Login", "Account"); // Adjust "Login" and "Account" according to your actual login route/controller
+                }
             }
             catch (Exception ex)
             {
@@ -968,7 +988,7 @@ namespace CMS.Web.Controllers
                         {
                             var newStatus = newStatusResult.Value;
                             // Check if the new status is On Hold
-                            if (newStatus.Code == Domain.Enums.StatusCode.OnHold)
+                            if ((newStatus.Code == Domain.Enums.StatusCode.OnHold || newStatus.Code == Domain.Enums.StatusCode.Rejected)&& !User.IsInRole("HR Manager"))
                             {
                                 await _notificationsService.CreateInterviewNotificationtoHrForOnHold(interviewsDTO.StatusId.Value, interviewsDTO.Notes, interviewsDTO.CandidateId, interviewsDTO.PositionId);
 
@@ -980,21 +1000,52 @@ namespace CMS.Web.Controllers
                                 {
                                     // Continue with the logic only if the current interview status is not pending
                                     var interviewCount = await _interviewsRepository.GetInterviewCountForCandidate(interviewsDTO.CandidateId);
-                                    if ((interviewCount >= 1 && interviewCount <= 2) || ((interviewCount == 3 || interviewCount == 4) && User.IsInRole("General Manager")))
+                                    if (newStatus.Code == Domain.Enums.StatusCode.Rejected && !User.IsInRole("HR Manager"))
                                     {
-                                        var interviewsDeleted = await _interviewsRepository.DeletePendingInterviews(interviewsDTO.CandidateId, interviewsDTO.PositionId, userId: User.FindFirstValue(ClaimTypes.NameIdentifier));
-                                        if (!interviewsDeleted)
+                                        ModelState.AddModelError("StatusId", "Cannot set the interview status to Rejected because it has already been marked as done after the interview.");
+                                        if (attachmentStream != null)
                                         {
-                                            // Show a pop-up or handle the case where there are no pending interviews to delete
-                                            ModelState.AddModelError("StatusId", "Cannot put this interview on hold.");
-                                            return View(interviewsDTO);
+                                            attachmentStream.Close();
+                                            attachmentStream.Dispose();
                                         }
+                                        return View(interviewsDTO);
                                     }
                                     else
                                     {
+
+                                    
+                                    
+                                        if ((interviewCount >= 1 && interviewCount <= 2) || ((interviewCount == 3 || interviewCount == 4) && User.IsInRole("General Manager")))
+                                    {
+                                       
+                                        
+
+                                        var interviewsDeleted = await _interviewsRepository.DeletePendingInterviews(interviewsDTO.CandidateId, interviewsDTO.PositionId, userId: User.FindFirstValue(ClaimTypes.NameIdentifier));
+                                        if (!interviewsDeleted)
+                                        {
+                                                // Show a pop-up or handle the case where there are no pending interviews to delete
+                                                ModelState.AddModelError("StatusId", "Cannot set the interview status to On Hold because it has already been marked as done after the interview.");
+                                                if (attachmentStream != null)
+                                                {
+                                                    attachmentStream.Close();
+                                                    attachmentStream.Dispose();
+                                                }
+                                                return View(interviewsDTO);
+                                        }
+                                        
+
+                                    }
+                                    else if(!User.IsInRole("HR Manager"))
+                                    {
                                         // Show a pop-up or handle the case where there's only one interview
-                                        ModelState.AddModelError("StatusId", "Cannot put this interview on hold.");
-                                        return View(interviewsDTO);
+                                        ModelState.AddModelError("StatusId", "Cannot set the interview status to On Hold because it has already been marked as done after the interview.");
+                                            if (attachmentStream != null)
+                                            {
+                                                attachmentStream.Close();
+                                                attachmentStream.Dispose();
+                                            }
+                                            return View(interviewsDTO);
+                                    }
                                     }
                                 }
                                 //else

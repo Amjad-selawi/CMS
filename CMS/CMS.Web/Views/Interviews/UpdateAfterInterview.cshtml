@@ -85,35 +85,52 @@
 
     <p>
         <div class="form-group">
-            <button type="submit" class="btn btn-primary">Submit</button>
+            <button type="button" class="btn btn-primary" onclick="showConfirmationModal()">Submit</button>
             <a class="btn btn-secondary" asp-action="MyInterviews">Back to List</a>
         </div>
     </p>
 </form>
 
+
+<!-- Confirmation Modal -->
+<div class="modal fade" id="confirmationModal" tabindex="-1" role="dialog" aria-labelledby="confirmationModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="confirmationModalLabel">Submit Confirmation</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close" onclick="closeConfirmationModal()">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body" id="confirmationModalBody">
+                <!-- Confirmation message will be inserted here dynamically -->
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-primary" onclick="submitForm()">Submit</button>
+                <button type="button" class="btn btn-secondary" onclick="closeConfirmationModal()">Cancel</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+
+
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.min.js"></script>
+
 <script>
     $(document).ready(function () {
         $('#updateForm').submit(function (e) {
             // Clear previous error messages
             $(".text-danger").text("");
 
-            // Validate ActualExperience
-            // if (!actualExperienceValue) {
-            //     $('#ActualExperience').next(".text-danger").text("Actual Experience is required.");
-            //     e.preventDefault();
-            //     return;
-            // }
+             var isConfirmed = confirm("Are you sure you want to submit the form?");
+            if (!isConfirmed) {
+                e.preventDefault(); // Prevent form submission if not confirmed
+                return;
+            }
 
-            // Validate if ActualExperience is a valid number
-            // var actualExperienceValue = $('[name="ActualExperience"]').val();
-            // if (!isNumeric(actualExperienceValue)) {
-            //     $('#ActualExperience').next(".text-danger").text("Actual Experience must be a valid number.");
-            //     e.preventDefault();
-            //     return;
-            // }
-
-            // Additional validations can be added here for other fields if needed
 
             // Validate Score (if user is Interviewer)
             if ($('[name="Score"]').is(":visible")) {
@@ -137,7 +154,7 @@
                 e.preventDefault();
                 return;
             }
-        });
+            
 
         // Function to check if a value is numeric
         function isNumeric(value) {
@@ -148,5 +165,34 @@
     // Additional function to validate file format (assuming it's used elsewhere)
     function validateFileFormat(input) {
         // Add file format validation logic here if needed
+    }
+</script>
+
+
+
+<script>
+    // Function to show the confirmation modal
+    function showConfirmationModal() {
+        var selectedStatus = $("#StatusId option:selected").text().trim();
+        var statusMessage = selectedStatus === "Select a Status" ? "Please fill the status" : selectedStatus;
+
+        // Check if statusMessage is "Please fill the status" and apply a specific style
+        var messageStyle = statusMessage === "Please fill the status" ? 'style="color: red;"' : '';
+
+        $("#confirmationModalLabel").text("Submit Confirmation");
+        $("#confirmationModalBody").html("Are you sure you want to submit the form with the status: <strong " + messageStyle + ">" + statusMessage + "</strong>?");
+        $('#confirmationModal').modal('show');
+    }
+
+    // Function to close the confirmation modal
+    function closeConfirmationModal() {
+        $('#confirmationModal').modal('hide');
+    }
+
+    // Function to submit the form after confirmation
+    function submitForm() {
+        closeConfirmationModal(); // Close the confirmation modal
+        // Optionally, you can add additional logic or validation here before submitting the form
+        $('#updateForm').submit(); // Submit the form
     }
 </script>
