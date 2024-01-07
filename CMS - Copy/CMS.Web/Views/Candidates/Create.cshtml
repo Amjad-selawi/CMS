@@ -1,0 +1,197 @@
+﻿    @model CMS.Application.DTOs.CandidateCreateDTO
+
+<h2>Create Candidate</h2>
+
+<form asp-action="Create" enctype="multipart/form-data">
+    <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+    <div class="form-group">
+        <label asp-for="FullName" class="control-label"><span class="text-danger">*</span> Full Name</label>
+        <input style="width: 30%;" asp-for="FullName" class="form-control" autocomplete="off" />
+        <span asp-validation-for="FullName" class="text-danger"></span>
+        <span id="fullNameError" class="text-danger"></span>
+
+    </div>
+    <div class="form-group" style="margin-top: 15px;">
+        <label asp-for="Phone" class="control-label"><span class="text-danger">*</span> Phone</label>
+        <input style="width: 30%;" asp-for="Phone" class="form-control" autocomplete="off" />
+        <span asp-validation-for="Phone" class="text-danger"></span>
+        <span id="phoneError" class="text-danger"></span>
+
+    </div>
+
+
+    <div class="form-group" style="margin-top: 15px;">
+
+        <label asp-for="CompanyId" class="control-label"><span class="text-danger">*</span> CV Provider name</label>
+        @if (ViewBag.CompaniesDTOs != null)
+        {
+            <select style="width: 30%;" asp-for="CompanyId" asp-items="@(ViewBag.CompaniesDTOs)" class="form-control">
+                <option value="">-- Select the provider --</option>
+
+            </select>
+        }
+
+        <span asp-validation-for="CompanyId" class="text-danger"></span>
+        <span id="companyIdError" class="text-danger"></span>
+
+    </div>
+
+    <div class="form-group" style="margin-top: 15px;">
+
+        <label asp-for="PositionId" class="control-label"><span class="text-danger">*</span> Position</label>
+        @if (ViewBag.positions != null)
+        {
+            <select style="width: 30%;" asp-for="PositionId" asp-items="@(ViewBag.positions)" class="form-control">
+                <option value="">-- Select a position --</option>
+
+            </select>
+        }
+
+        <span asp-validation-for="PositionId" class="text-danger"></span>
+        <span id="positionIdError" class="text-danger"></span>
+
+    </div>
+
+    <div class="form-group" style="margin-top: 15px;">
+        <label asp-for="Experience" class="control-label"><span class="text-danger">*</span> Experience</label>
+        <input style="width: 30%;" asp-for="Experience" class="form-control" autocomplete="off" />
+        <span asp-validation-for="Experience" class="text-danger"></span>
+        <span id="experienceError" class="text-danger"></span>
+
+    </div>
+
+
+    <div class="form-group" style="margin-top: 15px;">
+        <label for="file">Upload CV:</label>
+        <input type="file" id="file" name="file" class="form-control-file" onchange="validateFileFormat(this)" />
+        <br />
+        <span id="fileError" class="text-danger"></span>
+    </div>
+
+   
+    <div class="form-group" style="margin-top: 15px;">
+     <input type="submit" value="Create" class="btn btn-primary" />
+        <a class="btn btn-secondary" asp-action="Index">Back to List</a>
+
+    </div>
+</form>
+
+
+
+@* <script>
+    function validateFileFormat(input) {
+        const allowedExtensions = [".pdf", ".docx", ".png", ".jpg"];
+        const file = input.files[0];
+
+        if (file) {
+            const fileExtension = '.' + file.name.split('.').pop().toLowerCase();
+            if (!allowedExtensions.includes(fileExtension)) {
+                document.getElementById("fileError").textContent = "Invalid file format. Allowed formats are PDF, DOCX, PNG, and JPG.";
+            } else if (file.size > 4 * 1024 * 1024) { // Check if the file size is greater than 4MB
+                document.getElementById("fileError").textContent = "File size exceeds 4MB.";
+            } else {
+                document.getElementById("fileError").textContent = "";
+            }
+        }
+    }
+</script>
+ *@
+<script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
+
+<script>
+    $(document).ready(function () {
+        $('form').submit(function (e) {
+            var fullName = $('#FullName').val();
+            var phone = $('#Phone').val();
+            var companyId = $('#CompanyId').val();
+            var positionId = $('#PositionId').val();
+            var experience = $('#Experience').val();
+            var fileInput = $('#file')[0];
+
+            // Validate Full Name
+            if (!fullName.trim()) {
+                $('#fullNameError').text('Full Name is required.');
+                e.preventDefault(); // Prevent form submission
+            } else {
+                $('#fullNameError').text('');
+            }
+
+            // Validate Phone
+            if (!phone.trim()) {
+                $('#phoneError').text('Phone is required.');
+                e.preventDefault(); // Prevent form submission
+            } else {
+                $('#phoneError').text('');
+            }
+
+            // Validate CV Provider name (CompanyId)
+            if (!companyId) {
+                $('#companyIdError').text('Please select a CV Provider name.');
+                e.preventDefault(); // Prevent form submission
+            } else {
+                $('#companyIdError').text('');
+            }
+
+            // Validate Position
+            if (!positionId) {
+                $('#positionIdError').text('Please select a Position.');
+                e.preventDefault(); // Prevent form submission
+            } else {
+                $('#positionIdError').text('');
+            }
+
+            // Validate Experience
+            if (!experience.trim()) {
+                $('#experienceError').text('Experience is required.');
+                e.preventDefault(); // Prevent form submission
+            } else {
+                $('#experienceError').text('');
+            }
+
+            // Validate File if a file is selected
+            if (fileInput.files.length > 0) {
+                var allowedExtensions = [".pdf", ".docx", ".png", ".jpg"];
+                var fileName = fileInput.files[0].name;
+                var fileSize = fileInput.files[0].size;
+
+                var fileExtension = fileName.substr((fileName.lastIndexOf('.') + 1));
+                if ($.inArray("." + fileExtension, allowedExtensions) === -1) {
+                    $('#fileError').text('Invalid file extension. Allowed extensions: ' + allowedExtensions.join(', '));
+                    e.preventDefault(); // Prevent form submission
+                } else {
+                    $('#fileError').text('');
+                }
+
+                if (fileSize > 4 * 1024 * 1024) {
+                    $('#fileError').text('File size exceeds 4 MB limit.');
+                    e.preventDefault(); // Prevent form submission
+                } else {
+                    $('#fileError').text('');
+                }
+            }
+        });
+    });
+
+    function validateFileFormat(fileInput) {
+        var allowedExtensions = [".pdf", ".docx", ".png", ".jpg"];
+        var fileName = fileInput.files[0] ? fileInput.files[0].name : null;
+
+        if (fileName) {
+            var fileExtension = fileName.substr((fileName.lastIndexOf('.') + 1));
+            if ($.inArray("." + fileExtension, allowedExtensions) === -1) {
+                $('#fileError').text('Invalid file extension. Allowed extensions: ' + allowedExtensions.join(', '));
+                fileInput.value = ''; // Clear the file input
+            } else {
+                $('#fileError').text('');
+            }
+
+            var fileSize = fileInput.files[0].size;
+            if (fileSize > 4 * 1024 * 1024) {
+                $('#fileError').text('File size exceeds 4 MB limit.');
+                fileInput.value = ''; // Clear the file input
+            } else {
+                $('#fileError').text('');
+            }
+        }
+    }
+</script>

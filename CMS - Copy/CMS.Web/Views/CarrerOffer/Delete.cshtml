@@ -1,0 +1,41 @@
+﻿@model CMS.Application.DTOs.CarrerOfferDTO
+
+
+<h2>Delete</h2>
+
+<h3>Are you sure you want to delete this?</h3>
+<div>
+    <h4>Carrer Offer</h4>
+    <hr />
+    <dl class="dl-horizontal">
+        <dt>
+            @Html.DisplayNameFor(model => model.PositionId)
+        </dt>
+        <dd class="col-sm-10">
+            @Html.DisplayFor(model => model.PositionName)
+        </dd>
+
+        <dt>
+           Years Of Experience
+        </dt>
+
+        <dd>
+            @Html.DisplayFor(model => model.YearsOfExperience)
+        </dd>
+
+        <dt>
+            Long Description
+        </dt>
+
+        <dd>
+            @Html.DisplayFor(model => model.LongDescription)
+        </dd>
+
+  
+    </dl>
+
+    <form asp-action="Delete">
+        <a class="btn btn-secondary" asp-action="Index">Back to List</a>
+        <input type="submit" value="Delete" class="btn btn-danger" />
+    </form>
+</div>

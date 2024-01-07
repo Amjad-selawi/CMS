@@ -1,0 +1,200 @@
+﻿@using CMS.Domain.Enums;
+@model CMS.Application.DTOs.InterviewsDTO
+
+<h2>Update Interview Result:   <span style="color:red;">@Model.FullName</span> </h2>
+
+<form asp-action="UpdateAfterInterview" id="updateForm" method="post" enctype="multipart/form-data" novalidate>
+    <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+    <input type="hidden" asp-for="InterviewsId" />
+    <input type="hidden" asp-for="InterviewerId" />
+    <input type="hidden" asp-for="EvalutaionFormId" />
+    <input type="hidden" asp-for="CandidateId" />
+    <input type="hidden" asp-for="PositionId" />
+    <input type="hidden" asp-for="isUpdated" />
+    @if (User.IsInRole("Interviewer"))
+    {
+        <div class="form-group">
+            <label asp-for="Score"><span class="text-danger">*</span> Score out of 5:</label>
+            <input style="width: 10%;" asp-for="Score" class="form-control" />
+            <span asp-validation-for="Score" class="text-danger"></span>
+        </div>
+    }
+
+  
+
+    @if (!User.IsInRole("HR Manager"))
+    {
+        <div class="form-group" style="margin-top: 15px;">
+            <label asp-for="ActualExperience"><span class="text-danger">*</span> Actual Experience:</label>
+            <input style="width: 10%;" asp-for="ActualExperience" class="form-control" pattern="^(?:0(\.\d+)?|[1-9]\d*(\.\d+)?)$" title="Experience must be a non-negative numeric value." />
+            <span asp-validation-for="ActualExperience" class="text-danger"></span>
+        </div>
+
+    }
+
+    <div class="form-group" style="margin-top: 15px;">
+        <label asp-for="StatusId" class="control-label"><span class="text-danger">*</span> Status</label>
+        @if (ViewBag.StatusDTOs != null)
+        {
+            <select style="width: 30%;" asp-for="StatusId" class="form-control">
+                <option value="">Select a Status</option>
+                @foreach (var sta in ViewBag.StatusDTOs)
+                {
+                    if (sta.Text != StatusCode.GetName("PND"))
+                    {
+                        <option value="@sta.Value">@sta.Text</option>
+                    }
+                }
+            </select>
+        }
+        else
+        {
+            <p>No statuses available.</p>
+        }
+        <span asp-validation-for="StatusId" class="text-danger"></span>
+    </div>
+
+    <div class="form-group" style="margin-top: 15px;">
+        <label asp-for="Notes">Notes:</label>
+        <textarea style="width: 40%;" asp-for="Notes" class="form-control"></textarea>
+        <span asp-validation-for="Notes" class="text-danger"></span>
+    </div>
+
+    @if (User.IsInRole("Interviewer"))
+    {
+        @if (Model.EvalutaionFormId != null)
+        {
+            <div class="alert alert-info" style="margin-top: 15px;">
+                <p>
+                    Please download the evaluation form by clicking the link below. After making the necessary modifications, please upload the modified form using the file input field.
+                </p>
+                <a asp-controller="Attachments" asp-action="Download" asp-route-id="@Model.EvalutaionFormId">Download Evaluation Form</a>
+            </div>
+        }
+        else
+        {
+            <p></p>
+        }
+
+        <div class="form-group" style="margin-top: 15px;">
+            <label for="file"><span class="text-danger">*</span> Upload An evaluation:</label>
+            <input type="file" id="file" name="file" class="form-control-file" onchange="validateFileFormat(this)" />
+            <br>
+            <span asp-validation-for="AttachmentId" class="text-danger"></span>
+            <span id="fileError" class="text-danger"></span>
+        </div>
+    }
+
+    <p>
+        <div class="form-group">
+            <button type="button" class="btn btn-primary" onclick="showConfirmationModal()">Submit</button>
+            <a class="btn btn-secondary" asp-action="MyInterviews">Back to List</a>
+        </div>
+    </p>
+</form>
+
+
+<!-- Confirmation Modal -->
+<div class="modal fade" id="confirmationModal" tabindex="-1" role="dialog" aria-labelledby="confirmationModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="confirmationModalLabel">Submit Confirmation</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close" onclick="closeConfirmationModal()">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body" id="confirmationModalBody">
+                <!-- Confirmation message will be inserted here dynamically -->
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-primary" onclick="submitForm()">Submit</button>
+                <button type="button" class="btn btn-secondary" onclick="closeConfirmationModal()">Cancel</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+
+
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.min.js"></script>
+
+<script>
+    $(document).ready(function () {
+        $('#updateForm').submit(function (e) {
+            // Clear previous error messages
+            $(".text-danger").text("");
+
+             var isConfirmed = confirm("Are you sure you want to submit the form?");
+            if (!isConfirmed) {
+                e.preventDefault(); // Prevent form submission if not confirmed
+                return;
+            }
+
+
+            // Validate Score (if user is Interviewer)
+            if ($('[name="Score"]').is(":visible")) {
+                if (!$('[name="Score"]').val()) {
+                    $('#Score').next(".text-danger").text("Score is required.");
+                    e.preventDefault();
+                    return;
+                }
+            }
+
+            // Validate Notes (if StatusId is 3)
+            if ($('[name="StatusId"]').val() === "3" && !$('[name="Notes"]').val()) {
+                $('#Notes').next(".text-danger").text("Please add a note for why it was rejected.");
+                e.preventDefault();
+                return;
+            }
+
+            // Validate StatusId
+            if (!$('[name="StatusId"]').val()) {
+                $('#StatusId').next(".text-danger").text("Status is required.");
+                e.preventDefault();
+                return;
+            }
+            
+
+        // Function to check if a value is numeric
+        function isNumeric(value) {
+            return !isNaN(value) && isFinite(value);
+        }
+    });
+
+    // Additional function to validate file format (assuming it's used elsewhere)
+    function validateFileFormat(input) {
+        // Add file format validation logic here if needed
+    }
+</script>
+
+
+
+<script>
+    // Function to show the confirmation modal
+    function showConfirmationModal() {
+        var selectedStatus = $("#StatusId option:selected").text().trim();
+        var statusMessage = selectedStatus === "Select a Status" ? "Please fill the status" : selectedStatus;
+
+        // Check if statusMessage is "Please fill the status" and apply a specific style
+        var messageStyle = statusMessage === "Please fill the status" ? 'style="color: red;"' : '';
+
+        $("#confirmationModalLabel").text("Submit Confirmation");
+        $("#confirmationModalBody").html("Are you sure you want to submit the form with the status: <strong " + messageStyle + ">" + statusMessage + "</strong>?");
+        $('#confirmationModal').modal('show');
+    }
+
+    // Function to close the confirmation modal
+    function closeConfirmationModal() {
+        $('#confirmationModal').modal('hide');
+    }
+
+    // Function to submit the form after confirmation
+    function submitForm() {
+        closeConfirmationModal(); // Close the confirmation modal
+        // Optionally, you can add additional logic or validation here before submitting the form
+        $('#updateForm').submit(); // Submit the form
+    }
+</script>

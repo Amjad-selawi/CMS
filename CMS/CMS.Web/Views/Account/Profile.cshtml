@@ -1,0 +1,21 @@
+﻿@* @model CMS.Application.DTOs.Register
+
+<h2>User Profile</h2>
+
+<div>
+    @if (!string.IsNullOrEmpty(Model.ProfilePicturePath))
+    {
+        <img src="@Url.Content(Model.ProfilePicturePath)" alt="Profile Picture" />
+    }
+    else
+    {
+        <!-- Add a default profile icon if no profile picture is available -->
+        <i class="mdi mdi-account-circle-outline fs-4"></i>
+    }
+</div>
+
+<div>
+    <p><strong>Email:</strong> @Model.Email</p>
+    <p><strong>Username:</strong> @Model.UserName</p>
+</div>
+ *@

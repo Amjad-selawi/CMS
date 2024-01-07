@@ -1,0 +1,176 @@
+﻿@using CMS.Domain.Enums;
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<link href="https://cdn.datatables.net/1.11.5/css/jquery.dataTables.min.css" rel="stylesheet" />
+<script src="https://cdn.datatables.net/1.11.5/js/jquery.dataTables.min.js"></script>
+@model IEnumerable<CMS.Application.DTOs.InterviewsDTO>
+@{
+    ViewData["Title"] = "Interviews Filter";
+}
+<style>
+    .card-body {
+        width: 100%;
+        max-width: 100%;
+        overflow-y: hidden;
+    }
+</style>
+
+@using (Html.BeginForm("Index", "SearchInterviews", FormMethod.Get))
+{
+    <div class="col-md-3" style="margin-top: -11px;margin-bottom: 21px;margin-left: -8px;">
+        <label>&nbsp;</label>
+        <a style="" asp-action="ExportFilteredData"
+           asp-route-positionFilter="@ViewBag.positionFilter"
+           asp-route-scoreFilter="@ViewBag.scoreFilter"
+           asp-route-statusFilter="@ViewBag.statusFilter"
+           asp-route-candidateFilter="@ViewBag.candidateFilter"
+           asp-route-interviewerFilter="@ViewBag.interviewerFilter"
+           asp-route-fromDate="@ViewBag.fromDate"
+           asp-route-toDate="@ViewBag.toDate"
+           class="btn btn-success btn-block">Export to Excel</a>
+    </div>
+
+    <div class="form-group">
+        <div class="row">
+            <div class="col-md-3">
+                @Html.Label("Filter by Position:")
+                @Html.DropDownList("positionFilter", ViewBag.PositionList as SelectList, "All Positions", new { @class = "form-control" })
+            </div>
+            <div class="col-md-3">
+                @Html.Label("Filter by Score:")
+                @Html.TextBox("scoreFilter", null, new { @class = "form-control", placeholder = "Search by Score" })
+            </div>
+            <div class="col-md-3">
+                @Html.Label("Filter by Status:")
+                @Html.DropDownList("statusFilter", ViewBag.StatusList as SelectList, "All Statuses", new { @class = "form-control" })
+            </div>
+
+            <div class="col-md-3">
+                @Html.Label("Filter by Candidate:")
+                <input type="text" id="candidateFilter" name="candidateFilter" class="form-control" placeholder="Search by Candidate Name">
+            </div>
+
+            <div class="col-md-3" style="margin-top: 25px;">
+                @Html.Label("Filter by Interviewer:")
+                @Html.DropDownList("interviewerFilter", ViewBag.InterviewerList as SelectList, "All Interviewers", new { @class = "form-control" })
+            </div>
+
+            <div class="col-md-3" style="margin-top: 25px;">
+                <label for="fromDate">From Date:</label>
+                <input type="date" id="fromDate" name="fromDate" class="form-control">
+            </div>
+            <div class="col-md-3" style="margin-top: 25px;">
+                <label for="toDate">To Date:</label>
+                <input type="date" id="toDate" name="toDate" class="form-control">
+            </div>
+
+
+
+            <div class="col-md-3" style="margin-top:52px;">
+                <label>&nbsp;</label>
+                <button type="submit" class="btn btn-primary btn-block">Filter</button>
+            </div>
+
+
+      
+
+
+        </div>
+    </div>
+}
+
+
+
+
+
+<div class="card-body" style="margin-top: 25px;">
+    <table id="add-rows3" class="table table-nowrap dt-responsive table-bordered display" style="width:100%">
+        <thead>
+            <tr>
+                <th>Candidate Name</th>
+                <th>Position</th>
+                <th>Interviewer/s</th>
+                <th>Date and Time</th>
+                <th>Status</th>
+                <th hidden>Parent ID</th>
+                @* <th>Score</th> *@
+                <th hidden>Notes</th>
+                @* <th>Evaluation</th> *@
+                <th>CV</th>
+                <th>History</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            @if (Model != null)
+                @foreach (var item in Model)
+                {
+                    <tr>
+                        <td>@Html.DisplayFor(modelItem => item.FullName)</td>
+                        <td>@Html.DisplayFor(modelItem => item.Name)</td>
+                        @if (item.SecondInterviewerName == "User not found")
+                        {
+                            <td>@item.InterviewerName</td>
+                        }
+                        else
+                        {
+                            <td>
+                                <div>1-@item.InterviewerName</div>
+                                <div>2-@item.SecondInterviewerName</div>
+                                </td>
+                        }
+                        <td>
+                            <div>@item.Date.ToString("dd-MM-yyyy")</div>
+                            <div>@item.Date.ToString("h:mm tt")</div>
+                        </td>
+                        <td>@item.StatusName</td>
+                        <td hidden>@item.ParentId</td>
+                        @* <td>@item.Score</td> *@
+                        <td hidden>@item.Notes</td>
+                        @* @if (item.AttachmentId != null)
+                        {
+                            <td><a asp-controller="Attachments" asp-action="Download" asp-route-id="@item.AttachmentId">Download evaluation</a></td>
+                        }
+                        else
+                        {
+                            <td></td>
+                        } *@
+                        @if (item.CandidateCVAttachmentId != null)
+                        {
+                            <td>
+
+                                <a asp-controller="Attachments" asp-action="Download" asp-route-id="@item.CandidateCVAttachmentId" data-bs-toggle="tooltip" data-bs-placement="bottom" data-bs-original-title="Download CV"><i style="font-size: x-large;" class="bx bxs-cloud-download"></i></a>
+                            </td>
+                        }
+                        else
+                        {
+                            <td>
+                                <p>No CV Available</p>
+                            </td>
+                        }
+                        <td><a class="bx bx-history" style="font-size:x-large" asp-action="ShowHistory" asp-route-id="@item.InterviewsId" data-bs-toggle="tooltip" data-bs-placement="bottom" data-bs-original-title="View Candidate History"></a></td>
+
+                        <td>
+                            @if (item.InterviewerRole == "Interviewer" && item.StatusName == StatusCode.GetName("PND"))
+                            {
+                                <a class="bx bxs-edit-alt" style="font-size:x-large" asp-controller="Interviews" asp-action="Edit" asp-route-id="@item.InterviewsId" data-bs-toggle="tooltip" data-bs-placement="left" data-bs-original-title="Edit"> </a>
+                            }
+
+                            <a class="bx bx-detail" style="font-size:x-large" asp-action="Details" asp-route-id="@item.InterviewsId" data-bs-toggle="tooltip" data-bs-placement="bottom" data-bs-original-title="Details"></a> |
+                            <a class="ri-delete-bin-2-line text-danger" style="font-size:x-large" asp-action="Delete" asp-route-id="@item.InterviewsId" data-bs-toggle="tooltip" data-bs-placement="right" data-bs-original-title="Delete"></a>
+                        </td>
+
+                    </tr>
+                }
+        </tbody>
+    </table>
+
+
+</div>
+
+<script>
+    $(document).ready(function () {
+        $('#add-rows3').DataTable({
+            searching: false
+        });
+    });
+</script>

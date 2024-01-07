@@ -1,0 +1,149 @@
+﻿
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<link href="https://cdn.datatables.net/1.11.5/css/jquery.dataTables.min.css" rel="stylesheet" />
+<script src="https://cdn.datatables.net/1.11.5/js/jquery.dataTables.min.js"></script>
+
+
+<style>
+    .card-body {
+        width: 100%;
+        max-width: 100%;
+        overflow-y: hidden;
+    }
+</style>
+@model IEnumerable<CMS.Application.DTOs.CandidateDTO>
+@{
+    ViewData["Title"] = "Candidates";
+}
+
+
+@using (Html.BeginForm("Index", "Candidates", FormMethod.Get))
+{
+    <div class="form-group" style="margin-bottom: 23px;">
+        <div class="row">
+            <div class="col-md-3">
+                @Html.Label("Filter by Candidate Name:")
+                @Html.TextBox("FullName", null, new { @class = "form-control" })
+            </div>
+            <div class="col-md-3">
+                @Html.Label("Filter by Phone Number (Partial):")
+                @Html.TextBox("Phone", null, new { @class = "form-control" })
+            </div>
+            <div class="col-md-3" style="margin-top: 27px;">
+                <label>&nbsp;</label>
+                <button type="submit" class="btn btn-primary btn-block" data-bs-toggle="tooltip" data-bs-placement="right" data-bs-original-title="Filter Candidates">Filter</button>
+            </div>
+        </div>
+    </div>
+}
+
+
+
+
+
+<div class="row">
+    <div class="col-lg-12">
+        <div class="card">
+            <div class="card-header d-flex align-items-center">
+                <div>
+                    <a asp-action="Create" class="btn btn-primary">Create New Candidate</a>
+                </div>
+            </div>
+            <div class="card-body">
+                <table id="candidateTable" class="table table-nowrap dt-responsive table-bordered display" style="width:100%">
+
+                    <thead>
+                        <tr>
+                            <th>Full Name</th>
+                            <th>Phone Number</th>
+                            <th>Company</th>
+                            <th>Position</th>
+                            <th>Experience</th>
+                            <th>CV</th>
+                            <th>Upload CV</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var candidate in Model)
+                        {
+                            <tr>
+                                <td>@Html.DisplayFor(modelItem => candidate.FullName)</td>
+                                <td>@Html.DisplayFor(modelItem => candidate.Phone)</td>
+                                <td>@Html.DisplayFor(modelItem => candidate.CompanyName)</td>
+                                <td>@Html.DisplayFor(modelItem => candidate.PositionName)</td>
+                                <td>@Html.DisplayFor(modelItem => candidate.Experience)</td>
+                                <td id="cvColumn_@candidate.Id">
+                                    @if (candidate.CVAttachmentId != null)
+                                    {
+                                        <a asp-controller="Attachments" asp-action="Download" asp-route-id="@candidate.CVAttachmentId">
+                                            <i style="font-size: x-large;" class="bx bxs-cloud-download"></i>
+                                        </a>
+                                    }
+                                    else
+                                    {
+                                        <p>No CV Available</p>
+                                    }
+                                </td>
+
+                                <td>
+                                    <form asp-action="UpdateAttachment" asp-route-id="@candidate.Id" enctype="multipart/form-data">
+                                        <div class="form-group" data-bs-toggle="tooltip" data-bs-placement="bottom" data-bs-original-title="Upload CV">
+                                            <input type="file" id="file" name="file" class="form-control-file hidden-file-input" data-candidate-id="@candidate.Id" accept=".pdf, .docx, .png, .jpg" />
+                                            <br />
+                                            <span id="fileError" class="text-danger"></span>
+                                        </div>
+                                    </form>
+                                </td>
+                                <td>
+                                    <a class="bx bxs-edit-alt" style="font-size:x-large" asp-action="Edit" asp-route-id="@candidate.Id" data-bs-toggle="tooltip" data-bs-placement="left" data-bs-original-title="Edit"></a> |
+                                    <a class="bx bx-detail" style="font-size:x-large" asp-action="Details" asp-route-id="@candidate.Id" data-bs-toggle="tooltip" data-bs-placement="bottom" data-bs-original-title="Details"></a> |
+                                    <a class="ri-delete-bin-2-line text-danger" style="font-size:x-large" asp-action="Delete" asp-route-id="@candidate.Id" data-bs-toggle="tooltip" data-bs-placement="right" data-bs-original-title="Delete"></a>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+
+                </table>
+
+            </div>
+        </div>
+    </div><!--end col-->
+</div><!--end row-->
+
+
+<script>
+    $(document).ready(function () {
+        $('#candidateTable').DataTable({
+            searching: false
+
+        });
+    });
+</script>
+
+<script>
+    $(document).ready(function () {
+        $('.hidden-file-input').change(function () {
+            const fileInput = $(this);
+            const candidateId = fileInput.data('candidate-id');
+            const selectedFile = fileInput[0].files[0];
+            const cvColumn = $('#cvColumn_' + candidateId);
+
+            if (selectedFile) {
+                cvColumn.html('Uploading...');
+
+                // Trigger the form submission to upload the file
+                fileInput.closest('form').submit();
+
+                // Assuming the file upload is successful, update the CV column dynamically
+                // For example, set the "Download CV" link when the upload is complete
+                setTimeout(function () {
+                    cvColumn.html('<a asp-controller="Attachments" asp-action="Download" asp-route-id="' + candidateId + '">Download CV</a>');
+                }, 3000); // Adjust the delay as needed
+            } else {
+                cvColumn.html('No CV Available');
+            }
+        });
+    });
+</script>
+

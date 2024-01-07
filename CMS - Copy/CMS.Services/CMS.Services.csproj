@@ -1,0 +1,21 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>netcoreapp3.1</TargetFramework>
+  </PropertyGroup>
+
+	<ItemGroup>
+		<PackageReference Include="Hangfire" Version="1.8.5" />
+		<PackageReference Include="Hangfire.Core" Version="1.8.5" />
+		<PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="3.1.31">
+			<PrivateAssets>all</PrivateAssets>
+			<IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+		</PackageReference>
+	</ItemGroup>
+
+	<ItemGroup>
+		<ProjectReference Include="..\CMS.Application\CMS.Application.csproj" />
+		<ProjectReference Include="..\CMS.Repository\CMS.Repository.csproj" />
+	</ItemGroup>
+	
+</Project>
