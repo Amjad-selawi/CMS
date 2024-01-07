@@ -1,0 +1,114 @@
+﻿@model CMS.Application.DTOs.CompanyDTO
+<h1>Add a company</h1>
+<form asp-action="AddCompany">
+@*     <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+ *@    <div class="form-group">
+        <label asp-for="Name" class="control-label"><span class="text-danger">*</span> Name</label>
+        <input style="width: 30%;" asp-for="Name" class="form-control" />
+        <span asp-validation-for="Name" class="text-danger"></span>
+        <span id="errorMessage" class="text-danger"></span>
+    </div>
+
+    <div class="form-group" style="margin-top: 15px;">
+        <label asp-for="CountryId" class="control-label"><span class="text-danger">*</span> Country</label>
+        @if (ViewBag.CountriesDTOs != null)
+        {
+            <select style="width: 30%;" asp-for="CountryId" asp-items="@(ViewBag.CountriesDTOs)" class="form-control">
+                <option value="">-- Select a country --</option>
+            </select>
+        }
+        else
+        {
+            <p>No countries available.</p>
+        }
+        <span asp-validation-for="CountryId" class="text-danger"></span>
+        <span id="CountryError" class="text-danger"></span> 
+    </div>
+
+    <h2 style="margin-top: 50px;font-size: 27px;">Contact Person</h2>
+    <div class="form-group" style="margin-top: 15px;">
+        <label asp-for="PersonName" class="control-label">Person Name</label>
+        <input style="width: 30%;" asp-for="PersonName" class="form-control" />
+        <span asp-validation-for="PersonName" class="text-danger"></span>
+    </div>
+
+    <div class="form-group" style="margin-top: 15px;">
+        <label asp-for="Email" class="control-label">Email</label>
+        <input style="width: 30%;" asp-for="Email" class="form-control" />
+        <span asp-validation-for="Email" class="text-danger"></span>
+    </div>
+
+    <div class="form-group" style="margin-top: 15px;">
+        <label asp-for="PhoneNumber" class="control-label">Phone Number</label>
+        <input style="width: 30%;" asp-for="PhoneNumber" class="form-control" />
+        <span asp-validation-for="PhoneNumber" class="text-danger"></span>
+    </div>
+
+    <div class="form-group " style="margin-top: 10px;">
+        <button type="submit" class="btn btn-primary">Add</button>
+        <a class="btn btn-secondary" asp-action="GetCompanies">Back to list</a>
+
+    </div>
+</form>
+
+
+
+
+
+
+<script>
+    $(document).ready(function () {
+        $("#Name").on("input", function () {
+            var name = $(this).val();
+            var countryId = $("#CountryId").val(); 
+
+            $.ajax({
+                url: '@Url.Action("CheckCompanyName", "Company")',
+                data: { name: name, countryId: countryId }, // Send data as an object
+                type: "POST",
+                success: function (response) {
+                    if (response.exists) {
+                        $("#errorMessage").text("A company with the same name already exists in the selected country.");
+                    } else {
+                        $("#errorMessage").hide();
+                    }
+                },
+                error: function () {
+                    $("#errorMessage").text("Error checking company name.");
+                }
+            });
+        });
+    });
+</script>
+
+<script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
+
+<!-- Add this script block after your existing script -->
+<script>
+    $(document).ready(function () {
+        $('form').submit(function (e) {
+            var name = $('#Name').val();
+            var countryId = $('#CountryId').val();
+
+            // Validate Name
+            if (!name.trim()) {
+                $('#errorMessage').text('Name is required.');
+                e.preventDefault(); // Prevent form submission
+            } else {
+                $('#errorMessage').text('');
+            }
+
+            // Validate Country
+            if (!countryId) {
+                $('#CountryError').text('Please select a country.');
+                e.preventDefault(); // Prevent form submission
+            } else {
+                $('#CountryError').text('');
+            }
+
+       
+        });
+
+    
+    });
+</script>
