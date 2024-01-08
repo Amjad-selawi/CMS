@@ -85,7 +85,7 @@ namespace CMS.Web.Controllers
             _interviewsService.LogException(methodName, ex, additionalInfo);
         }
 
-        public async Task<ActionResult> MyInterviews(int? statusFilter, int? companyFilter)
+        public async Task<ActionResult> MyInterviews(int? statusFilter, int? companyFilter, int? trackFilter)
         {
             try
             {
@@ -119,8 +119,20 @@ namespace CMS.Web.Controllers
                 statusFilter = await _StatusService.GetStatusIdByName("Pending"); 
             }
 
-            var result = await _interviewsService.MyInterviews(companyFilter);
-            if (!result.IsSuccess)
+               var tracksResult = await _trackService.GetAll();
+               if (!tracksResult.IsSuccess)
+               {
+                   ModelState.AddModelError("", tracksResult.Error);
+                   return View(new List<InterviewsDTO>());
+               }
+
+               var tracks = tracksResult.Value;
+               ViewBag.TrackList = new SelectList(tracks, "Id", "Name");
+
+
+
+                    var result = await _interviewsService.MyInterviews(companyFilter, trackFilter);
+                    if (!result.IsSuccess)
             {
                 ModelState.AddModelError("", result.Error);
                 return View();

@@ -61,13 +61,13 @@ namespace CMS.Domain.Migrations
                 principalColumn: "Id",
                 onDelete: ReferentialAction.Restrict);
 
-            migrationBuilder.AddForeignKey(
-                name: "FK_Interviews_Tracks_TrackId",
-                table: "Interviews",
-                column: "TrackId",
-                principalTable: "Tracks",
-                principalColumn: "Id",
-                onDelete: ReferentialAction.Cascade);
+            //migrationBuilder.AddForeignKey(
+            //    name: "FK_Interviews_Tracks_TrackId",
+            //    table: "Interviews",
+            //    column: "TrackId",
+            //    principalTable: "Tracks",
+            //    principalColumn: "Id",
+            //    onDelete: ReferentialAction.Cascade);
         }
 
         protected override void Down(MigrationBuilder migrationBuilder)

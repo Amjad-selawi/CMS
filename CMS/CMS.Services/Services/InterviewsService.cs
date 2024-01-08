@@ -1158,12 +1158,10 @@ namespace CMS.Services.Services
         }
 
 
-        public async Task<Result<List<InterviewsDTO>>> MyInterviews(int? companyFilter)
+        public async Task<Result<List<InterviewsDTO>>> MyInterviews(int? companyFilter, int? trackFilter)
         {
             try
             {
-                
-
                 var user = await _userManager.GetUserAsync(_httpContextAccessor.HttpContext.User);
 
                 if (user == null)
@@ -1171,16 +1169,19 @@ namespace CMS.Services.Services
                     return Result<List<InterviewsDTO>>.Failure(null, "User not found.");
                 }
 
-                var interviews = await _interviewsRepository.GetCurrentInterviews(user.Id, companyFilter);
+                var interviews = await _interviewsRepository.GetCurrentInterviews(user.Id, companyFilter, trackFilter);
+
                 if (interviews == null)
                 {
-                    return Result<List<InterviewsDTO>>.Failure(null, "no available interviews.");
+                    return Result<List<InterviewsDTO>>.Failure(null, "No available interviews.");
                 }
+
                 var interviewsDTOs = new List<InterviewsDTO>();
+
                 foreach (var i in interviews)
                 {
                     string userName = await GetInterviewerName(i.InterviewerId);
-                    string SeconduserName = await GetInterviewerName(i.SecondInterviewerId);
+                    string secondUserName = await GetInterviewerName(i.SecondInterviewerId);
                     string archiName = await GetArchitectureName(i.ArchitectureInterviewerId);
 
                     interviewsDTOs.Add(new InterviewsDTO
@@ -1189,41 +1190,35 @@ namespace CMS.Services.Services
                         InterviewerId = i.InterviewerId,
                         InterviewerName = userName,
                         SecondInterviewerId = i.SecondInterviewerId,
-                        SecondInterviewerName = SeconduserName,
-
-                        ArchitectureInterviewerId=i.ArchitectureInterviewerId,
+                        SecondInterviewerName = secondUserName,
+                        ArchitectureInterviewerId = i.ArchitectureInterviewerId,
                         ArchitectureInterviewerName = archiName,
-
                         Score = i.Score,
                         StatusId = i.StatusId,
                         StatusName = i.Status.Name,
                         Date = i.Date,
                         PositionId = i.PositionId,
                         Name = i.Position.Name,
-                        TrackId=i.TrackId,
-                        TrackName=i.Track.Name,
+                        TrackId = i.TrackId,
+                        TrackName = i.Track.Name,
                         Notes = i.Notes,
                         ParentId = i.ParentId,
                         CandidateId = i.CandidateId,
                         FullName = i.Candidate.FullName,
-                        CandidateCVAttachmentId=i.Candidate.CVAttachmentId,
+                        CandidateCVAttachmentId = i.Candidate.CVAttachmentId,
                         AttachmentId = i.AttachmentId,
                         modifiedBy = i.ModifiedBy,
                         isUpdated = i.IsUpdated,
-                        ActualExperience=i.ActualExperience
-
+                        ActualExperience = i.ActualExperience
                     });
-
-
                 }
+
                 return Result<List<InterviewsDTO>>.Success(interviewsDTOs);
-
-
             }
             catch (Exception ex)
             {
-                LogException(nameof(MyInterviews), ex,  "Error while getting my interviews");
-                return Result<List<InterviewsDTO>>.Failure(null, $"Unable to get interviews: {ex.InnerException.Message}");
+                LogException(nameof(MyInterviews), ex, "Error while getting my interviews");
+                return Result<List<InterviewsDTO>>.Failure(null, $"Unable to get interviews: {ex.InnerException?.Message}");
             }
         }
 

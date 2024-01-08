@@ -108,26 +108,21 @@
 </form>
 
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
+<!-- SweetAlert2 CSS -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@10">
+
+<!-- SweetAlert2 JS -->
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@10"></script>
+
+
 <script>
     $(document).ready(function () {
         $('#updateForm').submit(function (e) {
             // Clear previous error messages
             $(".text-danger").text("");
 
-            // Validate ActualExperience
-            // var actualExperienceValue = $('[name="ActualExperience"]').val();
-            // if (!actualExperienceValue) {
-            //     $('#ActualExperience').next(".text-danger").text("Actual Experience is required.");
-            //     e.preventDefault();
-            //     return;
-            // }
-
-            // Validate if ActualExperience is a valid number
-            // if (!isNumeric(actualExperienceValue)) {
-            //     $('#ActualExperience').next(".text-danger").text("Actual Experience must be a valid number.");
-            //     e.preventDefault();
-            //     return;
-            // }
+        
 
             // Additional validations can be added here for other fields if needed
 
@@ -156,13 +151,25 @@
 
              var fileInput = $('[name="file"]');
 
-            // if (!fileInput.val()) {
-            //     $('#fileError').text("Please choose a file.");
-            //     e.preventDefault();
-            //     return;
-            // }
+            // Use SweetAlert2 for confirmation
+            Swal.fire({
+                title: 'Are you sure?',
+                text: 'You are about to submit the form.',
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonText: 'Yes, submit it!',
+                cancelButtonText: 'No, cancel!',
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    // If confirmed, submit the form
+                    $('#updateForm').off('submit').submit();
+                }
+                // If canceled, do nothing
+            });
 
+            e.preventDefault();
         });
+
 
         // Function to check if a value is numeric
         function isNumeric(value) {

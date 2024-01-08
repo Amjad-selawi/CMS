@@ -19,7 +19,7 @@ namespace CMS.Services.Interfaces
         Task ConductInterview(InterviewsDTO interviewsDTO);
         Task<List<UsersDTO>> GetInterviewers();
         Task<List<UsersDTO>> GetAllInterviewers();
-        Task<Result<List<InterviewsDTO>>> MyInterviews(int? companyFilter);
+        Task<Result<List<InterviewsDTO>>> MyInterviews(int? companyFilter, int? trackFilter);
 
         Task<string> GetInterviewerName(string id);
         

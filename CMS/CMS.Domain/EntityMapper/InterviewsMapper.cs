@@ -22,9 +22,9 @@ namespace CMS.Domain.EntityMapper
               .OnDelete(DeleteBehavior.Restrict);
 
 
-            builder.HasOne(interview => interview.Track)
-                .WithMany(track => track.Interviews)
-                .HasForeignKey(interview => interview.TrackId);
+            //builder.HasOne(interview => interview.Track)
+            //    .WithMany(track => track.Interviews)
+            //    .HasForeignKey(interview => interview.TrackId);
 
             builder.HasOne(interview => interview.Interviewer)
               .WithMany()

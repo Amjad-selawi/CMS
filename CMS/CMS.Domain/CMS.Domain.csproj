@@ -45,6 +45,12 @@
     <Compile Remove="Migrations\20240107073831_addTrack.Designer.cs" />
     <Compile Remove="Migrations\20240107074318_addTrack.cs" />
     <Compile Remove="Migrations\20240107074318_addTrack.Designer.cs" />
+    <Compile Remove="Migrations\20240108062926_test.cs" />
+    <Compile Remove="Migrations\20240108062926_test.Designer.cs" />
+    <Compile Remove="Migrations\20240108063138_test.cs" />
+    <Compile Remove="Migrations\20240108063138_test.Designer.cs" />
+    <Compile Remove="Migrations\20240108063447_test.cs" />
+    <Compile Remove="Migrations\20240108063447_test.Designer.cs" />
   </ItemGroup>
 
 	<ItemGroup>
