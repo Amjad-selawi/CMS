@@ -143,7 +143,7 @@ namespace CMS.Repository.Repositories
                 throw ex;
             }
         }
-        public async Task<List<Interviews>> GetCurrentInterviews(string id, int? companyFilter)
+        public async Task<List<Interviews>> GetCurrentInterviews(string userId, int? companyFilter, int? trackFilter)
         {
             try
             {
@@ -152,20 +152,24 @@ namespace CMS.Repository.Repositories
                     .Include(c => c.Candidate)
                     .Include(c => c.Status)
                     .Include(c => c.Track)
-                    .Where(c => c.InterviewerId == id || c.SecondInterviewerId == id)
+                    .Where(c => c.InterviewerId == userId || c.SecondInterviewerId == userId)
                     .AsQueryable();
 
                 if (companyFilter.HasValue)
                 {
-                    // Assuming Candidate has a property named "CompanyId"
                     interviewsQuery = interviewsQuery.Where(c => c.Candidate.CompanyId == companyFilter.Value);
+                }
+
+                if (trackFilter.HasValue)
+                {
+                    interviewsQuery = interviewsQuery.Where(c => c.TrackId == trackFilter.Value);
                 }
 
                 return await interviewsQuery.AsNoTracking().ToListAsync();
             }
             catch (Exception ex)
             {
-                LogException(nameof(GetCurrentInterviews), ex, $"Error retrieving Current Interviews with ID: {id}");
+                LogException(nameof(GetCurrentInterviews), ex, $"Error retrieving current interviews with ID: {userId}");
                 throw;
             }
         }

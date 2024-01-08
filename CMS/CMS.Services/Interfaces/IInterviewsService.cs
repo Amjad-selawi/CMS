@@ -16,7 +16,7 @@ namespace CMS.Services.Interfaces
         Task ConductInterviewForArchi(InterviewsDTO completedDTO);
         Task<List<UsersDTO>> GetInterviewers();
 
-        Task<Result<List<InterviewsDTO>>> MyInterviews(int? companyFilter);
+        Task<Result<List<InterviewsDTO>>> MyInterviews(int? companyFilter, int? trackFilter);
         Task<Result<InterviewsDTO>> Insert(InterviewsDTO data);
         Task<Result<List<InterviewsDTO>>> GetAll();
         Task<Result<List<InterviewsDTO>>> GetAllForGeneralManager();

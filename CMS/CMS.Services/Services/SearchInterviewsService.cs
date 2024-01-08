@@ -507,7 +507,7 @@ namespace CMS.Services.Services
 
         }
 
-        public async Task<Result<List<InterviewsDTO>>> MyInterviews(int? companyFilter)
+        public async Task<Result<List<InterviewsDTO>>> MyInterviews(int? companyFilter, int? trackFilter)
         {
             try
             {
@@ -520,7 +520,7 @@ namespace CMS.Services.Services
                     return Result<List<InterviewsDTO>>.Failure(null, "User not found.");
                 }
 
-                var interviews = await _interviewsRepository.GetCurrentInterviews(user.Id, companyFilter);
+                var interviews = await _interviewsRepository.GetCurrentInterviews(user.Id, companyFilter, trackFilter);
                 if (interviews == null)
                 {
                     return Result<List<InterviewsDTO>>.Failure(null, "no available interviews.");
