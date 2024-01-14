@@ -101,26 +101,19 @@
             Parent ID
         </dt>
 
-        @if (@Model.Score != null)
-        {
-            <dt class="col-sm-2" style="margin-top: 15px;">
-                Score:
-            </dt>
-
-            <dd class="col-sm-10" style="margin-top: 15px;">
-                @Model.Score
-            </dd>
-        }
-        else
-        {
-            <dt class="col-sm-2" style="margin-top: 15px;">
-                Score:
-            </dt>
-
-            <dd class="col-sm-10" style="margin-top: 15px;">
-                There is no score here
-            </dd>
-        }
+        <dt class="col-sm-2" style="margin-top: 15px;">
+            First Interview Score:
+        </dt>
+        <dd class="col-sm-10" style="margin-top: 15px;">
+            @if (@Model.FirstInterviewScore != null)
+            {
+                @Model.FirstInterviewScore
+            }
+            else
+            {
+                <text>No score available from the first interview.</text>
+            }
+        </dd>
 
         @if (@Model.ActualExperience != null)
         {

@@ -21,6 +21,7 @@
                 <table id="add-rows1" class="table table-nowrap dt-responsive table-bordered display" style="width:100%">
                     <thead>
                         <tr>
+                            <th>#</th>
                             <th>Company Name</th>
                             <th>Country</th>
                             <th>Person Name</th>
@@ -31,9 +32,11 @@
                         </tr>
                     </thead>
                     <tbody>
-                        @foreach (var company in Model)
+                        @for (var i = 0; i < Model.Count(); i++)
                         {
+                            var company = Model.ElementAt(i);
                             <tr>
+                                <td>@(i + 1)</td>
                                 <td>@company.Name</td>
                                 <td>@company.CountryName</td>
                                 <td>@company.PersonName</td>

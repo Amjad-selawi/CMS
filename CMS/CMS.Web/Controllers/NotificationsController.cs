@@ -71,8 +71,15 @@ namespace CMS.Web.Controllers
         {
             try
             {
-                var notifications = await _notificationsService.GetNotificationsForGeneralManager();
+                if (User.IsInRole("General Manager") )
+                {
+                    var notifications = await _notificationsService.GetNotificationsForGeneralManager();
                 return View(notifications);
+                }
+                else
+                {
+                    return View("AccessDenied");
+                }
             }
             catch (Exception ex)
             {
@@ -85,8 +92,15 @@ namespace CMS.Web.Controllers
         {
             try
             {
-                var notifications = await _notificationsService.GetNotificationsForArchitecture();
+                if (User.IsInRole("Solution Architecture") )
+                {
+                    var notifications = await _notificationsService.GetNotificationsForArchitecture();
                 return View(notifications);
+                }
+                else
+                {
+                    return View("AccessDenied");
+                }
             }
             catch (Exception ex)
             {
@@ -99,9 +113,16 @@ namespace CMS.Web.Controllers
         {
             try
             {
-                var userId = _userManager.GetUserId(User);
+                if (User.IsInRole("Interviewer"))
+                {
+                    var userId = _userManager.GetUserId(User);
                 var notifications = await _notificationsService.GetNotificationsForInterviewers(userId);
                 return View(notifications);
+                }
+                else
+                {
+                    return View("AccessDenied");
+                }
             }
             catch (Exception ex)
             {
@@ -114,8 +135,15 @@ namespace CMS.Web.Controllers
         {
             try
             {
-                var notifications = await _notificationsService.GetNotificationsForHRAsync();
+                if (User.IsInRole("HR Manager") )
+                {
+                    var notifications = await _notificationsService.GetNotificationsForHRAsync();
                 return View(notifications);
+                }
+                else
+                {
+                    return View("AccessDenied");
+                }
             }
             catch (Exception ex)
             {

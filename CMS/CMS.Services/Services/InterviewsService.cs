@@ -356,14 +356,14 @@ namespace CMS.Services.Services
 
                 string interviewerRole = await GetInterviewerRole(interview.InterviewerId);
 
-                var firstInterview = await _interviewsRepository.GetById(interview.ParentId ?? 0);
-
+                var firstInterviewScore = await GetFirstInterviewScore(id);
+                var firstEvaluation = await GetFirstEvaluation(id);
 
                 var interviewDTO = new InterviewsDTO
                 {
                     InterviewsId = interview.InterviewsId,
                     Score = interview.Score,
-                    FirstInterviewScore = firstInterview?.Score, // Include the first interview score
+                    FirstInterviewScore = firstInterviewScore,
                     StatusId = interview.StatusId,
                     StatusName = interview.Status.Name,
                     Date = interview.Date,
@@ -379,7 +379,7 @@ namespace CMS.Services.Services
                     CandidateId = interview.CandidateId,
                     FullName = interview.Candidate.FullName,
                     CandidateCVAttachmentId=interview.Candidate.CVAttachmentId,
-                    AttachmentId = interview.AttachmentId,
+                    AttachmentId = (int?)firstEvaluation ?? null,
                     InterviewerRole = interviewerRole,
                     ActualExperience = interview.ActualExperience,
                     SecondInterviewerId = interview.SecondInterviewerId,
@@ -1578,6 +1578,36 @@ namespace CMS.Services.Services
                 throw ex;
             }
         }
+
+
+
+        private async Task<double?> GetFirstInterviewScore(int interviewId)
+        {
+            var interview = await _interviewsRepository.GetById(interviewId);
+
+            if (interview?.ParentId != null)
+            {
+                // If there is a parent interview, recursively fetch the first interview's score
+                return await GetFirstInterviewScore(interview.ParentId.Value);
+            }
+
+            // No parent interview, return the current interview's score
+            return interview?.Score;
+        }
+        private async Task<double?> GetFirstEvaluation(int interviewId)
+        {
+            var interview = await _interviewsRepository.GetById(interviewId);
+
+            if (interview?.ParentId != null)
+            {
+                // If there is a parent interview, recursively fetch the first evaluation
+                return await GetFirstEvaluation(interview.ParentId.Value);
+            }
+
+            // No parent interview, return the current interview's evaluation
+            return interview?.AttachmentId; // Adjust property name based on your data structure
+        }
+
 
 
     }

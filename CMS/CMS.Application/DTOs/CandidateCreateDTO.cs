@@ -12,10 +12,8 @@ namespace CMS.Application.DTOs
         [Required(ErrorMessage = "Full Name is required.")]
         public string FullName { get; set; }
 
-        [Required(ErrorMessage = "Phone is required.")]
         [RegularExpression(@"^(\+[0-9]{1,})?[0-9]+$", ErrorMessage = "Please enter a valid format")]
-
-        public string Phone { get; set; }
+        public string? Phone { get; set; }
 
         //[Required(ErrorMessage = "DesiredPosition is required.")]
         public int? PositionId { get; set; }

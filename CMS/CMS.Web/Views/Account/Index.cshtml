@@ -17,6 +17,7 @@
                 <table id="add-rows" class="table table-nowrap dt-responsive table-bordered display" style="width:100%">
                     <thead>
                         <tr>
+                            <th>#</th>
                             <th>Email</th>
                             <th>Username</th>
                             <th>Role</th>
@@ -24,9 +25,11 @@
                         </tr>
                     </thead>
                     <tbody>
-                        @foreach (var user in Model)
+                        @for (var i = 0; i < Model.Count(); i++)
                         {
+                            var user = Model.ElementAt(i);
                             <tr>
+                                <td>@(i + 1)</td>
                                 <td>@user.Email</td>
                                 <td>@user.UserName</td>
                                 <td>@user.SelectedRole</td>

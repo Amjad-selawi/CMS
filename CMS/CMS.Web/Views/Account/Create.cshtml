@@ -5,24 +5,25 @@
 <form asp-action="Create" method="post"> @* enctype="multipart/form-data" *@
     <div asp-validation-summary="ModelOnly" class="text-danger"></div>
     <div class="form-group">
-        <label asp-for="Email" class="control-label">Email</label>
-        <input asp-for="Email" class="form-control" />
-        <span asp-validation-for="Email" class="text-danger"></span>
+        <label asp-for="Email" class="control-label"><span class="text-danger">*</span> Email</label>
+        <input asp-for="Email" class="form-control" id="email" />
+        <span id="emailError" class="text-danger"></span>
     </div>
     <div class="form-group" style="margin-top:15px;">
-        <label asp-for="UserName" class="control-label">Username</label>
-        <input asp-for="UserName" class="form-control" />
-        <span asp-validation-for="UserName" class="text-danger"></span>
+        <label asp-for="UserName" class="control-label"><span class="text-danger">*</span> Username</label>
+        <input asp-for="UserName" class="form-control" id="userName" />
+        <span id="userNameError" class="text-danger"></span>
     </div>
     <div class="form-group" style="margin-top:15px;">
-        <label asp-for="Password" class="control-label">Password</label>
-        <input asp-for="Password" type="password" class="form-control" />
-        <span asp-validation-for="Password" class="text-danger"></span>
+        <label asp-for="Password" class="control-label"><span class="text-danger">*</span> Password</label>
+        <input asp-for="Password" type="password" class="form-control" id="password" />
+        <span id="passwordError" class="text-danger"></span>
+
     </div>
     <div class="form-group" style="margin-top:15px;">
-        <label asp-for="ConfirmPassword" class="control-label">Confirm Password</label>
-        <input asp-for="ConfirmPassword" type="password" class="form-control" />
-        <span asp-validation-for="ConfirmPassword" class="text-danger"></span>
+        <label asp-for="ConfirmPassword" class="control-label"><span class="text-danger">*</span> Confirm Password</label>
+        <input asp-for="ConfirmPassword" type="password" class="form-control" id="confirmpassword" />
+        <span id="confirmPasswordError" class="text-danger"></span>
     </div>
 
 @*     <div class="form-group">
@@ -34,9 +35,9 @@
 
 
     <div class="form-group" style="margin-top:15px;">
-        <label asp-for="SelectedRole" class="control-label">Role:</label>
-        @Html.DropDownListFor(model => model.SelectedRole, (SelectList)ViewBag.Roles, "Select a Role", new { @class = "form-control" })
-        <span asp-validation-for="SelectedRole" class="text-danger"></span>
+        <label asp-for="SelectedRole" class="control-label"><span class="text-danger">*</span> Role:</label>
+        @Html.DropDownListFor(model => model.SelectedRole, (SelectList)ViewBag.Roles, "Select a Role", new { @class = "form-control", id = "selectedRole" })
+        <span id="selectedRoleError" class="text-danger"></span>
     </div>
 
 @*     <div class="form-group" style="margin-top:15px;">
@@ -47,9 +48,68 @@
 
 
     <div class="form-group " style="margin-top: 10px;">
-        <input type="submit" value="Create" class="btn btn-primary" />
+        <input type="submit" value="Create" class="btn btn-primary" onclick="validateForm(event)" />
         <a class="btn btn-secondary" asp-action="Index">Back to List</a>
     </div>
 </form>
-<p>
-</p>
+
+
+<script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
+
+<script>
+    function validateForm(e) {
+        // Validate Selected Role
+        var selectedRole = $('#selectedRole').val();
+        if (!selectedRole) {
+            $('#selectedRoleError').text('Please select a Role.');
+            e.preventDefault(); // Prevent form submission
+        } else {
+            $('#selectedRoleError').text('');
+        }
+
+        // Validate Email
+        var email = $('#email').val();
+        if (!email) {
+            $('#emailError').text('Please enter an Email.');
+            e.preventDefault();
+        } else {
+            $('#emailError').text('');
+        }
+
+        // Validate Username
+        var userName = $('#userName').val();
+        if (!userName) {
+            $('#userNameError').text('Please enter a Username.');
+            e.preventDefault();
+        } else {
+            $('#userNameError').text('');
+        }
+
+        // Validate Password
+        var password = $('#password').val();
+        if (!password) {
+            $('#passwordError').text('Please enter a Password.');
+            e.preventDefault();
+        } else {
+            $('#passwordError').text('');
+        }
+
+        // Validate Confirm Password
+        var confirmPassword = $('#confirmpassword').val();
+        if (!confirmPassword) {
+            $('#confirmPasswordError').text('Please enter a Confirm Password.');
+            e.preventDefault();
+        } else {
+            $('#confirmPasswordError').text('');
+        }
+
+        // Check if Password and Confirm Password match
+        if (password !== confirmPassword) {
+            $('#confirmPasswordError').text('Passwords do not match.');
+            e.preventDefault();
+        } else {
+            $('#confirmPasswordError').text('');
+        }
+
+    }
+</script>

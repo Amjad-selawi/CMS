@@ -12,7 +12,7 @@
 
     </div>
     <div class="form-group" style="margin-top: 15px;">
-        <label asp-for="Phone" class="control-label"><span class="text-danger">*</span> Phone</label>
+        <label asp-for="Phone" class="control-label">Phone</label>
         <input style="width: 30%;" asp-for="Phone" class="form-control" autocomplete="off" />
         <span asp-validation-for="Phone" class="text-danger"></span>
         <span id="phoneError" class="text-danger"></span>
@@ -42,7 +42,7 @@
         @if (ViewBag.positions != null)
         {
             <select style="width: 30%;" asp-for="PositionId" asp-items="@(ViewBag.positions)" class="form-control">
-                <option value="">-- Select a position --</option>
+                <option value="">-- Select a Level --</option>
 
             </select>
         }
@@ -119,6 +119,7 @@
             var phone = $('#Phone').val();
             var companyId = $('#CompanyId').val();
             var positionId = $('#PositionId').val();
+            var trackId = $('#TrackId').val();
             var experience = $('#Experience').val();
             var fileInput = $('#file')[0];
 
@@ -128,14 +129,6 @@
                 e.preventDefault(); // Prevent form submission
             } else {
                 $('#fullNameError').text('');
-            }
-
-            // Validate Phone
-            if (!phone.trim()) {
-                $('#phoneError').text('Phone is required.');
-                e.preventDefault(); // Prevent form submission
-            } else {
-                $('#phoneError').text('');
             }
 
             // Validate CV Provider name (CompanyId)
@@ -153,6 +146,15 @@
             } else {
                 $('#positionIdError').text('');
             }
+
+             // Validate Track
+            if (!trackId) {
+                $('#trackIdError').text('Please select a Track');
+                e.preventDefault(); // Prevent form submission
+            } else {
+                $('#trackIdError').text('');
+            }
+
 
             // Validate Experience
             if (!experience.trim()) {

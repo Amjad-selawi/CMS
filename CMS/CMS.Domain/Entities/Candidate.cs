@@ -15,8 +15,7 @@ namespace CMS.Domain.Entities
         [Required(ErrorMessage = "FullName is required.")]
         public string FullName { get; set; }
 
-        [Required(ErrorMessage = "Phone is required.")]
-        public string Phone { get; set; }
+        public string? Phone { get; set; }
 
         //[Required(ErrorMessage = "PositionId is required.")]
 
