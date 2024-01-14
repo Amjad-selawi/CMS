@@ -60,12 +60,12 @@ namespace CMS.Web.Controllers
         }
 
 
-        public async Task<ActionResult> Index(string positionFilter, int? scoreFilter, int? statusFilter, string candidateFilter, string interviewerFilter, DateTime? fromDate, DateTime? toDate, string export, int? trackFilter)
+        public async Task<ActionResult> Index(string positionFilter, int? scoreFilter, int? statusFilter, string candidateFilter, string interviewerFilter, DateTime? fromDate, DateTime? toDate, string export, int? trackFilterDropdown)
         {
             try
             {
 
-            
+                
             ViewBag.positionFilter = positionFilter;
             ViewBag.scoreFilter = scoreFilter;
             ViewBag.statusFilter = statusFilter;
@@ -73,7 +73,7 @@ namespace CMS.Web.Controllers
             ViewBag.interviewerFilter = interviewerFilter;
             ViewBag.fromDate = fromDate;
             ViewBag.toDate = toDate;
-            ViewBag.TrackList = trackFilter;
+            ViewBag.TrackList = trackFilterDropdown;
 
                 if (User.IsInRole("Admin") || User.IsInRole("HR Manager") || User.IsInRole("General Manager"))
             {
@@ -98,18 +98,19 @@ namespace CMS.Web.Controllers
                 var interviewersDTO = await _searchInterviewsService.GetAllInterviewers();
                 ViewBag.InterviewerList = new SelectList(interviewersDTO, "Id", "Name");
 
-                    var tracks = await _trackService.GetAll();
-                    ViewBag.TrackList = new SelectList(tracks.Value, "Id", "Name");
+                var tracks = await _trackService.GetAll();
+                ViewBag.TrackListDropdown = new SelectList(tracks.Value, "Id", "Name");
+
 
                     if (!string.IsNullOrEmpty(export) && export == "excel")
                 {
-                    var filteredInterviews = await ApplyFiltersAndRetrieveData(positionFilter, scoreFilter, statusFilter, candidateFilter, interviewerFilter, fromDate, toDate, trackFilter);
+                    var filteredInterviews = await ApplyFiltersAndRetrieveData(positionFilter, scoreFilter, statusFilter, candidateFilter, interviewerFilter, fromDate, toDate, trackFilterDropdown);
                     var excelData = GenerateExcelFile(filteredInterviews);
                     return File(excelData, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", "Interviews.xlsx");
                 }
                 else
                 {
-                    var filteredInterviews = await ApplyFiltersAndRetrieveData(positionFilter, scoreFilter, statusFilter, candidateFilter, interviewerFilter, fromDate, toDate, trackFilter);
+                    var filteredInterviews = await ApplyFiltersAndRetrieveData(positionFilter, scoreFilter, statusFilter, candidateFilter, interviewerFilter, fromDate, toDate, trackFilterDropdown);
                     return View(filteredInterviews);
                 }
             }
@@ -186,7 +187,7 @@ namespace CMS.Web.Controllers
             if (!string.IsNullOrEmpty(interviewerFilter) && interviewerFilter != "All Interviewers")
             {
                 filteredInterviews = filteredInterviews
-                    .Where(i => i.InterviewerId == interviewerFilter)
+                    .Where(i => i.InterviewerId == interviewerFilter || i.SecondInterviewerId == interviewerFilter)
                     .ToList();
             }
 
@@ -282,11 +283,12 @@ namespace CMS.Web.Controllers
                 // Add headers
                 worksheet.Cells["A1"].Value = "Candidate Name";
                 worksheet.Cells["B1"].Value = "Position";
-                worksheet.Cells["C1"].Value = "Interviewer Name";
-                worksheet.Cells["D1"].Value = "Date";
-                worksheet.Cells["E1"].Value = "Score";
-                worksheet.Cells["F1"].Value = "Status";
-                worksheet.Cells["G1"].Value = "Notes";
+                worksheet.Cells["C1"].Value = "Track";
+                worksheet.Cells["D1"].Value = "Interviewer/s Name";
+                worksheet.Cells["E1"].Value = "Date and Time";
+                worksheet.Cells["F1"].Value = "Score";
+                worksheet.Cells["G1"].Value = "Status";
+                worksheet.Cells["H1"].Value = "Notes";
 
                 // Style headers
                 using (var headerRange = worksheet.Cells["A1:G1"])
@@ -303,12 +305,13 @@ namespace CMS.Web.Controllers
                 {
                     worksheet.Cells[row, 1].Value = item.FullName;
                     worksheet.Cells[row, 2].Value = item.Name;
-                    worksheet.Cells[row, 3].Value = item.InterviewerName;
-                    worksheet.Cells[row, 4].Style.Numberformat.Format = "yyyy-mm-dd";
-                    worksheet.Cells[row, 4].Value = item.Date;
-                    worksheet.Cells[row, 5].Value = item.Score;
-                    worksheet.Cells[row, 6].Value = item.StatusName;
-                    worksheet.Cells[row, 7].Value = item.Notes;
+                    worksheet.Cells[row, 3].Value = item.TrackName;
+                    worksheet.Cells[row, 4].Value = item.InterviewerName;
+                    worksheet.Cells[row, 5].Style.Numberformat.Format = "yyyy-mm-dd";
+                    worksheet.Cells[row, 5].Value = item.Date;
+                    worksheet.Cells[row, 6].Value = item.Score;
+                    worksheet.Cells[row, 7].Value = item.StatusName;
+                    worksheet.Cells[row, 8].Value = item.Notes;
 
                     row++;
                 }

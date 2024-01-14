@@ -279,8 +279,6 @@ namespace CMS.Web.Controllers
             try
             {
 
-                
-
                 ViewBag.PreviousAction = previousAction;
             var result = await _interviewsService.GetById(id);
 
@@ -342,10 +340,16 @@ namespace CMS.Web.Controllers
         {
             try
             {
+                if (User.IsInRole("Admin") || User.IsInRole("HR Manager"))
+                {
 
-            
-            await LoadSelectionLists();
-            return View();
+                    await LoadSelectionLists();
+                    return View();
+                }
+                else
+                {
+                    return View("AccessDenied");
+                }
             }
             catch (Exception ex)
             {
@@ -524,10 +528,11 @@ namespace CMS.Web.Controllers
         {
             try
             {
-                
 
+                if (User.IsInRole("Admin") || User.IsInRole("HR Manager"))
+                {
 
-                if (id <= 0)
+                    if (id <= 0)
             {
                 return NotFound();
             }
@@ -542,6 +547,11 @@ namespace CMS.Web.Controllers
             await LoadSelectionLists();
 
             return View(interviewDTO);
+                }
+                else
+                {
+                    return View("AccessDenied");
+                }
             }
             catch (Exception ex)
             {
@@ -1464,7 +1474,8 @@ namespace CMS.Web.Controllers
 
                                 else if (status.Code == Domain.Enums.StatusCode.Rejected)
                             {
-                                string userName = _emailService.GetLoggedInUserName();
+                                    await _notificationsService.CreateNotificationForGeneralManagerAsync(interviewsDTO.StatusId.Value, interviewsDTO.Notes, interviewsDTO.CandidateId, interviewsDTO.PositionId, interviewsDTO.ArchitectureInterviewerId);
+                                    string userName = _emailService.GetLoggedInUserName();
                                 var HREmail = await _emailService.GetHREmail();
 
                                     EmailDTOs emailModel = new EmailDTOs
@@ -1801,7 +1812,12 @@ namespace CMS.Web.Controllers
                                         {
                                             var architectureInterviewerId = HttpContext.Session.GetString($"ArchitectureInterviewerId_{interviewsDTO.InterviewsId}");
 
-                                            if (architectureInterviewerId != "" )
+                                            if (architectureInterviewerId == "")
+                                            {
+                                                architectureInterviewerId = null;
+                                            }
+
+                                            if (architectureInterviewerId != null)
                                             {
                                                 await _notificationsService.CreateInterviewNotificationForFinalHRInterview(interviewsDTO.StatusId.Value, interviewsDTO.Notes, interviewsDTO.CandidateId, interviewsDTO.PositionId);
 

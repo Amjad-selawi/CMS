@@ -56,6 +56,7 @@
                 <table id="add-rows" class="table table-nowrap dt-responsive table-bordered display" style="width:100%">
                     <thead>
                         <tr>
+                            <th>#</th>
                             <th>Candidate Name</th>
                             <th>Level</th>
                             <th>Track</th>
@@ -87,9 +88,11 @@
                         </tr>
                     </thead>
                     <tbody>
-                        @foreach (var item in Model)
+                        @for (var i = 0; i < Model.Count(); i++)
                         {
+                            var item = Model.ElementAt(i);
                             <tr>
+                                <td>@(i + 1)</td>
                                 <td>@Html.DisplayFor(modelItem => item.FullName)</td>
                                 <td>@Html.DisplayFor(modelItem => item.Name)</td>
                                 <td>@Html.DisplayFor(modelItem => item.TrackName)</td>
@@ -175,23 +178,23 @@
                                     {
                                         @if (item.Score != null)
                                         {
-                                            <a class="bx bxs-edit-alt" style="font-size:x-large" asp-action="UpdateAfterInterviewForEdit" asp-route-id="@item.InterviewsId"></a>
+                                            <a class="bx bxs-edit-alt" style="font-size:x-large" asp-action="UpdateAfterInterviewForEdit" asp-route-id="@item.InterviewsId" data-bs-toggle="tooltip" data-bs-placement="bottom" data-bs-original-title="Edit"></a>
                                         }
                                         else
                                         {
-                                            <a class="bx bxs-edit-alt" style="font-size:x-large" href="javascript:void(0);" onclick="showScoreWarningModal()"></a>
+                                            <a class="bx bxs-edit-alt" style="font-size:x-large" href="javascript:void(0);" onclick="showScoreWarningModal()" data-bs-toggle="tooltip" data-bs-placement="bottom" data-bs-original-title="Edit"></a>
                                         }
                                     }
                                     else if (User.IsInRole("General Manager") || User.IsInRole("HR Manager") || User.IsInRole("Solution Architecture"))
                                     {
                                         if (item.StatusName == StatusCode.GetName("PND"))
                                         {
-                                            <a class="bx bxs-edit-alt" style="font-size:x-large" href="javascript:void(0);" onclick="showScoreWarningModalForGM()"></a>
+                                            <a class="bx bxs-edit-alt" style="font-size:x-large" href="javascript:void(0);" onclick="showScoreWarningModalForGM()" data-bs-toggle="tooltip" data-bs-placement="bottom" data-bs-original-title="Edit"></a>
 
                                         }
                                         else
                                         {
-                                            <a class="bx bxs-edit-alt" style="font-size:x-large" asp-action="UpdateAfterInterviewForEdit" asp-route-id="@item.InterviewsId"></a>
+                                            <a class="bx bxs-edit-alt" style="font-size:x-large" asp-action="UpdateAfterInterviewForEdit" asp-route-id="@item.InterviewsId" data-bs-toggle="tooltip" data-bs-placement="bottom" data-bs-original-title="Edit"></a>
 
                                         }
                                     }

@@ -65,14 +65,17 @@ namespace CMS.Web.Controllers
                 ViewBag.RejectedPercentage = rejectedPercentage;
                 //ViewBag.CountriesList = ArrayToString(report.CandidatesPerCountry.Keys.ToArray());
                 //ViewBag.CandidatesPerCompanyList = DictionaryToString(report.candidatesPerCompany);
-                ViewBag.PendingCount = report.NumberOfPending; // Add the pending count to the ViewBag
-                                                               //var countries = await _countryService.GetAllCountriesAsync();
+                ViewBag.PendingCount = report.NumberOfPending;
 
 
                     double onHoldPercentageFloat = ((double)report.NumberOfOnHold / report.NumberOfCandidates) * 100;
                     int onHoldPercentage = (int)onHoldPercentageFloat;
                     ViewBag.OnHoldPercentage = onHoldPercentage;
 
+
+                    double pendingPercentageFloat = ((double)report.NumberOfPending / report.NumberOfCandidates) * 100;
+                    int pendingPercentage = (int)pendingPercentageFloat;
+                    ViewBag.PendingPercentage = pendingPercentage;
 
                     var countries = await _countryService.GetAllCountriesAsync(); // Assuming you have a countryService instance
 

@@ -72,8 +72,18 @@
                 <text>No score available from the first interview.</text>
             }
         </dd>
+        @if (User.IsInRole("HR Manager"))
+        {
+            <dt class="col-sm-2" style="margin-top: 15px;">
+                Actual Experience:
+            </dt>
 
-        @if (!User.IsInRole("HR Manager"))
+            <dd style="margin-top: 15px;" class="col-sm-10">
+                Please check the View History to see the Actual Experience.
+            </dd>
+        }
+
+        @if (!User.IsInRole("HR Manager") || User.IsInRole("Admin"))
         {
         <dt class="col-sm-2" style="margin-top: 15px;">
             Actual Experience:
@@ -97,14 +107,25 @@
         <dd class="col-sm-10" style="margin-top: 15px;">
             @Model.StatusName
         </dd>
+        @if (@Model.Notes !=null)
+        {
         <dt class="col-sm-2" style="margin-top: 15px;">
             Notes:
         </dt>
         <dd class="col-sm-10" style="margin-top: 15px;">
             @Model.Notes
         </dd>
-
-           @if (User.IsInRole("Interviewer"))
+        }
+        else
+        {
+        <dt class="col-sm-2" style="margin-top: 15px;">
+            Notes:
+        </dt>
+        <dd class="col-sm-10" style="margin-top: 15px;">
+            There is no Note added here
+        </dd>
+        }
+        @if (User.IsInRole("Interviewer") || User.IsInRole("HR Manager") || User.IsInRole("Admin"))
         {
 
             @if (Model.AttachmentId != null)

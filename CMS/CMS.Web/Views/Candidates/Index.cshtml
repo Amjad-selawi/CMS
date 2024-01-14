@@ -58,6 +58,7 @@
 
                     <thead>
                         <tr>
+                            <th>#</th>
                             <th>Full Name</th>
                             <th>Phone Number</th>
                             <th>Company</th>
@@ -70,14 +71,16 @@
                         </tr>
                     </thead>
                     <tbody>
-                        @foreach (var candidate in Model)
+                        @for (var i = 0; i < Model.Count(); i++)
                         {
+                            var candidate = Model.ElementAt(i);
                             <tr>
+                                <td>@(i + 1)</td>
                                 <td>@Html.DisplayFor(modelItem => candidate.FullName)</td>
                                 <td>@Html.DisplayFor(modelItem => candidate.Phone)</td>
                                 <td>@Html.DisplayFor(modelItem => candidate.CompanyName)</td>
-                                <td >@Html.DisplayFor(modelItem => candidate.PositionName)</td>
-                                <td >@Html.DisplayFor(modelItem => candidate.TrackName)</td>
+                                <td>@Html.DisplayFor(modelItem => candidate.PositionName)</td>
+                                <td>@Html.DisplayFor(modelItem => candidate.TrackName)</td>
                                 <td>@Html.DisplayFor(modelItem => candidate.Experience)</td>
                                 <td id="cvColumn_@candidate.Id">
                                     @if (candidate.CVAttachmentId != null)

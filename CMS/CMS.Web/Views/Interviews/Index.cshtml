@@ -63,38 +63,41 @@
                 <table id="add-rows" class="table table-nowrap dt-responsive table-bordered display" style="width:100%">
                     <thead>
                         <tr>
+                            <th>#</th>
                             <th>Candidate Name</th>
                             <th>Level</th>
                             <th>Track</th>
                             <th>First Interviewer</th>
-                            <th>Second Interviewer</th>
+                            <th hidden>Second Interviewer</th>
                             <th>Architecture</th>
                             <th>Date and Time</th>
                             <th>Status</th>
                             <th hidden>Parent ID</th>
-                            <th>Score</th>
-                            <th>Actual Experience</th>
+                            <th hidden>Score</th>
+                            <th hidden>Actual Experience</th>
                             <th hidden>Notes</th>
-                            <th>Evaluation</th>
+                            <th hidden>Evaluation</th>
                             <th>Actions</th>
                         </tr>
                     </thead>
                     <tbody>
                         @if (Model != null)
-                            @foreach (var item in Model)
+                            @for (var i = 0; i < Model.Count(); i++)
                             {
+                                var item = Model.ElementAt(i);
                                 <tr>
+                                    <td>@(i + 1)</td>
                                     <td>@Html.DisplayFor(modelItem => item.FullName)</td>
                                     <td>@Html.DisplayFor(modelItem => item.Name)</td>
                                     <td>@Html.DisplayFor(modelItem => item.TrackName)</td>
                                     <td>@item.InterviewerName</td>
                                     @if (item.SecondInterviewerId != null)
                                     {
-                                        <td>@item.SecondInterviewerName</td>
+                                        <td hidden>@item.SecondInterviewerName</td>
                                     }
                                     else
                                     {
-                                        <td>There is no Second Interviewer</td>
+                                        <td hidden>There is no Second Interviewer</td>
                                     }
                                     @if (item.ArchitectureInterviewerId != null)
                                     {
@@ -110,16 +113,16 @@
                                     </td>
                                     <td>@item.StatusName</td>
                                     <td hidden>@item.ParentId</td>
-                                    <td>@item.Score</td>
-                                    <td>@item.ActualExperience</td>
+                                    <td hidden>@item.Score</td>
+                                    <td hidden>@item.ActualExperience</td>
                                     <td hidden>@item.Notes</td>
                                     @if (item.AttachmentId != null)
                                     {
-                                        <td><a asp-controller="Attachments" asp-action="Download" asp-route-id="@item.AttachmentId">Download evaluation</a></td>
+                                        <td hidden><a asp-controller="Attachments" asp-action="Download" asp-route-id="@item.AttachmentId">Download evaluation</a></td>
                                     }
                                     else
                                     {
-                                        <td></td>
+                                        <td hidden></td>
                                     }
                                     <td>
                                         <a class="bx bx-detail" style="font-size:x-large" asp-action="Details" asp-route-id="@item.InterviewsId" asp-route-previousAction="Index" data-bs-toggle="tooltip" data-bs-placement="left" data-bs-original-title="Details"></a>

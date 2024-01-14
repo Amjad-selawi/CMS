@@ -21,15 +21,18 @@
                 <table id="add-rows2" class="table table-nowrap dt-responsive table-bordered display" style="width:100%">
                     <thead>
                         <tr>
+                            <th>#</th>
                             <th>Country Name</th>
                             <th>Number of Companies</th>
                             <th>Actions</th>
                         </tr>
                     </thead>
                     <tbody>
-                        @foreach (var country in Model)
+                        @for (var i = 0; i < Model.Count(); i++)
                         {
+                            var country = Model.ElementAt(i);
                             <tr>
+                                <td>@(i + 1)</td>
                                 <td>@country.Name</td>
                                 <td>@country.companyDTOs.Count</td>
                                 <td>

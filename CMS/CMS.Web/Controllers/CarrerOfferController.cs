@@ -25,11 +25,12 @@ namespace CMS.Web.Controllers
           
         }
 
-
-
-
         public async Task<IActionResult> Index(CarrerOfferDTO crrerOfferDTO)
         {
+            if(User.IsInRole("None"))
+            {
+
+            
             var result = await _carrerOfferService.GetAll();
             if (result.IsSuccess)
             {
@@ -41,42 +42,62 @@ namespace CMS.Web.Controllers
                 ModelState.AddModelError("", result.Error);
                 return View();
             }
+            }
+            else
+            {
+                return View("AccessDenied");
+            }
 
         }
         public async Task<IActionResult> Details(int id)
         {
-
-            var result = await _carrerOfferService.GetById(id);
-
-            var PositionsDTOs = await _positionService.GetAll();
-            ViewBag.positionDTOs = new SelectList(PositionsDTOs.Value, "PositionId", "Name");
-
-            if (result.IsSuccess)
+            if (User.IsInRole("None"))
             {
-                var positionDTO = result.Value;
-                return View(positionDTO);
+                var result = await _carrerOfferService.GetById(id);
+
+                var PositionsDTOs = await _positionService.GetAll();
+                ViewBag.positionDTOs = new SelectList(PositionsDTOs.Value, "PositionId", "Name");
+
+                if (result.IsSuccess)
+                {
+                    var positionDTO = result.Value;
+                    return View(positionDTO);
+                }
+
+
+                else
+                {
+                    ModelState.AddModelError("", result.Error);
+                    return View();
+                }
             }
-
-
             else
             {
-                ModelState.AddModelError("", result.Error);
-                return View();
+                return View("AccessDenied");
             }
+
         }
 
 
         public async Task<IActionResult> Create()
         {
-            var PositionsDTOs = await _positionService.GetAll();
-            ViewBag.positionDTOs = new SelectList(PositionsDTOs.Value, "PositionId", "Name");
-            return View();
+            if (User.IsInRole("None"))
+            {
+                var PositionsDTOs = await _positionService.GetAll();
+                ViewBag.positionDTOs = new SelectList(PositionsDTOs.Value, "PositionId", "Name");
+                return View();
+            }
+            else
+            {
+                return View("AccessDenied");
+            }
         }
 
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create(CarrerOfferDTO carrerOfferDTO)
         {
+
             var positionDTOs = await _positionService.GetAll();
             ViewBag.positionDTOs = new SelectList(positionDTOs.Value, "PositionId", "Name");
             if (ModelState.IsValid)
@@ -100,7 +121,9 @@ namespace CMS.Web.Controllers
 
         public async Task<IActionResult> Edit(int id)
         {
-            if (id <= 0)
+            if (User.IsInRole("None"))
+            {
+                if (id <= 0)
             {
                 return NotFound();
             }
@@ -113,6 +136,11 @@ namespace CMS.Web.Controllers
             var PositionsDTOs = await _positionService.GetAll();
             ViewBag.positionDTOs = new SelectList(PositionsDTOs.Value, "PositionId", "Name");
             return View(positionDTO);
+            }
+            else
+            {
+                return View("AccessDenied");
+            }
         }
         [HttpPost]
         [ValidateAntiForgeryToken]
@@ -153,7 +181,9 @@ namespace CMS.Web.Controllers
             //    return NotFound();
             //}
             //return View(carrerOffer);.
-            var result = await _carrerOfferService.GetById(id);
+            if (User.IsInRole("None"))
+            {
+                var result = await _carrerOfferService.GetById(id);
             if (result.IsSuccess)
             {
                 var positionDTO = result.Value;
@@ -165,6 +195,11 @@ namespace CMS.Web.Controllers
             {
                 ModelState.AddModelError("", result.Error);
                 return View();
+            }
+            }
+            else
+            {
+                return View("AccessDenied");
             }
         }
 

@@ -6,6 +6,8 @@
         "/theme/libs/apexcharts/apexcharts.min.js",
         "/dashboard-js/jobx.js",
         "/dashboard-js/rejected-chart.js",
+        "/dashboard-js/pending-chart.js",
+        "/dashboard-js/onHold-chart.js",
         "/theme/libs/jsvectormap/js/jsvectormap.min.js",
         "/theme/libs/jsvectormap/maps/world-merc.js",
         "/dashboard-js/countries-hash.js",
@@ -23,6 +25,13 @@
                         <p class="fw-medium text-muted mb-0">Candidates</p>
                         <h2 class="mt-4 ff-secondary fw-semibold"><span class="counter-value" data-target="@Model.NumberOfCandidates">@Model.NumberOfCandidates</span></h2>
                     </div>
+                  @*   <div style="margin-left:36%;">
+                        <div class="avatar-sm flex-shrink-0" >
+                            <span class="avatar-title bg-info-subtle rounded-circle fs-2">
+                                <span style="color:#36a2dd;font-size: 17px;">100%</span>
+                            </span>
+                        </div>  
+                    </div> *@
                     <div>
                         <div class="avatar-sm flex-shrink-0">
                             <span class="avatar-title bg-info-subtle rounded-circle fs-2">
@@ -80,6 +89,7 @@
                         <p class="text-uppercase fw-medium text-muted text-truncate mb-3"> Pending</p>
                         <h4 class="fs-22 fw-semibold ff-secondary mb-0"><span class="counter-value" data-target="@Model.NumberOfPending">0</span></h4>
                     </div>
+                    <div id="pending-chart" data-percent="@ViewBag.PendingPercentage"></div>
                 </div>
             </div><!-- end card body -->
         </div><!-- end card -->
@@ -133,7 +143,7 @@
                         <p class="text-uppercase fw-medium text-muted text-truncate mb-3"> On Hold</p>
                         <h4 class="fs-22 fw-semibold ff-secondary mb-0"><span class="counter-value" data-target="@Model.NumberOfOnHold">0</span></h4>
                     </div>
-                    <div id="rejected-chart" data-percent="@ViewBag.OnHoldPercentage"></div>
+                    <div id="onhold-chart" data-percent="@ViewBag.OnHoldPercentage"></div>
                 </div>
             </div><!-- end card body -->
         </div><!-- end card -->
@@ -171,25 +181,31 @@
             <div class="card-body">
                 <div class="container">
                     <div class="accordion" id="countryAccordion">
+                        @{
+                            int i = 1;
+                        }
                         @foreach (var country in ViewBag.TreeData)
                         {
                             @if (country.Positions != null && country.Positions.Count > 0)
                             {
                                 <div class="accordion-item">
-                                    <h2 class="accordion-header" id="countryheading-@country.Id">
-                                        <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#countrycollapse-@country.Id">
+                                    <h2 class="accordion-header" id="countryheading-@i">
+                                        <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#countrycollapse-@i">
                                             @country.Name
                                         </button>
                                     </h2>
-                                    <div id="countrycollapse-@country.Id" class="accordion-collapse collapse">
+                                    <div id="countrycollapse-@i" class="accordion-collapse collapse">
                                         <div class="accordion-body">
                                             <ul class="list-group">
+                                                @{
+                                                    int j = 1;
+                                                }
                                                 @foreach (var position in country.Positions)
                                                 {
                                                     <li class="list-group-item">
                                                         <div class="d-flex justify-content-between align-items-center">
                                                             <div>
-                                                                <button class="btn btn-link" data-bs-toggle="collapse" data-bs-target="#positioncollapse-@position.Id">
+                                                                <button class="btn btn-link" data-bs-toggle="collapse" data-bs-target="#positioncollapse-@i-@j">
                                                                     @position.Name
                                                                 </button>
                                                             </div>
@@ -197,8 +213,11 @@
                                                                 <span class="badge bg-primary rounded-pill">@position.Candidates.Count</span>
                                                             </div>
                                                         </div>
-                                                        <div id="positioncollapse-@position.Id" class="collapse">
+                                                        <div id="positioncollapse-@i-@j" class="collapse">
                                                             <ul class="list-group">
+                                                                @{
+                                                                    int k = 1;
+                                                                }
                                                                 @foreach (var candidate in position.Candidates)
                                                                 {
                                                                     <li class="list-group-item">
@@ -212,18 +231,20 @@
                                                                                     @(candidate.Status == "Pending" ? "for" : "by") @candidate.InterviewerName
                                                                                 </span>
                                                                             </div>
-
                                                                         </div>
                                                                     </li>
+                                                                    k++;
                                                                 }
                                                             </ul>
                                                         </div>
                                                     </li>
+                                                    j++;
                                                 }
                                             </ul>
                                         </div>
                                     </div>
                                 </div>
+                                i++;
                             }
                         }
                     </div>

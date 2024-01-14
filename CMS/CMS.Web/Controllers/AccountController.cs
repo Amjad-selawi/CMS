@@ -619,18 +619,18 @@ namespace CMS.Web.Controllers
                     // Check if the current password is correct
                     var isCurrentPasswordValid = await _userManager.CheckPasswordAsync(user, model.CurrentPassword);
 
-                    if (!isCurrentPasswordValid)
-                    {
-                        ModelState.AddModelError(string.Empty, "The current password is incorrect.");
-                        return View(model);
-                    }
+                        if (!isCurrentPasswordValid)
+                        {
+                            ModelState.AddModelError(string.Empty, "The current password is incorrect.");
+                            return View(model);
+                        }
 
-                    // Check if the new password is different from the current password
-                    if (model.CurrentPassword == model.NewPassword)
-                    {
-                        ModelState.AddModelError(string.Empty, "The new password must be different from the current password.");
-                        return View(model);
-                    }
+                        // Check if the new password is different from the current password
+                        if (model.CurrentPassword == model.NewPassword)
+                        {
+                            ModelState.AddModelError(string.Empty, "The new password must be different from the current password.");
+                            return View(model);
+                        }
 
                     var changePasswordResult = await _userManager.ChangePasswordAsync(user, model.CurrentPassword, model.NewPassword);
 
