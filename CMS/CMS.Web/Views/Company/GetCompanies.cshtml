@@ -6,7 +6,13 @@
 @{
     ViewData["Title"] = "Companies";
 }
-
+<style>
+    .card-body {
+        width: 100%;
+        max-width: 100%;
+        overflow-y: hidden;
+    }
+</style>
 
 <div class="row">
     <div class="col-lg-12">
@@ -18,7 +24,7 @@
             </div>
             <div class="card-body">
 
-                <table id="add-rows1" class="table table-nowrap dt-responsive table-bordered display" style="width:100%">
+                <table id="add-rows" class="table table-nowrap dt-responsive table-bordered display" style="width:100%">
                     <thead>
                         <tr>
                             <th>#</th>
@@ -72,7 +78,7 @@
 <script>
     $.noConflict();
     jQuery(document).ready(function ($) {
-        $('#add-rows1').DataTable();
+        $('#add-rows').DataTable();
 
     });
 </script>

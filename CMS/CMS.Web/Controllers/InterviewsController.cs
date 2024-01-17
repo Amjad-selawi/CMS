@@ -941,8 +941,11 @@ namespace CMS.Web.Controllers
                 {
                     ModelState.AddModelError("StatusId", "Please select a status.");
                 }
-            
-         
+
+                if (interviewsDTO.ArchitectureInterviewerId != null)
+                {
+                    HttpContext.Session.SetString($"ArchitectureInterviewer2Id_{interviewsDTO.InterviewsId}", interviewsDTO.ArchitectureInterviewerId ?? "");
+                }
 
                 var firstInterviewerRoles = await _interviewsService.GetInterviewerRole(interviewsDTO.InterviewerId);
                 var secondInterviewerRoles = await _interviewsService.GetInterviewerRole(interviewsDTO.SecondInterviewerId);
@@ -1048,15 +1051,26 @@ namespace CMS.Web.Controllers
                                 {
                                     // Continue with the logic only if the current interview status is not pending
                                     var interviewCount = await _interviewsRepository.GetInterviewCountForCandidate(interviewsDTO.CandidateId);
+
                                     if (newStatus.Code == Domain.Enums.StatusCode.Rejected && !User.IsInRole("HR Manager"))
                                     {
-                                        ModelState.AddModelError("StatusId", "Cannot set the interview status to Rejected because it has already been marked as done after the interview.");
-                                        if (attachmentStream != null)
+                                        // Check if the next interview is pending
+                                        var nextInterviewStatusCode = await _interviewsRepository.GetStatusOfNextInterview(interviewsDTO.CandidateId, interviewsDTO.InterviewsId);
+
+                                        if (nextInterviewStatusCode != null && !nextInterviewStatusCode.Equals(Domain.Enums.StatusCode.Pending))
                                         {
-                                            attachmentStream.Close();
-                                            attachmentStream.Dispose();
+                                            ModelState.AddModelError("StatusId", "Cannot set the interview status to Rejected because it has already been marked as done after the interview.");
+                                            if (attachmentStream != null)
+                                            {
+                                                attachmentStream.Close();
+                                                attachmentStream.Dispose();
+                                            }
+                                            return View(interviewsDTO);
                                         }
-                                        return View(interviewsDTO);
+                                        else
+                                        {
+                                            var interviewsDeleted = await _interviewsRepository.DeletePendingInterviews(interviewsDTO.CandidateId, interviewsDTO.PositionId, userId: User.FindFirstValue(ClaimTypes.NameIdentifier));
+                                        }
                                     }
                                     else
                                     {
@@ -1117,6 +1131,7 @@ namespace CMS.Web.Controllers
                         {
                             var secondInterviewerId = HttpContext.Session.GetString($"SecondInterviewerId_{interviewsDTO.InterviewsId}");
                             var interviewerId = HttpContext.Session.GetString($"InterviewerId_{interviewsDTO.InterviewsId}");
+
 
 
                             await _interviewsService.ConductInterview(interviewsDTO, interviewerId, secondInterviewerId);

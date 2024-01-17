@@ -49,5 +49,6 @@ namespace CMS.Services.Interfaces
 
         void LogException(string methodName, Exception ex = null, string additionalInfo = null);
         Task<int> GetUnreadNotificationCount();
+        Task MarkAllAsReadForHRAsync();
     }
 }
