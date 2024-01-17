@@ -7,6 +7,10 @@
     <div class="col-lg-12">
         <div class="card">
 <div class="card-body">
+                <div style="margin-bottom:20px;">
+                    <button class="btn btn-primary" id="readAllButton" >Mark as Read</button>
+                </div>
+
 <table id="add-rows" class="table table-nowrap dt-responsive table-bordered display" style="width:100%">
     <thead>
         <tr>
@@ -47,6 +51,50 @@
 </div>
 
 
+<script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
 
+<!-- SweetAlert2 CSS -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@10">
+
+<!-- SweetAlert2 JS -->
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@10"></script>
+
+<script>
+    $(document).ready(function () {
+        $("#readAllButton").click(function () {
+            $.ajax({
+                url: '@Url.Action("MarkAllAsRead", "Notifications")',
+                type: 'POST',
+                success: function () {
+                    // Show SweetAlert2 success notification without a timer
+                    Swal.fire({
+                        title: 'Success!',
+                        text: 'All notifications marked as read successfully.',
+                        icon: 'success',
+                        confirmButtonText: 'OK',
+                        timer: null // or remove this line
+                    });
+
+                    // Delay the reload for 2 seconds (adjust as needed)
+                    setTimeout(function () {
+                        // Reload the page or update the table as needed
+                        location.reload();
+                    }, 3500); // 1000 milliseconds = 1 seconds
+                },
+                error: function (xhr, status, error) {
+                    console.error("Error marking all as read: " + error);
+
+                    // Show SweetAlert2 error notification
+                    Swal.fire({
+                        title: 'Error!',
+                        text: 'Failed to mark all notifications as read.',
+                        icon: 'error',
+                        confirmButtonText: 'OK'
+                    });
+                }
+            });
+        });
+    });
+</script>
 
 

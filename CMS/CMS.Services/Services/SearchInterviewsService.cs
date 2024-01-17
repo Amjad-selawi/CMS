@@ -261,14 +261,13 @@ namespace CMS.Services.Services
 
                 string interviewerRole = await GetInterviewerRole(interview.InterviewerId);
 
-                var firstInterview = await _interviewsRepository.GetById(interview.ParentId ?? 0);
-
+                var firstInterviewScore = await GetFirstInterviewScore(id);
 
                 var interviewDTO = new InterviewsDTO
                 {
                     InterviewsId = interview.InterviewsId,
                     Score = interview.Score,
-                    FirstInterviewScore = firstInterview?.Score, // Include the first interview score
+                    FirstInterviewScore = firstInterviewScore,
                     StatusId = interview.StatusId,
                     StatusName = interview.Status.Name,
                     Date = interview.Date,
@@ -634,7 +633,19 @@ namespace CMS.Services.Services
             }
         }
 
+        private async Task<double?> GetFirstInterviewScore(int interviewId)
+        {
+            var interview = await _interviewsRepository.GetById(interviewId);
 
+            if (interview?.ParentId != null)
+            {
+                // If there is a parent interview, recursively fetch the first interview's score
+                return await GetFirstInterviewScore(interview.ParentId.Value);
+            }
+
+            // No parent interview, return the current interview's score
+            return interview?.Score;
+        }
 
 
 

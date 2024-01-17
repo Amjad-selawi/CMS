@@ -101,12 +101,20 @@ namespace CMS.Web.Controllers
                 var tracks = await _trackService.GetAll();
                 ViewBag.TrackListDropdown = new SelectList(tracks.Value, "Id", "Name");
 
-
+                    // Store filter values in TempData
+                    TempData["PositionFilter"] = positionFilter;
+                    TempData["ScoreFilter"] = scoreFilter;
+                    TempData["StatusFilter"] = statusFilter;
+                    TempData["CandidateFilter"] = candidateFilter;
+                    TempData["InterviewerFilter"] = interviewerFilter;
+                    TempData["FromDate"] = fromDate;
+                    TempData["ToDate"] = toDate;
+                    TempData["TrackFilterDropdown"] = trackFilterDropdown;
                     if (!string.IsNullOrEmpty(export) && export == "excel")
                 {
                     var filteredInterviews = await ApplyFiltersAndRetrieveData(positionFilter, scoreFilter, statusFilter, candidateFilter, interviewerFilter, fromDate, toDate, trackFilterDropdown);
                     var excelData = GenerateExcelFile(filteredInterviews);
-                    return File(excelData, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", "Interviews.xlsx");
+                    return File(await excelData, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", "Interviews.xlsx");
                 }
                 else
                 {
@@ -229,6 +237,25 @@ namespace CMS.Web.Controllers
         {
             try
             {
+                // Retrieve filter values from TempData
+                string positionFilter = TempData["PositionFilter"] as string;
+                int? scoreFilter = TempData["ScoreFilter"] as int?;
+                int? statusFilter = TempData["StatusFilter"] as int?;
+                string candidateFilter = TempData["CandidateFilter"] as string;
+                string interviewerFilter = TempData["InterviewerFilter"] as string;
+                DateTime? fromDate = TempData["FromDate"] as DateTime?;
+                DateTime? toDate = TempData["ToDate"] as DateTime?;
+                int? trackFilterDropdown = TempData["TrackFilterDropdown"] as int?;
+
+                // Pass filter values to the view
+                ViewBag.PositionFilter = positionFilter;
+                ViewBag.ScoreFilter = scoreFilter;
+                ViewBag.StatusFilter = statusFilter;
+                ViewBag.CandidateFilter = candidateFilter;
+                ViewBag.InterviewerFilter = interviewerFilter;
+                ViewBag.FromDate = fromDate;
+                ViewBag.ToDate = toDate;
+                ViewBag.TrackList = trackFilterDropdown;
 
 
                 var result = await _searchInterviewsService.ShowHistory(id);
@@ -259,7 +286,7 @@ namespace CMS.Web.Controllers
            
             var filteredInterviews = await ApplyFiltersAndRetrieveData(positionFilter, scoreFilter, statusFilter, candidateFilter, interviewerFilter, fromDate, toDate, trackFilter);
             var excelData = GenerateExcelFile(filteredInterviews);
-            return File(excelData, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", "FilteredInterviews.xlsx");
+            return File(await excelData, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", "FilteredInterviews.xlsx");
             }
             catch (Exception ex)
             {
@@ -270,7 +297,7 @@ namespace CMS.Web.Controllers
 
 
 
-        private byte[] GenerateExcelFile(IEnumerable<InterviewsDTO> data)
+        private async Task<byte[]> GenerateExcelFile(IEnumerable<InterviewsDTO> data)
         {
             try
             {
@@ -303,13 +330,24 @@ namespace CMS.Web.Controllers
                 int row = 2;
                 foreach (var item in data)
                 {
-                    worksheet.Cells[row, 1].Value = item.FullName;
+                        var scoreTask = _searchInterviewsService.GetById(item.InterviewsId);
+                        var scoreResult = await scoreTask;
+
+                        if (scoreResult.IsSuccess)
+                        {
+                            var score = scoreResult.Value.FirstInterviewScore;
+                            worksheet.Cells[row, 6].Value = score;
+                        }
+                        else
+                        {
+                            worksheet.Cells[row, 6].Value = "N/A";
+                        }
+                        worksheet.Cells[row, 1].Value = item.FullName;
                     worksheet.Cells[row, 2].Value = item.Name;
                     worksheet.Cells[row, 3].Value = item.TrackName;
                     worksheet.Cells[row, 4].Value = item.InterviewerName;
                     worksheet.Cells[row, 5].Style.Numberformat.Format = "yyyy-mm-dd";
                     worksheet.Cells[row, 5].Value = item.Date;
-                    worksheet.Cells[row, 6].Value = item.Score;
                     worksheet.Cells[row, 7].Value = item.StatusName;
                     worksheet.Cells[row, 8].Value = item.Notes;
 
@@ -331,7 +369,16 @@ namespace CMS.Web.Controllers
         {
             try
             {
-                
+
+                // Retrieve filter values from TempData
+                string positionFilter = TempData["PositionFilter"] as string;
+                int? scoreFilter = TempData["ScoreFilter"] as int?;
+                int? statusFilter = TempData["StatusFilter"] as int?;
+                string candidateFilter = TempData["CandidateFilter"] as string;
+                string interviewerFilter = TempData["InterviewerFilter"] as string;
+                DateTime? fromDate = TempData["FromDate"] as DateTime?;
+                DateTime? toDate = TempData["ToDate"] as DateTime?;
+                int? trackFilterDropdown = TempData["TrackFilterDropdown"] as int?;
 
 
                 var result = await _searchInterviewsService.GetById(id);
@@ -342,11 +389,20 @@ namespace CMS.Web.Controllers
             var candidateDTOs = await _candidateService.GetAllCandidatesAsync();
             ViewBag.candidateDTOs = new SelectList(candidateDTOs, "Id", "FullName");
 
-            //var interviewersDTOs = await _searchInterviewsService.GetInterviewers();
-            //ViewBag.interviewersDTOs = new SelectList(interviewersDTOs, "Id", "Name");
+                //var interviewersDTOs = await _searchInterviewsService.GetInterviewers();
+                //ViewBag.interviewersDTOs = new SelectList(interviewersDTOs, "Id", "Name");
 
+                // Pass filter values to the view
+                ViewBag.PositionFilter = positionFilter;
+                ViewBag.ScoreFilter = scoreFilter;
+                ViewBag.StatusFilter = statusFilter;
+                ViewBag.CandidateFilter = candidateFilter;
+                ViewBag.InterviewerFilter = interviewerFilter;
+                ViewBag.FromDate = fromDate;
+                ViewBag.ToDate = toDate;
+                ViewBag.TrackList = trackFilterDropdown;
 
-            if (result.IsSuccess)
+                if (result.IsSuccess)
             {
                 var interviewsDTO = result.Value;
 

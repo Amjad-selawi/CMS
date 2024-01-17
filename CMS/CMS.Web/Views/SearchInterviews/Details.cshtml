@@ -88,6 +88,6 @@
 </div>
 <div class="form-group ">
     @* <a asp-action="Edit" asp-route-id="@Model.InterviewsId" class="btn btn-primary">Edit</a> *@
-    <a class="btn btn-secondary" asp-action="Index">Back to List</a>
-    
+    <a class="btn btn-secondary" href="@Url.Action("Index", new { positionFilter = ViewBag.PositionFilter, scoreFilter = ViewBag.ScoreFilter, statusFilter = ViewBag.StatusFilter, candidateFilter = ViewBag.CandidateFilter, interviewerFilter = ViewBag.InterviewerFilter, fromDate = ViewBag.FromDate, toDate = ViewBag.ToDate, trackFilterDropdown = ViewBag.TrackList })">Back to List</a>
+
 </div>

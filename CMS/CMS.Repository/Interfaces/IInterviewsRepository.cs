@@ -32,6 +32,6 @@ namespace CMS.Repository.Interfaces
         Task<Interviews> GetinterviewerInterviewForCandidate(int candidateId);
         Task<int> GetInterviewCountForCandidate(int candidateId);
         Task<bool> DeletePendingInterviews(int candidateId, int positionId, string userId);
-
+        Task<string?> GetStatusOfNextInterview(int candidateId, int currentInterviewId);
     }
 }

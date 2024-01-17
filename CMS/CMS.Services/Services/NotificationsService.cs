@@ -1202,6 +1202,45 @@ namespace CMS.Services.Services
             }
         }
 
+        public async Task MarkAllAsReadForHRAsync()
+        {
+            try
+            {
+                // Find the HR Manager role
+                var HrRole = await _roleManager.FindByNameAsync("HR Manager");
+
+                if (HrRole != null)
+                {
+                    // Get all users in the HR Manager role
+                    var HrUsers = await _userManager.GetUsersInRoleAsync(HrRole.Name);
+
+                    if (HrUsers.Any())
+                    {
+                        // Use the ID of the first user in the HR Manager role
+                        var HrId = HrUsers.First().Id;
+
+                        // Get all unread notifications for HR
+                        var notifications = await _dbContext.Notifications
+                            .Where(n => n.ReceiverId == HrId && !n.IsRead)
+                            .ToListAsync();
+
+                        // Mark each notification as read
+                        foreach (var notification in notifications)
+                        {
+                            notification.IsRead = true;
+                        }
+
+                        // Save changes to the database
+                        await _dbContext.SaveChangesAsync();
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                // Handle the exception (log, throw, etc.)
+                throw new ApplicationException("Failed to mark all notifications as read for HR", ex);
+            }
+        }
 
 
     }

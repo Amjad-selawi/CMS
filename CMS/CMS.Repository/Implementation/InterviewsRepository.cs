@@ -508,6 +508,16 @@ namespace CMS.Repository.Repositories
         }
 
 
+        public async Task<string?> GetStatusOfNextInterview(int candidateId, int currentInterviewId)
+        {
+            var nextInterview = await _context.Interviews
+                .Where(i => i.CandidateId == candidateId && i.InterviewsId > currentInterviewId)
+                .OrderBy(i => i.InterviewsId)
+                .FirstOrDefaultAsync();
+
+            return nextInterview?.Status?.Code;
+        }
+
 
 
 

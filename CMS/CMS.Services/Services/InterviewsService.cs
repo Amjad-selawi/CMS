@@ -643,6 +643,10 @@ namespace CMS.Services.Services
                             var architectureInterviewerId = _httpContextAccessor.HttpContext.Session.GetString("ArchitectureInterviewerId");
                             var archiId = architectureInterviewerId;
 
+                            if (archiId != null)
+                            {
+                                newInterview1.SecondInterviewerId = archiId;
+                            }
                             Debug.Assert(hr != null, "There is No Valid HR Manager in The System");
 
                             // Create an interview for the General Manager
@@ -677,7 +681,7 @@ namespace CMS.Services.Services
                                     ParentId = completedDTO.InterviewsId,
                                     CreatedOn = DateTime.Now,
                                     CreatedBy = currentUserr.Id,
-                                    InterviewerId = archi.Id,
+                                    InterviewerId = archiId,
                                     SecondInterviewerId = completedDTO.SecondInterviewerId,
                                 };
 
@@ -817,6 +821,11 @@ namespace CMS.Services.Services
 
                                 // Use architectureInterviewerId in your new interview creation logic.
                                 var archiId = architectureInterviewerId;
+
+                                if (archiId != null )
+                                {
+                                    newInterview2.SecondInterviewerId = archiId;
+                                }
 
                                 Debug.Assert(manager != null, "There is No Valid General Manager in The System");
 

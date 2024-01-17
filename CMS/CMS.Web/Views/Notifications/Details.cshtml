@@ -70,20 +70,20 @@
         @if (User.IsInRole("HR Manager"))
         {
             <div class="">
-                <a class="btn btn-secondary" asp-action="IndexHRnotification" style="margin-left: 12px;">Back to HR Notifications</a>
+                <a class="btn btn-secondary" asp-action="IndexHRnotification" style="margin-left: 12px;">Back to your Notifications</a>
             </div>
         }
         else if (User.IsInRole("Interviewer"))
         {
-            <a class="btn btn-secondary" asp-action="IndexInterviewernotification">Back to Interviewer Notifications</a>
+            <a class="btn btn-secondary" asp-action="IndexInterviewernotification">Back to your Notifications</a>
         }
         else if (User.IsInRole("General Manager"))
         {
-            <a class="btn btn-secondary" asp-action="IndexGMnotification">Back to GM Notifications</a>
+            <a class="btn btn-secondary" asp-action="IndexGMnotification">Back to your Notifications</a>
         }
         else if (User.IsInRole("Solution Architecture"))
         {
-            <a class="btn btn-secondary" asp-action="IndexArchinotification">Back to Architecture Notifications</a>
+            <a class="btn btn-secondary" asp-action="IndexArchinotification">Back to your Notifications</a>
         }
         else
         {

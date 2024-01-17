@@ -367,6 +367,27 @@ namespace CMS.Web.Controllers
             }
         }
 
+        [HttpPost]
+        public async Task<ActionResult> MarkAllAsRead()
+        {
+            try
+            {
+                if (User.IsInRole("HR Manager"))
+                {
+                    await _notificationsService.MarkAllAsReadForHRAsync();
+                    return Json(new { success = true });
+                }
+                else
+                {
+                    return Json(new { success = false, message = "Access denied" });
+                }
+            }
+            catch (Exception ex)
+            {
+                LogException(nameof(MarkAllAsRead), ex, "Failed to mark all notifications as read for HR");
+                return Json(new { success = false, message = "Internal server error" });
+            }
+        }
 
     }
 }
