@@ -37,10 +37,16 @@
                 @Html.DropDownList("trackFilter", ViewBag.TrackList as SelectList, "All Tracks", new { @class = "form-control" })
             </div>
 
-            <div class="col-md-3" style="margin-top: 27px;">
+            <div class="col-md-3" style="margin-top: 27px;width:9%;">
                 <label>&nbsp;</label>
-                <button type="submit" class="btn btn-primary btn-block" data-bs-toggle="tooltip" data-bs-placement="right" data-bs-original-title="Filter Interviews">Filter</button>
+                <button type="submit" class="btn btn-primary btn-block" data-bs-toggle="tooltip" data-bs-placement="bottom" data-bs-original-title="Filter Interviews">Filter</button>
             </div>
+@* 
+            <div class="col-md-3" style="margin-top: 27px;width:9%;">
+                <label>&nbsp;</label>
+                <button type="button" id="resetFilter" class="btn btn-secondary btn-block" data-bs-toggle="tooltip" data-bs-placement="right" data-bs-original-title="Reset Filters">Reset</button>
+            </div>
+ *@
 
 
 
@@ -67,7 +73,7 @@
                             <th>Candidate Name</th>
                             <th>Level</th>
                             <th>Track</th>
-                            <th>First Interviewer</th>
+                            <th>Interviewer/s</th>
                             <th hidden>Second Interviewer</th>
                             <th>Architecture</th>
                             <th>Date and Time</th>
@@ -90,7 +96,17 @@
                                     <td>@Html.DisplayFor(modelItem => item.FullName)</td>
                                     <td>@Html.DisplayFor(modelItem => item.Name)</td>
                                     <td>@Html.DisplayFor(modelItem => item.TrackName)</td>
-                                    <td>@item.InterviewerName</td>
+                                    @if (item.SecondInterviewerName == "User not found")
+                                    {
+                                        <td>@item.InterviewerName</td>
+                                    }
+                                    else
+                                    {
+                                        <td>
+                                            <div>1-@item.InterviewerName</div>
+                                            <div>2-@item.SecondInterviewerName</div>
+                                        </td>
+                                    }
                                     @if (item.SecondInterviewerId != null)
                                     {
                                         <td hidden>@item.SecondInterviewerName</td>
@@ -98,14 +114,15 @@
                                     else
                                     {
                                         <td hidden>There is no Second Interviewer</td>
-                                    }
+                                    }  
+                                    
                                     @if (item.ArchitectureInterviewerId != null)
                                     {
                                         <td>@item.ArchitectureInterviewerName</td>
                                     }
                                     else
                                     {
-                                        <td>There is no Architecture Interviewer</td>
+                                        <td>No Architecture Interviewer</td>
                                     }
                                     <td>
                                         <div>@item.Date.ToString("dd-MM-yyyy")</div>
@@ -151,5 +168,15 @@
     jQuery(document).ready(function ($) {
         $('#add-rows').DataTable();
 
+        // Reset button click event
+        $('#resetFilter').on('click', function () {
+            // Reset the form fields
+            $('#statusFilter').val('');
+            $('#candidateFilter').val('');
+            $('#trackFilter').val('');
+
+            // Trigger the form submission to apply the reset
+            $('form').submit();
+        });
     });
 </script>

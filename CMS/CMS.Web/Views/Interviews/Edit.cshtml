@@ -141,10 +141,16 @@
 
 
 <script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
+<!-- SweetAlert2 CSS -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@10">
+
+<!-- SweetAlert2 JS -->
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@10"></script>
 
 <script>
     $(document).ready(function () {
         $('#editForm').submit(function (e) {
+            e.preventDefault();
             var candidateId = $('#CandidateId').val();
             var positionId = $('#PositionId').val();
             var interviewerId = $('#InterviewerId').val();
@@ -166,7 +172,7 @@
                 $('#positionIdError').text('');
             }
 
-             // Validate Track
+            // Validate Track
             if (!positionId) {
                 $('#trackIdError').text('Track is required.');
                 e.preventDefault(); // Prevent form submission
@@ -189,6 +195,31 @@
             } else {
                 $('#dateValidationMessage').text('');
             }
+
+
+            Swal.fire({
+                title: 'Are you sure?',
+                text: 'Do you want to submit the changes?',
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#3085d6',
+                cancelButtonColor: '#d33',
+                confirmButtonText: 'Yes, submit it!',
+                cancelButtonText: 'No, cancel!',
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    // If the user clicks "Yes", proceed with form submission
+                    $('#editForm')[0].submit();
+                }
+            });
         });
     });
 </script>
+
+
+
+
+
+
+
+
