@@ -319,7 +319,20 @@ namespace CMS.Web.Controllers
             if (result.IsSuccess)
             {
                 var interviewsDTOs = result.Value;
-                return View(interviewsDTOs);
+
+                    var interviews = await _interviewsService.GetById(id);
+                    var interviewsResult = interviews.Value;
+
+                    if (interviewsResult != null)
+                    {
+                        var candidateId = interviewsResult.CandidateId;
+
+                        var candidate = await _candidateService.GetCandidateByIdAsync(candidateId);
+                        ViewBag.CandidateName = candidate.FullName;
+                    }
+
+
+                    return View(interviewsDTOs);
             }
             else
             {
@@ -632,7 +645,7 @@ namespace CMS.Web.Controllers
 
                             HttpContext.Session.SetString($"SecondInterviewerId_{collection.InterviewsId}", collection.SecondInterviewerId ?? "");
                             HttpContext.Session.SetString($"InterviewerId_{collection.InterviewsId}", collection.InterviewerId ?? "");
-                            HttpContext.Session.SetString("ArchitectureInterviewerId", collection.ArchitectureInterviewerId ?? "");
+                            HttpContext.Session.SetString($"ArchitectureInterviewerId_{collection.InterviewsId}", collection.ArchitectureInterviewerId ?? "");
                             // Get Candidate Name By Id
                             var candidateName = await _candidateService.GetCandidateByIdAsync(collection.CandidateId);
                             var candidateNameresult = candidateName.FullName;

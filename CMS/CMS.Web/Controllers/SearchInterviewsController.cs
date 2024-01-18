@@ -36,7 +36,9 @@ namespace CMS.Web.Controllers
 
         public SearchInterviewsController(ICandidateService candidateService, IPositionService positionService, IStatusService statusService, IWebHostEnvironment env,
             INotificationsService notificationsService, 
-            ISearchInterviewsService searchInterviewsService, IHttpContextAccessor httpContextAccessor,ITrackService trackService)
+            ISearchInterviewsService searchInterviewsService,
+            IHttpContextAccessor httpContextAccessor,ITrackService trackService
+            )
         {
             _candidateService = candidateService;
             _positionService = positionService;
@@ -263,6 +265,17 @@ namespace CMS.Web.Controllers
                 if (result.IsSuccess)
                 {
                     var interviewsDTOs = result.Value;
+
+                    var interviews = await _searchInterviewsService.GetById(id);
+                    var interviewsResult = interviews.Value;
+
+                    if (interviewsResult != null)
+                    {
+                        var candidateId = interviewsResult.CandidateId;
+
+                        var candidate = await _candidateService.GetCandidateByIdAsync(candidateId);
+                        ViewBag.CandidateName = candidate.FullName;
+                    }
                     return View(interviewsDTOs);
                 }
                 else
