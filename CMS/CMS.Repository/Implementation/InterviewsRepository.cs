@@ -518,8 +518,21 @@ namespace CMS.Repository.Repositories
             return nextInterview?.Status?.Code;
         }
 
+        public InterviewsDTO GetInterviewByCandidateIdWithParentId(int candidateId)
+        { 
+            var intervew = _context.Interviews.Include(i=>i.Candidate)
+                .Where(i=>i.ParentId == null && i.CandidateId == candidateId)
+                .Select(i=> new InterviewsDTO
+                {
+                    InterviewsId = i.InterviewsId,
+                    ArchitectureInterviewerId = i.ArchitectureInterviewerId,
+                     CandidateId = i.CandidateId,
+
+                }).FirstOrDefault();
+        return intervew;
+        
+        }
 
 
-
-    }
+        }
 }

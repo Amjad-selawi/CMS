@@ -1,4 +1,5 @@
 ﻿// CMS.Domain.Interfaces/IInterviewsRepository.cs
+using CMS.Application.DTOs;
 using CMS.Domain.Entities;
 using System;
 using System.Collections.Generic;
@@ -33,5 +34,7 @@ namespace CMS.Repository.Interfaces
         Task<int> GetInterviewCountForCandidate(int candidateId);
         Task<bool> DeletePendingInterviews(int candidateId, int positionId, string userId);
         Task<string?> GetStatusOfNextInterview(int candidateId, int currentInterviewId);
+        InterviewsDTO GetInterviewByCandidateIdWithParentId(int candidateId);
+
     }
 }

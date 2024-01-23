@@ -422,7 +422,7 @@ namespace CMS.Web.Controllers
 
                             HttpContext.Session.SetString($"SecondInterviewerId_{collection.InterviewsId}", collection.SecondInterviewerId ?? "");
                             HttpContext.Session.SetString($"InterviewerId_{collection.InterviewsId}", collection.InterviewerId ?? "");
-                            HttpContext.Session.SetString($"ArchitectureInterviewerId_{collection.InterviewsId}", collection.ArchitectureInterviewerId ?? "");
+                            //HttpContext.Session.SetString($"ArchitectureInterviewerId_{collection.InterviewsId}", collection.ArchitectureInterviewerId ?? "");
                             // Get Candidate Name By Id
                             var candidateName = await _candidateService.GetCandidateByIdAsync(collection.CandidateId);
                             var candidateNameresult = candidateName.FullName;
@@ -590,9 +590,12 @@ namespace CMS.Web.Controllers
                 var StatusDTOs = await _StatusService.GetAll();
                 ViewBag.StatusDTOs = new SelectList(StatusDTOs.Value, "Id", "Name");
 
-                await LoadSelectionLists(); 
+                await LoadSelectionLists();
 
-                HttpContext.Session.SetString($"ArchitectureInterviewerId_{collection.InterviewsId}", collection.ArchitectureInterviewerId ?? "");
+                if (collection.ArchitectureInterviewerId != null)
+                {
+                    HttpContext.Session.SetString($"ArchitectureInterviewerId_{collection.InterviewsId}", collection.ArchitectureInterviewerId ?? "");
+                }
 
                 if (!collection.StatusId.HasValue)
                 {
@@ -1144,8 +1147,7 @@ namespace CMS.Web.Controllers
                         {
                             var secondInterviewerId = HttpContext.Session.GetString($"SecondInterviewerId_{interviewsDTO.InterviewsId}");
                             var interviewerId = HttpContext.Session.GetString($"InterviewerId_{interviewsDTO.InterviewsId}");
-
-
+                            //var archiId = HttpContext.Session.GetString($"ArchitectureInterviewerId_{interviewsDTO.InterviewsId}");
 
                             await _interviewsService.ConductInterview(interviewsDTO, interviewerId, secondInterviewerId);
                         }
@@ -1156,6 +1158,7 @@ namespace CMS.Web.Controllers
                             var secondInterviewerId = HttpContext.Session.GetString($"SecondInterviewerId_{interviewsDTO.InterviewsId}");
                             var secondInterviewer = await _userManager.FindByIdAsync(secondInterviewerId);
                             var interviewerId = HttpContext.Session.GetString($"InterviewerId_{interviewsDTO.InterviewsId}");
+                            //var archiId = HttpContext.Session.GetString($"ArchitectureInterviewerId_{interviewsDTO.InterviewsId}");
 
                             if (secondInterviewer !=null)
                             {
@@ -1202,7 +1205,8 @@ namespace CMS.Web.Controllers
                         if (status.Code == Domain.Enums.StatusCode.Rejected || status.Code == Domain.Enums.StatusCode.Approved)
                         {
 
-                                var architectureInterviewerId = HttpContext.Session.GetString($"ArchitectureInterviewerId_{interviewsDTO.InterviewsId}");
+                               
+                                //var architectureInterviewerId = HttpContext.Session.GetString($"ArchitectureInterviewerId_{interviewsDTO.InterviewsId}");
                                 //if(architectureInterviewerId != "" || architectureInterviewerId != null)
                                 //{
                                 //    await _notificationsService.CreateNotificationForArchiAsync(interviewsDTO.StatusId.Value, interviewsDTO.Notes, interviewsDTO.CandidateId, interviewsDTO.PositionId);
@@ -1292,7 +1296,11 @@ namespace CMS.Web.Controllers
                                         }
                                         else
                                         {
-                                            await _notificationsService.CreateNotificationForGeneralManagerAsync(interviewsDTO.StatusId.Value, interviewsDTO.Notes, interviewsDTO.CandidateId, interviewsDTO.PositionId, architectureInterviewerId);
+                                            var archiIdd = _interviewsRepository.GetInterviewByCandidateIdWithParentId(interviewsDTO.CandidateId);
+
+                                            var aechituciterId = archiIdd.ArchitectureInterviewerId;
+
+                                            await _notificationsService.CreateNotificationForGeneralManagerAsync(interviewsDTO.StatusId.Value, interviewsDTO.Notes, interviewsDTO.CandidateId, interviewsDTO.PositionId, aechituciterId);
 
                                             //from interviewer to GM
                                             EmailDTOs emailModel = new EmailDTOs
@@ -1342,11 +1350,9 @@ namespace CMS.Web.Controllers
                                     </html>"
                                             };
 
-                                            if (architectureInterviewerId == "")
-                                            {
-                                                architectureInterviewerId = null;
-                                            }
-                                            if (architectureInterviewerId != null)
+                                          
+
+                                            if (aechituciterId != null)
                                             {
                                                 var userArchi = await _userManager.FindByEmailAsync(ArchiEmail);
                                                 await _notificationsService.CreateNotificationForArchiAsync(interviewsDTO.StatusId.Value, interviewsDTO.Notes, interviewsDTO.CandidateId, interviewsDTO.PositionId);
@@ -1394,7 +1400,11 @@ namespace CMS.Web.Controllers
                                     }
                                     else
                                     {
-                                        await _notificationsService.CreateNotificationForGeneralManagerAsync(interviewsDTO.StatusId.Value, interviewsDTO.Notes, interviewsDTO.CandidateId, interviewsDTO.PositionId, architectureInterviewerId);
+                                        var archiIdd = _interviewsRepository.GetInterviewByCandidateIdWithParentId(interviewsDTO.CandidateId);
+
+                                        var aechituciterId = archiIdd.ArchitectureInterviewerId;
+
+                                        await _notificationsService.CreateNotificationForGeneralManagerAsync(interviewsDTO.StatusId.Value, interviewsDTO.Notes, interviewsDTO.CandidateId, interviewsDTO.PositionId, aechituciterId);
 
                                         //from interviewer to GM
                                         EmailDTOs emailModel = new EmailDTOs
@@ -1444,11 +1454,10 @@ namespace CMS.Web.Controllers
                                     </html>"
                                 };
 
-                                        if (architectureInterviewerId == "")
-                                        {
-                                            architectureInterviewerId = null;
-                                        }
-                                if ((architectureInterviewerId != null )&& status.Code == Domain.Enums.StatusCode.Approved)
+                                      
+                                       
+
+                                        if ((aechituciterId != null )&& status.Code == Domain.Enums.StatusCode.Approved)
                                 {
                                         var userArchi = await _userManager.FindByEmailAsync(ArchiEmail);
                                             await _notificationsService.CreateNotificationForArchiAsync(interviewsDTO.StatusId.Value, interviewsDTO.Notes, interviewsDTO.CandidateId, interviewsDTO.PositionId);

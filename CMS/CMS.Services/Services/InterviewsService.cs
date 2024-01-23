@@ -415,11 +415,11 @@ namespace CMS.Services.Services
                 var status = await _statusRepository.GetByCode(StatusCode.Pending);
                 var currentUser = await _userManager.GetUserAsync(_httpContextAccessor.HttpContext.User);
 
-                var candidateArchitectureKey = $"ArchitectureInterviewerId_{data.CandidateId}";
-                if (!string.IsNullOrEmpty(data.ArchitectureInterviewerId) && string.IsNullOrEmpty(_httpContextAccessor.HttpContext.Session.GetString(candidateArchitectureKey)))
-                {
-                    _httpContextAccessor.HttpContext.Session.SetString(candidateArchitectureKey, data.ArchitectureInterviewerId);
-                }
+                //var candidateArchitectureKey = $"ArchitectureInterviewerId_{data.CandidateId}";
+                //if (!string.IsNullOrEmpty(data.ArchitectureInterviewerId) && string.IsNullOrEmpty(_httpContextAccessor.HttpContext.Session.GetString(candidateArchitectureKey)))
+                //{
+                //    _httpContextAccessor.HttpContext.Session.SetString(candidateArchitectureKey, data.ArchitectureInterviewerId);
+                //}
 
 
                 var interview = new Interviews
@@ -640,13 +640,13 @@ namespace CMS.Services.Services
                         {
                             var hr = (await _userManager.GetUsersInRoleAsync("HR Manager")).FirstOrDefault();
 
-                            var architectureInterviewerId = _httpContextAccessor.HttpContext.Session.GetString("ArchitectureInterviewerId");
-                            var archiId = architectureInterviewerId;
+                            //var architectureInterviewerId = _httpContextAccessor.HttpContext.Session.GetString("ArchitectureInterviewerId");
+                            //var archiId = architectureInterviewerId;
 
-                            if (archiId != null)
-                            {
-                                newInterview1.SecondInterviewerId = archiId;
-                            }
+                            //if (archiId != null)
+                            //{
+                            //    newInterview1.SecondInterviewerId = archiId;
+                            //}
                             Debug.Assert(hr != null, "There is No Valid HR Manager in The System");
 
                             // Create an interview for the General Manager
@@ -666,9 +666,13 @@ namespace CMS.Services.Services
 
                             await _interviewsRepository.Insert(hrInterview);
                             // Create an interview for the Solution Architecture
-                            if (!string.IsNullOrEmpty(archiId))
+
+                            var archiIdd = _interviewsRepository.GetInterviewByCandidateIdWithParentId(hrInterview.CandidateId);
+
+                            var aechituciterId = archiIdd.ArchitectureInterviewerId;
+                            if (aechituciterId != null)
                             {
-                                var archi = await _userManager.FindByIdAsync(archiId);
+                                var archi = await _userManager.FindByIdAsync(aechituciterId);
                                 Debug.Assert(archi != null, "There is No Valid Solution Architecture in The System");
 
                                 var newArchiInterview = new Interviews
@@ -681,7 +685,7 @@ namespace CMS.Services.Services
                                     ParentId = completedDTO.InterviewsId,
                                     CreatedOn = DateTime.Now,
                                     CreatedBy = currentUserr.Id,
-                                    InterviewerId = archiId,
+                                    InterviewerId = aechituciterId,
                                     SecondInterviewerId = completedDTO.SecondInterviewerId,
                                 };
 
@@ -766,7 +770,7 @@ namespace CMS.Services.Services
                             archiInterview.IsUpdated = true;
                             await _interviewsRepository.Update(archiInterview);
                         }
-                        var interviewerInterview = await _interviewsRepository.GetArchiInterviewForCandidate(interview.CandidateId);
+                        var interviewerInterview = await _interviewsRepository.GetinterviewerInterviewForCandidate(interview.CandidateId);
                         if (interviewerInterview != null)
                         {
                             interviewerInterview.StatusId = (int)completedDTO.StatusId;
@@ -816,20 +820,22 @@ namespace CMS.Services.Services
                             {
                                 var manager = (await _userManager.GetUsersInRoleAsync("General Manager")).FirstOrDefault();
 
-                                var candidateArchitectureKey = $"ArchitectureInterviewerId_{interview.CandidateId}";
-                                var architectureInterviewerId = _httpContextAccessor.HttpContext.Session.GetString(candidateArchitectureKey);
+                                //var architectureInterviewerId = _httpContextAccessor.HttpContext.Session.GetString($"ArchitectureInterviewerId_{interview.CandidateId}");
 
-                                // Use architectureInterviewerId in your new interview creation logic.
-                                var archiId = architectureInterviewerId;
+                                //Use architectureInterviewerId in your new interview creation logic.
+                                //var archiId = architectureInterviewerId;
 
-                                if (archiId != null )
-                                {
-                                    newInterview2.SecondInterviewerId = archiId;
-                                }
+                                //if (archiId != null)
+                                //{
+                                //    newInterview2.SecondInterviewerId = archiId;
+                                //}
+                                var archiIdd = _interviewsRepository.GetInterviewByCandidateIdWithParentId(completedDTO.CandidateId);
+
+                                var aechituciterId = archiIdd.ArchitectureInterviewerId;
 
                                 Debug.Assert(manager != null, "There is No Valid General Manager in The System");
 
-                                if (manager.Id !=null && archiId == null)
+                                if (manager.Id !=null && aechituciterId == null)
                                 {
                                     // Create an interview for the General Manager
                                     var managerInterview = new Interviews
@@ -851,10 +857,10 @@ namespace CMS.Services.Services
                                 else
                                 {
 
-                                // Create an interview for the Solution Architecture
-                                if (!string.IsNullOrEmpty(archiId))
-                                {
-                                    var archi = await _userManager.FindByIdAsync(archiId);
+                                 
+                                    if (aechituciterId != null)
+                                        {
+                                    var archi = await _userManager.FindByIdAsync(aechituciterId);
                                     Debug.Assert(archi != null, "There is No Valid Solution Architecture in The System");
 
                                     var newArchiInterview = new Interviews
@@ -868,7 +874,7 @@ namespace CMS.Services.Services
                                         CreatedOn = DateTime.Now,
                                         CreatedBy = currentUser.Id,
                                         InterviewerId = manager.Id,
-                                        SecondInterviewerId = archiId,
+                                        SecondInterviewerId = aechituciterId,
                                     };
 
                                     await _interviewsRepository.Update(newArchiInterview);
