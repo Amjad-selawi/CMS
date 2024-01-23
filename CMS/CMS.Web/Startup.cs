@@ -131,12 +131,13 @@ namespace CMS.Web
             services.AddHangfireServer();
 
             services.AddDistributedMemoryCache();
-            services.AddSession(options =>
-            {
-                options.IdleTimeout = TimeSpan.FromDays(30);
-                options.Cookie.HttpOnly = true;
-                options.Cookie.IsEssential = true;
-            });
+                services.AddSession(options =>
+                {
+                    options.IdleTimeout = TimeSpan.FromDays(20);
+                    options.Cookie.HttpOnly = true;
+                    options.Cookie.IsEssential = true;
+                    options.IOTimeout = TimeSpan.FromDays(20);
+                });
 
 
         }

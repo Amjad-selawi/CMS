@@ -118,7 +118,14 @@
                                     
                                     @if (item.ArchitectureInterviewerId != null)
                                     {
+                                        if (item.ArchitectureInterviewerId == "User not found")
+                                        {
+                                            <td>No Architecture Interviewer</td>
+                                        }
+                                        else
+                                        {
                                         <td>@item.ArchitectureInterviewerName</td>
+                                        }
                                     }
                                     else
                                     {
