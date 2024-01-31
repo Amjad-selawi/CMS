@@ -409,28 +409,29 @@ namespace CMS.Repository.Repositories
         {
             try
             {
-                var archiRoleId = (await _roleManager.FindByNameAsync("Interviewer"))?.Id;
+                var currentUser = await _userManager.GetUserAsync(_httpContextAccessor.HttpContext.User);
 
-                if (!string.IsNullOrEmpty(archiRoleId))
+                var interviewerRoleId = (await _userManager.GetRolesAsync(currentUser)).FirstOrDefault();
+
+                if (!string.IsNullOrEmpty(interviewerRoleId))
                 {
-                    var archiId = (await _userManager.GetUsersInRoleAsync("Interviewer")).FirstOrDefault()?.Id;
+                    var interviewerId = currentUser.Id;
 
-                    if (!string.IsNullOrEmpty(archiId))
-                    {
-                        return await _context.Interviews
-                            .Where(i => i.CandidateId == candidateId && i.InterviewerId == archiId)
-                            .FirstOrDefaultAsync();
-                    }
+                    return await _context.Interviews
+                        .Where(i => i.CandidateId == candidateId && i.InterviewerId == interviewerId)
+                        .FirstOrDefaultAsync();
                 }
 
                 return null;
             }
             catch (Exception ex)
             {
-                LogException(nameof(GetGeneralManagerInterviewForCandidate), ex, $"Error retrieving General Manager interview for candidate with ID: {candidateId}");
+                LogException(nameof(GetinterviewerInterviewForCandidate), ex, $"Error retrieving Interviewer interview for candidate with ID: {candidateId}");
                 throw ex;
             }
         }
+
+
 
 
         public async Task<int> GetInterviewCountForCandidate(int candidateId)
@@ -457,7 +458,7 @@ namespace CMS.Repository.Repositories
             {
 
             
-            // Assuming you have an "Interviews" DbSet in your DbContext
+           
             var approvedInterviewsCreatedByUser = await _context.Interviews
                  .Where(i => i.CandidateId == candidateId && i.PositionId == positionId && i.Status.Code == Domain.Enums.StatusCode.Approved && (i.InterviewerId == userId || i.SecondInterviewerId == userId))
                  .Select(i => i.InterviewerId)
@@ -534,5 +535,65 @@ namespace CMS.Repository.Repositories
         }
 
 
+
+        public async Task<bool> DeletePendingInterviewsforStopCycle(int candidateId, int positionId)
+        {
+            try
+            {
+
+                // Exclude the interviews created by the current user
+                var pendingInterviews = await _context.Interviews
+                    .Where(i => i.CandidateId == candidateId && i.PositionId == positionId && i.Status.Code == Domain.Enums.StatusCode.Pending)
+                    .ToListAsync();
+
+                if (pendingInterviews.Count > 0)
+                {
+                    // Delete pending interviews
+                    _context.Interviews.RemoveRange(pendingInterviews);
+
+                    await _context.SaveChangesAsync();
+                    return true;
+                }
+
+                return false;
+            }
+
+            catch (Exception ex)
+            {
+                LogException(nameof(DeletePendingInterviewsforStopCycle), ex, $"Error while deleting Pending Interviews and Notification for candidate with ID: {candidateId}");
+                throw ex;
+            }
         }
+
+        public async Task<Interviews> GetLastInterviewBeforePendingByCandidateId(int candidateId)
+        {
+            try
+            {
+                var pendingInterview = await _context.Interviews
+                    .Where(i => i.CandidateId == candidateId && i.Status.Code == Domain.Enums.StatusCode.Pending)
+                    .OrderByDescending(i => i.InterviewsId)
+                    .FirstOrDefaultAsync();
+
+                if (pendingInterview != null)
+                {
+                    var previousInterview = await _context.Interviews
+                        .Where(i => i.CandidateId == candidateId && i.InterviewsId < pendingInterview.InterviewsId)
+                        .OrderByDescending(i => i.InterviewsId)
+                        .FirstOrDefaultAsync();
+
+                    return previousInterview ?? pendingInterview;
+                }
+
+                return null; // No pending interview found
+            }
+            catch (Exception ex)
+            {
+                LogException(nameof(GetLastInterviewBeforePendingByCandidateId), ex, $"Error retrieving previous interview before pending for candidate with ID: {candidateId}");
+                throw ex;
+            }
+        }
+
+
+
+    }
 }

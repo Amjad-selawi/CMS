@@ -19,6 +19,10 @@
                             <th>Score</th>
                             <th>Actual Experience</th>
                             <th >Notes</th>
+                            @if (User.IsInRole("HR Manager") || User.IsInRole("General Manager") || User.IsInRole("Admin"))
+                            {
+                                <th>Stop Cycle Note (HR)</th>
+                            }
                             <th>Evaluation</th>
                         </tr>
                     </thead>
@@ -38,7 +42,10 @@
                                 <td>@item.Score</td>
                                 <td>@item.ActualExperience</td>
                                 <td style="max-width: 200px; white-space: pre-line;">@item.Notes</td>
-
+                                @if (User.IsInRole("HR Manager") || User.IsInRole("General Manager") || User.IsInRole("Admin"))
+                                {
+                                    <td style="max-width: 200px; white-space: pre-line;">@item.StopCycleNote</td>
+                                }
                                 @if (item.AttachmentId != null)
                                     {
                                         <td><a asp-controller="Attachments" asp-action="Download" asp-route-id="@item.AttachmentId">Download evaluation</a></td>
@@ -57,5 +64,5 @@
     </div>
 </div>
 <div>
-    <a class="btn btn-secondary" asp-action="MyInterviews">Back to List</a>
+<a class="btn btn-secondary" asp-action="MyInterviews">Back to List</a>
 </div>

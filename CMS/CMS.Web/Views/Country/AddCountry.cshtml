@@ -1,9 +1,12 @@
 ﻿@model CMS.Application.DTOs.CountryDTO
-<h1>Add a country</h1>
+
+@{
+    ViewData["Title"] = "Add a country";
+}
 <form asp-action="AddCountry">
 @*     <div asp-validation-summary="ModelOnly" class="text-danger"></div>
  *@        <div class="form-group">
-        <label asp-for="Name" class="control-label"><span class="text-danger">*</span> Name</label>
+        <label asp-for="Name" class="control-label"><span class="text-danger">*</span> Country Name</label>
         <input style="width: 30%;" asp-for="Name" class="form-control" />
         <span asp-validation-for="Name" class="text-danger"></span>
         <span id="errorMessage" class="text-danger"></span>
@@ -57,7 +60,7 @@
 
             // Validate Name
             if (!name.trim()) {
-                $('#errorMessage').text('Name is required.');
+                $('#errorMessage').text('Country Name is required.');
                 e.preventDefault(); // Prevent form submission
             } else {
                 $('#errorMessage').text('');

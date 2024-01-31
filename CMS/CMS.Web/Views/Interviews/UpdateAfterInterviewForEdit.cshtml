@@ -17,7 +17,7 @@
     {
         <div class="form-group">
             <label asp-for="Score"><span class="text-danger">*</span> Score out of 5:</label>
-            <input style="width: 10%;" asp-for="Score" class="form-control" />
+            <input style="width: 10%;" asp-for="Score" class="form-control score" />
             <span asp-validation-for="Score" class="text-danger"></span>
         </div>
     }
@@ -27,7 +27,7 @@
     {
         <div class="form-group" style="margin-top: 15px;">
             <label asp-for="ActualExperience"><span class="text-danger">*</span> Actual Experience:</label>
-            <input style="width: 10%;" asp-for="ActualExperience" class="form-control" pattern="^(?:0(\.\d+)?|[1-9]\d*(\.\d+)?)$" title="Experience must be a non-negative numeric value." />
+            <input style="width: 10%;" asp-for="ActualExperience" class="form-control actualexperience" pattern="^(?:0(\.\d+)?|[1-9]\d*(\.\d+)?)$" title="Experience must be a non-negative numeric value." />
             <span asp-validation-for="ActualExperience" class="text-danger"></span>
         </div>
     }
@@ -119,6 +119,28 @@
 
 <script>
     $(document).ready(function () {
+
+
+          // Allow numeric characters from 1 to 5 and decimal numbers like 2.5 in the score field
+        $('.score').on('input', function () {
+            // Remove any non-numeric and non-decimal characters
+            this.value = this.value.replace(/[^0-9.]/g, '');
+
+            // Ensure the value is within the range of 1 to 5
+            if (parseFloat(this.value) < 1) {
+                this.value = '1';
+            } else if (parseFloat(this.value) > 5) {
+                this.value = '5';
+            }
+        });
+
+
+        // Prevent letters in the actual experience field
+        $('.actualexperience').on('input', function () {
+            this.value = this.value.replace(/[^0-9.]/g, ''); // Allow only numeric characters
+        });
+
+
         $('#updateForm').submit(function (e) {
             // Clear previous error messages
             $(".text-danger").text("");

@@ -1,6 +1,8 @@
 ﻿@model CMS.Application.DTOs.Register
+@{
+    ViewData["Title"] = "Create User";
+}
 
-<h2>Create User</h2>
 
 <form asp-action="Create" method="post"> @* enctype="multipart/form-data" *@
     <div asp-validation-summary="ModelOnly" class="text-danger"></div>

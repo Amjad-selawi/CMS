@@ -165,11 +165,21 @@ namespace CMS.Web
             app.UseHangfireDashboard("/jobs");
             app.UseSession();
 
+           
+            //app.UseStatusCodePagesWithReExecute("/Home/NotFound");
+
+
             app.UseEndpoints(endpoints =>
             {
                 endpoints.MapControllerRoute(
                     name: "default",
                     pattern: "{controller=Account}/{action=Login}/{id?}");
+
+                //// Handle 404 errors
+                //endpoints.MapControllerRoute(
+                //    name: "404",
+                //    pattern: "{*url}",
+                //    defaults: new { controller = "Home", action = "NotFound" });
             });
         }
     }

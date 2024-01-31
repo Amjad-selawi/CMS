@@ -33,7 +33,11 @@ namespace CMS.Services.Interfaces
 
         Task<bool> IsSolutionArchitect(string userId);
 
-        Task ConductInterviewEdit(InterviewsDTO completedDTO, string firstinterviewer, string secondinterviewer);
+        //Task ConductInterviewEdit(InterviewsDTO completedDTO, string firstinterviewer, string secondinterviewer);
+
+
+        Task<Result<int>> SaveStopCycleNote(int id, string note);
+        Task<bool> DeletePendingInterviews(int candidateId, InterviewsDTO collection);
 
     }
 }

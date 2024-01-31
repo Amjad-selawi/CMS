@@ -271,6 +271,89 @@ namespace CMS.Web.Controllers
         }
 
 
+        public async Task<IActionResult> StopCycle(int id)
+        {
+            try
+            {
+                if (_signInManager.IsSignedIn(User))
+                {
+                    var result = await _interviewsService.GetById(id);
+                    var interviewsDTO = result.Value;
+
+                    return View(interviewsDTO);
+                }
+                else
+                {
+                    TempData["ErrorMessage"] = "You must log in first.";
+                    return RedirectToAction("Login", "Account");
+                }
+            }
+            catch (Exception ex)
+            {
+                LogException(nameof(StopCycle), ex, "StopCycle not working");
+                throw ex;
+            }
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> StopCycle(int id, InterviewsDTO collection)
+        {
+            try
+            {
+                if (_signInManager.IsSignedIn(User))
+                {
+                    // Server-side validation for Notes
+                    if (string.IsNullOrWhiteSpace(collection.StopCycleNote))
+                    {
+                        ModelState.AddModelError("StopCycleNote", "Please add a note.");
+                    }
+
+                    if (ModelState.IsValid)
+                    {
+                        // Save the note to the database
+                        var saveNoteResult = await _interviewsService.SaveStopCycleNote(collection.CandidateId, collection.StopCycleNote);
+
+                        if (saveNoteResult.IsSuccess)
+                        {
+                            // Delete pending interviews for the same candidate
+                            var deletePendingResult = await _interviewsService.DeletePendingInterviews(collection.CandidateId, collection);
+
+                            if (deletePendingResult)
+                            {
+                                // Redirect to a success page or display a success message
+                                return RedirectToAction("Index");
+                            }
+                            else
+                            {
+                                ModelState.AddModelError("", "Error deleting pending interviews.");
+                            }
+                        }
+                        else
+                        {
+                            ModelState.AddModelError("", saveNoteResult.Error);
+                        }
+                    }
+
+                    var result = await _interviewsService.GetById(id);
+                    var interviewsDTO = result.Value;
+
+                    return View(interviewsDTO);
+                }
+                else
+                {
+                    TempData["ErrorMessage"] = "You must log in first.";
+                    return RedirectToAction("Login", "Account");
+                }
+            }
+            catch (Exception ex)
+            {
+                LogException(nameof(StopCycle), ex, "StopCycle not working");
+                throw ex;
+            }
+        }
+
+
 
 
         // GET: InterviewsController/Details/5
@@ -282,7 +365,14 @@ namespace CMS.Web.Controllers
                 ViewBag.PreviousAction = previousAction;
             var result = await _interviewsService.GetById(id);
 
-            await LoadSelectionLists();
+                //if (result == null)
+                //{
+                //    // Redirect to the custom 404 page
+                //    return RedirectToAction("NotFound", "Home");
+                //}
+
+
+                await LoadSelectionLists();
 
             if (result.IsSuccess)
             {
@@ -592,10 +682,10 @@ namespace CMS.Web.Controllers
 
                 await LoadSelectionLists();
 
-                if (collection.ArchitectureInterviewerId != null)
-                {
-                    HttpContext.Session.SetString($"ArchitectureInterviewerId_{collection.InterviewsId}", collection.ArchitectureInterviewerId ?? "");
-                }
+                //if (collection.ArchitectureInterviewerId != null)
+                //{
+                    //HttpContext.Session.SetString($"ArchitectureInterviewerId_{collection.InterviewsId}", collection.ArchitectureInterviewerId ?? "");
+                //}
 
                 if (!collection.StatusId.HasValue)
                 {
@@ -636,7 +726,7 @@ namespace CMS.Web.Controllers
 
                     HttpContext.Session.SetString($"SecondInterviewerId_{collection.InterviewsId}", collection.SecondInterviewerId ?? "");
                     HttpContext.Session.SetString($"InterviewerId_{collection.InterviewsId}", collection.InterviewerId ?? "");
-                    HttpContext.Session.SetString($"ArchitectureInterviewerId_{collection.InterviewsId}", collection.ArchitectureInterviewerId ?? "");
+                    //HttpContext.Session.SetString($"ArchitectureInterviewerId_{collection.InterviewsId}", collection.ArchitectureInterviewerId ?? "");
 
                     if (result.IsSuccess)
                     {
@@ -648,7 +738,7 @@ namespace CMS.Web.Controllers
 
                             HttpContext.Session.SetString($"SecondInterviewerId_{collection.InterviewsId}", collection.SecondInterviewerId ?? "");
                             HttpContext.Session.SetString($"InterviewerId_{collection.InterviewsId}", collection.InterviewerId ?? "");
-                            HttpContext.Session.SetString($"ArchitectureInterviewerId_{collection.InterviewsId}", collection.ArchitectureInterviewerId ?? "");
+                            //HttpContext.Session.SetString($"ArchitectureInterviewerId_{collection.InterviewsId}", collection.ArchitectureInterviewerId ?? "");
                             // Get Candidate Name By Id
                             var candidateName = await _candidateService.GetCandidateByIdAsync(collection.CandidateId);
                             var candidateNameresult = candidateName.FullName;
@@ -913,7 +1003,7 @@ namespace CMS.Web.Controllers
             }
             catch (Exception ex)
             {
-                LogException(nameof(UpdateAfterInterview), ex, "UpdateAfterInterview not working");
+                LogException(nameof(UpdateAfterInterviewForEdit), ex, "UpdateAfterInterviewForEdit not working");
                 throw ex;
             }
         }
@@ -958,10 +1048,10 @@ namespace CMS.Web.Controllers
                     ModelState.AddModelError("StatusId", "Please select a status.");
                 }
 
-                if (interviewsDTO.ArchitectureInterviewerId != null)
-                {
-                    HttpContext.Session.SetString($"ArchitectureInterviewer2Id_{interviewsDTO.InterviewsId}", interviewsDTO.ArchitectureInterviewerId ?? "");
-                }
+                //if (interviewsDTO.ArchitectureInterviewerId != null)
+                //{
+                //    HttpContext.Session.SetString($"ArchitectureInterviewer2Id_{interviewsDTO.InterviewsId}", interviewsDTO.ArchitectureInterviewerId ?? "");
+                //}
 
                 var firstInterviewerRoles = await _interviewsService.GetInterviewerRole(interviewsDTO.InterviewerId);
                 var secondInterviewerRoles = await _interviewsService.GetInterviewerRole(interviewsDTO.SecondInterviewerId);
@@ -1133,7 +1223,30 @@ namespace CMS.Web.Controllers
                                 //    return View(interviewsDTO);
                                 //}
                             }
+                            else if (newStatus.Code == Domain.Enums.StatusCode.Approved && !User.IsInRole("HR Manager"))
+                            {
+                                var nextInterviewStatusCode = await _interviewsRepository.GetStatusOfNextInterview(interviewsDTO.CandidateId, interviewsDTO.InterviewsId);
+                                if (nextInterviewStatusCode != null && nextInterviewStatusCode.Equals(Domain.Enums.StatusCode.Pending))
+                                {
+                                    var interviewsDeleted = await _interviewsRepository.DeletePendingInterviews(interviewsDTO.CandidateId, interviewsDTO.PositionId, userId: User.FindFirstValue(ClaimTypes.NameIdentifier));
+
+                                }
+                                else if (nextInterviewStatusCode != null && (nextInterviewStatusCode.Equals(Domain.Enums.StatusCode.Approved) || nextInterviewStatusCode.Equals(Domain.Enums.StatusCode.Rejected)))
+                                {
+                                    ModelState.AddModelError("StatusId", "Cannot set the interview status to Approved or Change the result because it has already been marked as done after the interview.");
+                                    if (attachmentStream != null)
+                                    {
+                                        attachmentStream.Close();
+                                        attachmentStream.Dispose();
+                                    }
+                                    return View(interviewsDTO);
+                                }
+
+                              
+                            }
                         }
+
+                           
 
 
                         var currentUser = await _userManager.GetUserAsync(_httpContextAccessor.HttpContext.User);
@@ -1847,14 +1960,17 @@ namespace CMS.Web.Controllers
 
                                         if (secondInterviewer == null)
                                         {
-                                            var architectureInterviewerId = HttpContext.Session.GetString($"ArchitectureInterviewerId_{interviewsDTO.InterviewsId}");
+                                            //var architectureInterviewerId = HttpContext.Session.GetString($"ArchitectureInterviewerId_{interviewsDTO.InterviewsId}");
 
-                                            if (architectureInterviewerId == "")
-                                            {
-                                                architectureInterviewerId = null;
-                                            }
+                                            var archiIdd = _interviewsRepository.GetInterviewByCandidateIdWithParentId(interviewsDTO.CandidateId);
+                                            var aechituciterId = archiIdd.ArchitectureInterviewerId;
 
-                                            if (architectureInterviewerId != null)
+                                            //if (architectureInterviewerId == "")
+                                            //{
+                                            //    architectureInterviewerId = null;
+                                            //}
+
+                                            if (aechituciterId != null)
                                             {
                                                 await _notificationsService.CreateInterviewNotificationForFinalHRInterview(interviewsDTO.StatusId.Value, interviewsDTO.Notes, interviewsDTO.CandidateId, interviewsDTO.PositionId);
 
@@ -1888,7 +2004,7 @@ namespace CMS.Web.Controllers
                                             else
                                             {
                                                 await _notificationsService.CreateInterviewNotificationForHRInterview(interviewsDTO.StatusId.Value, interviewsDTO.Notes, interviewsDTO.CandidateId, interviewsDTO.PositionId);
-                                                await _notificationsService.CreateNotificationForGeneralManagerAsync(interviewsDTO.StatusId.Value, interviewsDTO.Notes, interviewsDTO.CandidateId, interviewsDTO.PositionId, architectureInterviewerId);
+                                                await _notificationsService.CreateNotificationForGeneralManagerAsync(interviewsDTO.StatusId.Value, interviewsDTO.Notes, interviewsDTO.CandidateId, interviewsDTO.PositionId, aechituciterId);
 
                                                 //EmailDTOs emailModels = new EmailDTOs
                                                 //{

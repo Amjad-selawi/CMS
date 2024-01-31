@@ -1,8 +1,9 @@
 ﻿@using Microsoft.AspNetCore.Identity;
 @model CMS.Application.DTOs.Register
 @inject UserManager<IdentityUser> user
-
-<h2>Edit User</h2>
+@{
+    ViewData["Title"] = "Edit User";
+}
 
 <form asp-action="Edit" method="post">
     <div asp-validation-summary="ModelOnly" class="text-danger"></div>

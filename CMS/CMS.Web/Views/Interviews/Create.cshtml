@@ -1,7 +1,9 @@
 ﻿@using CMS.Domain.Enums;
 @model CMS.Application.DTOs.InterviewsDTO
 
-<h2>Create</h2>
+@{
+    ViewData["Title"] = "Schedule New Interview";
+}
 
 <link href="https://cdnjs.cloudflare.com/ajax/libs/selectize.js/0.12.6/css/selectize.bootstrap3.min.css" rel="stylesheet" />
 
@@ -153,65 +155,67 @@
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@10"></script>
 
 
-
 <script>
     $(document).ready(function () {
         $('#candidate-dropdown').selectize();
 
         $('#createForm').submit(function (e) {
-            e.preventDefault(); // Prevent the default form submission
-                
-            var candidateId = $('#CandidateId').val();
-            var positionId = $('#PositionId').val();
-            var interviewerId = $('#InterviewerId').val();
-            var date = $('#Date').val();
-            // // Validate Candidate
-            // if (!candidateId || candidateId <= 0) {
-            //     $('#candidateIdError').text('Candidate is required.');
-            //     e.preventDefault(); // Prevent form submission
-            // } else {
-            //     $('#candidateIdError').text('');
-            // }
-          
+            // Validate the form
+            if (!validateForm()) {
+                e.preventDefault(); // Prevent the default form submission if validation fails
+                return;
+            }
+
+            // If validation passed, show the confirmation popup
+            showConfirmationPopup(e);
+        });
+
+        function validateForm() {
+            var valid = true;
 
             // Validate Position
+            var positionId = $('#PositionId').val();
             if (!positionId) {
                 $('#positionIdError').text('Level is required.');
-                e.preventDefault(); // Prevent form submission
+                valid = false;
             } else {
                 $('#positionIdError').text('');
             }
 
-
             // Validate Track
-            if (!positionId) {
+            var trackId = $('#TrackId').val();
+            if (!trackId) {
                 $('#trackIdError').text('Track is required.');
-                e.preventDefault(); // Prevent form submission
+                valid = false;
             } else {
                 $('#trackIdError').text('');
             }
 
-
             // Validate #1 (InterviewerId)
+            var interviewerId = $('#InterviewerId').val();
             if (!interviewerId) {
                 $('#interviewerIdError').text('First Interviewer is required.');
-                e.preventDefault(); // Prevent form submission
+                valid = false;
             } else {
                 $('#interviewerIdError').text('');
             }
 
             // Validate Date
+            var date = $('#Date').val();
             if (!date) {
                 $('#dateValidationMessage').text('Date is required.');
-                e.preventDefault(); // Prevent form submission
+                valid = false;
             } else {
                 $('#dateValidationMessage').text('');
             }
 
-            // Convert the date to a JavaScript Date object
-            var jsDate = new Date(date);
+            return valid;
+        }
 
-            // Format the date as "dd/mm/yyyy"
+        function showConfirmationPopup(e) {
+            // Proceed with form submission
+            var date = $('#Date').val();
+            var jsDate = new Date(date);
             var formattedDate =
                 ('0' + jsDate.getDate()).slice(-2) + '/' +
                 ('0' + (jsDate.getMonth() + 1)).slice(-2) + '/' +
@@ -219,7 +223,6 @@
                 ('0' + ((jsDate.getHours() % 12) || 12)).slice(-2) + ':' +
                 ('0' + jsDate.getMinutes()).slice(-2) + ' ' +
                 (jsDate.getHours() >= 12 ? 'PM' : 'AM');
-
 
             var message = 'You are about to schedule an interview on ' + formattedDate + '. Are you sure you want to proceed?';
 
@@ -238,6 +241,7 @@
                     $('#createForm')[0].submit();
                 }
             });
-        });
+        }
     });
 </script>
+

@@ -15,7 +15,7 @@
     {
         <div class="form-group">
             <label asp-for="Score"><span class="text-danger">*</span> Score out of 5:</label>
-            <input style="width: 10%;" asp-for="Score" class="form-control" />
+            <input style="width: 10%;" asp-for="Score" class="form-control score" />
             <span asp-validation-for="Score" class="text-danger"></span>
         </div>
     }
@@ -26,7 +26,7 @@
     {
         <div class="form-group" style="margin-top: 15px;">
             <label asp-for="ActualExperience"><span class="text-danger">*</span> Actual Experience:</label>
-            <input style="width: 10%;" asp-for="ActualExperience" class="form-control" pattern="^(?:0(\.\d+)?|[1-9]\d*(\.\d+)?)$" title="Experience must be a non-negative numeric value." />
+            <input style="width: 10%;" asp-for="ActualExperience" class="form-control actualexperience" pattern="^(?:0(\.\d+)?|[1-9]\d*(\.\d+)?)$" title="Experience must be a non-negative numeric value." />
             <span asp-validation-for="ActualExperience" class="text-danger"></span>
         </div>
 
@@ -60,7 +60,7 @@
         <span asp-validation-for="Notes" class="text-danger"></span>
     </div>
 
-    @if (User.IsInRole("Interviewer") || (User.IsInRole("Solution Architecture") && Model.ParentId == null))
+    @if (User.IsInRole("Interviewer")  && Model.ParentId == null)
     {
         @if (Model.EvalutaionFormId != null)
         {
@@ -106,6 +106,20 @@
 
 <script>
     $(document).ready(function () {
+
+        // Allow numeric characters from 1 to 5 and decimal numbers like 2.5 in the score field
+        $('.score').on('input', function () {
+            // Remove any non-numeric and non-decimal characters
+            this.value = this.value.replace(/[^0-9.]/g, '');
+
+        });
+
+
+        // Prevent letters in the actual experience field
+        $('.actualexperience').on('input', function () {
+            this.value = this.value.replace(/[^0-9.]/g, ''); // Allow only numeric characters
+        });
+
         $('#updateForm button[type="button"]').click(function () {
             // Validate Score (if user is Interviewer)
             if ($('[name="Score"]').is(":visible")) {
@@ -126,6 +140,24 @@
                 $('#StatusId').next(".text-danger").text("Status is required.");
                 return;
             }
+
+            // Validate Score (if user is Interviewer)
+            if ($('[name="Score"]').is(":visible")) {
+                var scoreValue = $('[name="Score"]').val();
+
+                // Check if the score is not empty and is not a valid number
+                if (!scoreValue || !isNumeric(scoreValue)) {
+                    $('#Score').next(".text-danger").text("Score must be a valid number.");
+                    return;
+                }
+
+                // Check if the score is outside the valid range [0, 5]
+                if (scoreValue < 0 || scoreValue > 5) {
+                    $('#Score').next(".text-danger").text("Score should be between 0 and 5.");
+                    return;
+                }
+            }
+
 
             // Use SweetAlert2 for confirmation
             Swal.fire({
@@ -148,7 +180,8 @@
         function isNumeric(value) {
             return !isNaN(value) && isFinite(value);
         }
+
+     
     });
 </script>
-
 

@@ -23,11 +23,11 @@
         <div class="row">
             <div class="col-md-3">
                 @Html.Label("Filter by Candidate Name:")
-                @Html.TextBox("FullName", null, new { @class = "form-control" })
+                @Html.TextBox("FullName", null, new { @class = "form-control", placeholder = "Search by Candidate Name" })
             </div>
             <div class="col-md-3">
                 @Html.Label("Filter by Phone Number (Partial):")
-                @Html.TextBox("Phone", null, new { @class = "form-control" })
+                @Html.TextBox("Phone", null, new { @class = "form-control phonenumber" })
             </div>
             <div class="col-md-3">
                 @Html.Label("Filter by Track:")
@@ -132,6 +132,12 @@
 
 <script>
     $(document).ready(function () {
+
+        // Prevent letters in the Phone field
+        $('.phonenumber').on('input', function () {
+            this.value = this.value.replace(/[^0-9+]/g, ''); // Allow only numeric characters
+        });
+
         $('.hidden-file-input').change(function () {
             const fileInput = $(this);
             const candidateId = fileInput.data('candidate-id');

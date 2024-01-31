@@ -1,14 +1,16 @@
 ﻿@model CMS.Application.DTOs.CountryDTO
-
-<h1>Edit country</h1>
+@{
+    ViewData["Title"] = "Edit Country";
+}
 
 <form asp-action="UpdateCountry">
 @*     <div asp-validation-summary="ModelOnly" class="text-danger"></div>
  *@    <div class="form-group"><input type="hidden" asp-for="Id" /></div>
     <div class="form-group">
-        <label asp-for="Name" class="control-label"><span class="text-danger">*</span> Name</label>
+        <label asp-for="Name" class="control-label"><span class="text-danger">*</span> Country Name</label>
         <input style="width: 30%;" asp-for="Name" class="form-control" />
         <span asp-validation-for="Name" class="text-danger"></span>
+        <span id="errorMessage" class="text-danger"></span>
     </div>
     <div class="form-group " style="margin-top:10px;">
         <input type="submit" class="btn btn-primary" value="Submit" />
@@ -16,3 +18,20 @@
 
     </div>
 </form>
+
+<script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
+<script>
+    $(document).ready(function () {
+        $('form').submit(function (e) {
+            var name = $('#Name').val();
+
+            // Validate Name
+            if (!name.trim()) {
+                $('#errorMessage').text('Country Name is required.');
+                e.preventDefault(); // Prevent form submission
+            } else {
+                $('#errorMessage').text('');
+            }
+        });
+    });
+</script>
