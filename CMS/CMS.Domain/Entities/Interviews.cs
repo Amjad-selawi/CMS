@@ -52,5 +52,7 @@ namespace CMS.Domain.Entities
         [Required(ErrorMessage = "Please select a Track.")]
         public int TrackId { get; set; }
         public virtual Track Track { get; set; }
+
+        public string? StopCycleNote{ get; set; }
     }
 }

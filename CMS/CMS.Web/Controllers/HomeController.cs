@@ -37,6 +37,12 @@ namespace CMS.Web.Controllers
             return View();
         }
 
+        //[AllowAnonymous]
+        public IActionResult NotFound()
+        {
+            return View();
+        }
+
     }
 
    

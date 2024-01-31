@@ -1,6 +1,8 @@
 ﻿    @model CMS.Application.DTOs.CandidateCreateDTO
 
-<h2>Create Candidate</h2>
+@{
+    ViewData["Title"] = "Create Candidate";
+}
 
 <form asp-action="Create" enctype="multipart/form-data">
     <div asp-validation-summary="ModelOnly" class="text-danger"></div>
@@ -114,6 +116,19 @@
 
 <script>
     $(document).ready(function () {
+
+        // Prevent letters in the Phone field
+        $('#Phone').on('input', function () {
+            this.value = this.value.replace(/[^0-9+]/g, ''); // Allow only numeric characters
+        });
+
+        // Prevent letters in the Experience field
+        $('#Experience').on('input', function () {
+            this.value = this.value.replace(/[^0-9]/g, ''); // Allow only numeric characters
+        });
+
+
+
         $('form').submit(function (e) {
             var fullName = $('#FullName').val();
             var phone = $('#Phone').val();

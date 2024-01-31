@@ -14,6 +14,7 @@
         "/dashboard-js/candidate-sources-map.js"
     };
 }
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.5.0/Chart.min.js"></script>
 
 <div class="row">
 
@@ -148,7 +149,8 @@
             </div><!-- end card body -->
         </div><!-- end card -->
     </div>
-
+@*     <canvas id="myChart" style="width:100%;max-width:600px"></canvas>
+ *@
 </div>
 <div class="row">
     <div class="col-xxl-4">
@@ -258,3 +260,56 @@
 
 
 </div>
+
+
+<script>
+    var countries = @Html.Raw(ViewBag.CountriesList);
+    var totalCandidates = @Model.NumberOfCandidates;
+    var acceptedData = @Model.NumberOfAccepted;
+    var pendingData = @Model.NumberOfPending;
+    var rejectedData = @Model.NumberOfRejected;
+    var onHoldData = @Model.NumberOfOnHold;
+
+    // Calculate percentages
+    var acceptedPercentage2 = (acceptedData / totalCandidates) * 100;
+    var pendingPercentage2 = (pendingData / totalCandidates) * 100;
+    var rejectedPercentage2 = (rejectedData / totalCandidates) * 100;
+    var onHoldPercentage2 = (onHoldData / totalCandidates) * 100;
+
+    var xValues = ["Accepted", "Pending", "Rejected", "On Hold"];
+    var yValues = [acceptedPercentage2, pendingPercentage2, rejectedPercentage2, onHoldPercentage2];
+    var barColors = ["green", "orange", "red", "blue"];
+
+    new Chart("myChart", {
+        type: "bar",
+        data: {
+            labels: xValues,
+            datasets: [{
+                backgroundColor: barColors,
+                data: yValues
+            }]
+        },
+        options: {
+            legend: { display: false },
+            title: {
+                display: true,
+                text: "Performance Report"
+            },
+            scales: {
+                yAxes: [{
+                    ticks: {
+                        beginAtZero: true,
+                        max: 100,
+                        callback: function (value) {
+                            return value + '%';
+                        }
+                    },
+                    scaleLabel: {
+                        display: true,
+                        labelString: 'Percentage'
+                    }
+                }]
+            }
+        }
+    });
+</script>

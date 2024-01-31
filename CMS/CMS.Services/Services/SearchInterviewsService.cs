@@ -220,6 +220,7 @@ namespace CMS.Services.Services
                         TrackId = c.TrackId,
                         TrackName = c.Track.Name,
                         Notes = c.Notes,
+                        StopCycleNote = c.StopCycleNote,
                         ParentId = c.ParentId,
                         InterviewerId = c.InterviewerId,
                         InterviewerName = userName,
@@ -277,6 +278,7 @@ namespace CMS.Services.Services
                     TrackName = interview.Track.Name,
                     EvalutaionFormId = interview.Position.EvaluationId,
                     Notes = interview.Notes,
+                    StopCycleNote = interview.StopCycleNote,
                     ParentId = interview.ParentId,
                     InterviewerId = interview.InterviewerId,
                     InterviewerName = userName,
@@ -325,6 +327,7 @@ namespace CMS.Services.Services
                 StatusId = status.Id,//data.StatusId,
                 Date = data.Date,
                 Notes = data.Notes,
+                StopCycleNote = data.StopCycleNote,
                 ParentId = data.ParentId,
                 InterviewerId = data.InterviewerId,
                 AttachmentId = data.AttachmentId,
@@ -368,6 +371,7 @@ namespace CMS.Services.Services
                 InterviewerId = data.InterviewerId,
                 Date = data.Date,
                 Notes = data.Notes,
+                StopCycleNote = data.StopCycleNote,
                 StatusId = (int)data.StatusId,
                 AttachmentId = data.AttachmentId,
 
@@ -571,12 +575,21 @@ namespace CMS.Services.Services
 
                 var Result = await GetById(id);
                 var interview = Result.Value;
-                while (interview.ParentId != null)
+
+                if (interview.ParentId != null)
                 {
-                    var result = await GetById((int)interview.ParentId);
-                    interview = result.Value;
-                    interviewsDTOs.Add(result.Value);
+                    while (interview.ParentId != null)
+                    {
+                        var result = await GetById((int)interview.ParentId);
+                        interview = result.Value;
+                        interviewsDTOs.Add(result.Value);
+                    }
                 }
+                else
+                {
+                        interviewsDTOs.Add(Result.Value);
+                }
+               
                 return Result<List<InterviewsDTO>>.Success(interviewsDTOs);
 
             }

@@ -314,10 +314,11 @@ namespace CMS.Web.Controllers
         {
             try
             {
-
+                 ExcelPackage.LicenseContext = LicenseContext.Commercial;
           
             using (var package = new ExcelPackage())
             {
+
                 var worksheet = package.Workbook.Worksheets.Add("Interviews");
 
                 // Add headers
@@ -349,16 +350,28 @@ namespace CMS.Web.Controllers
                         if (scoreResult.IsSuccess)
                         {
                             var score = scoreResult.Value.FirstInterviewScore;
-                            worksheet.Cells[row, 6].Value = score;
+                            if (score != null)
+                            {
+                                worksheet.Cells[row, 6].Value = score;
+                            }
+                            else
+                            {
+                                worksheet.Cells[row, 6].Value = "N/A";
+                            }
                         }
                         else
                         {
                             worksheet.Cells[row, 6].Value = "N/A";
                         }
+                        var interviewers = item.InterviewerName;
+                        if (item.SecondInterviewerName != null && item.SecondInterviewerName != "User not found")
+                        {
+                            interviewers += " && " + item.SecondInterviewerName;
+                        }
                         worksheet.Cells[row, 1].Value = item.FullName;
                     worksheet.Cells[row, 2].Value = item.Name;
                     worksheet.Cells[row, 3].Value = item.TrackName;
-                    worksheet.Cells[row, 4].Value = item.InterviewerName;
+                    worksheet.Cells[row, 4].Value = interviewers;
                     worksheet.Cells[row, 5].Style.Numberformat.Format = "yyyy-mm-dd";
                     worksheet.Cells[row, 5].Value = item.Date;
                     worksheet.Cells[row, 7].Value = item.StatusName;

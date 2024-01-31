@@ -1,6 +1,7 @@
 ﻿@model CMS.Application.DTOs.PositionDTO
-
-
+@{
+    ViewData["Title"] = "Confirm Delete";
+}
 
 <style>
     /* Style for the modal container */
@@ -36,7 +37,7 @@
 
         /* Style for the OK button */
         .modal-buttons button.ok {
-            background-color: #4CAF50;
+            background-color: #d9534f; /* Bootstrap danger color */
             color: white;
             border: none;
             padding: 10px 20px;
@@ -53,56 +54,35 @@
 </style>
 
 
+<h5>Are you sure you want to delete the following position?</h5>
 
+<div class="card">
+    <div class="card-body">
+        <dl class="row">
+            <dt class="col-sm-2">Position Name:</dt>
+            <dd class="col-sm-10">@Html.DisplayFor(model => model.Name)</dd>
 
+            @if (Model.EvaluationId != null)
+            {
+                <dt class="col-sm-2">Evaluation Form:</dt>
+                <dd class="col-sm-10">
+                    <a asp-controller="Attachments" asp-action="Download" asp-route-id="@Model.EvaluationId">Download Form</a>
+                </dd>
+            }
+            else
+            {
+                <dt class="col-sm-2">Evaluation Form:</dt>
+                <dd class="col-sm-10">There is no Evaluation form for this position</dd>
+            }
+        </dl>
 
-
-<h2>Confirm Deletion</h2>
-
-<p>Are you sure you want to delete the following position?</p>
-
-<div>
-
-    <dl class="row">
-        <dt class="col-sm-2">
-            Position Name:
-        </dt>
-        <dd class="col-sm-10">
-            @Html.DisplayFor(model => model.Name)
-        </dd>
-
-        @if (Model.EvaluationId != null)
-        {
-            <dt class="col-sm-2">
-                Evalution Form:
-            </dt>
-            <dd class="col-sm-10">
-                <a asp-controller="Attachments" asp-action="Download" asp-route-id="@Model.EvaluationId">Download Form</a>
-            </dd>
-        }
-        else
-        {
-            <dt class="col-sm-2">
-                Evalution Form:
-            </dt>
-            <dd class="col-sm-10">
-                There is no Evaluation form for this position
-            </dd>
-        }
-
-    </dl>
-
-
-<form asp-controller="Position" asp-action="DeletePosition" method="post" class="">
-    <input type="hidden" asp-for="Id" />
-        <button type="button" class="btn btn-danger" onclick="showConfirmationDialog()">Delete</button>
-        <a asp-action="GetPositions" class="btn btn-secondary">Back To List</a>
-    </form>
+        <form asp-controller="Position" asp-action="DeletePosition" method="post" class="mt-3">
+            <input type="hidden" asp-for="Id" />
+            <button type="button" class="btn btn-danger" onclick="showConfirmationDialog()">Delete</button>
+            <a asp-action="GetPositions" class="btn btn-secondary">Back To List</a>
+        </form>
+    </div>
 </div>
-
-
-
-
 
 <div class="overlay" id="overlay"></div>
 

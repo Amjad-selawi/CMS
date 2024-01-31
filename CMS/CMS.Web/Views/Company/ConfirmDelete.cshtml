@@ -3,9 +3,6 @@
     ViewData["Title"] = "Confirm Delete";
 }
 
-
-
-
 <style>
     /* Style for the modal container */
     .confirmation-modal {
@@ -40,7 +37,7 @@
 
         /* Style for the OK button */
         .modal-buttons button.ok {
-            background-color: #4CAF50;
+            background-color: #d9534f; /* Bootstrap danger color */
             color: white;
             border: none;
             padding: 10px 20px;
@@ -57,97 +54,58 @@
 </style>
 
 
-<h2>Confirm Deletion</h2>
 
-<p>Are you sure you want to delete the following company?</p>
+<div class="card">
+    <div class="card-body">
+<h5>Are you sure you want to delete the following company?</h5>
 
-<div>
- 
-    <dl class="row">
-        <dt class="col-sm-2">
-           Company Name:
-        </dt>
-        <dd class="col-sm-10">
-            @Html.DisplayFor(model => model.Name)
-        </dd>
-        <dt class="col-sm-2">
-            Country Name:
-        </dt>
-        <dd class="col-sm-10">
-            @Html.DisplayFor(model => model.CountryName)
-        </dd>
-        @if (Model.PersonName != null)
-        {
-            <dt class="col-sm-2">
-                Person Name:
-            </dt>
-            <dd class="col-sm-10">
-                @Html.DisplayFor(model => model.PersonName)
-            </dd>
-        }
-        else
-        {
-            <dt class="col-sm-2">
-                Person Name:
-            </dt>
-            <dd class="col-sm-10">
-                There is no person name to cnotact.
-            </dd>
-        }
+<hr />
+        <dl class="row">
+            <dt class="col-sm-2">Company Name:</dt>
+            <dd class="col-sm-10">@Html.DisplayFor(model => model.Name)</dd>
+            <dt class="col-sm-2">Country Name:</dt>
+            <dd class="col-sm-10">@Html.DisplayFor(model => model.CountryName)</dd>
 
-        @if (Model.Email != null)
-        {
-            <dt class="col-sm-2">
-                Email:
-            </dt>
-            <dd class="col-sm-10">
-                @Html.DisplayFor(model => model.Email)
-            </dd>
-        }
-        else
-        {
-            <dt class="col-sm-2">
-                Email:
-            </dt>
-            <dd class="col-sm-10">
-                There is no Email to cnotact.
-            </dd>
-        }
+            @if (Model.PersonName != null)
+            {
+                <dt class="col-sm-2">Person Name:</dt>
+                <dd class="col-sm-10">@Html.DisplayFor(model => model.PersonName)</dd>
+            }
+            else
+            {
+                <dt class="col-sm-2">Person Name:</dt>
+                <dd class="col-sm-10">There is no person name to contact.</dd>
+            }
 
-        @if (Model.PhoneNumber != null)
-        {
-            <dt class="col-sm-2">
-                Phone Number:
-            </dt>
-            <dd class="col-sm-10">
-                @Html.DisplayFor(model => model.PhoneNumber)
-            </dd>
-        }
-        else
-        {
-            <dt class="col-sm-2">
-                Phone Number:
-            </dt>
-            <dd class="col-sm-10">
-                There is no Phone Number to cnotact.
-            </dd>
-        }
+            @if (Model.Email != null)
+            {
+                <dt class="col-sm-2">Email:</dt>
+                <dd class="col-sm-10">@Html.DisplayFor(model => model.Email)</dd>
+            }
+            else
+            {
+                <dt class="col-sm-2">Email:</dt>
+                <dd class="col-sm-10">There is no Email to contact.</dd>
+            }
 
-      
-       
-    </dl>
+            @if (Model.PhoneNumber != null)
+            {
+                <dt class="col-sm-2">Phone Number:</dt>
+                <dd class="col-sm-10">@Html.DisplayFor(model => model.PhoneNumber)</dd>
+            }
+            else
+            {
+                <dt class="col-sm-2">Phone Number:</dt>
+                <dd class="col-sm-10">There is no Phone Number to contact.</dd>
+            }
+        </dl>
 
-    
-<form method="post" asp-action="DeleteCompany" asp-route-id="@Model.Id" class="">
-        <button type="button" class="btn btn-danger" onclick="showConfirmationDialog()">Delete</button>
-        <a asp-action="GetCompanies" class="btn btn-secondary">Back to List</a>
-
-    </form>
+        <form method="post" asp-action="DeleteCompany" asp-route-id="@Model.Id" class="form-group">
+            <button type="button" class="btn btn-danger" onclick="showConfirmationDialog()">Delete</button>
+            <a asp-action="GetCompanies" class="btn btn-secondary">Back to List</a>
+        </form>
+    </div>
 </div>
-
-
-
-
 
 <div class="overlay" id="overlay"></div>
 

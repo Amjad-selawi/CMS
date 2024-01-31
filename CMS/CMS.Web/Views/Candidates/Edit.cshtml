@@ -1,6 +1,7 @@
 ﻿@model CMS.Application.DTOs.CandidateDTO
-
-<h2>Edit Candidate</h2>
+@{
+    ViewData["Title"] = "Edit Candidate";
+}
 
 <form asp-action="Edit" asp-route-id="@Model.Id">
     <div asp-validation-summary="ModelOnly" class="text-danger"></div>
@@ -142,6 +143,7 @@
             var phone = $('#Phone').val();
             var companyId = $('#CompanyId').val();
             var positionId = $('#PositionId').val();
+            var trackId = $('#TrackId').val();
             var experience = $('#Experience').val();
             var fileInput = $('#file')[0];
 
@@ -175,6 +177,14 @@
                 e.preventDefault(); // Prevent form submission
             } else {
                 $('#positionIdError').text('');
+            }
+
+            // Validate TrackId
+            if (!trackId) {
+                $('#trackIdError').text('Please select a Track.');
+                e.preventDefault(); // Prevent form submission
+            } else {
+                $('#trackIdError').text('');
             }
 
             // Validate Experience

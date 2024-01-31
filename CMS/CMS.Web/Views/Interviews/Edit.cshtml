@@ -1,7 +1,9 @@
 ﻿@using CMS.Domain.Enums;
 @model CMS.Application.DTOs.InterviewsDTO
 
-<h2>Edit</h2>
+@{
+    ViewData["Title"] = "Edit Interview";
+}
 <style>
     .custom-dropdown {
      width:30%;
@@ -14,13 +16,13 @@
 
    <div class="form-group">  <input type="hidden" asp-for="StatusId" /> </div>
     <div class="form-group" style="margin-top: 15px;">
-        <label asp-for="CandidateId" class="control-label">Candidate Name</label>
+        <label asp-for="CandidateId" class="control-label"><span class="text-danger">*</span> Candidate Name</label>
         @Html.DropDownListFor(model => model.CandidateId, (SelectList)ViewBag.candidateList, "Select a Name", new { @class = "form-control custom-dropdown" })
         <span asp-validation-for="CandidateId" class="text-danger" id="candidateIdError"></span>
     </div>
 
     <div class="form-group" style="margin-top: 15px;">
-        <label asp-for="PositionId" class="control-label">Level</label>
+        <label asp-for="PositionId" class="control-label"><span class="text-danger">*</span> Level</label>
         @Html.DropDownListFor(model => model.PositionId, (SelectList)ViewBag.positionList, "Select a Position", new { @class = "form-control custom-dropdown" })
         <span asp-validation-for="PositionId" class="text-danger" id="positionIdError"></span>
     </div>
@@ -81,52 +83,13 @@
     </div>
 
     <div class="form-group" style="margin-top: 15px;">
-        <label asp-for="Date" class="control-label"></label>
+        <label asp-for="Date" class="control-label"><span class="text-danger">*</span> Date</label>
         <input style="width:30%;" asp-for="Date" class="form-control" />
         <span asp-validation-for="Date" class="text-danger" id="dateValidationMessage"></span>
     </div>
 
 
 
-
-    @*  @if ((User.IsInRole("HR Manager") || User.IsInRole("Admin")) && Model.StatusName == "Pending")
-    {
-
-    }
-    else
-    {
-    <div class="form-group">
-    <label asp-for="Score" class="control-label"></label>
-    <input asp-for="Score" class="form-control" />
-    <span asp-validation-for="Score" class="text-danger"></span>
-    </div>
-    } *@
-    @*
-    <div class="form-group">
-    <label asp-for="Score" class="control-label">Score</label>
-    @if ((User.IsInRole("HR Manager") || User.IsInRole("Admin")) && Model.StatusName == "Pending")
-    {
-    <p>The score cannot be set for pending interviews by HR Managers or Admins.</p>
-    }
-    else
-    {
-    <input asp-for="Score" class="form-control" />
-    <span asp-validation-for="Score" class="text-danger"></span>
-    }
-    </div>
-    *@
-
-
-    @* <div class="form-group">
-    <label asp-for="StatusId" class="control-label">Status</label>
-    @Html.DropDownListFor(model => model.StatusId, (SelectList)ViewBag.statusList, "Select an Interviewer", new { @class = "form-control" })
-    <span asp-validation-for="StatusId" class="text-danger"></span>
-    </div>*@
-    @* <div class="form-group">
-    <label asp-for="Notes" class="control-label"></label>
-    <input asp-for="Notes" class="form-control" />
-    <span asp-validation-for="Notes" class="text-danger"></span>
-    </div>*@
     <div class="form-group">
         <input asp-for="AttachmentId" class="form-control" hidden />
     </div>
@@ -151,6 +114,9 @@
     $(document).ready(function () {
         $('#editForm').submit(function (e) {
             e.preventDefault();
+
+            var isValid = true;
+
             var candidateId = $('#CandidateId').val();
             var positionId = $('#PositionId').val();
             var interviewerId = $('#InterviewerId').val();
@@ -159,7 +125,7 @@
             // Validate Candidate
             if (!candidateId) {
                 $('#candidateIdError').text('Candidate is required.');
-                e.preventDefault(); // Prevent form submission
+                isValid = false;
             } else {
                 $('#candidateIdError').text('');
             }
@@ -167,7 +133,7 @@
             // Validate Position
             if (!positionId) {
                 $('#positionIdError').text('Level is required.');
-                e.preventDefault(); // Prevent form submission
+                isValid = false;
             } else {
                 $('#positionIdError').text('');
             }
@@ -175,7 +141,7 @@
             // Validate Track
             if (!positionId) {
                 $('#trackIdError').text('Track is required.');
-                e.preventDefault(); // Prevent form submission
+                isValid = false;
             } else {
                 $('#trackIdError').text('');
             }
@@ -183,7 +149,7 @@
             // Validate #1 (InterviewerId)
             if (!interviewerId) {
                 $('#interviewerIdError').text('First Interviewer is required.');
-                e.preventDefault(); // Prevent form submission
+                isValid = false;
             } else {
                 $('#interviewerIdError').text('');
             }
@@ -191,35 +157,29 @@
             // Validate Date
             if (!date) {
                 $('#dateValidationMessage').text('Date is required.');
-                e.preventDefault(); // Prevent form submission
+                isValid = false;
             } else {
                 $('#dateValidationMessage').text('');
             }
 
-
-            Swal.fire({
-                title: 'Are you sure?',
-                text: 'Do you want to submit the changes?',
-                icon: 'warning',
-                showCancelButton: true,
-                confirmButtonColor: '#3085d6',
-                cancelButtonColor: '#d33',
-                confirmButtonText: 'Yes, submit it!',
-                cancelButtonText: 'No, cancel!',
-            }).then((result) => {
-                if (result.isConfirmed) {
-                    // If the user clicks "Yes", proceed with form submission
-                    $('#editForm')[0].submit();
-                }
-            });
+            // Show confirmation dialog if the form is valid
+            if (isValid) {
+                Swal.fire({
+                    title: 'Are you sure?',
+                    text: 'Do you want to submit the changes?',
+                    icon: 'warning',
+                    showCancelButton: true,
+                    confirmButtonColor: '#3085d6',
+                    cancelButtonColor: '#d33',
+                    confirmButtonText: 'Yes, submit it!',
+                    cancelButtonText: 'No, cancel!',
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        // If the user clicks "Yes", proceed with form submission
+                        $('#editForm')[0].submit();
+                    }
+                });
+            }
         });
     });
 </script>
-
-
-
-
-
-
-
-
