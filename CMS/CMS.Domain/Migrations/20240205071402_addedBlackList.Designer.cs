@@ -4,14 +4,16 @@ using CMS.Domain;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 namespace CMS.Domain.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20240205071402_addedBlackList")]
+    partial class addedBlackList
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -57,6 +59,24 @@ namespace CMS.Domain.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("Attachments");
+                });
+
+            modelBuilder.Entity("CMS.Domain.Entities.BlackList", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int")
+                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
+
+                    b.Property<DateTime>("BlackListedDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int>("CandidateId")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("BlackLists");
                 });
 
             modelBuilder.Entity("CMS.Domain.Entities.Candidate", b =>
@@ -631,11 +651,6 @@ namespace CMS.Domain.Migrations
                         {
                             Id = 6,
                             Name = "Frontend"
-                        },
-                        new
-                        {
-                            Id = 7,
-                            Name = "UI/UX"
                         });
                 });
 
@@ -669,35 +684,35 @@ namespace CMS.Domain.Migrations
                         new
                         {
                             Id = "b024cbbe-f64e-4d1b-9c6e-05ac0f0e3ebb",
-                            ConcurrencyStamp = "0de1676b-e75c-4753-b79b-b2f27ef64fae",
+                            ConcurrencyStamp = "cb574c1a-37fd-4ffd-b3f5-5d63b60199d1",
                             Name = "Admin",
                             NormalizedName = "ADMIN"
                         },
                         new
                         {
                             Id = "1eecb40c-c701-4445-89d4-d1aa7d70460d",
-                            ConcurrencyStamp = "2fd4cd70-41ce-4b06-a116-fe0032a80681",
+                            ConcurrencyStamp = "7411f180-1c7a-4458-8c68-05da0ee34a70",
                             Name = "General Manager",
                             NormalizedName = "GENERAL MANAGER"
                         },
                         new
                         {
                             Id = "226cca69-f046-4d15-8b81-9b9ba34f2214",
-                            ConcurrencyStamp = "73c4cd28-e3f3-4794-b58f-04b2bc8cab62",
+                            ConcurrencyStamp = "64749616-cd45-49d8-93b7-320919980135",
                             Name = "HR Manager",
                             NormalizedName = "HR MANAGERF"
                         },
                         new
                         {
                             Id = "91c3461a-7da3-4033-b907-b104b903d793",
-                            ConcurrencyStamp = "3d8d3d27-3c9f-41c6-8d23-33d8c769e179",
+                            ConcurrencyStamp = "fa752513-f9c2-4b07-b2dd-e874cf8fef6e",
                             Name = "Interviewer",
                             NormalizedName = "INTERVIEWER"
                         },
                         new
                         {
                             Id = "3F476A40-97F4-42C6-A226-602AED74A4BC",
-                            ConcurrencyStamp = "eb679db5-e7b0-4bac-a78f-9fabe360e202",
+                            ConcurrencyStamp = "8a220613-3aac-4686-a058-ee9ffb44dc2b",
                             Name = "Solution Architecture",
                             NormalizedName = "SOLUTION ARCHITECTURE"
                         });
@@ -796,15 +811,15 @@ namespace CMS.Domain.Migrations
                         {
                             Id = "c6585ab9-8b5f-4332-a174-92429db8add2",
                             AccessFailedCount = 0,
-                            ConcurrencyStamp = "e1ac4f9c-0850-40b2-bec1-71c6f48a68e1",
+                            ConcurrencyStamp = "817a2a01-7572-43b0-ac46-5e7d94c1681c",
                             Email = "admin@admin.com",
                             EmailConfirmed = true,
                             LockoutEnabled = false,
                             NormalizedEmail = "ADMIN@ADMIN.COM",
                             NormalizedUserName = "ADMIN",
-                            PasswordHash = "AQAAAAEAACcQAAAAEMsi6Cc6AN+wTU2+946Tprp5ys1hrlGPeUZVcsRM/cFqeA5d8Bz3AZk7l0i/3dFXGQ==",
+                            PasswordHash = "AQAAAAEAACcQAAAAEI26HfCCBSEjQ2zWvN7tyX5jUkrQ1svEWc5fJJMlbVCXdL1HYu1SpDWIizjqHAMxfA==",
                             PhoneNumberConfirmed = false,
-                            SecurityStamp = "0f79735b-baed-4b4d-99a7-1c62ab0abb66",
+                            SecurityStamp = "741d5b42-8faf-4531-b184-3c060d7844c8",
                             TwoFactorEnabled = false,
                             UserName = "admin"
                         });

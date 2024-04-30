@@ -249,6 +249,23 @@ namespace CMS.Repository.Implementation
             }
         }
 
+        public async Task<int> CountStoppedCyclesAsync()
+        {
+            try
+            {
+                int stoppedCyclesCount = await _dbContext.Interviews
+                    .Where(i => i.StopCycleNote != null)
+                    .CountAsync();
+
+                return stoppedCyclesCount;
+            }
+            catch (Exception ex)
+            {
+                LogException(nameof(CountStoppedCyclesAsync), ex, "Unable to count the stopped cycles interviews");
+                throw ex;
+            }
+        }
+
 
         public async Task<int?> GetCVAttachmentIdByCandidateId(int candidateId)
         {

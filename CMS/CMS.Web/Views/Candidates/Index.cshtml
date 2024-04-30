@@ -17,18 +17,20 @@
 }
 
 
-@using (Html.BeginForm("Index", "Candidates", FormMethod.Get))
+@using (Html.BeginForm("Index", "Candidates", FormMethod.Get, new { id = "filterForm", onsubmit = "return validateForm();" }))
 {
     <div class="form-group" style="margin-bottom: 23px;">
         <div class="row">
+
             <div class="col-md-3">
                 @Html.Label("Filter by Candidate Name:")
-                @Html.TextBox("FullName", null, new { @class = "form-control", placeholder = "Search by Candidate Name" })
+                <input type="text" id="FullName" name="FullName" class="form-control" placeholder="Search by Candidate Name" value="@ViewBag.candidateFilter">
             </div>
             <div class="col-md-3">
                 @Html.Label("Filter by Phone Number (Partial):")
-                @Html.TextBox("Phone", null, new { @class = "form-control phonenumber" })
+                @Html.TextBox("Phone", null, new { @class = "form-control phonenumber", placeholder = "Enter partial phone number" })
             </div>
+
             <div class="col-md-3">
                 @Html.Label("Filter by Track:")
                 @Html.DropDownList("trackFilter", ViewBag.TrackList as SelectList, "All Tracks", new { @class = "form-control" })
@@ -52,6 +54,7 @@
                 <div>
                     <a asp-action="Create" class="btn btn-primary">Create New Candidate</a>
                 </div>
+
             </div>
             <div class="card-body">
                 <table id="candidateTable" class="table table-nowrap dt-responsive table-bordered display" style="width:100%">
@@ -71,45 +74,55 @@
                         </tr>
                     </thead>
                     <tbody>
-                        @for (var i = 0; i < Model.Count(); i++)
+                         @if (Model != null)
                         {
-                            var candidate = Model.ElementAt(i);
-                            <tr>
-                                <td>@(i + 1)</td>
-                                <td>@Html.DisplayFor(modelItem => candidate.FullName)</td>
-                                <td>@Html.DisplayFor(modelItem => candidate.Phone)</td>
-                                <td>@Html.DisplayFor(modelItem => candidate.CompanyName)</td>
-                                <td>@Html.DisplayFor(modelItem => candidate.PositionName)</td>
-                                <td>@Html.DisplayFor(modelItem => candidate.TrackName)</td>
-                                <td>@Html.DisplayFor(modelItem => candidate.Experience)</td>
-                                <td id="cvColumn_@candidate.Id">
-                                    @if (candidate.CVAttachmentId != null)
-                                    {
-                                        <a asp-controller="Attachments" asp-action="Download" asp-route-id="@candidate.CVAttachmentId">
-                                            <i style="font-size: x-large;" class="bx bxs-cloud-download"></i>
-                                        </a>
-                                    }
-                                    else
-                                    {
-                                        <p>No CV Available</p>
-                                    }
-                                </td>
+                            // Sort the candidates by CreatedOn date in descending order
+                            var sortedCandidates = Model.OrderByDescending(x => x.CreatedOn).ToList();
 
-                                <td>
-                                    <form asp-action="UpdateAttachment" asp-route-id="@candidate.Id" enctype="multipart/form-data">
-                                        <div class="form-group" data-bs-toggle="tooltip" data-bs-placement="bottom" data-bs-original-title="Upload CV">
-                                            <input type="file" id="file" name="file" class="form-control-file hidden-file-input" data-candidate-id="@candidate.Id" accept=".pdf, .docx, .png, .jpg" />
-                                            <br />
-                                            <span id="fileError" class="text-danger"></span>
-                                        </div>
-                                    </form>
-                                </td>
-                                <td>
-                                    <a class="bx bxs-edit-alt" style="font-size:x-large" asp-action="Edit" asp-route-id="@candidate.Id" data-bs-toggle="tooltip" data-bs-placement="left" data-bs-original-title="Edit"></a> |
-                                    <a class="bx bx-detail" style="font-size:x-large" asp-action="Details" asp-route-id="@candidate.Id" data-bs-toggle="tooltip" data-bs-placement="bottom" data-bs-original-title="Details"></a> |
-                                    <a class="ri-delete-bin-2-line text-danger" style="font-size:x-large" asp-action="Delete" asp-route-id="@candidate.Id" data-bs-toggle="tooltip" data-bs-placement="right" data-bs-original-title="Delete"></a>
-                                </td>
-                            </tr>
+                            // Loop through the sorted candidates
+                            for (var i = 0; i < sortedCandidates.Count(); i++)
+                            {
+                                var candidate = sortedCandidates[i];
+                                <tr>
+                                    <td>@(i + 1)</td>
+                                    <td>@Html.DisplayFor(modelItem => candidate.FullName)</td>
+                                    <td>@Html.DisplayFor(modelItem => candidate.Phone)</td>
+                                    <td>@Html.DisplayFor(modelItem => candidate.CompanyName)</td>
+                                    <td>@Html.DisplayFor(modelItem => candidate.PositionName)</td>
+                                    <td>@Html.DisplayFor(modelItem => candidate.TrackName)</td>
+                                    <td>@Html.DisplayFor(modelItem => candidate.Experience)</td>
+                                    <td id="cvColumn_@candidate.Id">
+                                        @if (candidate.CVAttachmentId != null)
+                                        {
+                                            <a asp-controller="Attachments" asp-action="Download" asp-route-id="@candidate.CVAttachmentId" data-bs-toggle="tooltip" data-bs-placement="bottom" data-bs-original-title="Download CV">
+                                                <i style="font-size: x-large;" class="bx bxs-cloud-download"></i>
+                                            </a>
+                                        }
+                                        else
+                                        {
+                                            <p>No CV Available</p>
+                                        }
+                                    </td>
+
+
+                                    <td>
+                                        <form asp-action="UpdateAttachment" asp-route-id="@candidate.Id" enctype="multipart/form-data">
+                                            <div class="form-group" data-bs-toggle="tooltip" data-bs-placement="bottom" data-bs-original-title="Upload CV">
+                                                <input type="file" id="file" name="file" class="form-control-file hidden-file-input" data-candidate-id="@candidate.Id" accept=".pdf, .docx, .png, .jpg" />
+                                                <br />
+                                                <span id="fileError" class="text-danger"></span>
+                                            </div>
+                                        </form>
+                                    </td>
+
+                                    <td>
+                                        <a class="bx bxs-edit-alt" style="font-size:x-large" asp-action="Edit" asp-route-id="@candidate.Id" data-bs-toggle="tooltip" data-bs-placement="left" data-bs-original-title="Edit"></a> |
+                                        <a class="bx bx-detail" style="font-size:x-large" asp-action="Details" asp-route-id="@candidate.Id" data-bs-toggle="tooltip" data-bs-placement="bottom" data-bs-original-title="Details"></a> |
+                                        <a class="ri-delete-bin-2-line text-danger" style="font-size:x-large" asp-action="Delete" asp-route-id="@candidate.Id" data-bs-toggle="tooltip" data-bs-placement="right" data-bs-original-title="Delete"></a>
+                                    </td>
+
+                                </tr>
+                            }
                         }
                     </tbody>
 
@@ -117,9 +130,9 @@
 
             </div>
         </div>
+
     </div><!--end col-->
 </div><!--end row-->
-
 
 <script>
     $(document).ready(function () {
@@ -162,3 +175,17 @@
     });
 </script>
 
+<script>
+    // Function to remove trailing spaces from candidate name input field
+    function removeTrailingSpaces() {
+        var fullName = document.getElementById("FullName");
+        fullName.value = fullName.value.trim(); // Remove trailing spaces
+    }
+
+    // Validate form and remove trailing spaces before submission
+    function validateForm() {
+        removeTrailingSpaces(); // Remove trailing spaces from candidate name
+        // Return true to allow form submission
+        return true;
+    }
+</script>

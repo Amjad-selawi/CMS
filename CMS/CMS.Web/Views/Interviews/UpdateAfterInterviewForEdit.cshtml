@@ -13,7 +13,7 @@
     <input type="hidden" asp-for="CandidateId" />
     <input type="hidden" asp-for="PositionId" />
     <input type="hidden" asp-for="isUpdated" />
-    @if (User.IsInRole("Interviewer"))
+    @if ((User.IsInRole("Interviewer") || User.IsInRole("Solution Architecture")) && Model.ParentId == null)
     {
         <div class="form-group">
             <label asp-for="Score"><span class="text-danger">*</span> Score out of 5:</label>
@@ -34,7 +34,7 @@
 
     <div class="form-group" style="margin-top: 15px;">
 
-        <label asp-for="StatusId" class="control-label">Status</label>
+        <label asp-for="StatusId" class="control-label"><span style="color:red;">*</span> Status</label>
         @if (ViewBag.StatusDTOs != null)
         {
 
@@ -65,7 +65,7 @@
     </div>
 
 
-    @if (User.IsInRole("Interviewer"))
+    @if (User.IsInRole("Interviewer") || (User.IsInRole("Solution Architecture") && Model.ParentId == null))
     {
         @if (Model.EvalutaionFormId != null)
         {
@@ -82,7 +82,7 @@
         }
 
         <div class="form-group" style="margin-top: 15px;">
-            <label for="file"><span class="text-danger">*</span> Upload An evaluation:</label>
+            <label for="file">Upload An evaluation:</label>
             <input style="width:30%;" type="file" id="file" name="file" class="form-control-file" onchange="validateFileFormat(this)"  />
 
             @if (Model.AttachmentId != null)
@@ -160,7 +160,7 @@
 
             // Validate Notes (if StatusId is 3)
             if ($('[name="StatusId"]').val() === "3" && !$('[name="Notes"]').val()) {
-                $('#Notes').next(".text-danger").text("Please add a note for why it was rejected.");
+                $('#Notes').next(".text-danger").text("Please add a note for why (He/She) was rejected.");
                 e.preventDefault();
                 return;
             }

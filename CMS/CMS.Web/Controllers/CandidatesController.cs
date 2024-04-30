@@ -2,6 +2,7 @@
 using CMS.Application.DTOs;
 using CMS.Domain.Entities;
 using CMS.Services.Interfaces;
+using CMS.Services.Services;
 using CMS.Web.Customes;
 using CMS.Web.Utils;
 using Microsoft.AspNetCore.Authorization;
@@ -63,7 +64,9 @@ namespace CMS.Web.Controllers
         {
             try
             {
-                if (User.IsInRole("Admin") || User.IsInRole("HR Manager"))
+                ViewBag.candidateFilter = FullName;
+
+                if (User.IsInRole("Admin") || User.IsInRole("HR Manager") )
                 {
                     var candidates = await _candidateService.GetAllCandidatesAsync();
 
@@ -89,6 +92,8 @@ namespace CMS.Web.Controllers
                             .Where(i => i.TrackId == trackFilter.Value)
                             .ToList();
                     }
+
+               
 
                     return View(candidates);
                 }
@@ -187,7 +192,7 @@ namespace CMS.Web.Controllers
             {
                 // Check file extension and size
                 var allowedExtensions = new[] { ".pdf", ".docx", ".png", ".jpg" };
-                var maxFileSize = 4 * 1024 * 1024; // 4MB
+                var maxFileSize = 9 * 1024 * 1024; // 9MB
 
                 var fileExtension = Path.GetExtension(file.FileName).ToLower();
                 if (!allowedExtensions.Contains(fileExtension))
@@ -197,7 +202,7 @@ namespace CMS.Web.Controllers
 
                 else if (file.Length > maxFileSize)
                 {
-                    ModelState.AddModelError("File", "File size exceeds the maximum allowed size (4MB).");
+                    ModelState.AddModelError("File", "File size exceeds the maximum allowed size (9MB).");
                 }
 
                 attachmentStream = await AttachmentHelper.handleUpload(file, _attachmentStoragePath);
@@ -318,7 +323,7 @@ namespace CMS.Web.Controllers
             {
                 // Check file extension and size
                 var allowedExtensions = new[] { ".pdf", ".docx", ".png", ".jpg" };
-                var maxFileSize = 4 * 1024 * 1024; // 4MB
+                var maxFileSize = 9 * 1024 * 1024; // 4MB
 
                 var fileExtension = Path.GetExtension(file.FileName).ToLower();
                 if (!allowedExtensions.Contains(fileExtension))
@@ -331,7 +336,7 @@ namespace CMS.Web.Controllers
                 }
                 else if (file.Length > maxFileSize)
                 {
-                    ModelState.AddModelError("File", "File size exceeds the maximum allowed size (4MB).");
+                    ModelState.AddModelError("File", "File size exceeds the maximum allowed size (9MB).");
                 }
 
                 if (ModelState.IsValid)
@@ -436,6 +441,9 @@ namespace CMS.Web.Controllers
                 throw ex;
             }
         }
+
+
+
     }
 }
 

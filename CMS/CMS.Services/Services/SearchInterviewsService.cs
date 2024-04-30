@@ -28,6 +28,7 @@ namespace CMS.Services.Services
         private readonly RoleManager<IdentityRole> _roleManager;
         private readonly IStatusRepository _statusRepository;
         private readonly ApplicationDbContext _db;
+        private readonly ICompanyService _companyService;
         private readonly IHttpContextAccessor _httpContextAccessor;
 
         private readonly IAttachmentService _attachmentService;
@@ -40,7 +41,8 @@ namespace CMS.Services.Services
             RoleManager<IdentityRole> roleManager,
             IHttpContextAccessor httpContextAccessor,
             IStatusRepository statusRepository,
-            ApplicationDbContext Db
+            ApplicationDbContext Db,
+            ICompanyService companyService
             )
         {
             _interviewsRepository = interviewsRepository;
@@ -52,6 +54,7 @@ namespace CMS.Services.Services
             _httpContextAccessor = httpContextAccessor;
             _statusRepository = statusRepository;
             _db = Db;
+            _companyService = companyService;
         }
 
         public async void LogException(string methodName, Exception ex, string additionalInfo)
@@ -571,35 +574,47 @@ namespace CMS.Services.Services
             List<InterviewsDTO> interviewsDTOs = new List<InterviewsDTO>();
             try
             {
+                var currentInterviewResult = await GetById(id);
+                var currentInterview = currentInterviewResult.Value;
 
-
-                var Result = await GetById(id);
-                var interview = Result.Value;
-
-                if (interview.ParentId != null)
+                if (currentInterview != null)
                 {
-                    while (interview.ParentId != null)
+                    interviewsDTOs.Add(currentInterview);
+
+                    if (currentInterview.ParentId != null)
                     {
-                        var result = await GetById((int)interview.ParentId);
-                        interview = result.Value;
-                        interviewsDTOs.Add(result.Value);
+                        while (currentInterview.ParentId != null)
+                        {
+                            var parentInterviewResult = await GetById((int)currentInterview.ParentId);
+                            currentInterview = parentInterviewResult.Value;
+                            interviewsDTOs.Add(currentInterview);
+                        }
                     }
                 }
-                else
+
+                foreach (var interviewDTO in interviewsDTOs)
                 {
-                        interviewsDTOs.Add(Result.Value);
+                    var candidateId = interviewDTO.CandidateId;
+                    var candidate = await _candidateService.GetCandidateByIdAsync(candidateId);
+                    var companyResult = await _companyService.GetById(candidate.CompanyId);
+                    if (companyResult.IsSuccess)
+                    {
+                        interviewDTO.CompanyName = companyResult.Value.Name;
+                    }
+                    else
+                    {
+                        interviewDTO.CompanyName = null;
+                    }
                 }
-               
+
                 return Result<List<InterviewsDTO>>.Success(interviewsDTOs);
 
             }
             catch (Exception ex)
             {
+                LogException(nameof(ShowHistory), ex, $"Unable to get interview History");
                 return Result<List<InterviewsDTO>>.Failure(null, $"Unable to get interview History: {ex.Message}");
             }
-
-
-
         }
 
         public async Task<string> GetArchitectureName(string id)

@@ -15,14 +15,11 @@
                     <thead>
                         <tr>
                             <th>Candidate Name</th>
+                            <th>Company Name</th>
                             <th>Interviewer</th>
                             <th>Score</th>
                             <th>Actual Experience</th>
-                            <th >Notes</th>
-                            @if (User.IsInRole("HR Manager") || User.IsInRole("General Manager") || User.IsInRole("Admin"))
-                            {
-                                <th>Stop Cycle Note (HR)</th>
-                            }
+                            <th>Notes</th>
                             <th>Evaluation</th>
                         </tr>
                     </thead>
@@ -31,6 +28,7 @@
                         {
                             <tr>
                                 <td>@Html.DisplayFor(modelItem => item.FullName)</td>
+                                <td>@item.CompanyName</td>
                                 @if (item.SecondInterviewerId != null)
                                 {
                                     <td>@item.InterviewerName & @item.SecondInterviewerName</td>
@@ -39,22 +37,34 @@
                                 {
                                     <td>@item.InterviewerName</td>
                                 }
-                                <td>@item.Score</td>
-                                <td>@item.ActualExperience</td>
-                                <td style="max-width: 200px; white-space: pre-line;">@item.Notes</td>
-                                @if (User.IsInRole("HR Manager") || User.IsInRole("General Manager") || User.IsInRole("Admin"))
+                                @if (item.Score != null)
                                 {
-                                    <td style="max-width: 200px; white-space: pre-line;">@item.StopCycleNote</td>
+                                    <td>@item.Score</td>
                                 }
+                                else
+                                {
+                                    <td style="max-width: 200px; white-space: pre-line;" class="text-muted">No score here</td>
+                                }
+                                <td>@item.ActualExperience</td>
+                                @if (item.Notes != null)
+                                {
+                                    <td style="max-width: 200px; white-space: pre-line;">@item.Notes</td>
+
+                                }
+                                else
+                                {
+                                    <td style="max-width: 200px; white-space: pre-line;" class="text-muted">No note added</td>
+                                }
+
                                 @if (item.AttachmentId != null)
-                                    {
-                                        <td><a asp-controller="Attachments" asp-action="Download" asp-route-id="@item.AttachmentId">Download evaluation</a></td>
-                                    }
-                                    else
-                                    {
-                                        <td> </td>
-                                    }
-       
+                                {
+                                    <td><a asp-controller="Attachments" asp-action="Download" asp-route-id="@item.AttachmentId">Download evaluation</a></td>
+                                }
+                                else
+                                {
+                                    <td> </td>
+                                }
+
                             </tr>
                         }
                     </tbody>
@@ -64,5 +74,5 @@
     </div>
 </div>
 <div>
-<a class="btn btn-secondary" asp-action="MyInterviews">Back to List</a>
+    <a class="btn btn-secondary" asp-action="MyInterviews">Back to List</a>
 </div>

@@ -72,5 +72,18 @@ namespace CMS.Application.DTOs
 
         public string? StopCycleNote { get; set; }
 
+
+        public DateTime CreatedOn { get; set; }
+
+        public string? CompanyName { get; set; }
+
+
+        public double? SecondInterviewActualExperience { get; set; }
+        public string? SecondInterviewNotes { get; set; }
+        public string? SecondInterviewInterviewerName { get; set; }
+
+        public string? HRNotes { get; set; }
+        public string? firstNote { get; set; }
+
     }
 }

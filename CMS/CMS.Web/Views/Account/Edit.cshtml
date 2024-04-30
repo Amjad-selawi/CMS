@@ -9,22 +9,22 @@
     <div asp-validation-summary="ModelOnly" class="text-danger"></div>
     <div class="form-group"><input type="hidden" asp-for="RegisterrId" /></div>
     <div class="form-group" style="width:30%;">
-        <label asp-for="Email" class="control-label">Email</label>
+        <label asp-for="Email" class="control-label"><span style="color:red;">*</span> Email</label>
         <input asp-for="Email" class="form-control" />
         <span asp-validation-for="Email" class="text-danger"></span>
     </div>
     <div class="form-group" style="margin-top:15px;width:30%;">
-        <label asp-for="UserName" class="control-label">Username</label>
+        <label asp-for="UserName" class="control-label"><span style="color:red;">*</span> Username</label>
         <input asp-for="UserName" class="form-control" />
         <span asp-validation-for="UserName" class="text-danger"></span>
     </div>
     <div class="form-group" style="margin-top:15px;width:30%;">
-        <label asp-for="Password" class="control-label">Password</label>
+        <label asp-for="Password" class="control-label"><span style="color:red;">*</span> Password</label>
         <input asp-for="Password" type="password" class="form-control" />
         <span asp-validation-for="Password" class="text-danger"></span>
     </div>
     <div class="form-group" style="margin-top:15px;width:30%;">
-        <label asp-for="ConfirmPassword" class="control-label">Confirm Password</label>
+        <label asp-for="ConfirmPassword" class="control-label"><span style="color:red;">*</span> Confirm Password</label>
         <input asp-for="ConfirmPassword" type="password" class="form-control" />
         <span asp-validation-for="ConfirmPassword" class="text-danger"></span>
     </div>
@@ -38,7 +38,7 @@
     </div> *@
 
     <div class="form-group" style="margin-top:15px;width:30%;">
-        <label asp-for="SelectedRole" class="control-label">Role:</label>
+        <label asp-for="SelectedRole" class="control-label"><span style="color:red;">*</span> Role:</label>
         @Html.DropDownListFor(model => model.SelectedRole, (SelectList)ViewBag.Roles, new { @class = "form-control" })
         <span asp-validation-for="SelectedRole" class="text-danger"></span>
     </div>

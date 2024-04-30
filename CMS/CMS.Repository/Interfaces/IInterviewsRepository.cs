@@ -38,6 +38,10 @@ namespace CMS.Repository.Interfaces
 
         Task<bool> DeletePendingInterviewsforStopCycle(int candidateId, int positionId);
         Task<Interviews> GetLastInterviewBeforePendingByCandidateId(int candidateId);
+        Task<Interviews> GetByParentIdAsync(int parentId);
+        Task<Interviews> GetByInterviewerRoleAsync(int candidateId, string roleName);
+        Task<Interviews> GetThirdInterviewAsync(int candidateId);
+
 
     }
 }

@@ -8,6 +8,7 @@
         "/dashboard-js/rejected-chart.js",
         "/dashboard-js/pending-chart.js",
         "/dashboard-js/onHold-chart.js",
+        "/dashboard-js/stoppedCycles-chart.js",
         "/theme/libs/jsvectormap/js/jsvectormap.min.js",
         "/theme/libs/jsvectormap/maps/world-merc.js",
         "/dashboard-js/countries-hash.js",
@@ -18,9 +19,11 @@
 
 <div class="row">
 
+    
     <div class="col-md-4">
         <div class="card card-animate">
             <div class="card-body">
+
                 <div class="d-flex justify-content-between">
                     <div>
                         <p class="fw-medium text-muted mb-0">Candidates</p>
@@ -33,6 +36,7 @@
                             </span>
                         </div>  
                     </div> *@
+                    
                     <div>
                         <div class="avatar-sm flex-shrink-0">
                             <span class="avatar-title bg-info-subtle rounded-circle fs-2">
@@ -41,9 +45,13 @@
                         </div>
                     </div>
                 </div>
+
             </div><!-- end card body -->
         </div> <!-- end card-->
     </div>
+    
+
+
     <div class="col-xl-4 col-md-4">
         <div class="card card-animate overflow-hidden">
             <div class="position-absolute start-0" style="z-index: 0;">
@@ -58,6 +66,7 @@
                 </svg>
             </div>
             <div class="card-body" style="z-index:1 ;">
+                <a asp-action="AcceptedCandidates">
                 <div class="d-flex align-items-center">
                     <div class="flex-grow-1 overflow-hidden">
                         <p class="text-uppercase fw-medium text-muted text-truncate mb-3"> Accepted</p>
@@ -65,6 +74,8 @@
                     </div>
                     <div id="accepted-chart" data-percent="@ViewBag.AcceptedPercentage"></div>
                 </div>
+
+                </a>
             </div><!-- end card body -->
         </div><!-- end card -->
     </div>
@@ -85,6 +96,7 @@
                 </svg>
             </div>
             <div class="card-body" style="z-index:1 ;">
+                <a asp-action="PendingCandidates">
                 <div class="d-flex align-items-center">
                     <div class="flex-grow-1 overflow-hidden">
                         <p class="text-uppercase fw-medium text-muted text-truncate mb-3"> Pending</p>
@@ -92,6 +104,7 @@
                     </div>
                     <div id="pending-chart" data-percent="@ViewBag.PendingPercentage"></div>
                 </div>
+                </a>
             </div><!-- end card body -->
         </div><!-- end card -->
     </div>
@@ -113,6 +126,7 @@
                 </svg>
             </div>
             <div class="card-body" style="z-index:1 ;">
+                <a asp-action="RejectedCandidates">
                 <div class="d-flex align-items-center">
                     <div class="flex-grow-1 overflow-hidden">
                         <p class="text-uppercase fw-medium text-muted text-truncate mb-3"> Rejected</p>
@@ -120,6 +134,7 @@
                     </div>
                     <div id="rejected-chart" data-percent="@ViewBag.RejectedPercentage"></div>
                 </div>
+                </a>
             </div><!-- end card body -->
         </div><!-- end card -->
     </div>
@@ -139,6 +154,7 @@
                 </svg>
             </div>
             <div class="card-body" style="z-index:1 ;">
+                <a asp-action="OnHoldCandidates">
                 <div class="d-flex align-items-center">
                     <div class="flex-grow-1 overflow-hidden">
                         <p class="text-uppercase fw-medium text-muted text-truncate mb-3"> On Hold</p>
@@ -146,9 +162,40 @@
                     </div>
                     <div id="onhold-chart" data-percent="@ViewBag.OnHoldPercentage"></div>
                 </div>
+                </a>
             </div><!-- end card body -->
         </div><!-- end card -->
     </div>
+
+
+    <div class="col-xl-4 col-md-4">
+        <div class="card card-animate overflow-hidden">
+            <div class="position-absolute start-0" style="z-index: 0;">
+                <svg version="1.2" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 120" width="200" height="120">
+                    <style>
+                        .s0 {
+                            opacity: .05;
+                            fill: var(--vz-success)
+                        }
+                    </style>
+                    <path id="Shape 8" class="s0" d="m189.5-25.8c0 0 20.1 46.2-26.7 71.4 0 0-60 15.4-62.3 65.3-2.2 49.8-50.6 59.3-57.8 61.5-7.2 2.3-60.8 0-60.8 0l-11.9-199.4z"></path>
+                </svg>
+            </div>
+            <div class="card-body" style="z-index:1 ;">
+                <a asp-action="StoppedCyclesCandidates">
+                <div class="d-flex align-items-center">
+                    <div class="flex-grow-1 overflow-hidden">
+                        <p class="text-uppercase fw-medium text-muted text-truncate mb-3"> Stopped Cycles</p>
+                        <h4 class="fs-22 fw-semibold ff-secondary mb-0"><span class="counter-value" data-target="@Model.NumberOfStoppedCycles">0</span></h4>
+                    </div>
+                        <div id="stoppedCycles-chart" data-percent="@ViewBag.StoppedCycles"></div>
+                </div>
+                </a>
+            </div><!-- end card body -->
+        </div><!-- end card -->
+    </div>
+
+
 @*     <canvas id="myChart" style="width:100%;max-width:600px"></canvas>
  *@
 </div>

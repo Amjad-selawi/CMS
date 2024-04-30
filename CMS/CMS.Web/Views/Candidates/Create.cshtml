@@ -43,7 +43,7 @@
         <label asp-for="PositionId" class="control-label"><span class="text-danger">*</span> Level</label>
         @if (ViewBag.positions != null)
         {
-            <select style="width: 30%;" asp-for="PositionId" asp-items="@(ViewBag.positions)" class="form-control">
+            <select style="width: 30%;" asp-for="PositionId" asp-items="@(ViewBag.positions)" class="form-control" >
                 <option value="">-- Select a Level --</option>
 
             </select>
@@ -124,9 +124,8 @@
 
         // Prevent letters in the Experience field
         $('#Experience').on('input', function () {
-            this.value = this.value.replace(/[^0-9]/g, ''); // Allow only numeric characters
+            this.value = this.value.replace(/[^0-9.]/g, ''); // Allow only numeric characters
         });
-
 
 
         $('form').submit(function (e) {
@@ -193,8 +192,8 @@
                     $('#fileError').text('');
                 }
 
-                if (fileSize > 4 * 1024 * 1024) {
-                    $('#fileError').text('File size exceeds 4 MB limit.');
+                if (fileSize > 9 * 1024 * 1024) {
+                    $('#fileError').text('File size exceeds 9 MB limit.');
                     e.preventDefault(); // Prevent form submission
                 } else {
                     $('#fileError').text('');
@@ -217,8 +216,8 @@
             }
 
             var fileSize = fileInput.files[0].size;
-            if (fileSize > 4 * 1024 * 1024) {
-                $('#fileError').text('File size exceeds 4 MB limit.');
+            if (fileSize > 9 * 1024 * 1024) {
+                $('#fileError').text('File size exceeds 9 MB limit.');
                 fileInput.value = ''; // Clear the file input
             } else {
                 $('#fileError').text('');
