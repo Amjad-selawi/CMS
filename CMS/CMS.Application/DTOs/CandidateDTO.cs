@@ -61,6 +61,7 @@ namespace CMS.Application.DTOs
         public string? TrackName { get; set; }
         public bool IsBlacklisted { get; set; }
 
+        public DateTime CreatedOn { get; set; }
 
     }
 }

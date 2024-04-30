@@ -17,7 +17,8 @@ namespace CMS.Domain.DataSeeds
                 new Track { Id = 3, Name = "BA" },
                 new Track { Id = 4, Name = "PM" },
                 new Track { Id = 5, Name = "IT" },
-                new Track { Id = 6, Name = "Frontend" }
+                new Track { Id = 6, Name = "Frontend" },
+                new Track { Id = 7, Name = "UI/UX" }
             ) ;
         }
     }

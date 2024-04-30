@@ -19,5 +19,7 @@ namespace CMS.Repository.Interfaces
         Task<List<CandidateDTO>> GetCandidatesByCode(string code);
         Task<List<CandidateDTO>> GetApprovedCandidatesByCode(string code, string hrId);
         Task<List<CandidateDTO>> GetPendingCandidatesByCode(string code);
+
+        Task<List<CandidateDTO>> GetStoppedCyclesCandidatesByNote();
     }
 }

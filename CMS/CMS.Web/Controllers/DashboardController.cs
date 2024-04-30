@@ -85,6 +85,9 @@ namespace CMS.Web.Controllers
                     int onHoldPercentage = (int)onHoldPercentageFloat;
                     ViewBag.OnHoldPercentage = onHoldPercentage;
 
+                    double StoppedCyclesFloat = ((double)report.NumberOfStoppedCycles / report.NumberOfCandidates) * 100;
+                    int StoppedCyclesPercentage = (int)StoppedCyclesFloat;
+                    ViewBag.StoppedCycles = StoppedCyclesPercentage;
 
                     double pendingPercentageFloat = ((double)report.NumberOfPending / report.NumberOfCandidates) * 100;
                     int pendingPercentage = (int)pendingPercentageFloat;
@@ -457,6 +460,56 @@ namespace CMS.Web.Controllers
 
                     ViewData["candidateName"] = candidateName;
                     return View(onHoldCandidates);
+                }
+                else
+                {
+                    return View("AccessDenied");
+                }
+            }
+            catch (Exception ex)
+            {
+                LogException(nameof(OnHoldCandidates), ex, "Failed to retrieve on Hold candidates");
+                throw ex;
+            }
+
+        }
+
+        public async Task<IActionResult> StoppedCyclesCandidates(string candidateName, int? trackFilter)
+        {
+            try
+            {
+
+
+                if (User.IsInRole("Admin") || User.IsInRole("HR Manager") || User.IsInRole("General Manager"))
+                {
+                    var stoppedCyclesCandidates = await _statusRepository.GetStoppedCyclesCandidatesByNote();
+
+                    if (!string.IsNullOrEmpty(candidateName))
+                    {
+                        stoppedCyclesCandidates = stoppedCyclesCandidates
+                            .Where(c => c.Name.Contains(candidateName, StringComparison.OrdinalIgnoreCase))
+                            .ToList();
+                    }
+
+                    if (trackFilter.HasValue && trackFilter.Value > 0)
+                    {
+                        stoppedCyclesCandidates = stoppedCyclesCandidates
+                            .Where(i => i.TrackId == trackFilter.Value)
+                            .ToList();
+                    }
+
+
+                    // Set ViewBag.TrackList with the list of tracks
+                    var tracks = await _trackService.GetAll();
+                    ViewBag.TrackList = new SelectList(tracks.Value, "Id", "Name");
+
+                    // Set the selectedTrack value based on the parameter
+                    ViewBag.selectedTrack = trackFilter;
+
+
+
+                    ViewData["candidateName"] = candidateName;
+                    return View(stoppedCyclesCandidates);
                 }
                 else
                 {

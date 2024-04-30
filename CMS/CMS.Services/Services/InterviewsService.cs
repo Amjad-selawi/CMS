@@ -31,7 +31,7 @@ namespace CMS.Services.Services
         private readonly UserManager<IdentityUser> _userManager;
         private readonly RoleManager<IdentityRole> _roleManager;
         private readonly IStatusRepository _statusRepository;
-
+        private readonly ICompanyService _companyService;
         private readonly IHttpContextAccessor _httpContextAccessor;
 
         private readonly IAttachmentService _attachmentService;
@@ -43,7 +43,8 @@ namespace CMS.Services.Services
             UserManager<IdentityUser> userManager,
             RoleManager<IdentityRole> roleManager,
             IHttpContextAccessor httpContextAccessor,
-            IStatusRepository statusRepository
+            IStatusRepository statusRepository,
+            ICompanyService companyService
             )
         {
             _interviewsRepository = interviewsRepository;
@@ -54,6 +55,7 @@ namespace CMS.Services.Services
             _roleManager = roleManager;
             _httpContextAccessor = httpContextAccessor;
             _statusRepository = statusRepository;
+            _companyService = companyService;
         }
 
         public void LogException(string methodName, Exception ex = null, string additionalInfo = null)
@@ -188,27 +190,42 @@ namespace CMS.Services.Services
             }
         }
 
-       public async Task<Result<List<InterviewsDTO>>>ShowHistory(int id)
+        public async Task<Result<List<InterviewsDTO>>> ShowHistory(int id)
         {
             List<InterviewsDTO> interviewsDTOs = new List<InterviewsDTO>();
             try
             {
-                
+                var currentInterviewResult = await GetById2(id);
+                var currentInterview = currentInterviewResult.Value;
 
-                var Result = await GetById(id);
-                var interview = Result.Value;
-                if (interview.ParentId != null)
+                if (currentInterview != null)
                 {
-                    while (interview.ParentId != null)
+                    interviewsDTOs.Add(currentInterview);
+
+                    if (currentInterview.ParentId != null)
                     {
-                        var result = await GetById((int)interview.ParentId);
-                        interview = result.Value;
-                        interviewsDTOs.Add(result.Value);
+                        while (currentInterview.ParentId != null)
+                        {
+                            var parentInterviewResult = await GetById2((int)currentInterview.ParentId);
+                            currentInterview = parentInterviewResult.Value;
+                            interviewsDTOs.Add(currentInterview);
+                        }
                     }
                 }
-                else
+
+                foreach (var interviewDTO in interviewsDTOs)
                 {
-                    interviewsDTOs.Add(Result.Value);
+                    var candidateId = interviewDTO.CandidateId;
+                    var candidate = await _candidateService.GetCandidateByIdAsync(candidateId);
+                    var companyResult = await _companyService.GetById(candidate.CompanyId);
+                    if (companyResult.IsSuccess)
+                    {
+                        interviewDTO.CompanyName = companyResult.Value.Name;
+                    }
+                    else
+                    {
+                        interviewDTO.CompanyName = null;
+                    }
                 }
 
                 return Result<List<InterviewsDTO>>.Success(interviewsDTOs);
@@ -219,13 +236,10 @@ namespace CMS.Services.Services
                 LogException(nameof(ShowHistory), ex);
                 return Result<List<InterviewsDTO>>.Failure(null, $"Unable to get interview History: {ex.Message}");
             }
-           
-
-
         }
 
-  
-      
+
+
 
 
         public async Task<Result<List<InterviewsDTO>>> GetAll()
@@ -272,6 +286,8 @@ namespace CMS.Services.Services
                         ActualExperience= c.ActualExperience,
                         SecondInterviewerId = c.SecondInterviewerId,
                         SecondInterviewerName = SeconduserName,
+
+                        CreatedOn = c.CreatedOn,
 
                         ArchitectureInterviewerId=c.ArchitectureInterviewerId,
                         ArchitectureInterviewerName= archiName,
@@ -350,6 +366,171 @@ namespace CMS.Services.Services
         }
 
 
+        //in the GetById Changed the userName and the SeconduserName values but here on the GetById2 didnt change anything.
+        public async Task<Result<InterviewsDTO>> GetById2(int id)
+        {
+            if (id <= 0)
+            {
+                return Result<InterviewsDTO>.Failure(null, "Invalid interview id");
+            }
+            try
+            {
+
+
+                var interview = await _interviewsRepository.GetById(id);
+
+                //if (interview == null)
+                //{
+                //    // Redirect to the custom 404 page
+                //    return null;
+                //}
+                string userName = await GetInterviewerName(interview.InterviewerId);
+                string SeconduserName = await GetInterviewerName(interview.SecondInterviewerId);
+                string archiName = await GetArchitectureName(interview.ArchitectureInterviewerId);
+
+                string interviewerRole = await GetInterviewerRole(interview.InterviewerId);
+
+                var firstInterviewScore = await GetFirstInterviewScore(id);
+                var firstEvaluation = await GetFirstEvaluation(id);
+
+                var interviewDTO = new InterviewsDTO
+                {
+                    InterviewsId = interview.InterviewsId,
+                    Score = interview.Score,
+                    FirstInterviewScore = firstInterviewScore,
+                    StatusId = interview.StatusId,
+                    StatusName = interview.Status.Name,
+                    Date = interview.Date,
+                    PositionId = interview.PositionId,
+                    Name = interview.Position.Name,
+                    TrackId = interview.TrackId,
+                    TrackName = interview.Track.Name,
+                    EvalutaionFormId = interview.Position.EvaluationId,
+                    Notes = interview.Notes,
+                    StopCycleNote = interview.StopCycleNote,
+                    ParentId = interview.ParentId,
+                    InterviewerId = interview.InterviewerId,
+                    InterviewerName = userName,
+                    CandidateId = interview.CandidateId,
+                    FullName = interview.Candidate.FullName,
+                    CandidateCVAttachmentId = interview.Candidate.CVAttachmentId,
+                    AttachmentId = (int?)firstEvaluation ?? null,
+                    InterviewerRole = interviewerRole,
+                    ActualExperience = interview.ActualExperience,
+                    SecondInterviewerId = interview.SecondInterviewerId,
+                    SecondInterviewerName = SeconduserName,
+                    CreatedOn = interview.CreatedOn,
+                    ArchitectureInterviewerId = interview.ArchitectureInterviewerId,
+                    ArchitectureInterviewerName = archiName,
+                };
+                return Result<InterviewsDTO>.Success(interviewDTO);
+            }
+            catch (Exception ex)
+            {
+                LogException(nameof(GetById), ex, $"Error while Getting details with Id: {id}");
+                return Result<InterviewsDTO>.Failure(null, $"unable to retrieve the Interview from the repository{ex.InnerException.Message}");
+            }
+        }
+
+        //fixing interview details page
+        public async Task<Result<InterviewsDTO>> GetById3(int id)
+        {
+            if (id <= 0)
+            {
+                return Result<InterviewsDTO>.Failure(null, "Invalid interview id");
+            }
+            try
+            {
+
+
+                var interview = await _interviewsRepository.GetById(id);
+
+                var interviewNullParent = await _interviewsRepository.GetByParentIdAsync(interview.CandidateId);
+
+                var firstInterview = await _interviewsRepository.GetByParentIdAsync(interview.CandidateId);
+
+                var secondInterview = await _interviewsRepository.GetByInterviewerRoleAsync(interview.CandidateId, "General Manager");
+
+                var thirdInterview = await _interviewsRepository.GetThirdInterviewAsync(interview.CandidateId);
+
+
+                string secondInterviewInterviewerName = secondInterview?.Interviewer?.UserName;
+                //if (interview == null)
+                //{
+                //    // Redirect to the custom 404 page
+                //    return null;
+                //}
+                string userName = await GetInterviewerName(interviewNullParent.InterviewerId);
+                string SeconduserName = await GetInterviewerName(interviewNullParent.SecondInterviewerId);
+                string archiName = await GetArchitectureName(firstInterview.ArchitectureInterviewerId);
+
+                string interviewerRole = await GetInterviewerRole(interview.InterviewerId);
+
+                var firstInterviewScore = await GetFirstInterviewScore(id);
+                var firstEvaluation = await GetFirstEvaluation(id);
+
+                var interviewDTO = new InterviewsDTO
+                {
+                    InterviewsId = interview.InterviewsId,
+                    Score = interview.Score,
+                    FirstInterviewScore = firstInterviewScore,
+                    StatusId = interview.StatusId,
+                    StatusName = interview.Status.Name,
+                    Date = interview.Date,
+                    PositionId = interview.PositionId,
+                    Name = interview.Position.Name,
+                    TrackId = interview.TrackId,
+                    TrackName = interview.Track.Name,
+                    EvalutaionFormId = interview.Position.EvaluationId,
+                    Notes = firstInterview.Notes,
+                    StopCycleNote = interview.StopCycleNote,
+                    ParentId = interview.ParentId,
+                    InterviewerId = interviewNullParent.InterviewerId,
+                    InterviewerName = userName,
+                    CandidateId = interview.CandidateId,
+                    FullName = interview.Candidate.FullName,
+                    CandidateCVAttachmentId = interview.Candidate.CVAttachmentId,
+                    AttachmentId = (int?)firstEvaluation ?? null,
+                    InterviewerRole = interviewerRole,
+                    ActualExperience = firstInterview.ActualExperience,
+                    SecondInterviewerId = interviewNullParent.SecondInterviewerId,
+                    SecondInterviewerName = SeconduserName,
+                    CreatedOn = interview.CreatedOn,
+                    ArchitectureInterviewerId = firstInterview.ArchitectureInterviewerId,
+                    ArchitectureInterviewerName = archiName,
+                    SecondInterviewInterviewerName = secondInterviewInterviewerName,
+                };
+
+                if (secondInterview != null)
+                {
+                    interviewDTO.SecondInterviewActualExperience = secondInterview.ActualExperience;
+                    interviewDTO.SecondInterviewNotes = secondInterview.Notes;
+                }
+                else
+                {
+                    // Handle the case where secondInterview is null
+                    interviewDTO.SecondInterviewActualExperience = null; // or any appropriate default value
+                    interviewDTO.SecondInterviewNotes = null; // or any appropriate default value
+                }
+
+                if (thirdInterview != null)
+                {
+                    interviewDTO.HRNotes = thirdInterview.Notes;
+                }
+                else
+                {
+                    // Handle the case where secondInterview is null
+                    interviewDTO.HRNotes = null;
+                }
+                return Result<InterviewsDTO>.Success(interviewDTO);
+            }
+            catch (Exception ex)
+            {
+                LogException(nameof(GetById), ex, $"Error while Getting details with Id: {id}");
+                return Result<InterviewsDTO>.Failure(null, $"unable to retrieve the Interview from the repository{ex.InnerException.Message}");
+            }
+        }
+
         public async Task<Result<InterviewsDTO>> GetById(int id)
         {
             if (id <= 0)
@@ -358,7 +539,7 @@ namespace CMS.Services.Services
             }
             try
             {
-                
+
 
                 var interview = await _interviewsRepository.GetById(id);
                 //if (interview == null)
@@ -387,7 +568,7 @@ namespace CMS.Services.Services
                     Name = interview.Position.Name,
                     TrackId = interview.TrackId,
                     TrackName = interview.Track.Name,
-                    EvalutaionFormId =interview.Position.EvaluationId,
+                    EvalutaionFormId = interview.Position.EvaluationId,
                     Notes = interview.Notes,
                     StopCycleNote = interview.StopCycleNote,
                     ParentId = interview.ParentId,
@@ -395,7 +576,7 @@ namespace CMS.Services.Services
                     InterviewerName = userName,
                     CandidateId = interview.CandidateId,
                     FullName = interview.Candidate.FullName,
-                    CandidateCVAttachmentId=interview.Candidate.CVAttachmentId,
+                    CandidateCVAttachmentId = interview.Candidate.CVAttachmentId,
                     AttachmentId = (int?)firstEvaluation ?? null,
                     InterviewerRole = interviewerRole,
                     ActualExperience = interview.ActualExperience,
@@ -409,7 +590,7 @@ namespace CMS.Services.Services
             }
             catch (Exception ex)
             {
-                LogException(nameof(GetById), ex,  $"Error while Getting details with Id: {id}");
+                LogException(nameof(GetById), ex, $"Error while Getting details with Id: {id}");
                 return Result<InterviewsDTO>.Failure(null, $"unable to retrieve the Interview from the repository{ex.InnerException.Message}");
             }
         }
@@ -967,8 +1148,7 @@ namespace CMS.Services.Services
                     if (archiInterview != null)
                     {
                         archiInterview.StatusId = (int)completedDTO.StatusId;
-                        archiInterview.Score = completedDTO.Score;
-                        archiInterview.Notes = completedDTO.Notes;
+                        //archiInterview.Score = completedDTO.Score;
                         archiInterview.ActualExperience = completedDTO.ActualExperience;
                         archiInterview.AttachmentId = completedDTO.AttachmentId;
                         archiInterview.ModifiedBy = currentUser.Id;

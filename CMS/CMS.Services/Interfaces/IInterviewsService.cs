@@ -22,6 +22,8 @@ namespace CMS.Services.Interfaces
         Task<Result<List<InterviewsDTO>>> GetAllForGeneralManager();
         Task<Result<InterviewsDTO>> Delete(int id);
         Task<Result<InterviewsDTO>> GetById(int id);
+        Task<Result<InterviewsDTO>> GetById3(int id);
+
         Task<Result<InterviewsDTO>> Update(InterviewsDTO data);
         
         Task<string> GetInterviewerName(string id);

@@ -157,6 +157,32 @@ namespace CMS.Repository.Implementation
             return candidates;
         }
 
+        public async Task<List<CandidateDTO>> GetStoppedCyclesCandidatesByNote()
+        {
+            var candidates = await _context.Candidates
+                .Include(c => c.Interviews)
+                .ThenInclude(i => i.Status)
+                .Where(candidate =>
+                    candidate.Interviews.Any(interview => interview.StopCycleNote != null))
+                .Select(candidate => new CandidateDTO
+                {
+                    Name = candidate.FullName,
+                    CompanyId = candidate.CompanyId,
+                    CompanyName = candidate.Company.Name,
+                    CountryId = candidate.CountryId,
+                    CountryName = candidate.Country.Name,
+                    Experience = candidate.Experience,
+                    PositionId = candidate.PositionId,
+                    PositionName = candidate.Position.Name,
+                    TrackId = candidate.TrackId,
+                    TrackName = candidate.Track.Name,
+                    Phone = candidate.Phone,
+                })
+                .ToListAsync();
+
+            return candidates;
+        }
+
 
     }
 }

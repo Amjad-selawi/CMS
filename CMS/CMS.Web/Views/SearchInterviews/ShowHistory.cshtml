@@ -16,10 +16,11 @@
                     <thead>
                         <tr>
                             <th>Candidate Name</th>
+                            <th>Company Name</th>
                             <th>Interviewer</th>
                             <th>Score</th>
                             <th>Actual Experience</th>
-                            <th >Notes</th>
+                            <th>Notes</th>
                             <th>Evaluation</th>
                         </tr>
                     </thead>
@@ -28,6 +29,7 @@
                         {
                             <tr>
                                 <td>@Html.DisplayFor(modelItem => item.FullName)</td>
+                                <td>@item.CompanyName</td>
                                 @if (item.SecondInterviewerId != null)
                                 {
                                     <td>@item.InterviewerName & @item.SecondInterviewerName</td>
@@ -36,7 +38,14 @@
                                 {
                                     <td>@item.InterviewerName</td>
                                 }
-                                <td>@item.Score</td>
+                                @if (item.Score != null)
+                                {
+                                    <td>@item.Score</td>
+                                }
+                                else
+                                {
+                                    <td style="max-width: 200px; white-space: pre-line;" class="text-muted">No score here</td>
+                                }
                                 <td>@item.ActualExperience</td>
                                 @if (item.Notes != null)
                                 {
@@ -48,14 +57,14 @@
                                     <td style="max-width: 200px; white-space: pre-line;" class="text-muted">No note added</td>
                                 }
                                 @if (item.AttachmentId != null)
-                                    {
-                                        <td><a asp-controller="Attachments" asp-action="Download" asp-route-id="@item.AttachmentId">Download evaluation</a></td>
-                                    }
-                                    else
-                                    {
-                                        <td> </td>
-                                    }
-       
+                                {
+                                    <td><a asp-controller="Attachments" asp-action="Download" asp-route-id="@item.AttachmentId">Download evaluation</a></td>
+                                }
+                                else
+                                {
+                                    <td> </td>
+                                }
+
                             </tr>
                         }
                     </tbody>
@@ -65,7 +74,7 @@
     </div>
 </div>
 <div>
-    <a class ="btn btn-secondary" href="@Url.Action("Index", new { positionFilter = ViewBag.PositionFilter, scoreFilter = ViewBag.ScoreFilter, statusFilter = ViewBag.StatusFilter, candidateFilter = ViewBag.CandidateFilter, interviewerFilter = ViewBag.InterviewerFilter, fromDate = ViewBag.FromDate, toDate = ViewBag.ToDate, trackFilterDropdown = ViewBag.TrackList })">Back to List</a>
+    <a class="btn btn-secondary" href="@Url.Action("Index", new { positionFilter = ViewBag.PositionFilter, scoreFilter = ViewBag.ScoreFilter, statusFilter = ViewBag.StatusFilter, candidateFilter = ViewBag.CandidateFilter, interviewerFilter = ViewBag.InterviewerFilter, fromDate = ViewBag.FromDate, toDate = ViewBag.ToDate, trackFilterDropdown = ViewBag.TrackList })">Back to List</a>
 
 </div>
 

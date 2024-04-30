@@ -594,6 +594,69 @@ namespace CMS.Repository.Repositories
         }
 
 
+        public async Task<Interviews> GetByParentIdAsync(int candidateId)
+        {
+            try
+            {
+                return await _context.Interviews.FirstOrDefaultAsync(i => i.CandidateId == candidateId && i.ParentId == null);
+            }
+            catch (Exception ex)
+            {
+                LogException(nameof(GetByParentIdAsync), ex, $"Error Getting ByParentIdAsync");
+                throw ex;
+
+            }
+        }
+
+        public async Task<Interviews> GetByInterviewerRoleAsync(int candidateId, string roleName)
+        {
+            try
+            {
+                // Find the user with the specified role
+                var usersWithRole = await _userManager.GetUsersInRoleAsync(roleName);
+
+                // Get the user IDs of users with the specified role
+                var userIds = usersWithRole.Select(u => u.Id).ToList();
+
+                // Retrieve the interview where the candidate is the interviewee
+                // and the interviewer has the specified role
+                var interview = await _context.Interviews
+                    .Include(i => i.Interviewer)
+                    .FirstOrDefaultAsync(i => i.CandidateId == candidateId &&
+                                               userIds.Contains(i.InterviewerId));
+
+                return interview;
+            }
+            catch (Exception ex)
+            {
+                LogException(nameof(GetByInterviewerRoleAsync), ex, $"Error Getting ByInterviewerRoleAsync");
+                throw ex;
+
+            }
+
+        }
+
+        public async Task<Interviews> GetThirdInterviewAsync(int candidateId)
+        {
+            try
+            {
+                return await _context.Interviews
+              .Where(i => i.CandidateId == candidateId && i.ActualExperience == null)
+              .OrderByDescending(i => i.Date)
+              .FirstOrDefaultAsync();
+            }
+            catch (Exception ex)
+            {
+                LogException(nameof(GetThirdInterviewAsync), ex, $"Error Getting Third Interview");
+                throw ex;
+
+            }
+
+        }
+
+
+
+
 
     }
 }

@@ -11,7 +11,7 @@ namespace CMS.Application.DTOs
         public int NumberOfRejected { get; set; }
         public int NumberOfPending { get; set; }
         public int NumberOfOnHold { get; set; }
-
+        public int NumberOfStoppedCycles { get; set; }
         public Dictionary<string, int> CandidatesPerCountry { get; set; }
         public Dictionary<string, int> candidatesPerCompany { get; set; }
 

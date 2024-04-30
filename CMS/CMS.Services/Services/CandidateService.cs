@@ -61,6 +61,7 @@ namespace CMS.Services.Services
                     CompanyName = c.Company.Name,
                     Experience = c.Experience,
                     CVAttachmentId = c.CVAttachmentId,
+                    CreatedOn = c.CreatedOn,
                     //CountryId = c.CountryId,
                     //CountryName=c.Country.Name
                 });
@@ -99,6 +100,7 @@ namespace CMS.Services.Services
                     CompanyName = candidate.Company.Name,
                     Experience = candidate.Experience,
                     CVAttachmentId = candidate.CVAttachmentId,
+                    CreatedOn = candidate.CreatedOn,
                     //CountryId = candidate.CountryId,
                     //CountryName = candidate.Country.Name
 

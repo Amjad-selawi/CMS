@@ -363,7 +363,7 @@ namespace CMS.Web.Controllers
             {
 
                 ViewBag.PreviousAction = previousAction;
-                var result = await _interviewsService.GetById(id);
+                var result = await _interviewsService.GetById3(id);
 
                 //if (result == null)
                 //{
@@ -467,8 +467,11 @@ namespace CMS.Web.Controllers
 
                 var positions = await _positionService.GetAll();
                 ViewBag.positionList = new SelectList(positions.Value, "Id", "Name");
+
                 var candidates = await _candidateService.GetAllCandidatesAsync();
-                ViewBag.candidateList = new SelectList(candidates, "Id", "FullName");
+                var sortedCandidates = candidates.OrderByDescending(x => x.Id);
+                ViewBag.candidateList = new SelectList(sortedCandidates, "Id", "FullName");
+
                 var interviewers = await _accountService.GetAllInterviewers();
                 ViewBag.interviewersList = new SelectList(interviewers.Value, "Id", "UserName");
                 var architectures = await _accountService.GetAllArchitectureInterviewers();
@@ -1101,7 +1104,7 @@ namespace CMS.Web.Controllers
                         var status = statusResult.Value;
                         if (status.Code == Domain.Enums.StatusCode.Rejected && string.IsNullOrWhiteSpace(interviewsDTO.Notes))
                         {
-                            ModelState.AddModelError("Notes", "Please add a note for why it was rejected.");
+                            ModelState.AddModelError("Notes", "Please add a note for why (He/She) was rejected.");
                         }
                     }
                 }
@@ -1360,7 +1363,7 @@ namespace CMS.Web.Controllers
                                        <body style='font-family: Arial, sans-serif;'>
                                            <div style='background-color: #f5f5f5; padding: 20px; border-radius: 10px;'>
                                                <p style='font-size: 18px; color: #333;'>
-                                                   Dear {userHR.UserName.Replace("_", " ")},
+                                                   Dear Sajeda,
                                                </p>
                                                <p style='font-size: 16px; color: #555;'>
                                                You are assigned to have a Final interview for {candidateNameresult} with {lastPositionName} position,<br><br>kindly <a href='https://apps.sssprocess.com:6134/'>Click here</a> to see the invitation details.
@@ -1378,12 +1381,12 @@ namespace CMS.Web.Controllers
                                             EmailDTOs emailModelToHR = new EmailDTOs
                                             {
                                                 EmailTo = new List<string> { HREmail },
-                                                Subject = $"Interview Approval",
+                                                Subject = $"Interview Approval ({candidateNameresult})",
                                                 EmailBody = $@"<html>
                                        <body style='font-family: Arial, sans-serif;'>
                                            <div style='background-color: #f5f5f5; padding: 20px; border-radius: 10px;'>
                                                <p style='font-size: 18px; color: #333;'>
-                                                   Dear HR,
+                                                   Dear Sajeda,
                                                </p>
                                                <p style='font-size: 16px; color: #555;'>
                                                     The first interview with {candidateNameresult} Approved by {userName}
@@ -1443,12 +1446,12 @@ namespace CMS.Web.Controllers
                                             EmailDTOs emailModelToHR = new EmailDTOs
                                             {
                                                 EmailTo = new List<string> { HREmail },
-                                                Subject = $"Interview Approval",
+                                                Subject = $"Interview Approval ({candidateNameresult})",
                                                 EmailBody = $@"<html>
                                        <body style='font-family: Arial, sans-serif;'>
                                            <div style='background-color: #f5f5f5; padding: 20px; border-radius: 10px;'>
                                                <p style='font-size: 18px; color: #333;'>
-                                                   Dear HR,
+                                                   Dear Sajeda,
                                                </p>
                                                <p style='font-size: 16px; color: #555;'>
                                                     The first interview with {candidateNameresult} Approved by {userName}
@@ -1547,12 +1550,12 @@ namespace CMS.Web.Controllers
                                         EmailDTOs emailModelToHR = new EmailDTOs
                                         {
                                             EmailTo = new List<string> { HREmail },
-                                            Subject = $"Interview Approval",
+                                            Subject = $"Interview Approval ( {candidateNameresult} )",
                                             EmailBody = $@"<html>
                                        <body style='font-family: Arial, sans-serif;'>
                                            <div style='background-color: #f5f5f5; padding: 20px; border-radius: 10px;'>
                                                <p style='font-size: 18px; color: #333;'>
-                                                   Dear HR,
+                                                   Dear Sajeda,
                                                </p>
                                                <p style='font-size: 16px; color: #555;'>
                                                     The first interview with {candidateNameresult} Approved by {userName}
@@ -1631,12 +1634,12 @@ namespace CMS.Web.Controllers
                                     EmailDTOs emailModel = new EmailDTOs
                                     {
                                         EmailTo = new List<string> { HREmail },
-                                        Subject = "Interview Rejection",
+                                        Subject = $"Interview Rejection ({candidateNameresult})",
                                         EmailBody = $@"<html>
                                        <body style='font-family: Arial, sans-serif;'>
                                            <div style='background-color: #f5f5f5; padding: 20px; border-radius: 10px;'>
                                                <p style='font-size: 18px; color: #333;'>
-                                                   Dear HR,
+                                                   Dear Sajeda,
                                                </p>
                                                <p style='font-size: 16px; color: #555;'>
                                                     The first interview with {candidateNameresult} Rejected by {userName}
@@ -1698,10 +1701,10 @@ namespace CMS.Web.Controllers
                                            <body style='font-family: Arial, sans-serif;'>
                                                <div style='background-color: #f5f5f5; padding: 20px; border-radius: 10px;'>
                                                    <p style='font-size: 18px; color: #333;'>
-                                                       Dear {userHR.UserName.Replace("_", " ")},
+                                                       Dear Sajeda,
                                                    </p>
                                                    <p style='font-size: 16px; color: #555;'>
-                                                       You are assigned to have a thierd interview for candidate: {candidateNameresult} with position: {lastPositionName},<br><br>kindly <a href='https://apps.sssprocess.com:6134/'>Click here</a> to see the invitation details.
+                                                       You are assigned to have a third interview for candidate: {candidateNameresult} with position: {lastPositionName},<br><br>kindly <a href='https://apps.sssprocess.com:6134/'>Click here</a> to see the invitation details.
                                                    </p>
                                                    <p style='font-size: 14px; color: #777;'>
                                                        Regards,
@@ -1716,12 +1719,12 @@ namespace CMS.Web.Controllers
                                     EmailDTOs emailModelApproval = new EmailDTOs
                                     {
                                         EmailTo = new List<string> { HREmail },
-                                        Subject = "Interview Approval",
+                                        Subject = $"Interview Approval ({candidateNameresult})",
                                         EmailBody = $@"<html>
                                        <body style='font-family: Arial, sans-serif;'>
                                            <div style='background-color: #f5f5f5; padding: 20px; border-radius: 10px;'>
                                                <p style='font-size: 18px; color: #333;'>
-                                                   Dear HR,
+                                                   Dear Sajeda,
                                                </p>
                                                <p style='font-size: 16px; color: #555;'>
                                                     The Second interview with {candidateNameresult} Approved by {userName}
@@ -1756,12 +1759,12 @@ namespace CMS.Web.Controllers
                                     EmailDTOs emailModel = new EmailDTOs
                                     {
                                         EmailTo = new List<string> { HREmail },
-                                        Subject = "Interview Rejection",
+                                        Subject = $"Interview Rejection ({candidateNameresult})",
                                         EmailBody = $@"<html>
                                        <body style='font-family: Arial, sans-serif;'>
                                            <div style='background-color: #f5f5f5; padding: 20px; border-radius: 10px;'>
                                                <p style='font-size: 18px; color: #333;'>
-                                                   Dear HR,
+                                                   Dear Sajeda,
                                                </p>
                                                <p style='font-size: 16px; color: #555;'>
                                                     The Second interview with {candidateNameresult} Rejected by {userName}
@@ -1858,12 +1861,12 @@ namespace CMS.Web.Controllers
                                             EmailDTOs emailModelApproval = new EmailDTOs
                                             {
                                                 EmailTo = new List<string> { HREmail },
-                                                Subject = "Interview Approval",
+                                                Subject = $"Interview Approval ({candidateNameresult})",
                                                 EmailBody = $@"<html>
                                        <body style='font-family: Arial, sans-serif;'>
                                            <div style='background-color: #f5f5f5; padding: 20px; border-radius: 10px;'>
                                                <p style='font-size: 18px; color: #333;'>
-                                                   Dear HR,
+                                                   Dear Sajeda,
                                                </p>
                                                <p style='font-size: 16px; color: #555;'>
                                                     The First interview with {candidateNameresult} Approved by {userName}
@@ -1906,7 +1909,7 @@ namespace CMS.Web.Controllers
                                            <body style='font-family: Arial, sans-serif;'>
                                                <div style='background-color: #f5f5f5; padding: 20px; border-radius: 10px;'>
                                                    <p style='font-size: 18px; color: #333;'>
-                                                       Dear {userHR.UserName.Replace("_", " ")},
+                                                       Dear Sajeda,
                                                    </p>
                                                    <p style='font-size: 16px; color: #555;'>
                                                        You are assigned to have a Final interview for candidate : {candidateNameresult} with position: {lastPositionName},<br><br>kindly <a href='https://apps.sssprocess.com:6134/'>Click here</a> to see the invitation details.
@@ -1924,12 +1927,12 @@ namespace CMS.Web.Controllers
                                             EmailDTOs emailModelApproval = new EmailDTOs
                                             {
                                                 EmailTo = new List<string> { HREmail },
-                                                Subject = "Interview Approval",
+                                                Subject = $"Interview Approval ({candidateNameresult})",
                                                 EmailBody = $@"<html>
                                        <body style='font-family: Arial, sans-serif;'>
                                            <div style='background-color: #f5f5f5; padding: 20px; border-radius: 10px;'>
                                                <p style='font-size: 18px; color: #333;'>
-                                                   Dear HR,
+                                                   Dear Sajeda,
                                                </p>
                                                <p style='font-size: 16px; color: #555;'>
                                                     The First interview with {candidateNameresult} Approved by {userName}
@@ -1982,10 +1985,10 @@ namespace CMS.Web.Controllers
                                                        <body style='font-family: Arial, sans-serif;'>
                                                            <div style='background-color: #f5f5f5; padding: 20px; border-radius: 10px;'>
                                                                <p style='font-size: 18px; color: #333;'>
-                                                                   Dear {userGM.UserName.Replace("_", " ")},
+                                                                   Dear Sajeda,
                                                                </p>
                                                                <p style='font-size: 16px; color: #555;'>
-                                                                   You are assigned to have a thierd interview for candidate : {candidateNameresult} with position: {lastPositionName},<br><br>kindly <a href='https://apps.sssprocess.com:6134/'>Click here</a> to see the invitation details.
+                                                                   You are assigned to have a third interview for candidate : {candidateNameresult} with position: {lastPositionName},<br><br>kindly <a href='https://apps.sssprocess.com:6134/'>Click here</a> to see the invitation details.
                                                                </p>
                                                                <p style='font-size: 14px; color: #777;'>
                                                                    Regards,
@@ -2049,7 +2052,7 @@ namespace CMS.Web.Controllers
                                            <body style='font-family: Arial, sans-serif;'>
                                                <div style='background-color: #f5f5f5; padding: 20px; border-radius: 10px;'>
                                                    <p style='font-size: 18px; color: #333;'>
-                                                       Dear {userHR.UserName.Replace("_", " ")},
+                                                       Dear Sajeda,
                                                    </p>
                                                    <p style='font-size: 16px; color: #555;'>
                                                        You are assigned to have a Final interview for candidate : {candidateNameresult} with position: {lastPositionName},<br><br>kindly <a href='https://apps.sssprocess.com:6134/'>Click here</a> to see the invitation details.
@@ -2090,12 +2093,12 @@ namespace CMS.Web.Controllers
                                         EmailDTOs emailModel = new EmailDTOs
                                         {
                                             EmailTo = new List<string> { HREmail },
-                                            Subject = "Interview Rejection",
+                                            Subject = $"Interview Rejection ({candidateNameresult})",
                                             EmailBody = $@"<html>
                                        <body style='font-family: Arial, sans-serif;'>
                                            <div style='background-color: #f5f5f5; padding: 20px; border-radius: 10px;'>
                                                <p style='font-size: 18px; color: #333;'>
-                                                   Dear HR,
+                                                   Dear Sajeda,
                                                </p>
                                                <p style='font-size: 16px; color: #555;'>
                                                     The Second interview with {candidateNameresult} rejected by {userName}

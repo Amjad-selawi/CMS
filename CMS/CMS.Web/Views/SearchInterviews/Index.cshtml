@@ -51,7 +51,7 @@
 
             <div class="col-md-3">
                 @Html.Label("Filter by Candidate:")
-                <input type="text" id="candidateFilter" name="candidateFilter" class="form-control" placeholder="Search by Candidate Name">
+                <input type="text" id="candidateFilter" name="candidateFilter" class="form-control" placeholder="Search by Candidate Name" value="@ViewBag.candidateFilter">
             </div>
 
             <div class="col-md-3" style="margin-top: 25px;">
@@ -184,7 +184,15 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/selectize.js/0.12.6/js/standalone/selectize.min.js"></script>
 
 <script>
+    // Function to remove trailing spaces from candidate name input field
+    function removeTrailingSpaces() {
+        var candidateFilter = document.getElementById("candidateFilter");
+        candidateFilter.value = candidateFilter.value.trim(); // Remove trailing spaces
+    }
+
+    // Validate form and remove trailing spaces before submission
     function validateDates() {
+        removeTrailingSpaces(); // Remove trailing spaces from candidate name
         var fromDate = new Date(document.getElementById("fromDate").value);
         var toDate = new Date(document.getElementById("toDate").value);
         var validationMessageElement = document.getElementById("dateValidationMessage");
@@ -206,4 +214,5 @@
         $('#position-dropdown').selectize();
     });
 </script>
+
 
