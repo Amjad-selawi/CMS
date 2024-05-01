@@ -214,8 +214,15 @@ namespace CMS.Web.Controllers
             }
             else
             {
-                return View("AccessDenied");
-            }
+                    if (User.Identity.IsAuthenticated)
+                    {
+                        return View("AccessDenied");
+                    }
+                    else
+                    {
+                        return RedirectToAction("Login", "Account");
+                    }
+                }
             }
             catch (Exception ex)
             {

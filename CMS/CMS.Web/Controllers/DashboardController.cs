@@ -105,13 +105,20 @@ namespace CMS.Web.Controllers
                     ViewBag.TreeData = treeData;
 
 
-
-                    return View(report);
-                }
-                else
-                {
+             
+                return View(report);
+            }
+            else
+            {
                     // User is not in the Admin role, handle accordingly (redirect or show an error message)
-                    return View("AccessDenied");
+                    if (User.Identity.IsAuthenticated)
+                    {
+                        return View("AccessDenied");
+                    }
+                    else
+                    {
+                        return RedirectToAction("Login", "Account");
+                    }
                 }
             }
             catch (Exception ex)
