@@ -45,7 +45,14 @@ namespace CMS.Web.Controllers
             }
             else
             {
-                return View("AccessDenied");
+                if (User.Identity.IsAuthenticated)
+                {
+                    return View("AccessDenied");
+                }
+                else
+                {
+                    return RedirectToAction("Login", "Account");
+                }
             }
 
         }
@@ -73,7 +80,14 @@ namespace CMS.Web.Controllers
             }
             else
             {
-                return View("AccessDenied");
+                if (User.Identity.IsAuthenticated)
+                {
+                    return View("AccessDenied");
+                }
+                else
+                {
+                    return RedirectToAction("Login", "Account");
+                }
             }
 
         }
@@ -89,7 +103,14 @@ namespace CMS.Web.Controllers
             }
             else
             {
-                return View("AccessDenied");
+                if (User.Identity.IsAuthenticated)
+                {
+                    return View("AccessDenied");
+                }
+                else
+                {
+                    return RedirectToAction("Login", "Account");
+                };
             }
         }
 
@@ -139,7 +160,14 @@ namespace CMS.Web.Controllers
             }
             else
             {
-                return View("AccessDenied");
+                if (User.Identity.IsAuthenticated)
+                {
+                    return View("AccessDenied");
+                }
+                else
+                {
+                    return RedirectToAction("Login", "Account");
+                }
             }
         }
         [HttpPost]
@@ -199,7 +227,14 @@ namespace CMS.Web.Controllers
             }
             else
             {
-                return View("AccessDenied");
+                if (User.Identity.IsAuthenticated)
+                {
+                    return View("AccessDenied");
+                }
+                else
+                {
+                    return RedirectToAction("Login", "Account");
+                }
             }
         }
 

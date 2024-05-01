@@ -113,22 +113,27 @@ namespace CMS.Web.Controllers
                     TempData["ToDate"] = toDate;
                     TempData["TrackFilterDropdown"] = trackFilterDropdown;
                     if (!string.IsNullOrEmpty(export) && export == "excel")
-                    {
-                        var filteredInterviews = await ApplyFiltersAndRetrieveData(positionFilter, scoreFilter, statusFilter, candidateFilter, interviewerFilter, fromDate, toDate, trackFilterDropdown);
-                        var excelData = GenerateExcelFile(filteredInterviews);
-                        return File(await excelData, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", "Interviews.xlsx");
-                    }
-                    else
-                    {
-                        var filteredInterviews = await ApplyFiltersAndRetrieveData(positionFilter, scoreFilter, statusFilter, candidateFilter, interviewerFilter, fromDate, toDate, trackFilterDropdown);
-                        filteredInterviews = filteredInterviews.OrderByDescending(i => i.InterviewsId);
-
-                        return View(filteredInterviews);
-                    }
+                {
+                    var filteredInterviews = await ApplyFiltersAndRetrieveData(positionFilter, scoreFilter, statusFilter, candidateFilter, interviewerFilter, fromDate, toDate, trackFilterDropdown);
+                    var excelData = GenerateExcelFile(filteredInterviews);
+                    return File(await excelData, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", "Interviews.xlsx");
                 }
                 else
                 {
-                    return View("AccessDenied");
+                    var filteredInterviews = await ApplyFiltersAndRetrieveData(positionFilter, scoreFilter, statusFilter, candidateFilter, interviewerFilter, fromDate, toDate, trackFilterDropdown);
+                    return View(filteredInterviews);
+                }
+            }
+            else
+            {
+                    if (User.Identity.IsAuthenticated)
+                    {
+                        return View("AccessDenied");
+                    }
+                    else
+                    {
+                        return RedirectToAction("Login", "Account");
+                    }
                 }
             }
             catch (Exception ex)

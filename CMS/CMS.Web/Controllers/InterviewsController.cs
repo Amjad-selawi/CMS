@@ -150,11 +150,18 @@ namespace CMS.Web.Controllers
 
                     interviewsDTOs = interviewsDTOs.OrderBy(i => i.Date).ToList();
 
-                    return View(interviewsDTOs);
-                }
-                else
-                {
-                    return View("AccessDenied");
+                return View(interviewsDTOs);
+            }
+            else
+            {
+                    if (User.Identity.IsAuthenticated)
+                    {
+                        return View("AccessDenied");
+                    }
+                    else
+                    {
+                        return RedirectToAction("Login", "Account");
+                    }
                 }
             }
             catch (Exception ex)
@@ -200,7 +207,14 @@ namespace CMS.Web.Controllers
                 }
                 else
                 {
-                    return View("AccessDenied");
+                    if (User.Identity.IsAuthenticated)
+                    {
+                        return View("AccessDenied");
+                    }
+                    else
+                    {
+                        return RedirectToAction("Login", "Account");
+                    }
                 }
             }
             catch (Exception ex)
@@ -451,7 +465,14 @@ namespace CMS.Web.Controllers
                 }
                 else
                 {
-                    return View("AccessDenied");
+                    if (User.Identity.IsAuthenticated)
+                    {
+                        return View("AccessDenied");
+                    }
+                    else
+                    {
+                        return RedirectToAction("Login", "Account");
+                    }
                 }
             }
             catch (Exception ex)
@@ -656,7 +677,14 @@ namespace CMS.Web.Controllers
                 }
                 else
                 {
-                    return View("AccessDenied");
+                    if (User.Identity.IsAuthenticated)
+                    {
+                        return View("AccessDenied");
+                    }
+                    else
+                    {
+                        return RedirectToAction("Login", "Account");
+                    }
                 }
             }
             catch (Exception ex)

@@ -57,7 +57,14 @@ namespace CMS.Web.Controllers
                 }
                 else
                 {
-                    return View("AccessDenied");
+                    if (User.Identity.IsAuthenticated)
+                    {
+                        return View("AccessDenied");
+                    }
+                    else
+                    {
+                        return RedirectToAction("Login", "Account");
+                    }
                 }
             }
             catch (Exception ex)
@@ -78,7 +85,14 @@ namespace CMS.Web.Controllers
                 }
                 else
                 {
-                    return View("AccessDenied");
+                    if (User.Identity.IsAuthenticated)
+                    {
+                        return View("AccessDenied");
+                    }
+                    else
+                    {
+                        return RedirectToAction("Login", "Account");
+                    }
                 }
             }
             catch (Exception ex)
@@ -99,7 +113,14 @@ namespace CMS.Web.Controllers
                 }
                 else
                 {
-                    return View("AccessDenied");
+                    if (User.Identity.IsAuthenticated)
+                    {
+                        return View("AccessDenied");
+                    }
+                    else
+                    {
+                        return RedirectToAction("Login", "Account");
+                    }
                 }
             }
             catch (Exception ex)
@@ -121,7 +142,14 @@ namespace CMS.Web.Controllers
                 }
                 else
                 {
-                    return View("AccessDenied");
+                    if (User.Identity.IsAuthenticated)
+                    {
+                        return View("AccessDenied");
+                    }
+                    else
+                    {
+                        return RedirectToAction("Login", "Account");
+                    }
                 }
             }
             catch (Exception ex)
@@ -142,7 +170,14 @@ namespace CMS.Web.Controllers
                 }
                 else
                 {
-                    return View("AccessDenied");
+                    if (User.Identity.IsAuthenticated)
+                    {
+                        return View("AccessDenied");
+                    }
+                    else
+                    {
+                        return RedirectToAction("Login", "Account");
+                    }
                 }
             }
             catch (Exception ex)
@@ -174,13 +209,27 @@ namespace CMS.Web.Controllers
                     else
                     {
                         // User is not the intended recipient, return Access Denied
-                        return View("AccessDenied");
+                        if (User.Identity.IsAuthenticated)
+                        {
+                            return View("AccessDenied");
+                        }
+                        else
+                        {
+                            return RedirectToAction("Login", "Account");
+                        }
                     }
                 }
                 else
                 {
                     // User doesn't have the required role, return Access Denied
-                    return View("AccessDenied");
+                    if (User.Identity.IsAuthenticated)
+                    {
+                        return View("AccessDenied");
+                    }
+                    else
+                    {
+                        return RedirectToAction("Login", "Account");
+                    }
                 }
             }
             catch (Exception ex)
