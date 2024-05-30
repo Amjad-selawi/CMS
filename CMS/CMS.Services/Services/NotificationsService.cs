@@ -117,7 +117,7 @@ namespace CMS.Services.Services
                 if (userRole == "HR Manager" && HrId != null)
                 {
                     var notificationsDTOList = notificationsHR
-                        .Where(notification => notification.ReceiverId == HrId )
+                        .Where(notification => notification.ReceiverId == HrId && notification.IsRead)
                         .Select(notification => new NotificationsDTO
                         {
                             NotificationsId = notification.NotificationsId,
@@ -134,7 +134,7 @@ namespace CMS.Services.Services
                 else if (userRole == "General Manager" && GMId != null)
                 {
                     var notificationsDTOList = notificationsGM
-                        .Where(notification => notification.ReceiverId == GMId )
+                        .Where(notification => notification.ReceiverId == GMId && notification.IsRead)
                         .Select(notification => new NotificationsDTO
                         {
                             NotificationsId = notification.NotificationsId,
@@ -151,7 +151,7 @@ namespace CMS.Services.Services
                 else if (userRole == "Solution Architecture" && ArchiId != null)
                 {
                     var notificationsDTOList = notificationsArchi
-                        .Where(notification => notification.ReceiverId == ArchiId)
+                        .Where(notification => notification.ReceiverId == ArchiId && notification.IsRead)
                         .Select(notification => new NotificationsDTO
                         {
                             NotificationsId = notification.NotificationsId,
@@ -181,7 +181,7 @@ namespace CMS.Services.Services
             try
             {
                 var notifications = await _notificationsRepository.GetSpacificNotificationsforInterviewer(interviewerId);
-                var notificationsDTOList = notifications
+                var notificationsDTOList = notifications.Where(x => x.IsRead)
                     .Select(notification => new NotificationsDTO
                     {
                         NotificationsId = notification.NotificationsId,
