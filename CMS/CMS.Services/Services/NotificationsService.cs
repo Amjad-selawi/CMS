@@ -91,6 +91,119 @@ namespace CMS.Services.Services
             }
 
         }
+        public async Task<IEnumerable<NotificationsDTO>> GetAllNotificationsAnotherTab()
+        {
+            try
+            {
+                // Fetch notifications for different roles
+                var notificationsHR = await _notificationsRepository.GetSpacificNotificationsforHR();
+                var notificationsGM = await _notificationsRepository.GetSpacificNotificationsforGeneral();
+                var notificationsArchi = await _notificationsRepository.GetSpacificNotificationsforArchi();
+
+                // Get role information
+                var Hr = await _roleManager.FindByNameAsync("HR Manager");
+                var HrId = (await _userManager.GetUsersInRoleAsync(Hr.Name)).FirstOrDefault()?.Id;
+
+                var GM = await _roleManager.FindByNameAsync("General Manager");
+                var GMId = (await _userManager.GetUsersInRoleAsync(GM.Name)).FirstOrDefault()?.Id;
+
+                var Archi = await _roleManager.FindByNameAsync("Solution Architecture");
+                var ArchiId = (await _userManager.GetUsersInRoleAsync(Archi.Name)).FirstOrDefault()?.Id;
+
+                // Get the role of the logged-in user
+                var userRole = await GetLoggedInUserRoleAsync();
+
+                // Determine the appropriate notifications to return based on the user's role
+                if (userRole == "HR Manager" && HrId != null)
+                {
+                    var notificationsDTOList = notificationsHR
+                        .Where(notification => notification.ReceiverId == HrId )
+                        .Select(notification => new NotificationsDTO
+                        {
+                            NotificationsId = notification.NotificationsId,
+                            SendDate = notification.SendDate,
+                            Title = notification.Title,
+                            BodyDesc = notification.BodyDesc,
+                            IsReceived = true,
+                            IsRead = notification.IsRead,
+                        })
+                        .ToList();
+
+                    return notificationsDTOList;
+                }
+                else if (userRole == "General Manager" && GMId != null)
+                {
+                    var notificationsDTOList = notificationsGM
+                        .Where(notification => notification.ReceiverId == GMId )
+                        .Select(notification => new NotificationsDTO
+                        {
+                            NotificationsId = notification.NotificationsId,
+                            SendDate = notification.SendDate,
+                            Title = notification.Title,
+                            BodyDesc = notification.BodyDesc,
+                            IsReceived = true,
+                            IsRead = notification.IsRead,
+                        })
+                        .ToList();
+
+                    return notificationsDTOList;
+                }
+                else if (userRole == "Solution Architecture" && ArchiId != null)
+                {
+                    var notificationsDTOList = notificationsArchi
+                        .Where(notification => notification.ReceiverId == ArchiId)
+                        .Select(notification => new NotificationsDTO
+                        {
+                            NotificationsId = notification.NotificationsId,
+                            SendDate = notification.SendDate,
+                            Title = notification.Title,
+                            BodyDesc = notification.BodyDesc,
+                            IsReceived = true,
+                            IsRead = notification.IsRead,
+                        })
+                        .ToList();
+
+                    return notificationsDTOList;
+                }
+
+                // Default return value if no conditions are met
+                return new List<NotificationsDTO>();
+            }
+            catch (Exception ex)
+            {
+                LogException(nameof(GetAllNotificationsAnotherTab), ex, "Error while getting all Notifications");
+                throw;
+            }
+        }
+
+        public async Task<IEnumerable<NotificationsDTO>> GetAllNotificationsAsyncForInterviewer(string interviewerId)
+        {
+            try
+            {
+                var notifications = await _notificationsRepository.GetSpacificNotificationsforInterviewer(interviewerId);
+                var notificationsDTOList = notifications
+                    .Select(notification => new NotificationsDTO
+                    {
+                        NotificationsId = notification.NotificationsId,
+                        SendDate = notification.SendDate,
+                        Title = notification.Title,
+                        BodyDesc = notification.BodyDesc,
+                        IsReceived = true,
+                        IsRead = notification.IsRead,
+                    })
+                    .ToList();
+
+                return notificationsDTOList;
+
+
+            }
+            catch (Exception ex)
+            {
+                LogException(nameof(GetAllNotificationsAsync), ex, "Error while getting all Notifications");
+                throw ex;
+            }
+
+        }
 
         public async Task<NotificationsDTO> GetNotificationByIdAsync(int notificationsId)
         {
@@ -135,15 +248,9 @@ namespace CMS.Services.Services
         {
             try
             {
-                
-
-
                 var notification = await _notificationsRepository.GetNotificationsById(notificationsId);
-            if (notification == null)
+                if (notification == null)
                 return null;
-
-
-
 
             return new NotificationsDTO
             {
@@ -201,8 +308,6 @@ namespace CMS.Services.Services
         {
             try
             {
-                
-
                 var existingNotification = await _notificationsRepository.GetNotificationsById(notificationId);
             if (existingNotification == null)
                 throw new Exception("Notifications not found");
@@ -231,9 +336,6 @@ namespace CMS.Services.Services
         {
             try
             {
-
-                
-
                 var notification = await _notificationsRepository.GetNotificationsById(notificationId);
             if (notification != null)
                 await _notificationsRepository.Delete(notification);
@@ -250,9 +352,6 @@ namespace CMS.Services.Services
         {
             try
             {
-                
-
-
                 var HrId = "";
 
             var Hr = await _roleManager.FindByNameAsync("HR Manager");
@@ -288,30 +387,25 @@ namespace CMS.Services.Services
         {
             try
             {
-                
-
-
                 var HrId = "";
 
-            var Hr = await _roleManager.FindByNameAsync("HR Manager");
+                var Hr = await _roleManager.FindByNameAsync("HR Manager");
 
-            HrId = (await _userManager.GetUsersInRoleAsync(Hr.Name)).FirstOrDefault().Id;
+                HrId = (await _userManager.GetUsersInRoleAsync(Hr.Name)).FirstOrDefault().Id;
 
-
-            var notifications = await _notificationsRepository.GetSpacificNotificationsforHR();
-            var notificationsDTOList = notifications
-                .Where(notification => notification.ReceiverId == HrId)//hrId
-                .Select(notification => new NotificationsDTO
-                {
-                    NotificationsId = notification.NotificationsId,
-                    SendDate = notification.SendDate,
-                    Title = notification.Title,
-                    BodyDesc = notification.BodyDesc,
-                    IsReceived = true,
-                    IsRead=notification.IsRead,
-                    
-                })
-                .ToList();
+                var notifications = await _notificationsRepository.GetSpacificNotificationsforHR();
+                var notificationsDTOList = notifications.Where(notification => notification.ReceiverId == HrId && notification.IsRead == false)//hrId
+                                                        .Select(notification => new NotificationsDTO
+                                                                                {
+                                                                                    NotificationsId = notification.NotificationsId,
+                                                                                    SendDate = notification.SendDate,
+                                                                                    Title = notification.Title,
+                                                                                    BodyDesc = notification.BodyDesc,
+                                                                                    IsReceived = true,
+                                                                                    IsRead=notification.IsRead,
+                                                                                    
+                                                                                })
+                                                        .ToList();
 
             return notificationsDTOList;
             }
@@ -364,11 +458,8 @@ namespace CMS.Services.Services
         {
             try
             {
-
-                
-
                 var notifications = await _notificationsRepository.GetSpacificNotificationsforInterviewer(interviewerId);
-            var notificationsDTOList = notifications
+                var notificationsDTOList = notifications.Where(notification => notification.IsRead == false)
                 .Select(notification => new NotificationsDTO
                 {
                     NotificationsId = notification.NotificationsId,
@@ -422,9 +513,6 @@ namespace CMS.Services.Services
         {
             try
             {
-                
-
-
                 var managerId = "";
 
             var manager = await _roleManager.FindByNameAsync("General Manager");
@@ -435,7 +523,7 @@ namespace CMS.Services.Services
 
             var notifications = await _notificationsRepository.GetSpacificNotificationsforGeneral();
             var notificationsDTOList = notifications
-                .Where(notification => notification.ReceiverId == managerId)//GMId
+                .Where(notification => notification.ReceiverId == managerId && notification.IsRead == false)//GMId
                 .Select(notification => new NotificationsDTO
                 {
                     NotificationsId = notification.NotificationsId,
@@ -461,9 +549,6 @@ namespace CMS.Services.Services
         {
             try
             {
-                
-
-
                 var managerId = "";
 
                 var manager = await _roleManager.FindByNameAsync("General Manager");
@@ -499,20 +584,15 @@ namespace CMS.Services.Services
         {
             try
             {
-                
-
-
                 var archiId = "";
 
                 var archi = await _roleManager.FindByNameAsync("Solution Architecture");
 
                 archiId = (await _userManager.GetUsersInRoleAsync(archi.Name)).FirstOrDefault().Id;
 
-
-
                 var notifications = await _notificationsRepository.GetSpacificNotificationsforArchi();
                 var notificationsDTOList = notifications
-                    .Where(notification => notification.ReceiverId == archiId)//ArchiId
+                    .Where(notification => notification.ReceiverId == archiId && notification.IsRead == false)//ArchiId
                     .Select(notification => new NotificationsDTO
                     {
                         NotificationsId = notification.NotificationsId,
@@ -538,16 +618,11 @@ namespace CMS.Services.Services
         {
             try
             {
-                
-
-
                 var archiId = "";
 
                 var archi = await _roleManager.FindByNameAsync("Solution Architecture");
 
                 archiId = (await _userManager.GetUsersInRoleAsync(archi.Name)).FirstOrDefault().Id;
-
-
 
                 var notifications = await _notificationsRepository.GetSpacificNotificationsforArchi();
                 var notificationsDTOList = notifications
@@ -577,8 +652,6 @@ namespace CMS.Services.Services
         {
             try
             {
-                
-
 
                 var managerId = "";
                 var HrId = "";
@@ -660,9 +733,6 @@ namespace CMS.Services.Services
         {
             try
             {
-
-
-
                 var archiId = "";
                 var HrId = "";
 
@@ -823,12 +893,8 @@ namespace CMS.Services.Services
         {
             try
             {
-
-                
-
                 var statusResult = await _statusService.GetById(status);
                 var statusstatus = statusResult.Value;
-
 
                 var HrId = "";
 
@@ -894,12 +960,8 @@ namespace CMS.Services.Services
         {
             try
             {
-
-
-
                 var statusResult = await _statusService.GetById(status);
                 var statusstatus = statusResult.Value;
-
 
                 var HrId = "";
 
@@ -965,12 +1027,8 @@ namespace CMS.Services.Services
         {
             try
             {
-
-
-
                 var statusResult = await _statusService.GetById(status);
                 var statusstatus = statusResult.Value;
-
 
                 var HrId = "";
 
@@ -1033,12 +1091,8 @@ namespace CMS.Services.Services
         {
             try
             {
-
-
-
                 var statusResult = await _statusService.GetById(status);
                 var statusstatus = statusResult.Value;
-
 
                 var HrId = "";
 
@@ -1088,9 +1142,6 @@ namespace CMS.Services.Services
         {
             try
             {
-                
-
-
                 var currentUser = await _userManager.GetUserAsync(_httpContextAccessor.HttpContext.User);
                 var candidateName = await GetCandidateName(CandidateId);
 
@@ -1131,20 +1182,33 @@ namespace CMS.Services.Services
             }
         }
 
+        public async Task<string> GetLoggedInUserRoleAsync()
+        {
+            try
+            {
+                var user = await _userManager.GetUserAsync(_httpContextAccessor.HttpContext.User);
+                var roles = await _userManager.GetRolesAsync(user);
+                return roles.FirstOrDefault(); // Assuming a user has a single role
+            }
+            catch (Exception ex)
+            {
+                LogException(nameof(GetLoggedInUserRoleAsync), ex, "Failed to get user role");
+                throw;
+            }
+        }
+
         public async Task<string> GetCandidateName(int candidateId)
         {
             try
             {
+                var candidate = await _candidateService.GetCandidateByIdAsync(candidateId);
 
-            
-            var candidate = await _candidateService.GetCandidateByIdAsync(candidateId);
+                if (candidate != null)
+                {
+                    return candidate.FullName;
+                }
 
-            if (candidate != null)
-            {
-                return candidate.FullName;
-            }
-
-            return "Candidate Not Found";
+                return "Candidate Not Found";
             }
             catch (Exception ex)
             {
@@ -1158,8 +1222,6 @@ namespace CMS.Services.Services
         {
             try
             {
-
-
                 var result = await _positionService.GetById(positionId);
 
                 if (result.IsSuccess)
@@ -1183,10 +1245,7 @@ namespace CMS.Services.Services
             try
             {
                 var currentUser = await _userManager.GetUserAsync(_httpContextAccessor.HttpContext.User);
-
-
                 var userId = currentUser.Id;
-
                 var notifications = await _notificationsRepository.GetAllNotifications(); 
 
                 var unreadCount = notifications

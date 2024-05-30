@@ -1,23 +1,18 @@
 ﻿using CMS.Application.DTOs;
-using CMS.Domain.Entities;
 using CMS.Services.Interfaces;
-using CMS.Services.Services;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
-using OfficeOpenXml.Style;
+using Microsoft.EntityFrameworkCore;
 using OfficeOpenXml;
+using OfficeOpenXml.Style;
 using System;
 using System.Collections.Generic;
 using System.Drawing;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
-using static Microsoft.EntityFrameworkCore.DbLoggerCategory;
-using System.Security.Claims;
-using CMS.Domain.Migrations;
-using Microsoft.AspNetCore.Routing.Matching;
 
 namespace CMS.Web.Controllers
 {
@@ -62,7 +57,15 @@ namespace CMS.Web.Controllers
         }
 
 
-        public async Task<ActionResult> Index(string positionFilter, int? scoreFilter, int? statusFilter, string candidateFilter, string interviewerFilter, DateTime? fromDate, DateTime? toDate, string export, int? trackFilterDropdown)
+        public async Task<ActionResult> Index(string positionFilter,
+                                              int? scoreFilter,
+                                              int? statusFilter,
+                                              string candidateFilter,
+                                              string interviewerFilter,
+                                              DateTime? fromDate,
+                                              DateTime? toDate,
+                                              string export,
+                                              int? trackFilterDropdown)
         {
             try
             {
@@ -85,7 +88,7 @@ namespace CMS.Web.Controllers
                     var statusesResult = await _StatusService.GetAll();
                     if (!statusesResult.IsSuccess)
                     {
-                        ModelState.AddModelError("", statusesResult.Error);
+                        ModelState.AddModelError(string.Empty, statusesResult.Error);
                         return View(new List<InterviewsDTO>()); // Return an empty list if there was an error
                     }
 
@@ -112,20 +115,22 @@ namespace CMS.Web.Controllers
                     TempData["FromDate"] = fromDate;
                     TempData["ToDate"] = toDate;
                     TempData["TrackFilterDropdown"] = trackFilterDropdown;
-                    if (!string.IsNullOrEmpty(export) && export == "excel")
-                {
+
                     var filteredInterviews = await ApplyFiltersAndRetrieveData(positionFilter, scoreFilter, statusFilter, candidateFilter, interviewerFilter, fromDate, toDate, trackFilterDropdown);
-                    var excelData = GenerateExcelFile(filteredInterviews);
-                    return File(await excelData, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", "Interviews.xlsx");
+
+
+                    if (!string.IsNullOrEmpty(export) && export == "excel")
+                    {
+                        var excelData = GenerateExcelFile(filteredInterviews);
+                        return File(await excelData, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", "Interviews.xlsx");
+                    }
+                    else
+                    {
+                        return View(filteredInterviews);
+                    }
                 }
                 else
                 {
-                    var filteredInterviews = await ApplyFiltersAndRetrieveData(positionFilter, scoreFilter, statusFilter, candidateFilter, interviewerFilter, fromDate, toDate, trackFilterDropdown);
-                    return View(filteredInterviews);
-                }
-            }
-            else
-            {
                     if (User.Identity.IsAuthenticated)
                     {
                         return View("AccessDenied");
@@ -143,12 +148,17 @@ namespace CMS.Web.Controllers
             }
         }
 
-        private async Task<IEnumerable<InterviewsDTO>> ApplyFiltersAndRetrieveData(string positionFilter, int? scoreFilter, int? statusFilter, string candidateFilter, string interviewerFilter, DateTime? fromDate, DateTime? toDate, int? trackFilter)
+        private async Task<IEnumerable<InterviewsDTO>> ApplyFiltersAndRetrieveData(string positionFilter,
+                                                                              int? scoreFilter,
+                                                                              int? statusFilter,
+                                                                              string candidateFilter,
+                                                                              string interviewerFilter,
+                                                                              DateTime? fromDate,
+                                                                              DateTime? toDate,
+                                                                              int? trackFilter)
         {
             try
             {
-
-
                 var interviewsResult = await _searchInterviewsService.GetAll();
 
                 if (!interviewsResult.IsSuccess)
@@ -157,74 +167,55 @@ namespace CMS.Web.Controllers
                     return new List<InterviewsDTO>();
                 }
 
-                var interviews = interviewsResult.Value;
+                var interviews = interviewsResult.Value.ToList(); // Materialize the collection
 
-                // Apply your filters to the data
-                int positionId = Convert.ToInt32(positionFilter);
-                int statusId = Convert.ToInt32(statusFilter);
-
-                var filteredInterviews = interviews
-                    .GroupBy(i => i.CandidateId)
-                    .Select(group => group.OrderByDescending(i => i.InterviewsId).FirstOrDefault())
-                    .ToList();
-
-                // If a position filter is selected, filter the interviews
+                // Apply filters
                 if (!string.IsNullOrEmpty(positionFilter) && positionFilter != "All Positions")
                 {
-                    filteredInterviews = filteredInterviews
-                        .Where(i => i.PositionId == positionId)
-                        .ToList();
+                    int positionId = Convert.ToInt32(positionFilter);
+                    interviews = interviews.Where(i => i.PositionId == positionId).ToList();
                 }
 
-                // Filter by score if the scoreFilter parameter is provided
                 if (scoreFilter.HasValue)
                 {
-                    filteredInterviews = filteredInterviews
-                        .Where(i => i.Score == scoreFilter.Value)
-                        .ToList();
+                    interviews = interviews.Where(i => i.Score == scoreFilter.Value).ToList();
                 }
 
-                // Filter by status if the statusFilter parameter is provided
                 if (statusFilter.HasValue && statusFilter.Value > 0)
                 {
-                    filteredInterviews = filteredInterviews
-                        .Where(i => i.StatusId == statusFilter.Value)
-                        .ToList();
+                    interviews = interviews.Where(i => i.StatusId == statusFilter.Value).ToList();
                 }
 
-                // Filter by candidate if the candidateFilter parameter is provided
                 if (!string.IsNullOrEmpty(candidateFilter))
                 {
-                    filteredInterviews = filteredInterviews
-                        .Where(i => i.FullName.Contains(candidateFilter, StringComparison.OrdinalIgnoreCase))
-                        .ToList();
+                    interviews = interviews.Where(i => i.FullName.Contains(candidateFilter, StringComparison.OrdinalIgnoreCase)).ToList();
                 }
 
-                // Filter by interviewer if the interviewerFilter parameter is provided
                 if (!string.IsNullOrEmpty(interviewerFilter) && interviewerFilter != "All Interviewers")
                 {
-                    filteredInterviews = filteredInterviews
-                        .Where(i => i.InterviewerId == interviewerFilter || i.SecondInterviewerId == interviewerFilter)
-                        .ToList();
+                    interviews = interviews.Where(i => i.InterviewerId == interviewerFilter || i.SecondInterviewerId == interviewerFilter).ToList();
                 }
 
-                // Apply date filtering
+                if (fromDate.HasValue)
+                {
+                    interviews = interviews.Where(i => i.Date.Date >= fromDate.Value.Date).ToList();
+                }
+
                 if (fromDate.HasValue && toDate.HasValue)
                 {
                     toDate = toDate.Value.AddDays(1);
-
-                    filteredInterviews = filteredInterviews
-                        .Where(i => i.Date >= fromDate.Value && i.Date <= toDate.Value)
-                        .OrderBy(i => i.Date)
-                        .ToList();
+                    interviews = interviews.Where(i => i.Date >= fromDate.Value && i.Date <= toDate.Value).ToList();
                 }
 
                 if (trackFilter.HasValue && trackFilter.Value > 0)
                 {
-                    filteredInterviews = filteredInterviews
-                        .Where(i => i.TrackId == trackFilter.Value)
-                        .ToList();
+                    interviews = interviews.Where(i => i.TrackId == trackFilter.Value).ToList();
                 }
+
+                // Group and select first interview for each candidate
+                var filteredInterviews = interviews.OrderByDescending(i => i.InterviewsId)
+                                                   .GroupBy(i => i.CandidateId)
+                                                   .Select(group => group.First());
 
                 // Fetch CV attachment ID from corresponding Candidate
                 foreach (var interview in filteredInterviews)
@@ -237,10 +228,12 @@ namespace CMS.Web.Controllers
             }
             catch (Exception ex)
             {
-                LogException(nameof(ApplyFiltersAndRetrieveData), ex, "Faild to apply filter");
-                throw ex;
+                LogException(nameof(ApplyFiltersAndRetrieveData), ex, "Failed to apply filter");
+                throw; // Rethrow the exception
             }
         }
+
+
 
         public async Task<ActionResult> ShowHistory(int id)
         {

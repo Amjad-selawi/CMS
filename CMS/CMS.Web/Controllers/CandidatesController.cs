@@ -33,10 +33,13 @@ namespace CMS.Web.Controllers
         private readonly ITrackService _trackService;
 
         public CandidatesController(ICandidateService candidateService,
-            IWebHostEnvironment env,
-            IPositionService positionService,
-            ICompanyService companyService, ICountryService countryService,IAttachmentService attachmentService
-            ,IHttpContextAccessor httpContextAccessor,ITrackService trackService)
+                                    IWebHostEnvironment env,
+                                    IPositionService positionService,
+                                    ICompanyService companyService,
+                                    ICountryService countryService,
+                                    IAttachmentService attachmentService,
+                                    IHttpContextAccessor httpContextAccessor,
+                                    ITrackService trackService)
         {
             _candidateService = candidateService;
             _attachmentStoragePath = Path.Combine(env.WebRootPath, "attachments");

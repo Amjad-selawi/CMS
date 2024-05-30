@@ -1,34 +1,18 @@
-﻿using Microsoft.AspNetCore;
-using CMS.Application.DTOs;
-using CMS.Domain.Entities;
-using CMS.Domain.Enums;
+﻿using CMS.Application.DTOs;
+using CMS.Repository.Interfaces;
 using CMS.Services.Interfaces;
-using CMS.Services.Services;
-using Microsoft.AspNetCore.Authorization;
+using CMS.Web.Utils;
+using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
-using Microsoft.VisualBasic;
 using System;
-using System.Linq;
-using System.Threading.Tasks;
-using Microsoft.AspNetCore.Hosting;
-using System.IO;
-using CMS.Web.Utils;
-using System.Collections.ObjectModel;
 using System.Collections.Generic;
-using Microsoft.EntityFrameworkCore;
-using CMS.Domain;
-using System.Net.Mail;
-using System.Net;
-using Microsoft.AspNetCore.Identity;
-using Microsoft.AspNetCore.Identity.UI.Services;
-using Habanero.Util;
-using CMS.Repository.Interfaces;
-using Hangfire;
+using System.IO;
+using System.Linq;
 using System.Security.Claims;
-using CMS.Domain.Migrations;
-using CMS.Repository.Implementation;
+using System.Threading.Tasks;
 
 namespace CMS.Web.Controllers
 {
@@ -51,12 +35,21 @@ namespace CMS.Web.Controllers
         private readonly ICompanyService _companyService;
         private readonly ITrackService _trackService;
 
-        public InterviewsController(IInterviewsService interviewsService, ICandidateService candidateService,
-            IPositionService positionService, IStatusService statusService, IWebHostEnvironment env,
-            IAccountService accountService, INotificationsService notificationsService,
-            IInterviewsRepository interviewsRepository, IHttpContextAccessor httpContextAccessor,
-            UserManager<IdentityUser> userManager, IEmailService emailService, IAttachmentService attachmentService,
-            SignInManager<IdentityUser> signInManager, ICompanyService companyService, ITrackService trackService)
+        public InterviewsController(IInterviewsService interviewsService,
+                                    ICandidateService candidateService,
+                                    IPositionService positionService,
+                                    IStatusService statusService,
+                                    IWebHostEnvironment env,
+                                    IAccountService accountService,
+                                    INotificationsService notificationsService,
+                                    IInterviewsRepository interviewsRepository,
+                                    IHttpContextAccessor httpContextAccessor,
+                                    UserManager<IdentityUser> userManager,
+                                    IEmailService emailService,
+                                    IAttachmentService attachmentService,
+                                    SignInManager<IdentityUser> signInManager,
+                                    ICompanyService companyService,
+                                    ITrackService trackService)
         {
             _interviewsService = interviewsService;
             _candidateService = candidateService;
@@ -150,10 +143,10 @@ namespace CMS.Web.Controllers
 
                     interviewsDTOs = interviewsDTOs.OrderBy(i => i.Date).ToList();
 
-                return View(interviewsDTOs);
-            }
-            else
-            {
+                    return View(interviewsDTOs);
+                }
+                else
+                {
                     if (User.Identity.IsAuthenticated)
                     {
                         return View("AccessDenied");
@@ -1079,11 +1072,6 @@ namespace CMS.Web.Controllers
                     ModelState.AddModelError("StatusId", "Please select a status.");
                 }
 
-                //if (interviewsDTO.ArchitectureInterviewerId != null)
-                //{
-                //    HttpContext.Session.SetString($"ArchitectureInterviewer2Id_{interviewsDTO.InterviewsId}", interviewsDTO.ArchitectureInterviewerId ?? "");
-                //}
-
                 var firstInterviewerRoles = await _interviewsService.GetInterviewerRole(interviewsDTO.InterviewerId);
                 var secondInterviewerRoles = await _interviewsService.GetInterviewerRole(interviewsDTO.SecondInterviewerId);
 
@@ -1212,13 +1200,8 @@ namespace CMS.Web.Controllers
                                     else
                                     {
 
-
-
                                         if ((interviewCount >= 1 && interviewCount <= 2) || ((interviewCount == 3 || interviewCount == 4) && User.IsInRole("General Manager")))
                                         {
-
-
-
                                             var interviewsDeleted = await _interviewsRepository.DeletePendingInterviews(interviewsDTO.CandidateId, interviewsDTO.PositionId, userId: User.FindFirstValue(ClaimTypes.NameIdentifier));
                                             if (!interviewsDeleted)
                                             {
@@ -1231,8 +1214,6 @@ namespace CMS.Web.Controllers
                                                 }
                                                 return View(interviewsDTO);
                                             }
-
-
                                         }
                                         else if (!User.IsInRole("HR Manager"))
                                         {
@@ -1247,12 +1228,6 @@ namespace CMS.Web.Controllers
                                         }
                                     }
                                 }
-                                //else
-                                //{
-                                //    // Handle the case where the current interview status is pending
-                                //    ModelState.AddModelError("StatusId", "Cannot put a pending interview on hold.");
-                                //    return View(interviewsDTO);
-                                //}
                             }
                             else if (newStatus.Code == Domain.Enums.StatusCode.Approved && !User.IsInRole("HR Manager"))
                             {
@@ -1273,26 +1248,19 @@ namespace CMS.Web.Controllers
                                     return View(interviewsDTO);
                                 }
 
-
                             }
                         }
-
-
-
 
                         var currentUser = await _userManager.GetUserAsync(_httpContextAccessor.HttpContext.User);
 
                         if (await _userManager.IsInRoleAsync(currentUser, "General Manager"))
                         {
                             await _interviewsService.ConductInterviewForGm(interviewsDTO);
-
                         }
                         else if (await _userManager.IsInRoleAsync(currentUser, "Interviewer"))
                         {
                             var secondInterviewerId = HttpContext.Session.GetString($"SecondInterviewerId_{interviewsDTO.InterviewsId}");
                             var interviewerId = HttpContext.Session.GetString($"InterviewerId_{interviewsDTO.InterviewsId}");
-                            //var archiId = HttpContext.Session.GetString($"ArchitectureInterviewerId_{interviewsDTO.InterviewsId}");
-
                             await _interviewsService.ConductInterview(interviewsDTO, interviewerId, secondInterviewerId);
                         }
                         else
@@ -1302,16 +1270,11 @@ namespace CMS.Web.Controllers
                             var secondInterviewerId = HttpContext.Session.GetString($"SecondInterviewerId_{interviewsDTO.InterviewsId}");
                             var secondInterviewer = await _userManager.FindByIdAsync(secondInterviewerId);
                             var interviewerId = HttpContext.Session.GetString($"InterviewerId_{interviewsDTO.InterviewsId}");
-                            //var archiId = HttpContext.Session.GetString($"ArchitectureInterviewerId_{interviewsDTO.InterviewsId}");
 
                             if (secondInterviewer != null)
                             {
                                 var isInterviewerGMCombo = await IsUserInRolesAsync(firstinterviewer.Id, secondInterviewer.Id, "Solution Architecture", "General Manager");
                                 var isGMInterviewerCombo = await IsUserInRolesAsync(firstinterviewer.Id, secondInterviewer.Id, "General Manager", "Solution Architecture");
-
-
-
-
 
                                 if (isInterviewerGMCombo || isGMInterviewerCombo)
                                 {
@@ -1338,7 +1301,6 @@ namespace CMS.Web.Controllers
                             AttachmentHelper.removeFile(file.FileName, _attachmentStoragePath);
                         }
 
-
                         if (User.IsInRole("Interviewer"))
                         {
 
@@ -1348,13 +1310,6 @@ namespace CMS.Web.Controllers
 
                             if (status.Code == Domain.Enums.StatusCode.Rejected || status.Code == Domain.Enums.StatusCode.Approved)
                             {
-
-
-                                //var architectureInterviewerId = HttpContext.Session.GetString($"ArchitectureInterviewerId_{interviewsDTO.InterviewsId}");
-                                //if(architectureInterviewerId != "" || architectureInterviewerId != null)
-                                //{
-                                //    await _notificationsService.CreateNotificationForArchiAsync(interviewsDTO.StatusId.Value, interviewsDTO.Notes, interviewsDTO.CandidateId, interviewsDTO.PositionId);
-                                //}
 
 
                                 if (status.Code == Domain.Enums.StatusCode.Approved)
@@ -1374,7 +1329,6 @@ namespace CMS.Web.Controllers
 
                                     if (secondInterviewer != null)
                                     {
-
 
                                         var isInterviewerGMCombo = await IsUserInRolesAsync(firstinterviewer.Id, secondInterviewer.Id, "Interviewer", "General Manager");
                                         var isGMInterviewerCombo = await IsUserInRolesAsync(firstinterviewer.Id, secondInterviewer.Id, "General Manager", "Interviewer");
@@ -1597,8 +1551,6 @@ namespace CMS.Web.Controllers
                                        </body>
                                     </html>"
                                         };
-
-
 
 
                                         if ((aechituciterId != null) && status.Code == Domain.Enums.StatusCode.Approved)
@@ -1838,9 +1790,6 @@ namespace CMS.Web.Controllers
                                 var secondInterviewer = await _userManager.FindByIdAsync(secondInterviewerId);
 
 
-
-
-
                                 if (status.Code == Domain.Enums.StatusCode.Approved)
                                 {
                                     string userName = _emailService.GetLoggedInUserName();
@@ -1853,7 +1802,6 @@ namespace CMS.Web.Controllers
 
                                     if (secondInterviewer != null)
                                     {
-
 
                                         var isInterviewerGMCombo = await IsUserInRolesAsync(firstinterviewer.Id, secondInterviewer.Id, "Solution Architecture", "Interviewer");
                                         var isGMInterviewerCombo = await IsUserInRolesAsync(firstinterviewer.Id, secondInterviewer.Id, "Interviewer", "Solution Architecture");
@@ -1982,7 +1930,6 @@ namespace CMS.Web.Controllers
 
                                             }
 
-
                                         }
 
                                     }
@@ -1995,11 +1942,6 @@ namespace CMS.Web.Controllers
 
                                             var archiIdd = _interviewsRepository.GetInterviewByCandidateIdWithParentId(interviewsDTO.CandidateId);
                                             var aechituciterId = archiIdd.ArchitectureInterviewerId;
-
-                                            //if (architectureInterviewerId == "")
-                                            //{
-                                            //    architectureInterviewerId = null;
-                                            //}
 
                                             if (aechituciterId != null)
                                             {
@@ -2036,34 +1978,7 @@ namespace CMS.Web.Controllers
                                             {
                                                 await _notificationsService.CreateInterviewNotificationForHRInterview(interviewsDTO.StatusId.Value, interviewsDTO.Notes, interviewsDTO.CandidateId, interviewsDTO.PositionId);
                                                 await _notificationsService.CreateNotificationForGeneralManagerAsync(interviewsDTO.StatusId.Value, interviewsDTO.Notes, interviewsDTO.CandidateId, interviewsDTO.PositionId, aechituciterId);
-
-                                                //EmailDTOs emailModels = new EmailDTOs
-                                                //{
-                                                //    EmailTo = new List<string> { HREmail },
-                                                //    Subject = "Interview Invitation",
-                                                //    EmailBody = $@"<html>
-                                                //       <body style='font-family: Arial, sans-sexrif;'>
-                                                //           <div style='background-color: #f5f5f5; padding: 20px; border-radius: 10px;'>
-                                                //               <p style='font-size: 18px; color: #333;'>
-                                                //                   Dear {userHR},
-                                                //               </p>
-                                                //               <p style='font-size: 16px; color: #555;'>
-                                                //                   You are assigned to have a thierd interview for candidate : {candidateNameresult} with position: {lastPositionName},<br><br>kindly <a href='https://apps.sssprocess.com:6134/'>Click here</a> to see the invitation details.
-                                                //               </p>
-                                                //               <p style='font-size: 14px; color: #777;'>
-                                                //                   Regards,
-                                                //               </p>
-                                                //           </div>
-                                                //       </body>
-                                                //    </html>"
-                                                //};
-                                                //if (!string.IsNullOrEmpty(HREmail))
-                                                //{
-                                                //    await SendEmailToInterviewer(HREmail, interviewsDTO, emailModels);
-                                                //}
                                             }
-
-
 
                                         }
                                         else
@@ -2102,10 +2017,7 @@ namespace CMS.Web.Controllers
                                         }
 
                                     }
-
-
                                     //var reminderJobId = BackgroundJob.Schedule(() => ReminderJobAsync(HREmail, interviewsDTO), interviewsDTO.Date.AddHours(16));
-
 
                                     return RedirectToAction(nameof(MyInterviews));
                                 }

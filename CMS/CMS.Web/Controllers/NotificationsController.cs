@@ -74,6 +74,21 @@ namespace CMS.Web.Controllers
             }
         }
 
+        public async Task<ActionResult> AllNotifications()
+        {
+            try
+            {
+                var notifications = await _notificationsService.GetAllNotificationsAnotherTab();
+                return Json(notifications);
+            }
+            catch (Exception ex)
+            {
+                LogException(nameof(AllNotifications), ex, "Failed to load all notifications");
+                throw ex;
+            }
+        }
+
+
         public async Task<ActionResult> IndexGMnotification()
         {
             try
@@ -159,6 +174,35 @@ namespace CMS.Web.Controllers
             }
         }
 
+        public async Task<ActionResult> IndexInterviewerForAllNotification()
+        {
+            try
+            {
+                if (User.IsInRole("Interviewer"))
+                {
+                    var userId = _userManager.GetUserId(User);
+                    var notifications = await _notificationsService.GetAllNotificationsAsyncForInterviewer(userId);
+                    return Json(notifications);
+                }
+                else
+                {
+                    if (User.Identity.IsAuthenticated)
+                    {
+                        return View("AccessDenied");
+                    }
+                    else
+                    {
+                        return RedirectToAction("Login", "Account");
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                LogException(nameof(IndexInterviewerForAllNotification), ex, "Faild to load Interviewer all notifiacations");
+                throw ex;
+            }
+        }
+
         public async Task<ActionResult> IndexHRnotification()
         {
             try
@@ -206,18 +250,7 @@ namespace CMS.Web.Controllers
                         await _notificationsService.Update(id, notification);
                         return View(notification);
                     }
-                    else
-                    {
-                        // User is not the intended recipient, return Access Denied
-                        if (User.Identity.IsAuthenticated)
-                        {
-                            return View("AccessDenied");
-                        }
-                        else
-                        {
-                            return RedirectToAction("Login", "Account");
-                        }
-                    }
+                    return View(notification);
                 }
                 else
                 {
@@ -244,9 +277,7 @@ namespace CMS.Web.Controllers
         {
             try
             {
-
-            
-            return View();
+                return View();
             }
             catch (Exception ex)
             {

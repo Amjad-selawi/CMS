@@ -1,9 +1,11 @@
-﻿using Microsoft.AspNetCore.Identity;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using System.Threading.Tasks;
 
 namespace CMS.Web.Controllers
 {
+    [Authorize]
     public class AppRolesController : Controller
     {
         private readonly RoleManager<IdentityRole> _roleManager;
@@ -12,30 +14,53 @@ namespace CMS.Web.Controllers
         {
             _roleManager = roleManager;
         }
+
         public IActionResult Index()
         {
-
-            var roles = _roleManager.Roles;
-            return View(roles);
+            if (!User.Identity.IsAuthenticated)
+            {
+                return View("AccessDenied");
+            }
+            else
+            {
+                var roles = _roleManager.Roles;
+                return View(roles);
+            }
+           
         }
 
 
         [HttpGet]
         public IActionResult Create()
         {
-            return View();
+            if (!User.Identity.IsAuthenticated)
+            {
+                return View("AccessDenied");
+            }
+            else
+            {
+                return View();
+            }
 
         }
 
         [HttpPost]
         public async Task<IActionResult> Create(IdentityRole model)
         {
-            if (!_roleManager.RoleExistsAsync(model.Name).GetAwaiter().GetResult())
+            if (!User.Identity.IsAuthenticated)
             {
-                _roleManager.CreateAsync(new IdentityRole(model.Name)).GetAwaiter().GetResult();
+                return View("AccessDenied");
             }
+            else
+            {
+                if (!_roleManager.RoleExistsAsync(model.Name).GetAwaiter().GetResult())
+                {
+                    _roleManager.CreateAsync(new IdentityRole(model.Name)).GetAwaiter().GetResult();
+                }
 
-            return RedirectToAction("Index");
+                return RedirectToAction("Index");
+            }
+           
         }
     }
 }
